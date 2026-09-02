@@ -26,6 +26,29 @@
   --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.15);
 }
 
+/* ============ LOADING OVERLAY (FIXED - NOW PRESENT) ============ */
+.loading-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(255,255,255,0.9);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  flex-direction: column;
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 50px; height: 50px;
+  border: 5px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { margin-top: 15px; color: var(--gray); font-size: 14px; font-weight: 500; }
+
 /* ============ LOGIN SCREEN ============ */
 .login-wrapper {
   position: fixed;
@@ -59,7 +82,6 @@
   min-height: 650px;
 }
 
-/* Left Side - Illustration */
 .login-illustration {
   background: linear-gradient(135deg, #1e40af 0%, #0891b2 100%);
   padding: 50px;
@@ -75,10 +97,8 @@
 .login-illustration::before {
   content: '';
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
   background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
   animation: pulse 4s ease-in-out infinite;
 }
@@ -96,11 +116,7 @@
   z-index: 2;
 }
 
-/* SVG Human Illustration */
-.human-illustration {
-  width: 100%;
-  height: 100%;
-}
+.human-illustration { width: 100%; height: 100%; }
 
 .floating-element {
   position: absolute;
@@ -116,7 +132,6 @@
   animation: float 3s ease-in-out infinite;
   box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
-
 .floating-element:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
 .floating-element:nth-child(2) { top: 20%; right: 5%; animation-delay: 0.5s; }
 .floating-element:nth-child(3) { bottom: 25%; left: 0%; animation-delay: 1s; }
@@ -127,83 +142,21 @@
   50% { transform: translateY(-15px); }
 }
 
-.illustration-text {
-  text-align: center;
-  z-index: 2;
-  margin-top: 30px;
-}
+.illustration-text { text-align: center; z-index: 2; margin-top: 30px; }
+.illustration-text h1 { font-size: 32px; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px; }
+.illustration-text p { font-size: 16px; opacity: 0.9; font-weight: 300; }
 
-.illustration-text h1 {
-  font-size: 32px;
-  font-weight: 800;
-  margin-bottom: 10px;
-  letter-spacing: -0.5px;
-}
+.login-form-side { padding: 50px; display: flex; flex-direction: column; justify-content: center; background: white; }
 
-.illustration-text p {
-  font-size: 16px;
-  opacity: 0.9;
-  font-weight: 300;
-}
+.login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+.login-logo-icon { width: 50px; height: 50px; background: linear-gradient(135deg, #1e40af, #0891b2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; }
+.login-logo-text h2 { font-size: 22px; font-weight: 800; color: var(--dark); letter-spacing: -0.5px; }
+.login-logo-text p { font-size: 12px; color: var(--gray); }
 
-/* Right Side - Login Form */
-.login-form-side {
-  padding: 50px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: white;
-}
+.login-welcome { margin-bottom: 30px; }
+.login-welcome h3 { font-size: 28px; font-weight: 700; color: var(--dark); margin-bottom: 8px; letter-spacing: -0.5px; }
+.login-welcome p { color: var(--gray); font-size: 14px; }
 
-.login-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 30px;
-}
-
-.login-logo-icon {
-  width: 50px;
-  height: 50px;
-  background: linear-gradient(135deg, #1e40af, #0891b2);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 24px;
-}
-
-.login-logo-text h2 {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--dark);
-  letter-spacing: -0.5px;
-}
-
-.login-logo-text p {
-  font-size: 12px;
-  color: var(--gray);
-}
-
-.login-welcome {
-  margin-bottom: 30px;
-}
-
-.login-welcome h3 {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--dark);
-  margin-bottom: 8px;
-  letter-spacing: -0.5px;
-}
-
-.login-welcome p {
-  color: var(--gray);
-  font-size: 14px;
-}
-
-/* Google Sign In Button */
 .google-btn {
   width: 100%;
   padding: 14px;
@@ -221,94 +174,28 @@
   transition: all 0.3s;
   margin-bottom: 20px;
 }
+.google-btn:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 8px 16px rgba(30,64,175,0.15); }
 
-.google-btn:hover {
-  border-color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(30,64,175,0.15);
-}
+.divider { display: flex; align-items: center; margin: 20px 0; color: var(--gray); font-size: 13px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.divider span { padding: 0 15px; }
 
-.google-btn img {
-  width: 22px;
-  height: 22px;
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  margin: 20px 0;
-  color: var(--gray);
-  font-size: 13px;
-}
-
-.divider::before, .divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-.divider span {
-  padding: 0 15px;
-}
-
-/* Email Login Form */
-.email-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.form-input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  font-size: 14px;
-  transition: all 0.3s;
-  background: #f8fafc;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--primary);
-  background: white;
-  box-shadow: 0 0 0 4px rgba(30,64,175,0.1);
-}
+.email-form { display: flex; flex-direction: column; gap: 15px; }
+.form-input { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
+.form-input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(30,64,175,0.1); }
 
 .login-btn {
-  width: 100%;
-  padding: 14px;
+  width: 100%; padding: 14px;
   background: linear-gradient(135deg, #1e40af, #0891b2);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
+  color: white; border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s;
 }
+.login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(30,64,175,0.3); }
 
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(30,64,175,0.3);
-}
+.login-footer { text-align: center; margin-top: 25px; font-size: 13px; color: var(--gray); }
+.login-footer a { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
 
-.login-footer {
-  text-align: center;
-  margin-top: 25px;
-  font-size: 13px;
-  color: var(--gray);
-}
-
-.login-footer a {
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* ============ MAIN APP (Hidden until login) ============ */
+/* ============ MAIN APP ============ */
 .main-app { display: none; }
 .main-app.show { display: block; }
 
@@ -426,7 +313,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .progress { width: 100%; height: 8px; background: var(--border); border-radius: 10px; overflow: hidden; margin-top: 5px; }
 .progress-bar { height: 100%; background: linear-gradient(90deg, var(--success), #10b981); transition: width 0.5s; }
 
-.toast { position: fixed; top: 20px; right: 20px; background: white; padding: 15px 25px; border-radius: 10px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; z-index: 2000; transform: translateX(400px); transition: transform 0.3s; }
+.toast { position: fixed; top: 20px; right: 20px; background: white; padding: 15px 25px; border-radius: 10px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; z-index: 20000; transform: translateX(400px); transition: transform 0.3s; }
 .toast.show { transform: translateX(0); }
 .toast.success { border-left: 4px solid var(--success); }
 .toast.error { border-left: 4px solid var(--danger); }
@@ -456,8 +343,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .summary-item.net { background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; }
 .summary-item.net .val { font-size: 26px; }
 
-.modification-log { background: #fef3c7; padding: 12px; border-radius: 8px; border-left: 4px solid var(--warning); margin-top: 10px; font-size: 13px; }
-
 .loan-info-banner { background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 15px; border-radius: 10px; border-left: 4px solid var(--warning); margin-bottom: 15px; }
 .loan-info-banner h4 { color: #92400e; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
 .loan-info-banner p { font-size: 13px; color: #78350f; margin-bottom: 3px; }
@@ -477,11 +362,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .component-card.deduction .comp-icon { background: linear-gradient(135deg, #dc2626, #ef4444); }
 .component-card .comp-info h4 { font-size: 14px; color: var(--dark); margin-bottom: 3px; }
 .component-card .comp-info p { font-size: 12px; color: var(--gray); }
-
-.loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; }
-.loading-overlay.show { display: flex; }
-.spinner { width: 50px; height: 50px; border: 5px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
 
 .user-profile-display { display: flex; align-items: center; gap: 10px; }
 .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
@@ -511,111 +391,74 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 </head>
 <body>
 
+<!-- ============ LOADING OVERLAY (THIS WAS MISSING - NOW FIXED) ============ -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Loading...</div>
+</div>
+
 <!-- ============ LOGIN SCREEN ============ -->
 <div class="login-wrapper" id="loginScreen">
   <div class="login-container">
-    <!-- Left Side - Illustration -->
     <div class="login-illustration">
       <div class="illustration-scene">
-        <!-- Floating Elements -->
-        <div class="floating-element">
-          <i class="fas fa-file-invoice-dollar" style="color:#fbbf24;"></i>
-          <span>Pay Slip</span>
-        </div>
-        <div class="floating-element">
-          <i class="fas fa-chart-line" style="color:#34d399;"></i>
-          <span>+24.5%</span>
-        </div>
-        <div class="floating-element">
-          <i class="fas fa-coins" style="color:#fbbf24;"></i>
-          <span>Rs 50,000</span>
-        </div>
-        <div class="floating-element">
-          <i class="fas fa-check-circle" style="color:#34d399;"></i>
-          <span>Approved</span>
-        </div>
+        <div class="floating-element"><i class="fas fa-file-invoice-dollar" style="color:#fbbf24;"></i><span>Pay Slip</span></div>
+        <div class="floating-element"><i class="fas fa-chart-line" style="color:#34d399;"></i><span>+24.5%</span></div>
+        <div class="floating-element"><i class="fas fa-coins" style="color:#fbbf24;"></i><span>Rs 50,000</span></div>
+        <div class="floating-element"><i class="fas fa-check-circle" style="color:#34d399;"></i><span>Approved</span></div>
         
-        <!-- SVG Human Illustration -->
         <svg class="human-illustration" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-          <!-- Background Circle -->
           <circle cx="200" cy="200" r="180" fill="rgba(255,255,255,0.1)"/>
-          
-          <!-- Desk -->
           <rect x="80" y="280" width="240" height="15" rx="7" fill="rgba(255,255,255,0.3)"/>
           <rect x="100" y="295" width="15" height="60" fill="rgba(255,255,255,0.2)"/>
           <rect x="285" y="295" width="15" height="60" fill="rgba(255,255,255,0.2)"/>
-          
-          <!-- Laptop -->
           <rect x="140" y="240" width="120" height="8" rx="2" fill="rgba(255,255,255,0.4)"/>
           <rect x="150" y="200" width="100" height="45" rx="4" fill="rgba(255,255,255,0.5)"/>
           <rect x="155" y="205" width="90" height="35" rx="2" fill="#1e40af"/>
-          
-          <!-- Screen Content -->
           <rect x="160" y="210" width="30" height="4" fill="#34d399"/>
           <rect x="160" y="218" width="50" height="3" fill="rgba(255,255,255,0.5)"/>
           <rect x="160" y="225" width="40" height="3" fill="rgba(255,255,255,0.5)"/>
           <rect x="160" y="232" width="60" height="3" fill="rgba(255,255,255,0.5)"/>
-          
-          <!-- Person Body -->
           <ellipse cx="200" cy="260" rx="35" ry="25" fill="rgba(255,255,255,0.4)"/>
           <rect x="175" y="220" width="50" height="50" rx="10" fill="rgba(255,255,255,0.5)"/>
-          
-          <!-- Arms -->
           <rect x="155" y="230" width="25" height="12" rx="6" fill="rgba(255,255,255,0.5)"/>
           <rect x="220" y="230" width="25" height="12" rx="6" fill="rgba(255,255,255,0.5)"/>
-          
-          <!-- Head -->
           <circle cx="200" cy="195" r="28" fill="rgba(255,255,255,0.6)"/>
-          
-          <!-- Hair -->
           <path d="M 175 190 Q 175 170 200 170 Q 225 170 225 190 L 225 185 Q 225 175 200 175 Q 175 175 175 185 Z" fill="rgba(255,255,255,0.8)"/>
-          
-          <!-- Face Features -->
           <circle cx="192" cy="195" r="2" fill="#1e40af"/>
           <circle cx="208" cy="195" r="2" fill="#1e40af"/>
           <path d="M 195 205 Q 200 208 205 205" stroke="#1e40af" stroke-width="2" fill="none" stroke-linecap="round"/>
-          
-          <!-- Floating Documents -->
           <g transform="translate(60, 150)">
             <rect width="50" height="60" rx="4" fill="rgba(255,255,255,0.3)" transform="rotate(-15)"/>
             <rect x="8" y="10" width="34" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(-15)"/>
             <rect x="8" y="18" width="30" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(-15)"/>
             <rect x="8" y="26" width="25" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(-15)"/>
           </g>
-          
           <g transform="translate(290, 130)">
             <rect width="50" height="60" rx="4" fill="rgba(255,255,255,0.3)" transform="rotate(15)"/>
             <rect x="8" y="10" width="34" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/>
             <rect x="8" y="18" width="30" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/>
             <rect x="8" y="26" width="25" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/>
           </g>
-          
-          <!-- Chart Icon -->
           <g transform="translate(310, 220)">
             <rect width="40" height="40" rx="8" fill="rgba(255,255,255,0.3)"/>
             <rect x="8" y="25" width="6" height="10" fill="#34d399"/>
             <rect x="17" y="18" width="6" height="17" fill="#34d399"/>
             <rect x="26" y="12" width="6" height="23" fill="#34d399"/>
           </g>
-          
-          <!-- Coin -->
           <circle cx="90" cy="240" r="15" fill="rgba(251,191,36,0.6)"/>
           <text x="90" y="245" text-anchor="middle" fill="white" font-size="14" font-weight="bold">₨</text>
         </svg>
       </div>
-      
       <div class="illustration-text">
         <h1>LK SHOE</h1>
         <p>Professional Salary Management System</p>
       </div>
     </div>
     
-    <!-- Right Side - Login Form -->
     <div class="login-form-side">
       <div class="login-logo">
-        <div class="login-logo-icon">
-          <i class="fas fa-shoe-prints"></i>
-        </div>
+        <div class="login-logo-icon"><i class="fas fa-shoe-prints"></i></div>
         <div class="login-logo-text">
           <h2>LK SHOE</h2>
           <p>Salary Management</p>
@@ -627,7 +470,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         <p>Sign in to access your salary management dashboard</p>
       </div>
       
-      <!-- Google Sign In Button -->
       <button class="google-btn" onclick="signInWithGoogle()">
         <svg width="22" height="22" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -638,17 +480,12 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         Continue with Google
       </button>
       
-      <div class="divider">
-        <span>or continue with email</span>
-      </div>
+      <div class="divider"><span>or continue with email</span></div>
       
-      <!-- Email Login Form -->
       <form class="email-form" onsubmit="signInWithEmail(event)">
         <input type="email" class="form-input" id="loginEmail" placeholder="Email address" required>
         <input type="password" class="form-input" id="loginPassword" placeholder="Password" required>
-        <button type="submit" class="login-btn">
-          <i class="fas fa-sign-in-alt"></i> Sign In
-        </button>
+        <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
       </form>
       
       <div class="login-footer">
@@ -659,7 +496,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
   </div>
 </div>
 
-<!-- ============ MAIN APP (Hidden until login) ============ -->
+<!-- ============ MAIN APP ============ -->
 <div class="main-app" id="mainApp">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -701,7 +538,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
-    <!-- DASHBOARD -->
     <div class="section active" id="dashboard">
       <div class="stats-grid">
         <div class="stat-card blue"><div class="icon"><i class="fas fa-users"></i></div><h3>Total Workers</h3><div class="value" id="statWorkers">0</div></div>
@@ -721,7 +557,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
-    <!-- WORKERS -->
     <div class="section" id="workers">
       <div class="card">
         <div class="card-header">
@@ -740,10 +575,8 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
-    <!-- WORKER DETAIL -->
     <div class="section" id="workerDetail"><div id="workerDetailContent"></div></div>
 
-    <!-- LOANS -->
     <div class="section" id="loans">
       <div class="card">
         <div class="card-header">
@@ -765,7 +598,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
-    <!-- CREATE PAY SLIP -->
     <div class="section" id="slips">
       <div class="card">
         <div class="card-header"><h2><i class="fas fa-file-invoice-dollar"></i> Create Pay Slip</h2></div>
@@ -786,7 +618,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
-    <!-- HISTORY -->
     <div class="section" id="history">
       <div class="card">
         <div class="card-header"><h2><i class="fas fa-history"></i> Pay Slip History</h2></div>
@@ -799,7 +630,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
-    <!-- REPORTS -->
     <div class="section" id="reports">
       <div class="card">
         <div class="card-header"><h2><i class="fas fa-file-alt"></i> Reports</h2></div>
@@ -828,7 +658,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       <div id="reportOutput"></div>
     </div>
 
-    <!-- SALARY COMPONENTS -->
     <div class="section" id="components">
       <div class="card">
         <div class="card-header">
@@ -844,7 +673,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
-    <!-- PAY SLIP DESIGN -->
     <div class="section" id="design">
       <div class="card">
         <div class="card-header">
@@ -872,7 +700,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
-    <!-- COMPANY SETTINGS -->
     <div class="section" id="settings">
       <div class="card">
         <div class="card-header"><h2><i class="fas fa-building"></i> Company Information</h2></div>
@@ -1001,31 +828,46 @@ const firebaseConfig = {
   measurementId: "G-64NXH3T93L"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// Enable Firebase Auth debugging
-firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+// ============ SAFE LOADING FUNCTIONS (FIXED - WITH NULL CHECKS) ============
+function showLoading(msg = 'Loading...') {
+  try {
+    const overlay = document.getElementById('loadingOverlay');
+    const textEl = document.querySelector('.loading-text');
+    if (overlay && textEl) {
+      textEl.textContent = msg;
+      overlay.classList.add('show');
+    }
+  } catch (e) {
+    console.error('showLoading error:', e);
+  }
+}
+
+function hideLoading() {
+  try {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+      overlay.classList.remove('show');
+    }
+  } catch (e) {
+    console.error('hideLoading error:', e);
+  }
+}
 
 // ============ AUTH STATE LISTENER ============
 auth.onAuthStateChanged((user) => {
   console.log('Auth state changed:', user ? user.email : 'No user');
   if (user) {
-    // User is signed in
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').classList.add('show');
-    
-    // Update user profile display
     document.getElementById('userDisplayName').textContent = user.displayName || user.email.split('@')[0];
     document.getElementById('userDisplayEmail').textContent = user.email;
     document.getElementById('userAvatar').textContent = (user.displayName || user.email).charAt(0).toUpperCase();
-    
-    // Load app data
     loadData();
   } else {
-    // User is signed out
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('mainApp').classList.remove('show');
   }
@@ -1041,11 +883,6 @@ async function signInWithGoogle() {
     provider.addScope('email');
     provider.addScope('profile');
     
-    // Configure provider
-    provider.setCustomParameters({
-      'prompt': 'select_account'
-    });
-    
     const result = await auth.signInWithPopup(provider);
     const user = result.user;
     
@@ -1060,13 +897,19 @@ async function signInWithGoogle() {
     let errorMessage = 'Google Sign-In failed. ';
     
     if (error.code === 'auth/popup-blocked') {
-      errorMessage = 'Popup was blocked. Please allow popups for this site.';
+      errorMessage = 'Popup was blocked. Please allow popups for this site and try again.';
     } else if (error.code === 'auth/popup-closed-by-user') {
       errorMessage = 'Sign-in was cancelled.';
     } else if (error.code === 'auth/unauthorized-domain') {
-      errorMessage = 'This domain is not authorized. Please add it to Firebase Console > Authentication > Settings > Authorized domains';
+      errorMessage = 'This domain is not authorized. Add it to Firebase Console > Authentication > Settings > Authorized domains.';
     } else if (error.code === 'auth/network-request-failed') {
       errorMessage = 'Network error. Please check your internet connection.';
+    } else if (error.code === 'auth/api-key-not-valid') {
+      errorMessage = 'Firebase API key is not valid. Check your Firebase configuration.';
+    } else if (error.code === 'auth/operation-not-allowed') {
+      errorMessage = 'Google Sign-In is not enabled. Enable it in Firebase Console > Authentication > Sign-in method.';
+    } else {
+      errorMessage = 'Error: ' + (error.message || 'Unknown error');
     }
     
     toast(errorMessage, 'error');
@@ -1088,13 +931,11 @@ async function signInWithEmail(e) {
     console.error('Email Sign-In Error:', error);
     let errorMessage = 'Sign-in failed. ';
     
-    if (error.code === 'auth/user-not-found') {
-      errorMessage = 'No account found with this email.';
-    } else if (error.code === 'auth/wrong-password') {
-      errorMessage = 'Incorrect password.';
-    } else if (error.code === 'auth/too-many-requests') {
-      errorMessage = 'Too many failed attempts. Please try again later.';
-    }
+    if (error.code === 'auth/user-not-found') errorMessage = 'No account found with this email.';
+    else if (error.code === 'auth/wrong-password') errorMessage = 'Incorrect password.';
+    else if (error.code === 'auth/too-many-requests') errorMessage = 'Too many failed attempts. Try again later.';
+    else if (error.code === 'auth/invalid-credential') errorMessage = 'Invalid email or password.';
+    else errorMessage = error.message;
     
     toast(errorMessage, 'error');
   } finally {
@@ -1118,13 +959,9 @@ async function showSignUp() {
   } catch (error) {
     console.error('Sign-Up Error:', error);
     let errorMessage = 'Sign-up failed. ';
-    
-    if (error.code === 'auth/email-already-in-use') {
-      errorMessage = 'This email is already registered.';
-    } else if (error.code === 'auth/invalid-email') {
-      errorMessage = 'Invalid email address.';
-    }
-    
+    if (error.code === 'auth/email-already-in-use') errorMessage = 'This email is already registered.';
+    else if (error.code === 'auth/invalid-email') errorMessage = 'Invalid email address.';
+    else errorMessage = error.message;
     toast(errorMessage, 'error');
   } finally {
     hideLoading();
@@ -1169,15 +1006,6 @@ const collections = {
   payslipDesign: 'payslipDesign',
   departments: 'departments'
 };
-
-function showLoading(msg = 'Loading...') {
-  document.querySelector('.loading-text').textContent = msg;
-  document.getElementById('loadingOverlay').classList.add('show');
-}
-
-function hideLoading() {
-  document.getElementById('loadingOverlay').classList.remove('show');
-}
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).substr(2,5);
 const fmt = (n) => {
@@ -1928,7 +1756,6 @@ function downloadSlipPDF(slip) {
   
   let y = 15;
   
-  // Header
   doc.setFillColor(r, g, b);
   doc.rect(0, 0, pageWidth, 40, 'F');
   doc.setTextColor(255, 255, 255);
@@ -1941,7 +1768,6 @@ function downloadSlipPDF(slip) {
   doc.text(`Phone: ${c.phone || '-'} | Email: ${c.email || '-'}`, pageWidth/2, 32, { align: 'center' });
   y = 48;
   
-  // Title
   doc.setTextColor(r, g, b);
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
@@ -1957,7 +1783,6 @@ function downloadSlipPDF(slip) {
   doc.line(14, y, pageWidth - 14, y);
   y += 6;
   
-  // Employee info
   doc.setFontSize(fontSize);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(30, 41, 59);
@@ -1977,7 +1802,6 @@ function downloadSlipPDF(slip) {
   doc.text(`Tax ID: ${w.taxId || '-'}`, 115, y);
   y += 8;
   
-  // Earnings table
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(5, 150, 105);
   doc.text('EARNINGS', 14, y);
@@ -1998,7 +1822,6 @@ function downloadSlipPDF(slip) {
     margin: { left: 14, right: pageWidth/2 + 5 }
   });
   
-  // Deductions table
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(220, 38, 38);
   doc.text('DEDUCTIONS', pageWidth/2 + 10, y);
@@ -2024,7 +1847,6 @@ function downloadSlipPDF(slip) {
   const deductionsFinalY = doc.autoTable.previous.finalY;
   y = Math.max(earningsFinalY, deductionsFinalY) + 8;
   
-  // Net salary box
   doc.setFillColor(r, g, b);
   doc.roundedRect(14, y, pageWidth - 28, 25, 3, 3, 'F');
   doc.setTextColor(255, 255, 255);
@@ -2041,7 +1863,6 @@ function downloadSlipPDF(slip) {
   
   y += 35;
   
-  // Loan deductions
   if (slip.loansDeducted && slip.loansDeducted.length > 0) {
     doc.setTextColor(146, 64, 14);
     doc.setFontSize(9);
@@ -2057,7 +1878,6 @@ function downloadSlipPDF(slip) {
     y += 4;
   }
   
-  // Signatures
   doc.setTextColor(30, 41, 59);
   doc.setDrawColor(30, 41, 59);
   doc.line(20, 265, 70, 265);
@@ -2066,7 +1886,6 @@ function downloadSlipPDF(slip) {
   doc.text(d.sign1Label, 45, 270, { align: 'center' });
   doc.text(d.sign2Label, pageWidth - 45, 270, { align: 'center' });
   
-  // Footer
   if (d.showFooter && d.footerText) {
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139);
