@@ -24,6 +24,9 @@
   --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.15);
 }
 
+/* FIXED: Full width layout */
+html, body { width: 100%; min-height: 100vh; overflow-x: hidden; }
+
 .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 99999; flex-direction: column; }
 .loading-overlay.show { display: flex; }
 .spinner { width: 50px; height: 50px; border: 5px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -81,7 +84,9 @@ body { background: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
 .menu-item:hover { background: rgba(255,255,255,0.05); color: white; }
 .menu-item.active { background: rgba(30,64,175,0.3); color: white; border-left-color: var(--primary-light); }
 .menu-item i { width: 20px; font-size: 15px; }
-.main { margin-left: 260px; flex: 1; padding: 25px; width: calc(100% - 260px); }
+
+/* FIXED: Main content takes full remaining width */
+.main { margin-left: 260px; flex: 1; padding: 25px; width: calc(100vw - 260px); min-width: 0; }
 .topbar { background: white; padding: 16px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; box-shadow: var(--shadow); }
 .topbar h1 { font-size: 20px; color: var(--dark); }
 .breadcrumb { font-size: 12px; color: var(--gray); }
@@ -89,12 +94,12 @@ body { background: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
 .section.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
 .stat-card { background: white; padding: 22px; border-radius: 12px; box-shadow: var(--shadow); transition: transform 0.3s; }
 .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
 .stat-card .icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; margin-bottom: 15px; }
 .stat-card h3 { font-size: 12px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-.stat-card .value { font-size: 22px; font-weight: bold; color: var(--dark); }
+.stat-card .value { font-size: 24px; font-weight: bold; color: var(--dark); }
 .stat-card.blue .icon { background: linear-gradient(135deg, #1e40af, #3b82f6); }
 .stat-card.green .icon { background: linear-gradient(135deg, #059669, #10b981); }
 .stat-card.orange .icon { background: linear-gradient(135deg, #d97706, #f59e0b); }
@@ -148,6 +153,19 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .badge-gray { background: #f1f5f9; color: #475569; }
 .badge-purple { background: #ede9fe; color: #5b21b6; }
 .badge-pink { background: #fce7f3; color: #9d174d; }
+
+/* FIXED: Three-dot action menu */
+.action-menu-wrapper { position: relative; display: inline-block; }
+.action-dots-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--gray); padding: 4px 8px; border-radius: 4px; }
+.action-dots-btn:hover { background: var(--border); color: var(--dark); }
+.action-dropdown { display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-lg); min-width: 160px; z-index: 100; overflow: hidden; }
+.action-dropdown.show { display: block; }
+.action-dropdown-item { padding: 10px 15px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
+.action-dropdown-item:hover { background: #f1f5f9; }
+.action-dropdown-item.danger { color: var(--danger); }
+.action-dropdown-item.danger:hover { background: #fee2e2; }
+.action-dropdown-item.info { color: var(--primary); }
+.action-dropdown-item.warning { color: var(--warning); }
 
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
 .modal.show { display: flex; animation: fadeIn 0.3s; }
@@ -225,11 +243,11 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .advance-info-banner p { font-size: 13px; color: #831843; margin-bottom: 3px; }
 
 .settings-section { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; border: 1px solid var(--border); width: 100%; }
-.settings-section h3 { font-size: 16px; margin-bottom: 20px; color: var(--dark); display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+.settings-section h3 { font-size: 16px; margin-bottom: 20px; color: var(--dark); display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
 .setting-row { display: grid; grid-template-columns: 280px 1fr; gap: 20px; padding: 14px 0; align-items: center; border-bottom: 1px dashed var(--border); width: 100%; }
 .setting-row:last-child { border-bottom: none; }
 .setting-row label { font-size: 14px; font-weight: 600; color: var(--dark); }
-.setting-row .setting-desc { font-size: 12px; color: var(--gray); margin-top: 3px; }
+.setting-row .setting-desc { font-size: 11px; color: var(--gray); margin-top: 3px; }
 .color-picker-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .color-swatch { width: 38px; height: 38px; border-radius: 8px; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; }
 .color-swatch.active { border-color: var(--dark); transform: scale(1.1); }
@@ -246,6 +264,11 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .user-info-display { text-align: right; }
 .user-info-display .name { font-weight: 600; font-size: 14px; }
 .user-info-display .email { font-size: 11px; color: var(--gray); }
+
+/* FIXED: Year selector in dashboard */
+.year-selector { display: flex; align-items: center; gap: 10px; }
+.year-selector select { padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; background: white; cursor: pointer; }
+.year-selector select:focus { outline: none; border-color: var(--primary); }
 
 @media (max-width: 768px) {
   .login-container { grid-template-columns: 1fr; }
@@ -374,11 +397,25 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 
     <!-- DASHBOARD -->
     <div class="section active" id="dashboard">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <h2><i class="fas fa-calendar-alt"></i> Dashboard View</h2>
+          <div class="year-selector">
+            <label style="font-size:13px;font-weight:600;color:var(--gray);">Show Year:</label>
+            <select id="dashboardYear" onchange="refreshDashboard()">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+              <option value="2027">2027</option>
+              <option value="all">All Years</option>
+            </select>
+          </div>
+        </div>
+      </div>
       <div class="stats-grid">
         <div class="stat-card blue"><div class="icon"><i class="fas fa-users"></i></div><h3>Total Workers</h3><div class="value" id="statWorkers">0</div></div>
         <div class="stat-card green"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><h3>Monthly Payroll</h3><div class="value" id="statPayroll">Rs 0</div></div>
         <div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Active Loans</h3><div class="value" id="statLoans">Rs 0</div></div>
-        <div class="stat-card pink"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Active Advances</h3><div class="value" id="statAdvances">Rs 0</div></div>
         <div class="stat-card red"><div class="icon"><i class="fas fa-minus-circle"></i></div><h3>Monthly Deductions</h3><div class="value" id="statDeductions">Rs 0</div></div>
         <div class="stat-card cyan"><div class="icon"><i class="fas fa-plus-circle"></i></div><h3>Monthly Additions</h3><div class="value" id="statAdditions">Rs 0</div></div>
         <div class="stat-card purple"><div class="icon"><i class="fas fa-file-invoice"></i></div><h3>Slips This Month</h3><div class="value" id="statSlips">0</div></div>
@@ -583,22 +620,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
               <input type="color" id="customDeductionsColor" value="#dc2626" style="width:40px;height:35px;border:none;cursor:pointer;">
             </div>
           </div>
-          <div class="setting-row">
-            <div><label>Loan Section Color</label><div class="setting-desc">Color for loan deductions section</div></div>
-            <div class="color-picker-row" id="loanColorPicker">
-              <div class="color-swatch active" style="background:#d97706;" data-color="#d97706"></div>
-              <div class="color-swatch" style="background:#ea580c;" data-color="#ea580c"></div>
-              <input type="color" id="customLoanColor" value="#d97706" style="width:40px;height:35px;border:none;cursor:pointer;">
-            </div>
-          </div>
-          <div class="setting-row">
-            <div><label>Advance Section Color</label><div class="setting-desc">Color for advance deductions section</div></div>
-            <div class="color-picker-row" id="advanceColorPicker">
-              <div class="color-swatch active" style="background:#db2777;" data-color="#db2777"></div>
-              <div class="color-swatch" style="background:#9333ea;" data-color="#9333ea"></div>
-              <input type="color" id="customAdvanceColor" value="#db2777" style="width:40px;height:35px;border:none;cursor:pointer;">
-            </div>
-          </div>
         </div>
 
         <div class="settings-section">
@@ -619,14 +640,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
             <div><label>Border Style</label><div class="setting-desc">Page border design</div></div>
             <select id="designBorder"><option value="none">No Border</option><option value="thin">Thin Border</option><option value="thick">Thick Border</option><option value="double">Double Border</option></select>
           </div>
-          <div class="setting-row">
-            <div><label>Currency Symbol</label><div class="setting-desc">Currency symbol used in amounts</div></div>
-            <input type="text" id="designCurrency" value="Rs" maxlength="5" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;">
-          </div>
-          <div class="setting-row">
-            <div><label>Currency Position</label><div class="setting-desc">Where to place currency symbol</div></div>
-            <select id="designCurrencyPosition"><option value="before">Before (Rs 1,000)</option><option value="after">After (1,000 Rs)</option></select>
-          </div>
         </div>
 
         <div class="settings-section">
@@ -637,20 +650,17 @@ table tbody tr.clickable:hover { background: #f8fafc; }
           <div class="setting-row"><div><label>Show Salary Analysis</label><div class="setting-desc">Percentage breakdown</div></div><label><input type="checkbox" id="designShowAnalysis" checked> Enable</label></div>
           <div class="setting-row"><div><label>Show Signatures</label><div class="setting-desc">Employee & authorized signatures</div></div><label><input type="checkbox" id="designShowSignatures" checked> Enable</label></div>
           <div class="setting-row"><div><label>Show Footer</label><div class="setting-desc">Footer text at bottom</div></div><label><input type="checkbox" id="designShowFooter" checked> Enable</label></div>
-          <div class="setting-row"><div><label>Show Loans Section</label><div class="setting-desc">Loan installments deducted</div></div><label><input type="checkbox" id="designShowLoans" checked> Enable</label></div>
-          <div class="setting-row"><div><label>Show Advances Section</label><div class="setting-desc">Salary advances deducted</div></div><label><input type="checkbox" id="designShowAdvances" checked> Enable</label></div>
-          <div class="setting-row"><div><label>Show Modifications Log</label><div class="setting-desc">Changes from defaults</div></div><label><input type="checkbox" id="designShowModifications"> Enable</label></div>
           <div class="setting-row"><div><label>Show Watermark</label><div class="setting-desc">Company name as watermark</div></div><label><input type="checkbox" id="designShowWatermark"> Enable</label></div>
         </div>
 
         <div class="settings-section">
           <h3><i class="fas fa-font" style="color:var(--primary);"></i> Custom Text</h3>
+          <div class="setting-row"><div><label>Currency Symbol</label><div class="setting-desc">Currency symbol used in amounts</div></div><input type="text" id="designCurrency" value="Rs" maxlength="5" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+          <div class="setting-row"><div><label>Currency Position</label><div class="setting-desc">Where to place currency symbol</div></div><select id="designCurrencyPosition"><option value="before">Before (Rs 1,000)</option><option value="after">After (1,000 Rs)</option></select></div>
           <div class="setting-row"><div><label>Slip Title</label><div class="setting-desc">Main title of the pay slip</div></div><input type="text" id="designSlipTitle" value="SALARY PAY SLIP" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
           <div class="setting-row"><div><label>Footer Text</label><div class="setting-desc">Appears at bottom of slip</div></div><textarea id="designFooterText" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;min-height:60px;">This is a computer-generated document. Thank you for your valuable contribution to LANKA SHOE.</textarea></div>
           <div class="setting-row"><div><label>Signature 1 Label</label><div class="setting-desc">Left signature label</div></div><input type="text" id="designSign1Label" value="Employee Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
           <div class="setting-row"><div><label>Signature 2 Label</label><div class="setting-desc">Right signature label</div></div><input type="text" id="designSign2Label" value="Authorized Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-          <div class="setting-row"><div><label>Loans Section Title</label><div class="setting-desc">Title for loans section</div></div><input type="text" id="designLoansTitle" value="Loan Installments Deducted" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-          <div class="setting-row"><div><label>Advances Section Title</label><div class="setting-desc">Title for advances section</div></div><input type="text" id="designAdvancesTitle" value="Salary Advances Deducted" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
         </div>
       </div>
     </div>
@@ -672,27 +682,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
             <div class="form-group"><label>Bank Account No.</label><input type="text" id="cBankAccount"></div>
             <div class="form-group full"><label>Address</label><textarea id="cAddress"></textarea></div>
             <div class="form-group full"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Company Info</button></div>
-          </div>
-        </form>
-      </div>
-
-      <div class="card">
-        <div class="card-header"><h2><i class="fas fa-calculator"></i> Salary & Tax Settings</h2></div>
-        <form onsubmit="saveSalarySettings(event)">
-          <div class="form-grid">
-            <div class="form-group"><label>Default Tax Rate (%)</label><input type="number" id="sTaxRate" step="0.1" value="10"></div>
-            <div class="form-group"><label>EPF Employee Rate (%)</label><input type="number" id="sEpfEmp" step="0.1" value="8"></div>
-            <div class="form-group"><label>EPF Employer Rate (%)</label><input type="number" id="sEpfEmpr" step="0.1" value="12"></div>
-            <div class="form-group"><label>ETF Rate (%)</label><input type="number" id="sEtf" step="0.1" value="3"></div>
-            <div class="form-group"><label>OT Hourly Multiplier</label><input type="number" id="sOtMult" step="0.1" value="1.5"></div>
-            <div class="form-group"><label>Working Days / Month</label><input type="number" id="sWorkDays" value="26"></div>
-            <div class="form-group"><label>Working Hours / Day</label><input type="number" id="sWorkHours" value="8"></div>
-            <div class="form-group"><label>Pay Day (of month)</label><input type="number" id="sPayDay" min="1" max="31" value="30"></div>
-            <div class="form-group"><label>Financial Year Start</label>
-              <select id="sFyStart"><option value="1">January</option><option value="4">April</option><option value="7">July</option><option value="10">October</option></select>
-            </div>
-            <div class="form-group"><label>Default Currency</label><input type="text" id="sCurrency" value="Rs" maxlength="5"></div>
-            <div class="form-group full"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Salary Settings</button></div>
           </div>
         </form>
       </div>
@@ -870,8 +859,16 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// ============ CRITICAL FIX: Sanitize data for Firestore ============
-// Firestore REJECTS undefined values. This function recursively removes them.
+// Get current user info for tracking
+function getCurrentUser() {
+  const user = auth.currentUser;
+  if (!user) return { name: 'Unknown', email: 'unknown' };
+  return {
+    name: user.displayName || user.email || 'Unknown',
+    email: user.email || 'unknown'
+  };
+}
+
 function sanitizeForFirestore(obj) {
   if (obj === null || obj === undefined) return null;
   if (typeof obj === 'number' && isNaN(obj)) return 0;
@@ -954,7 +951,6 @@ async function logout() {
   toast('Logged out');
 }
 
-// ============ DATA ============
 const collections = {
   workers: 'workers', additions: 'additions', deductions: 'deductions',
   loans: 'loans', advances: 'advances', salarySlips: 'salarySlips',
@@ -1014,12 +1010,10 @@ async function loadData() {
         loanColor: '#d97706', advanceColor: '#db2777',
         paperSize: 'a4', fontSize: 'medium', headerStyle: 'full', border: 'none',
         showLogo: true, showBank: true, showTax: true, showAnalysis: true,
-        showSignatures: true, showFooter: true, showLoans: true, showAdvances: true,
-        showModifications: false, showWatermark: false,
+        showSignatures: true, showFooter: true, showModifications: false, showWatermark: false,
         currency: 'Rs', currencyPosition: 'before', slipTitle: 'SALARY PAY SLIP',
         footerText: 'This is a computer-generated document. Thank you for your valuable contribution to LANKA SHOE.',
-        sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature',
-        loansTitle: 'Loan Installments Deducted', advancesTitle: 'Salary Advances Deducted'
+        sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature'
       };
     }
     if (!data.salarySettings || Object.keys(data.salarySettings).length === 0) {
@@ -1041,7 +1035,6 @@ async function loadData() {
   }
 }
 
-// ============ FIXED: All Firebase save functions now sanitize data ============
 async function saveToFirebase(collection, docId, dataObj) {
   const cleanData = sanitizeForFirestore(dataObj);
   if (docId) await db.collection(collection).doc(docId).set(cleanData, { merge: true });
@@ -1053,7 +1046,6 @@ async function updateInFirebase(collection, docId, dataObj) {
   await db.collection(collection).doc(docId).update(cleanData);
 }
 
-// ============ NAVIGATION ============
 document.querySelectorAll('.menu-item[data-section]').forEach(item => {
   item.addEventListener('click', () => showSection(item.dataset.section));
 });
@@ -1088,7 +1080,20 @@ function toast(msg, type='success') {
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-// ============ WORKERS (ADD + EDIT) ============
+// FIXED: Close dropdowns when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.action-menu-wrapper')) {
+    document.querySelectorAll('.action-dropdown.show').forEach(d => d.classList.remove('show'));
+  }
+});
+
+function toggleActionMenu(btn) {
+  const dropdown = btn.nextElementSibling;
+  const isOpen = dropdown.classList.contains('show');
+  document.querySelectorAll('.action-dropdown.show').forEach(d => d.classList.remove('show'));
+  if (!isOpen) dropdown.classList.add('show');
+}
+
 async function openAddWorkerModal() {
   document.getElementById('workerModalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Add New Worker';
   document.getElementById('workerSaveBtnText').textContent = 'Save Worker';
@@ -1124,6 +1129,7 @@ async function openEditWorkerModal(id) {
 async function saveWorker(e) {
   e.preventDefault();
   const editId = document.getElementById('wEditId').value;
+  const currentUser = getCurrentUser();
   const workerData = {
     name: document.getElementById('wName').value, empId: document.getElementById('wEmpId').value,
     position: document.getElementById('wPosition').value, department: document.getElementById('wDepartment').value,
@@ -1132,9 +1138,15 @@ async function saveWorker(e) {
     email: document.getElementById('wEmail').value || '', bank: document.getElementById('wBank').value || '',
     account: document.getElementById('wAccount').value || '', taxId: document.getElementById('wTaxId').value || '',
     address: document.getElementById('wAddress').value || '', status: 'Active',
-    modifiedAt: today()
+    modifiedAt: today(),
+    modifiedBy: currentUser.name,
+    modifiedByEmail: currentUser.email
   };
-  if (!editId) workerData.createdAt = today();
+  if (!editId) {
+    workerData.createdAt = today();
+    workerData.createdBy = currentUser.name;
+    workerData.createdByEmail = currentUser.email;
+  }
 
   try {
     showLoading(editId ? 'Updating worker...' : 'Saving worker...');
@@ -1166,20 +1178,30 @@ function renderWorkers() {
       <td>${loanTotal > 0 ? `<span class="badge badge-warning">${fmt(loanTotal)}</span>` : '-'}</td>
       <td>${advTotal > 0 ? `<span class="badge badge-pink">${fmt(advTotal)}</span>` : '-'}</td>
       <td>
-        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openWorkerDetail('${w.id}')"><i class="fas fa-eye"></i></button>
-        <button class="btn btn-info btn-sm" onclick="event.stopPropagation();openEditWorkerModal('${w.id}')"><i class="fas fa-edit"></i></button>
-        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteWorker('${w.id}')"><i class="fas fa-trash"></i></button>
+        <div class="action-menu-wrapper">
+          <button class="action-dots-btn" onclick="event.stopPropagation();toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+          <div class="action-dropdown">
+            <div class="action-dropdown-item info" onclick="event.stopPropagation();openWorkerDetail('${w.id}')"><i class="fas fa-eye"></i> View</div>
+            <div class="action-dropdown-item warning" onclick="event.stopPropagation();openEditWorkerModal('${w.id}')"><i class="fas fa-edit"></i> Edit</div>
+            <div class="action-dropdown-item danger" onclick="event.stopPropagation();deleteWorker('${w.id}')"><i class="fas fa-trash"></i> Delete</div>
+          </div>
+        </div>
       </td>
     </tr>`;
   }).join('');
 }
+
 async function deleteWorker(id) {
   if (!confirm('Delete this worker?')) return;
-  try { showLoading('Deleting...'); await deleteFromFirebase(collections.workers, id); await loadData(); toast('Deleted!'); }
-  catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+  const currentUser = getCurrentUser();
+  try {
+    showLoading('Deleting...');
+    await deleteFromFirebase(collections.workers, id);
+    await loadData();
+    toast(`Deleted by ${currentUser.name}`);
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ WORKER DETAIL (7 TABS) ============
 function openWorkerDetail(id) {
   const w = data.workers.find(x => x.id === id);
   if (!w) return;
@@ -1309,6 +1331,7 @@ function openWorkerDetail(id) {
           <div><strong>Account:</strong> ${w.account || '-'}</div>
           <div><strong>Tax ID:</strong> ${w.taxId || '-'}</div>
           <div style="grid-column:1/-1;"><strong>Address:</strong> ${w.address || '-'}</div>
+          ${w.modifiedBy ? `<div style="grid-column:1/-1;"><strong>Last Modified By:</strong> ${w.modifiedBy} (${w.modifiedByEmail || ''}) on ${w.modifiedAt || '-'}</div>` : ''}
         </div>
       </div>
     </div>
@@ -1352,7 +1375,6 @@ function populateReportFilters() {
   document.getElementById('rDept').innerHTML = '<option value="">All</option>' + data.departments.map(d => `<option>${d}</option>`).join('');
 }
 
-// ============ LOANS ============
 function openAddLoanModal() {
   populateWorkerSelect('lWorker');
   document.getElementById('loanForm').reset();
@@ -1363,12 +1385,14 @@ function openAddLoanModal() {
 async function addLoan(e) {
   e.preventDefault();
   const total = parseFloat(document.getElementById('lAmount').value) || 0;
+  const currentUser = getCurrentUser();
   const loanData = {
     workerId: document.getElementById('lWorker').value, type: document.getElementById('lType').value,
     amount: total, installment: parseFloat(document.getElementById('lInstallment').value) || 0,
     paid: 0, remaining: total, issueDate: document.getElementById('lIssueDate').value,
     startMonth: document.getElementById('lStartMonth').value, reason: document.getElementById('lReason').value || '',
-    status: 'Active', paidMonths: [], createdAt: today()
+    status: 'Active', paidMonths: [], createdAt: today(),
+    createdBy: currentUser.name, createdByEmail: currentUser.email
   };
   try {
     showLoading('Issuing loan...');
@@ -1392,17 +1416,28 @@ function renderLoans() {
       <td>${l.startMonth}</td>
       <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></td>
       <td><span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i></button></td>
+      <td>
+        <div class="action-menu-wrapper">
+          <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+          <div class="action-dropdown">
+            <div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>
+          </div>
+        </div>
+      </td>
     </tr>`;
   }).join('');
 }
 async function deleteLoan(id) {
   if (!confirm('Delete this loan?')) return;
-  try { showLoading('Deleting...'); await deleteFromFirebase(collections.loans, id); await loadData(); renderLoans(); toast('Deleted!'); }
-  catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+  const currentUser = getCurrentUser();
+  try {
+    showLoading('Deleting...');
+    await deleteFromFirebase(collections.loans, id);
+    await loadData();
+    toast(`Deleted by ${currentUser.name}`);
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ ADVANCES ============
 function openAddAdvanceModal() {
   populateWorkerSelect('aWorker');
   document.getElementById('advanceForm').reset();
@@ -1413,12 +1448,14 @@ function openAddAdvanceModal() {
 async function addAdvance(e) {
   e.preventDefault();
   const total = parseFloat(document.getElementById('aAmount').value) || 0;
+  const currentUser = getCurrentUser();
   const advanceData = {
     workerId: document.getElementById('aWorker').value, type: document.getElementById('aType').value,
     amount: total, installment: parseFloat(document.getElementById('aInstallment').value) || 0,
     paid: 0, remaining: total, issueDate: document.getElementById('aIssueDate').value,
     startMonth: document.getElementById('aStartMonth').value, reason: document.getElementById('aReason').value || '',
-    status: 'Active', paidMonths: [], createdAt: today()
+    status: 'Active', paidMonths: [], createdAt: today(),
+    createdBy: currentUser.name, createdByEmail: currentUser.email
   };
   try {
     showLoading('Issuing advance...');
@@ -1442,17 +1479,28 @@ function renderAdvances() {
       <td>${a.startMonth}</td>
       <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:linear-gradient(90deg,#db2777,#ec4899);"></div></div></td>
       <td><span class="badge ${a.status==='Active'?'badge-pink':'badge-success'}">${a.status}</span></td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i></button></td>
+      <td>
+        <div class="action-menu-wrapper">
+          <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+          <div class="action-dropdown">
+            <div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>
+          </div>
+        </div>
+      </td>
     </tr>`;
   }).join('');
 }
 async function deleteAdvance(id) {
   if (!confirm('Delete this advance?')) return;
-  try { showLoading('Deleting...'); await deleteFromFirebase(collections.advances, id); await loadData(); renderAdvances(); toast('Deleted!'); }
-  catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+  const currentUser = getCurrentUser();
+  try {
+    showLoading('Deleting...');
+    await deleteFromFirebase(collections.advances, id);
+    await loadData();
+    toast(`Deleted by ${currentUser.name}`);
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ COMPONENTS ============
 function renderComponents() {
   const earnings = data.salaryComponents.filter(c => c.type === 'earning');
   const deductions = data.salaryComponents.filter(c => c.type === 'deduction');
@@ -1465,7 +1513,14 @@ function componentCard(c) {
   return `<div class="component-card ${c.type}" style="${!c.active ? 'opacity:0.5;' : ''}">
     <div class="comp-icon"><i class="fas ${c.type === 'earning' ? 'fa-plus' : 'fa-minus'}"></i></div>
     <div class="comp-info"><h4>${c.name}</h4><p>${calcLabel} • ${valueLabel}</p></div>
-    <div><button class="btn btn-sm btn-danger" onclick="deleteComponent('${c.id}')"><i class="fas fa-trash"></i></button></div>
+    <div>
+      <div class="action-menu-wrapper">
+        <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+        <div class="action-dropdown">
+          <div class="action-dropdown-item danger" onclick="deleteComponent('${c.id}')"><i class="fas fa-trash"></i> Delete</div>
+        </div>
+      </div>
+    </div>
   </div>`;
 }
 function switchCompTab(tab, el) {
@@ -1503,7 +1558,6 @@ async function deleteComponent(id) {
   catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ SLIP BUILDER ============
 let currentSlipData = null;
 let currentSlipDefaults = {};
 
@@ -1542,15 +1596,7 @@ function loadSlipDefaults() {
       ${workerLoans.map(l => `<p>• <strong>${l.type}</strong>: ${fmt(l.installment)}/mo • Remaining: ${fmt(l.remaining)}</p>`).join('')}
     </div>`;
   } else {
-    const allActiveLoans = data.loans.filter(l => l.workerId === workerId && l.status === 'Active');
-    if (allActiveLoans.length > 0) {
-      loanBanner.innerHTML = `<div class="loan-info-banner" style="background:#fee2e2; border-left-color:#dc2626;">
-        <h4 style="color:#991b1b;"><i class="fas fa-exclamation-triangle"></i> Loan Not Deducting This Month</h4>
-        <p style="color:#7f1d1d;">Worker has active loans, but they are either already paid for <strong>${month}</strong> or their start month is in the future.</p>
-      </div>`;
-    } else {
-      loanBanner.innerHTML = '';
-    }
+    loanBanner.innerHTML = '';
   }
 
   if (workerAdvances.length > 0) {
@@ -1719,14 +1765,13 @@ function previewSlip() {
   openModal('viewSlipModal');
 }
 
-// ============ FIXED: finalizeSlip with sanitization ============
 async function finalizeSlip(status) {
   if (!currentSlipData) { toast('Select worker and month', 'error'); return; }
   const workerId = currentSlipData.workerId;
   const month = currentSlipData.month;
   const existingSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
+  const currentUser = getCurrentUser();
 
-  // Build slip data with NO undefined values
   const slipData = {
     slipNo: existingSlip ? (existingSlip.slipNo || '') : 'SL-' + Date.now().toString().slice(-6),
     workerId: workerId || '',
@@ -1757,7 +1802,9 @@ async function finalizeSlip(status) {
     net: parseFloat(currentSlipData.net) || 0,
     status: status || 'Draft',
     createdAt: existingSlip ? (existingSlip.createdAt || today()) : today(),
-    modifiedAt: today()
+    modifiedAt: today(),
+    modifiedBy: currentUser.name,
+    modifiedByEmail: currentUser.email
   };
 
   try {
@@ -1765,6 +1812,8 @@ async function finalizeSlip(status) {
     if (existingSlip) {
       await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
     } else {
+      slipData.createdBy = currentUser.name;
+      slipData.createdByEmail = currentUser.email;
       await saveToFirebase(collections.salarySlips, null, slipData);
     }
 
@@ -1805,7 +1854,6 @@ async function finalizeSlip(status) {
   }
 }
 
-// ============ HISTORY WITH EDIT & REVERSE ============
 function renderHistory() {
   const tbody = document.getElementById('historyTable');
   if (!data.salarySlips.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><h3>No slips</h3></div></td></tr>'; return; }
@@ -1817,10 +1865,15 @@ function renderHistory() {
       <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td><td><strong>${fmt(s.net)}</strong></td>
       <td><span class="badge ${s.status==='Paid'?'badge-success':'badge-gray'}">${s.status}</span></td>
       <td>
-        <button class="btn btn-primary btn-sm" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i></button>
-        <button class="btn btn-info btn-sm" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i></button>
-        <button class="btn btn-warning btn-sm" onclick="editSlip('${s.id}')" title="Edit slip amounts"><i class="fas fa-edit"></i></button>
-        <button class="btn btn-danger btn-sm" onclick="reverseSlip('${s.id}')" title="Reverse/cancel this slip"><i class="fas fa-undo"></i></button>
+        <div class="action-menu-wrapper">
+          <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+          <div class="action-dropdown">
+            <div class="action-dropdown-item info" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i> View</div>
+            <div class="action-dropdown-item info" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i> Download PDF</div>
+            <div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>
+            <div class="action-dropdown-item danger" onclick="reverseSlip('${s.id}')"><i class="fas fa-undo"></i> Reverse</div>
+          </div>
+        </div>
       </td>
     </tr>`;
   }).join('');
@@ -1886,13 +1939,14 @@ async function editSlip(id) {
 async function reverseSlip(id) {
   const slip = data.salarySlips.find(s => s.id === id);
   if (!slip) return;
+  const currentUser = getCurrentUser();
   if (slip.status !== 'Paid') {
     if (!confirm('Delete this draft slip?')) return;
     try {
       showLoading('Deleting...');
       await deleteFromFirebase(collections.salarySlips, id);
       await loadData();
-      toast('Slip deleted!');
+      toast(`Deleted by ${currentUser.name}`);
     } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
     return;
   }
@@ -1931,10 +1985,10 @@ async function reverseSlip(id) {
       }
     }
     
-    await updateInFirebase(collections.salarySlips, id, { status: 'Reversed', reversedAt: today() });
+    await updateInFirebase(collections.salarySlips, id, { status: 'Reversed', reversedAt: today(), reversedBy: currentUser.name, reversedByEmail: currentUser.email });
     
     await loadData();
-    toast('Slip reversed! Loan/advance balances restored.');
+    toast(`Slip reversed by ${currentUser.name}! Loan/advance balances restored.`);
   } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
@@ -1989,6 +2043,7 @@ function viewSlipPreview(slip) {
         <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign2Label}</div></div>
       </div>` : ''}
       ${d.showFooter ? `<p style="text-align:center;margin-top:20px;font-size:11px;color:#64748b;font-style:italic;">${d.footerText}</p>` : ''}
+      ${slip.modifiedBy ? `<p style="text-align:center;margin-top:8px;font-size:10px;color:#94a3b8;">Last modified by: ${slip.modifiedBy} (${slip.modifiedByEmail || ''}) on ${slip.modifiedAt || '-'}</p>` : ''}
     </div>
   `;
 }
@@ -2187,7 +2242,6 @@ function downloadSlipPDF(slip) {
   toast('PDF downloaded!');
 }
 
-// ============ REPORTS ============
 let currentReport = 'payroll';
 function selectReport(type, el) {
   currentReport = type;
@@ -2286,19 +2340,14 @@ function exportReport(format) {
   }
 }
 
-// ============ DESIGN ============
 function loadDesignSettings() {
   const d = data.payslipDesign;
   document.getElementById('customPrimaryColor').value = d.primaryColor;
   document.getElementById('customEarningsColor').value = d.earningsColor;
   document.getElementById('customDeductionsColor').value = d.deductionsColor;
-  document.getElementById('customLoanColor').value = d.loanColor;
-  document.getElementById('customAdvanceColor').value = d.advanceColor;
   setActiveSwatch('primaryColorPicker', d.primaryColor);
   setActiveSwatch('earningsColorPicker', d.earningsColor);
   setActiveSwatch('deductionsColorPicker', d.deductionsColor);
-  setActiveSwatch('loanColorPicker', d.loanColor);
-  setActiveSwatch('advanceColorPicker', d.advanceColor);
   document.getElementById('designPaperSize').value = d.paperSize || 'a4';
   document.getElementById('designFontSize').value = d.fontSize || 'medium';
   document.getElementById('designHeaderStyle').value = d.headerStyle || 'full';
@@ -2309,7 +2358,6 @@ function loadDesignSettings() {
   document.getElementById('designShowAnalysis').checked = d.showAnalysis !== false;
   document.getElementById('designShowSignatures').checked = d.showSignatures !== false;
   document.getElementById('designShowFooter').checked = d.showFooter !== false;
-  document.getElementById('designShowModifications').checked = d.showModifications === true;
   document.getElementById('designShowWatermark').checked = d.showWatermark === true;
   document.getElementById('designCurrency').value = d.currency || 'Rs';
   document.getElementById('designCurrencyPosition').value = d.currencyPosition || 'before';
@@ -2317,8 +2365,6 @@ function loadDesignSettings() {
   document.getElementById('designFooterText').value = d.footerText || '';
   document.getElementById('designSign1Label').value = d.sign1Label || 'Employee Signature';
   document.getElementById('designSign2Label').value = d.sign2Label || 'Authorized Signature';
-  document.getElementById('designLoansTitle').value = d.loansTitle || 'Loan Installments Deducted';
-  document.getElementById('designAdvancesTitle').value = d.advancesTitle || 'Salary Advances Deducted';
 }
 function setActiveSwatch(pickerId, color) {
   document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => s.classList.toggle('active', s.dataset.color === color));
@@ -2338,8 +2384,6 @@ async function saveDesign() {
     primaryColor: document.getElementById('customPrimaryColor').value,
     earningsColor: document.getElementById('customEarningsColor').value,
     deductionsColor: document.getElementById('customDeductionsColor').value,
-    loanColor: document.getElementById('customLoanColor').value,
-    advanceColor: document.getElementById('customAdvanceColor').value,
     paperSize: document.getElementById('designPaperSize').value,
     fontSize: document.getElementById('designFontSize').value,
     headerStyle: document.getElementById('designHeaderStyle').value,
@@ -2350,16 +2394,13 @@ async function saveDesign() {
     showAnalysis: document.getElementById('designShowAnalysis').checked,
     showSignatures: document.getElementById('designShowSignatures').checked,
     showFooter: document.getElementById('designShowFooter').checked,
-    showModifications: document.getElementById('designShowModifications').checked,
     showWatermark: document.getElementById('designShowWatermark').checked,
     currency: document.getElementById('designCurrency').value,
     currencyPosition: document.getElementById('designCurrencyPosition').value,
     slipTitle: document.getElementById('designSlipTitle').value,
     footerText: document.getElementById('designFooterText').value,
     sign1Label: document.getElementById('designSign1Label').value,
-    sign2Label: document.getElementById('designSign2Label').value,
-    loansTitle: document.getElementById('designLoansTitle').value,
-    advancesTitle: document.getElementById('designAdvancesTitle').value
+    sign2Label: document.getElementById('designSign2Label').value
   };
   try {
     showLoading('Saving design...');
@@ -2374,10 +2415,8 @@ function previewDesign() {
   openModal('viewSlipModal');
 }
 
-// ============ COMPANY & SALARY SETTINGS ============
 function loadCompanySettings() {
   const c = data.company;
-  const s = data.salarySettings;
   document.getElementById('cName').value = c.name || 'LANKA SHOE';
   document.getElementById('cReg').value = c.reg || '';
   document.getElementById('cTax').value = c.tax || '';
@@ -2388,16 +2427,6 @@ function loadCompanySettings() {
   document.getElementById('cBank').value = c.bank || '';
   document.getElementById('cBankAccount').value = c.bankAccount || '';
   document.getElementById('cAddress').value = c.address || '';
-  document.getElementById('sTaxRate').value = s.taxRate || 10;
-  document.getElementById('sEpfEmp').value = s.epfEmp || 8;
-  document.getElementById('sEpfEmpr').value = s.epfEmpr || 12;
-  document.getElementById('sEtf').value = s.etf || 3;
-  document.getElementById('sOtMult').value = s.otMult || 1.5;
-  document.getElementById('sWorkDays').value = s.workDays || 26;
-  document.getElementById('sWorkHours').value = s.workHours || 8;
-  document.getElementById('sPayDay').value = s.payDay || 30;
-  document.getElementById('sFyStart').value = s.fyStart || 1;
-  document.getElementById('sCurrency').value = s.currency || 'Rs';
   renderDepartments();
 }
 
@@ -2420,28 +2449,6 @@ async function saveCompany(e) {
     await saveToFirebase(collections.company, 'config', companyData);
     data.company = companyData;
     toast('Company info saved!');
-  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-
-async function saveSalarySettings(e) {
-  e.preventDefault();
-  const settingsData = {
-    taxRate: parseFloat(document.getElementById('sTaxRate').value) || 0,
-    epfEmp: parseFloat(document.getElementById('sEpfEmp').value) || 0,
-    epfEmpr: parseFloat(document.getElementById('sEpfEmpr').value) || 0,
-    etf: parseFloat(document.getElementById('sEtf').value) || 0,
-    otMult: parseFloat(document.getElementById('sOtMult').value) || 0,
-    workDays: parseInt(document.getElementById('sWorkDays').value) || 0,
-    workHours: parseInt(document.getElementById('sWorkHours').value) || 0,
-    payDay: parseInt(document.getElementById('sPayDay').value) || 0,
-    fyStart: parseInt(document.getElementById('sFyStart').value) || 0,
-    currency: document.getElementById('sCurrency').value || 'Rs'
-  };
-  try {
-    showLoading('Saving...');
-    await saveToFirebase(collections.salarySettings, 'config', settingsData);
-    data.salarySettings = settingsData;
-    toast('Salary settings saved!');
   } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
@@ -2523,36 +2530,78 @@ async function clearAllData() {
   } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ DASHBOARD ============
+// ============ DASHBOARD (FIXED: Correct amounts + Year selector) ============
 let charts = {};
 function refreshDashboard() {
+  const selectedYear = document.getElementById('dashboardYear')?.value || new Date().getFullYear().toString();
+  const currentYear = new Date().getFullYear().toString();
+  const currentMo = currentMonth();
+  
+  // FIXED: Calculate from salarySlips (actual pay slip data) instead of separate collections
+  let slipsForStats = data.salarySlips.filter(s => s.status === 'Paid');
+  if (selectedYear !== 'all') {
+    slipsForStats = slipsForStats.filter(s => s.month && s.month.startsWith(selectedYear));
+  }
+  
+  // Monthly payroll for current month of selected year
+  const monthFilter = selectedYear === 'all' ? currentMo : `${selectedYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+  const monthPayroll = slipsForStats.filter(p => p.month === monthFilter).reduce((s,p) => s + (p.net || 0), 0);
+  
+  // FIXED: Calculate additions/deductions from salarySlips earnings/deductions arrays
+  const monthSlips = slipsForStats.filter(s => s.month === monthFilter);
+  let monthlyAdditions = 0;
+  let monthlyDeductions = 0;
+  monthSlips.forEach(s => {
+    if (s.earnings && Array.isArray(s.earnings)) {
+      s.earnings.forEach(e => {
+        // Exclude basic salary from additions
+        if (e.id !== 'basic' && e.id !== 'allowances') {
+          monthlyAdditions += (e.amount || 0);
+        }
+      });
+    }
+    if (s.deductions && Array.isArray(s.deductions)) {
+      s.deductions.forEach(d => {
+        monthlyDeductions += (d.amount || 0);
+      });
+    }
+  });
+  
   document.getElementById('statWorkers').textContent = data.workers.length;
-  const monthPayroll = data.salarySlips.filter(p => p.month === currentMonth() && p.status === 'Paid').reduce((s,p) => s + p.net, 0);
   document.getElementById('statPayroll').textContent = fmt(monthPayroll);
-  const activeLoans = data.loans.filter(l => l.status === 'Active').reduce((s,l) => s + l.remaining, 0);
+  const activeLoans = data.loans.filter(l => l.status === 'Active').reduce((s,l) => s + (l.remaining || 0), 0);
   document.getElementById('statLoans').textContent = fmt(activeLoans);
-  const activeAdvances = data.advances.filter(a => a.status === 'Active').reduce((s,a) => s + a.remaining, 0);
-  document.getElementById('statAdvances').textContent = fmt(activeAdvances);
-  
-  const monthDed = data.deductions.filter(d => d.month === currentMonth()).reduce((s,d) => s + (parseFloat(d.amount) || 0), 0);
-  document.getElementById('statDeductions').textContent = fmt(monthDed);
-  const monthAdd = data.additions.filter(a => a.month === currentMonth()).reduce((s,a) => s + (parseFloat(a.amount) || 0), 0);
-  document.getElementById('statAdditions').textContent = fmt(monthAdd);
-  
-  document.getElementById('statSlips').textContent = data.salarySlips.filter(s => s.month === currentMonth()).length;
+  document.getElementById('statDeductions').textContent = fmt(monthlyDeductions);
+  document.getElementById('statAdditions').textContent = fmt(monthlyAdditions);
+  document.getElementById('statSlips').textContent = monthSlips.length;
 
   Object.values(charts).forEach(c => c && c.destroy && c.destroy());
-  const months = [], payrollData = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(); d.setMonth(d.getMonth() - i);
-    const m = d.toISOString().slice(0,7);
-    months.push(m);
-    payrollData.push(data.salarySlips.filter(p => p.month === m && p.status === 'Paid').reduce((s,p) => s + p.net, 0));
+  
+  // Chart data filtered by selected year
+  const months = [];
+  const payrollData = [];
+  if (selectedYear === 'all') {
+    // Show last 12 months
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(); d.setMonth(d.getMonth() - i);
+      const m = d.toISOString().slice(0,7);
+      months.push(m);
+      payrollData.push(slipsForStats.filter(p => p.month === m).reduce((s,p) => s + (p.net || 0), 0));
+    }
+  } else {
+    // Show all 12 months of selected year
+    for (let m = 1; m <= 12; m++) {
+      const monthStr = `${selectedYear}-${String(m).padStart(2, '0')}`;
+      months.push(monthStr);
+      payrollData.push(slipsForStats.filter(p => p.month === monthStr).reduce((s,p) => s + (p.net || 0), 0));
+    }
   }
+  
   charts.payroll = new Chart(document.getElementById('payrollChart'), {
     type: 'bar', data: { labels: months, datasets: [{ label: 'Net Payroll', data: payrollData, backgroundColor: 'rgba(30, 64, 175, 0.8)', borderRadius: 8 }] },
     options: { responsive: true, plugins: { legend: { display: false } } }
   });
+  
   const deptData = {};
   data.workers.forEach(w => { deptData[w.department] = (deptData[w.department] || 0) + 1; });
   charts.distribution = new Chart(document.getElementById('distributionChart'), {
@@ -2561,9 +2610,9 @@ function refreshDashboard() {
   });
 
   const activities = [];
-  data.salarySlips.slice(-3).reverse().forEach(s => {
+  data.salarySlips.slice(-5).reverse().forEach(s => {
     const w = data.workers.find(x => x.id === s.workerId);
-    activities.push({ icon: 'fa-file-invoice', color: 'var(--success)', text: `Pay slip #${s.slipNo} for ${w?.name||'worker'} - ${fmt(s.net)}`, date: s.modifiedAt });
+    activities.push({ icon: 'fa-file-invoice', color: 'var(--success)', text: `Pay slip #${s.slipNo} for ${w?.name||'worker'} - ${fmt(s.net)}`, date: s.modifiedAt || s.createdAt });
   });
   const actDiv = document.getElementById('recentActivities');
   if (!activities.length) actDiv.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><h3>No activities</h3></div>';
