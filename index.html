@@ -206,6 +206,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .slip-row .row-controls { display: flex; align-items: center; gap: 8px; font-size: 12px; }
 .slip-row .row-controls input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); }
 .slip-row .calc-info { font-size: 10px; color: var(--gray); margin-top: 2px; }
+.slip-row .default-amount { font-size: 11px; color: var(--primary); font-weight: 600; }
 
 .summary-box { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 20px; border-radius: 12px; margin-top: 15px; }
 .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
@@ -313,7 +314,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         <div class="login-logo-icon"><i class="fas fa-shoe-prints"></i></div>
         <div class="login-logo-text"><h2>LANKA SHOE</h2><p>Salary Management</p></div>
       </div>
-      <div class="login-welcome"><h3>Welcome Back! </h3><p>Sign in to access your salary management dashboard</p></div>
+      <div class="login-welcome"><h3>Welcome Back! 👋</h3><p>Sign in to access your salary management dashboard</p></div>
       <button class="google-btn" onclick="signInWithGoogle()">
         <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
         Continue with Google
@@ -463,7 +464,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
     <div class="section" id="slips">
       <div class="card">
         <div class="card-header"><h2><i class="fas fa-file-invoice-dollar"></i> Create Pay Slip</h2></div>
-        <p style="color:var(--gray);margin-bottom:20px;font-size:14px;">Select worker and month. Master components, loan installments, and advances load automatically with default amounts. You can customize any amount.</p>
+        <p style="color:var(--gray);margin-bottom:20px;font-size:14px;">Select worker and month. Default amounts are shown — you can customize any amount before finalizing.</p>
         <div class="form-grid" style="margin-bottom:20px;">
           <div class="form-group"><label>Select Worker *</label>
             <select id="slipWorker" onchange="loadSlipDefaults()" required><option value="">Select Worker</option></select>
@@ -1480,8 +1481,9 @@ async function deleteComponent(id) {
   catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ SLIP BUILDER - FIXED VERSION ============
+// ============ SLIP BUILDER (FIXED - Shows defaults, allows customization) ============
 let currentSlipData = null;
+let currentSlipDefaults = {}; // Store default amounts for comparison
 
 function loadSlipDefaults() {
   const workerId = document.getElementById('slipWorker').value;
@@ -1494,7 +1496,6 @@ function loadSlipDefaults() {
   const w = data.workers.find(x => x.id === workerId);
   if (!w) return;
 
-  // Get active loans for this worker
   const workerLoans = data.loans.filter(l => {
     if (l.workerId !== workerId) return false;
     if (l.status !== 'Active') return false;
@@ -1504,7 +1505,6 @@ function loadSlipDefaults() {
     return true;
   });
 
-  // Get active advances for this worker
   const workerAdvances = data.advances.filter(a => {
     if (a.workerId !== workerId) return false;
     if (a.status !== 'Active') return false;
@@ -1514,7 +1514,6 @@ function loadSlipDefaults() {
     return true;
   });
 
-  // Show loan banner
   if (workerLoans.length > 0) {
     loanBanner.innerHTML = `<div class="loan-info-banner">
       <h4><i class="fas fa-hand-holding-usd"></i> ${workerLoans.length} Loan(s) Auto-Deducting</h4>
@@ -1532,7 +1531,6 @@ function loadSlipDefaults() {
     }
   }
 
-  // Show advance banner
   if (workerAdvances.length > 0) {
     advanceBanner.innerHTML = `<div class="advance-info-banner">
       <h4><i class="fas fa-money-check-alt"></i> ${workerAdvances.length} Advance(s) Auto-Deducting</h4>
@@ -1542,343 +1540,157 @@ function loadSlipDefaults() {
     advanceBanner.innerHTML = '';
   }
 
-  // Build earnings HTML
-  let earningsHtml = `<div class="slip-row" data-type="earning" data-id="basic" data-default="${w.salary}">
-    <div><strong>Basic Salary</strong><div class="calc-info">From worker profile</div></div>
+  // Reset defaults tracker
+  currentSlipDefaults = {};
+
+  let earningsHtml = `<div class="slip-row" data-type="earning" data-id="basic">
+    <div><strong>Basic Salary</strong><div class="calc-info">From profile</div></div>
     <input type="number" class="row-amount" value="${w.salary}" step="0.01" oninput="updateSlipSummary()">
-    <div></div>
+    <div><span class="default-amount">Default: ${fmt(w.salary)}</span></div>
     <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
   </div>`;
+  currentSlipDefaults['basic'] = w.salary;
 
   if (w.allowances > 0) {
-    earningsHtml += `<div class="slip-row" data-type="earning" data-id="allowances" data-default="${w.allowances}">
-      <div><strong>Fixed Allowances</strong><div class="calc-info">From worker profile</div></div>
+    earningsHtml += `<div class="slip-row" data-type="earning" data-id="allowances">
+      <div><strong>Fixed Allowances</strong></div>
       <input type="number" class="row-amount" value="${w.allowances}" step="0.01" oninput="updateSlipSummary()">
-      <div></div>
+      <div><span class="default-amount">Default: ${fmt(w.allowances)}</span></div>
       <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
     </div>`;
+    currentSlipDefaults['allowances'] = w.allowances;
   }
 
-  // Master earning components
   data.salaryComponents.filter(c => c.type === 'earning' && c.active).forEach(c => {
-    let defaultAmount = 0;
-    let calcInfo = '';
-    
-    if (c.calcType === 'fixed') {
-      defaultAmount = c.value;
-      calcInfo = `Default: ${fmt(c.value)}`;
-    } else if (c.calcType === 'percentage') {
-      defaultAmount = (w.salary * c.value / 100);
-      calcInfo = `${c.value}% of basic = ${fmt(defaultAmount)}`;
-    } else if (c.calcType === 'perHour') {
-      defaultAmount = 0;
-      calcInfo = `${fmt(c.value)}/hour × hours`;
-    } else {
-      defaultAmount = 0;
-      calcInfo = 'Manual entry';
-    }
-    
-    earningsHtml += `<div class="slip-row" data-type="earning" data-id="${c.id}" data-default="${defaultAmount}" data-calc="${c.calcType}" data-base="${c.value}">
-      <div><strong>${c.name}</strong><div class="calc-info">${calcInfo} ${c.desc ? '• ' + c.desc : ''}</div></div>
+    let defaultAmount = c.calcType === 'fixed' ? c.value : (c.calcType === 'percentage' ? w.salary * c.value / 100 : 0);
+    const calcInfo = c.calcType === 'percentage' ? `${c.value}% of basic = ${fmt(defaultAmount)}` : `Default: ${fmt(c.value)}`;
+    earningsHtml += `<div class="slip-row" data-type="earning" data-id="${c.id}" data-base="${c.value}">
+      <div><strong>${c.name}</strong><div class="calc-info">${calcInfo}</div></div>
       <input type="number" class="row-amount" value="${defaultAmount}" step="0.01" oninput="updateSlipSummary()">
-      ${c.calcType === 'perHour' ? `<input type="number" class="row-hours" placeholder="Hours" step="0.5" value="0" oninput="recalcHoursRow(this)" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;">` : '<div></div>'}
+      <div><span class="default-amount">Default: ${fmt(defaultAmount)}</span></div>
       <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
     </div>`;
+    currentSlipDefaults[c.id] = defaultAmount;
   });
 
-  // Worker-specific additions for this month
-  const workerAdditions = data.additions.filter(a => a.workerId === workerId && a.month === month);
-  workerAdditions.forEach(a => {
-    earningsHtml += `<div class="slip-row" data-type="earning" data-id="add_${a.id}" data-default="${a.amount}">
-      <div><strong>${a.type}</strong><div class="calc-info">${a.hours ? a.hours + ' hrs • ' : ''}${a.description || 'Worker addition'}</div></div>
-      <input type="number" class="row-amount" value="${a.amount}" step="0.01" oninput="updateSlipSummary()">
-      <div></div>
-      <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
-    </div>`;
-  });
-
-  // Build deductions HTML
   let deductionsHtml = '';
-
-  // Master deduction components
   data.salaryComponents.filter(c => c.type === 'deduction' && c.active).forEach(c => {
-    let defaultAmount = 0;
-    let calcInfo = '';
-    
-    if (c.calcType === 'fixed') {
-      defaultAmount = c.value;
-      calcInfo = `Default: ${fmt(c.value)}`;
-    } else if (c.calcType === 'percentage') {
-      defaultAmount = (w.salary * c.value / 100);
-      calcInfo = `${c.value}% of basic = ${fmt(defaultAmount)}`;
-    } else {
-      defaultAmount = 0;
-      calcInfo = 'Manual entry';
-    }
-    
-    deductionsHtml += `<div class="slip-row" data-type="deduction" data-id="${c.id}" data-default="${defaultAmount}" data-calc="${c.calcType}" data-base="${c.value}">
-      <div><strong>${c.name}</strong><div class="calc-info">${calcInfo} ${c.desc ? '• ' + c.desc : ''}</div></div>
+    let defaultAmount = c.calcType === 'fixed' ? c.value : (c.calcType === 'percentage' ? w.salary * c.value / 100 : 0);
+    const calcInfo = c.calcType === 'percentage' ? `${c.value}% of basic = ${fmt(defaultAmount)}` : `Default: ${fmt(c.value)}`;
+    deductionsHtml += `<div class="slip-row" data-type="deduction" data-id="${c.id}">
+      <div><strong>${c.name}</strong><div class="calc-info">${calcInfo}</div></div>
       <input type="number" class="row-amount" value="${defaultAmount}" step="0.01" oninput="updateSlipSummary()">
-      <div></div>
+      <div><span class="default-amount">Default: ${fmt(defaultAmount)}</span></div>
       <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
     </div>`;
+    currentSlipDefaults[c.id] = defaultAmount;
   });
 
-  // Loan installments
   workerLoans.forEach(l => {
-    deductionsHtml += `<div class="slip-row loan-row" data-type="deduction" data-id="loan_${l.id}" data-default="${l.installment}" data-loan-id="${l.id}" data-kind="loan">
-      <div>
-        <strong><i class="fas fa-hand-holding-usd" style="color:var(--warning);"></i> Loan Installment - ${l.type}</strong>
-        <div class="calc-info">Auto-deducted • Loan balance: ${fmt(l.remaining)} • Started: ${l.startMonth}</div>
-      </div>
-      <input type="number" class="row-amount" value="${l.installment}" step="0.01" oninput="updateSlipSummary()">
-      <div></div>
-      <div class="row-controls">
-        <input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()" title="Uncheck to skip this month's loan deduction">
-        <span>Include</span>
-      </div>
-    </div>`;
-  });
-
-  // Advance installments
-  workerAdvances.forEach(a => {
-    deductionsHtml += `<div class="slip-row advance-row" data-type="deduction" data-id="advance_${a.id}" data-default="${a.installment}" data-advance-id="${a.id}" data-kind="advance">
-      <div>
-        <strong><i class="fas fa-money-check-alt" style="color:var(--pink);"></i> Advance - ${a.type}</strong>
-        <div class="calc-info">Auto-deducted • Balance: ${fmt(a.remaining)} • Started: ${a.startMonth}</div>
-      </div>
-      <input type="number" class="row-amount" value="${a.installment}" step="0.01" oninput="updateSlipSummary()">
-      <div></div>
-      <div class="row-controls">
-        <input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()" title="Uncheck to skip this month's advance deduction">
-        <span>Include</span>
-      </div>
-    </div>`;
-  });
-
-  // Worker-specific deductions for this month
-  const workerDeductions = data.deductions.filter(d => d.workerId === workerId && d.month === month);
-  workerDeductions.forEach(d => {
-    deductionsHtml += `<div class="slip-row" data-type="deduction" data-id="ded_${d.id}" data-default="${d.amount}">
-      <div><strong>${d.type}</strong><div class="calc-info">${d.description || 'Worker deduction'}</div></div>
-      <input type="number" class="row-amount" value="${d.amount}" step="0.01" oninput="updateSlipSummary()">
-      <div></div>
+    deductionsHtml += `<div class="slip-row loan-row" data-type="deduction" data-id="loan_${l.id}" data-loan-id="${l.id}" data-kind="loan">
+      <div><strong><i class="fas fa-hand-holding-usd" style="color:var(--warning);"></i> Loan - ${l.type}</strong><div class="calc-info">Auto-deducted • Balance: ${fmt(l.remaining)}</div></div>
+      <input type="number" class="row-amount" value="${l.installment || 0}" step="0.01" oninput="updateSlipSummary()">
+      <div><span class="default-amount">Default: ${fmt(l.installment)}</span></div>
       <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
     </div>`;
+    currentSlipDefaults[`loan_${l.id}`] = l.installment;
   });
 
-  if (!deductionsHtml) {
-    deductionsHtml = '<div style="padding:15px;text-align:center;color:var(--gray);font-size:13px;">No deductions configured</div>';
-  }
+  workerAdvances.forEach(a => {
+    deductionsHtml += `<div class="slip-row advance-row" data-type="deduction" data-id="advance_${a.id}" data-advance-id="${a.id}" data-kind="advance">
+      <div><strong><i class="fas fa-money-check-alt" style="color:var(--pink);"></i> Advance - ${a.type}</strong><div class="calc-info">Auto-deducted • Balance: ${fmt(a.remaining)}</div></div>
+      <input type="number" class="row-amount" value="${a.installment || 0}" step="0.01" oninput="updateSlipSummary()">
+      <div><span class="default-amount">Default: ${fmt(a.installment)}</span></div>
+      <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
+    </div>`;
+    currentSlipDefaults[`advance_${a.id}`] = a.installment;
+  });
+
+  if (!deductionsHtml) deductionsHtml = '<div style="padding:15px;text-align:center;color:var(--gray);">No deductions configured</div>';
 
   container.innerHTML = `
     <div class="slip-builder">
       <div class="slip-section">
-        <h3>
-          <span><i class="fas fa-plus-circle" style="color:var(--success);"></i> EARNINGS</span>
-          <button class="btn btn-sm btn-success" onclick="addCustomRow('earning')"><i class="fas fa-plus"></i> Add Custom</button>
-        </h3>
+        <h3><span><i class="fas fa-plus-circle" style="color:var(--success);"></i> EARNINGS</span></h3>
         <div id="earningsContainer">${earningsHtml}</div>
       </div>
-      
       <div class="slip-section">
-        <h3>
-          <span><i class="fas fa-minus-circle" style="color:var(--danger);"></i> DEDUCTIONS</span>
-          <button class="btn btn-sm btn-danger" onclick="addCustomRow('deduction')"><i class="fas fa-plus"></i> Add Custom</button>
-        </h3>
+        <h3><span><i class="fas fa-minus-circle" style="color:var(--danger);"></i> DEDUCTIONS</span></h3>
         <div id="deductionsContainer">${deductionsHtml}</div>
       </div>
-      
       <div class="summary-box">
         <div class="summary-grid">
-          <div class="summary-item"><div class="label">Basic Salary</div><div class="val" id="sumBasic">${fmt(w.salary)}</div></div>
+          <div class="summary-item"><div class="label">Basic</div><div class="val" id="sumBasic">${fmt(w.salary)}</div></div>
           <div class="summary-item"><div class="label">Total Earnings</div><div class="val" id="sumGross">${fmt(w.salary)}</div></div>
-          <div class="summary-item"><div class="label">Total Deductions</div><div class="val" id="sumDed">${fmt(0)}</div></div>
+          <div class="summary-item"><div class="label">Deductions</div><div class="val" id="sumDed">${fmt(0)}</div></div>
           <div class="summary-item net"><div class="label">NET SALARY</div><div class="val" id="sumNet">${fmt(w.salary)}</div></div>
         </div>
       </div>
-      
-      <div class="modification-log" id="modLog" style="display:none;">
-        <strong><i class="fas fa-info-circle"></i> Modifications from defaults:</strong>
-        <span id="modLogText"></span>
-      </div>
-      
       <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-success btn-lg" onclick="finalizeSlip('Paid')"><i class="fas fa-file-pdf"></i> Finalize & Download PDF</button>
-        <button class="btn btn-warning" onclick="finalizeSlip('Draft')"><i class="fas fa-save"></i> Save as Draft</button>
+        <button class="btn btn-warning" onclick="finalizeSlip('Draft')"><i class="fas fa-save"></i> Save Draft</button>
         <button class="btn btn-secondary" onclick="previewSlip()"><i class="fas fa-eye"></i> Preview</button>
       </div>
     </div>
   `;
-  
   updateSlipSummary();
 }
 
-function recalcHoursRow(input) {
-  const row = input.closest('.slip-row');
-  const rate = parseFloat(row.dataset.base) || 0;
-  const hours = parseFloat(input.value) || 0;
-  row.querySelector('.row-amount').value = (rate * hours).toFixed(2);
-  updateSlipSummary();
-}
-
-function addCustomRow(type) {
-  const name = prompt(`Enter ${type} name:`);
-  if (!name) return;
-  const amount = parseFloat(prompt('Enter amount:', '0')) || 0;
-  const container = document.getElementById(type === 'earning' ? 'earningsContainer' : 'deductionsContainer');
-  const row = document.createElement('div');
-  row.className = 'slip-row';
-  row.dataset.type = type;
-  row.dataset.id = 'custom_' + uid();
-  row.dataset.default = amount;
-  row.innerHTML = `
-    <div><strong>${name}</strong><div class="calc-info">Custom entry</div></div>
-    <input type="number" class="row-amount" value="${amount}" step="0.01" oninput="updateSlipSummary()">
-    <div></div>
-    <div class="row-controls">
-      <input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()">
-      <span>Include</span>
-      <button class="btn btn-sm btn-danger" onclick="this.closest('.slip-row').remove();updateSlipSummary();" style="padding:4px 8px;margin-left:5px;"><i class="fas fa-trash"></i></button>
-    </div>
-  `;
-  container.appendChild(row);
-  updateSlipSummary();
-}
-
+// FIXED: Safe updateSlipSummary that handles amount changes without errors
 function updateSlipSummary() {
-  const workerId = document.getElementById('slipWorker').value;
-  const w = data.workers.find(x => x.id === workerId);
-  if (!w) return;
-  
-  const earnings = [];
-  const deductions = [];
-  const modifications = [];
-  const loansDeducted = [];
-  const advancesDeducted = [];
-  
-  // Helper to get default amount
-  const getDefaultAmount = (row) => {
-    const defaultVal = parseFloat(row.dataset.default) || 0;
-    const calcType = row.dataset.calc;
-    const base = parseFloat(row.dataset.base) || 0;
-    
-    if (calcType === 'percentage' && base > 0) {
-      return (w.salary * base / 100);
-    }
-    return defaultVal;
-  };
-  
-  const getName = (row) => {
-    const id = row.dataset.id;
-    if (id === 'basic') return 'Basic Salary';
-    if (id === 'allowances') return 'Fixed Allowances';
-    if (id.startsWith('add_')) {
-      const a = data.additions.find(x => x.id === id.replace('add_', ''));
-      return a ? a.type : 'Addition';
-    }
-    if (id.startsWith('ded_')) {
-      const d = data.deductions.find(x => x.id === id.replace('ded_', ''));
-      return d ? d.type : 'Deduction';
-    }
-    if (id.startsWith('loan_')) {
-      const l = data.loans.find(x => x.id === id.replace('loan_', ''));
-      return l ? `Loan Installment - ${l.type}` : 'Loan Installment';
-    }
-    if (id.startsWith('advance_')) {
-      const a = data.advances.find(x => x.id === id.replace('advance_', ''));
-      return a ? `Advance - ${a.type}` : 'Advance';
-    }
-    if (id.startsWith('custom_')) return row.querySelector('strong')?.textContent || 'Custom';
-    const c = data.salaryComponents.find(x => x.id === id);
-    return c ? c.name : 'Unknown';
-  };
-  
-  // Process earnings
-  document.querySelectorAll('#earningsContainer .slip-row').forEach(row => {
-    const amount = parseFloat(row.querySelector('.row-amount')?.value) || 0;
-    const included = row.querySelector('.row-toggle')?.checked;
-    const id = row.dataset.id;
-    const name = getName(row);
-    const defaultAmt = getDefaultAmount(row);
-    
-    if (included && amount > 0) {
-      earnings.push({ name, amount, id });
-    }
-    
-    // Track modifications
-    if (!included && defaultAmt > 0 && !id.startsWith('custom_')) {
-      modifications.push(`❌ Excluded: ${name} (${fmt(defaultAmt)})`);
-    } else if (included && Math.abs(amount - defaultAmt) > 0.01 && defaultAmt > 0 && !id.startsWith('custom_')) {
-      modifications.push(`✏️ Modified: ${name} from ${fmt(defaultAmt)} to ${fmt(amount)}`);
-    }
-    
-    row.classList.toggle('excluded', !included);
-  });
-  
-  // Process deductions
-  document.querySelectorAll('#deductionsContainer .slip-row').forEach(row => {
-    const amount = parseFloat(row.querySelector('.row-amount')?.value) || 0;
-    const included = row.querySelector('.row-toggle')?.checked;
-    const id = row.dataset.id;
-    const name = getName(row);
-    const kind = row.dataset.kind;
-    const defaultAmt = getDefaultAmount(row);
-    
-    if (included && amount > 0) {
-      deductions.push({ name, amount, id, kind });
-      if (kind === 'loan') {
-        loansDeducted.push({ loanId: row.dataset.loanId, amount });
-      }
-      if (kind === 'advance') {
-        advancesDeducted.push({ advanceId: row.dataset.advanceId, amount });
-      }
-    }
-    
-    // Track modifications
-    if (!included && defaultAmt > 0 && !id.startsWith('custom_')) {
-      modifications.push(` Excluded: ${name} (${fmt(defaultAmt)})`);
-    } else if (included && Math.abs(amount - defaultAmt) > 0.01 && defaultAmt > 0 && !id.startsWith('custom_')) {
-      modifications.push(`✏️ Modified: ${name} from ${fmt(defaultAmt)} to ${fmt(amount)}`);
-    }
-    
-    row.classList.toggle('excluded', !included);
-  });
-  
-  const totalEarnings = earnings.reduce((s, e) => s + e.amount, 0);
-  const totalDeductions = deductions.reduce((s, d) => s + d.amount, 0);
-  const net = totalEarnings - totalDeductions;
-  const basic = earnings.find(e => e.id === 'basic')?.amount || 0;
-  
-  document.getElementById('sumBasic').textContent = fmt(basic);
-  document.getElementById('sumGross').textContent = fmt(totalEarnings);
-  document.getElementById('sumDed').textContent = fmt(totalDeductions);
-  document.getElementById('sumNet').textContent = fmt(net);
-  
-  // Show modifications if any
-  const modLog = document.getElementById('modLog');
-  const modText = document.getElementById('modLogText');
-  if (modifications.length > 0) {
-    modLog.style.display = 'block';
-    modText.innerHTML = '<ul style="margin:5px 0 0 20px;">' + modifications.map(m => `<li>${m}</li>`).join('') + '</ul>';
-  } else {
-    modLog.style.display = 'none';
+  try {
+    const workerId = document.getElementById('slipWorker').value;
+    const w = data.workers.find(x => x.id === workerId);
+    if (!w) return;
+    const earnings = [], deductions = [], loansDeducted = [], advancesDeducted = [], modifications = [];
+
+    document.querySelectorAll('#earningsContainer .slip-row').forEach(row => {
+      try {
+        const amountInput = row.querySelector('.row-amount');
+        const amount = amountInput ? (parseFloat(amountInput.value) || 0) : 0;
+        const included = row.querySelector('.row-toggle')?.checked;
+        const id = row.dataset.id;
+        let name = id === 'basic' ? 'Basic Salary' : id === 'allowances' ? 'Fixed Allowances' : (data.salaryComponents.find(x=>x.id===id)?.name || 'Unknown');
+        if (included && amount > 0) earnings.push({ name, amount, id });
+        row.classList.toggle('excluded', !included);
+      } catch (err) { console.error('Row error:', err); }
+    });
+
+    document.querySelectorAll('#deductionsContainer .slip-row').forEach(row => {
+      try {
+        const amountInput = row.querySelector('.row-amount');
+        const amount = amountInput ? (parseFloat(amountInput.value) || 0) : 0;
+        const included = row.querySelector('.row-toggle')?.checked;
+        const id = row.dataset.id;
+        const kind = row.dataset.kind;
+        let name = 'Unknown';
+        if (id.startsWith('loan_')) { const l = data.loans.find(x => x.id === id.replace('loan_', '')); name = l ? `Loan - ${l.type}` : 'Loan'; }
+        else if (id.startsWith('advance_')) { const a = data.advances.find(x => x.id === id.replace('advance_', '')); name = a ? `Advance - ${a.type}` : 'Advance'; }
+        else { const c = data.salaryComponents.find(x => x.id === id); name = c ? c.name : 'Unknown'; }
+
+        if (included && amount > 0) {
+          deductions.push({ name, amount, id, kind });
+          if (kind === 'loan') loansDeducted.push({ loanId: row.dataset.loanId, amount });
+          if (kind === 'advance') advancesDeducted.push({ advanceId: row.dataset.advanceId, amount });
+        }
+        row.classList.toggle('excluded', !included);
+      } catch (err) { console.error('Row error:', err); }
+    });
+
+    const totalEarnings = earnings.reduce((s,e) => s + e.amount, 0);
+    const totalDeductions = deductions.reduce((s,d) => s + d.amount, 0);
+    const net = totalEarnings - totalDeductions;
+    const basic = earnings.find(e => e.id === 'basic')?.amount || 0;
+
+    document.getElementById('sumBasic').textContent = fmt(basic);
+    document.getElementById('sumGross').textContent = fmt(totalEarnings);
+    document.getElementById('sumDed').textContent = fmt(totalDeductions);
+    document.getElementById('sumNet').textContent = fmt(net);
+
+    currentSlipData = { workerId, month: document.getElementById('slipMonth').value, notes: document.getElementById('slipNotes').value, earnings, deductions, loansDeducted, advancesDeducted, basic, totalAdditions: totalEarnings - basic, totalDeductions, net };
+  } catch (err) {
+    console.error('updateSlipSummary error:', err);
   }
-  
-  currentSlipData = {
-    workerId,
-    month: document.getElementById('slipMonth').value,
-    notes: document.getElementById('slipNotes').value,
-    earnings,
-    deductions,
-    modifications,
-    loansDeducted,
-    advancesDeducted,
-    basic,
-    totalAdditions: totalEarnings - basic,
-    totalDeductions,
-    net
-  };
 }
 
 function previewSlip() {
@@ -1889,136 +1701,73 @@ function previewSlip() {
 
 async function finalizeSlip(status) {
   if (!currentSlipData) { toast('Select worker and month', 'error'); return; }
-  
   const workerId = currentSlipData.workerId;
   const month = currentSlipData.month;
   const existingSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
-  
+
   const slipData = {
     slipNo: existingSlip ? existingSlip.slipNo : 'SL-' + Date.now().toString().slice(-6),
-    workerId, month,
-    notes: currentSlipData.notes,
-    earnings: currentSlipData.earnings,
-    deductions: currentSlipData.deductions,
-    modifications: currentSlipData.modifications,
-    loansDeducted: currentSlipData.loansDeducted || [],
-    advancesDeducted: currentSlipData.advancesDeducted || [],
-    basic: currentSlipData.basic,
-    totalAdditions: currentSlipData.totalAdditions,
-    totalDeductions: currentSlipData.totalDeductions,
-    net: currentSlipData.net,
-    status,
-    createdAt: existingSlip ? existingSlip.createdAt : today(),
-    modifiedAt: today()
+    workerId, month, notes: currentSlipData.notes,
+    earnings: currentSlipData.earnings, deductions: currentSlipData.deductions,
+    loansDeducted: currentSlipData.loansDeducted || [], advancesDeducted: currentSlipData.advancesDeducted || [],
+    basic: currentSlipData.basic, totalAdditions: currentSlipData.totalAdditions,
+    totalDeductions: currentSlipData.totalDeductions, net: currentSlipData.net,
+    status, createdAt: existingSlip ? existingSlip.createdAt : today(), modifiedAt: today()
   };
-  
+
   try {
-    showLoading('Finalizing pay slip...');
-    
-    // Save or update slip
-    if (existingSlip) {
-      await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
-    } else {
-      await saveToFirebase(collections.salarySlips, null, slipData);
-    }
-    
-    // Update loan and advance balances if slip is PAID
+    showLoading('Finalizing...');
+    if (existingSlip) await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
+    else await saveToFirebase(collections.salarySlips, null, slipData);
+
     if (status === 'Paid') {
-      // Update loans
       for (const ld of slipData.loansDeducted) {
         const loan = data.loans.find(l => l.id === ld.loanId);
-        if (loan) {
-          if (!loan.paidMonths) loan.paidMonths = [];
-          
-          if (!loan.paidMonths.includes(month)) {
-            loan.paidMonths.push(month);
-            loan.paid = (loan.paid || 0) + ld.amount;
-            loan.remaining = Math.max(0, loan.remaining - ld.amount);
-            
-            if (loan.remaining <= 0.01) {
-              loan.remaining = 0;
-              loan.status = 'Completed';
-            }
-            
-            // Update loan in Firebase
-            await updateInFirebase(collections.loans, loan.id, {
-              paid: loan.paid,
-              remaining: loan.remaining,
-              status: loan.status,
-              paidMonths: loan.paidMonths
-            });
-          }
+        if (loan && !loan.paidMonths.includes(month)) {
+          loan.paidMonths.push(month);
+          loan.paid = (loan.paid || 0) + ld.amount;
+          loan.remaining = Math.max(0, loan.remaining - ld.amount);
+          if (loan.remaining <= 0.01) { loan.remaining = 0; loan.status = 'Completed'; }
+          await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths });
         }
       }
-      
-      // Update advances
       for (const ad of slipData.advancesDeducted) {
-        const advance = data.advances.find(a => a.id === ad.advanceId);
-        if (advance) {
-          if (!advance.paidMonths) advance.paidMonths = [];
-          
-          if (!advance.paidMonths.includes(month)) {
-            advance.paidMonths.push(month);
-            advance.paid = (advance.paid || 0) + ad.amount;
-            advance.remaining = Math.max(0, advance.remaining - ad.amount);
-            
-            if (advance.remaining <= 0.01) {
-              advance.remaining = 0;
-              advance.status = 'Completed';
-            }
-            
-            // Update advance in Firebase
-            await updateInFirebase(collections.advances, advance.id, {
-              paid: advance.paid,
-              remaining: advance.remaining,
-              status: advance.status,
-              paidMonths: advance.paidMonths
-            });
-          }
+        const adv = data.advances.find(a => a.id === ad.advanceId);
+        if (adv && !adv.paidMonths.includes(month)) {
+          adv.paidMonths.push(month);
+          adv.paid = (adv.paid || 0) + ad.amount;
+          adv.remaining = Math.max(0, adv.remaining - ad.amount);
+          if (adv.remaining <= 0.01) { adv.remaining = 0; adv.status = 'Completed'; }
+          await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining: adv.remaining, status: adv.status, paidMonths: adv.paidMonths });
         }
       }
     }
-    
-    toast(status === 'Draft' ? 'Saved as draft!' : 'Finalized! Loan/Advance balances updated.');
-    
+
+    toast(status === 'Draft' ? 'Saved as draft!' : 'Finalized!');
     if (status === 'Paid') {
-      // Reload data and download PDF
       await loadData();
       const savedSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
-      if (savedSlip) {
-        downloadSlipPDF(savedSlip);
-      }
+      if (savedSlip) downloadSlipPDF(savedSlip);
     }
-  } catch (error) {
-    toast('Error finalizing slip: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
+// ============ HISTORY WITH EDIT & REVERSE ============
 function renderHistory() {
   const tbody = document.getElementById('historyTable');
-  if (!data.salarySlips.length) {
-    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><i class="fas fa-file-invoice"></i><h3>No pay slips yet</h3></div></td></tr>';
-    return;
-  }
+  if (!data.salarySlips.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><h3>No slips</h3></div></td></tr>'; return; }
   tbody.innerHTML = data.salarySlips.slice().reverse().map(s => {
     const w = data.workers.find(x => x.id === s.workerId);
-    const loanDed = (s.loansDeducted || []).reduce((sum, l) => sum + l.amount, 0);
-    const advDed = (s.advancesDeducted || []).reduce((sum, a) => sum + a.amount, 0);
     return `<tr>
-      <td><strong>#${s.slipNo}</strong></td>
-      <td>${w ? w.name : 'Unknown'}</td>
-      <td>${s.month}</td>
-      <td>${fmt(s.basic)}</td>
-      <td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
-      <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td>
-      <td><strong>${fmt(s.net)}</strong></td>
+      <td><strong>#${s.slipNo}</strong></td><td>${w ? w.name : 'Unknown'}</td><td>${s.month}</td>
+      <td>${fmt(s.basic)}</td><td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
+      <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td><td><strong>${fmt(s.net)}</strong></td>
       <td><span class="badge ${s.status==='Paid'?'badge-success':'badge-gray'}">${s.status}</span></td>
       <td>
         <button class="btn btn-primary btn-sm" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i></button>
         <button class="btn btn-info btn-sm" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i></button>
-        <button class="btn btn-danger btn-sm" onclick="deleteSlip('${s.id}')"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-warning btn-sm" onclick="editSlip('${s.id}')" title="Edit slip amounts"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="reverseSlip('${s.id}')" title="Reverse/cancel this slip"><i class="fas fa-undo"></i></button>
       </td>
     </tr>`;
   }).join('');
@@ -2032,51 +1781,229 @@ function viewSlip(id) {
   openModal('viewSlipModal');
 }
 
-async function deleteSlip(id) {
-  if (!confirm('Delete this pay slip?')) return;
-  try {
-    showLoading('Deleting slip...');
-    await deleteFromFirebase(collections.salarySlips, id);
-    await loadData();
-    renderHistory();
-    toast('Pay slip deleted successfully!');
-  } catch (error) {
-    toast('Error deleting slip: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+// NEW: Edit existing slip (opens slip builder with existing data)
+async function editSlip(id) {
+  const slip = data.salarySlips.find(s => s.id === id);
+  if (!slip) return;
+  
+  // Navigate to slip builder
+  showSection('slips');
+  await new Promise(r => setTimeout(r, 200));
+  
+  document.getElementById('slipWorker').value = slip.workerId;
+  document.getElementById('slipMonth').value = slip.month;
+  document.getElementById('slipNotes').value = slip.notes || '';
+  
+  loadSlipDefaults();
+  
+  // Wait for builder to render, then apply existing values
+  await new Promise(r => setTimeout(r, 300));
+  
+  // Apply existing earnings values
+  slip.earnings.forEach(e => {
+    const row = document.querySelector(`#earningsContainer .slip-row[data-id="${e.id}"]`);
+    if (row) {
+      const input = row.querySelector('.row-amount');
+      if (input) input.value = e.amount;
+      const toggle = row.querySelector('.row-toggle');
+      if (toggle) toggle.checked = true;
+    }
+  });
+  
+  // Apply existing deductions values
+  slip.deductions.forEach(d => {
+    const row = document.querySelector(`#deductionsContainer .slip-row[data-id="${d.id}"]`);
+    if (row) {
+      const input = row.querySelector('.row-amount');
+      if (input) input.value = d.amount;
+      const toggle = row.querySelector('.row-toggle');
+      if (toggle) toggle.checked = true;
+    }
+  });
+  
+  // Uncheck items not in existing slip
+  document.querySelectorAll('#earningsContainer .slip-row, #deductionsContainer .slip-row').forEach(row => {
+    const id = row.dataset.id;
+    const inEarnings = slip.earnings.find(e => e.id === id);
+    const inDeductions = slip.deductions.find(d => d.id === id);
+    if (!inEarnings && !inDeductions) {
+      const toggle = row.querySelector('.row-toggle');
+      if (toggle) toggle.checked = false;
+    }
+  });
+  
+  updateSlipSummary();
+  toast('Slip loaded for editing. Make changes and finalize.');
 }
 
-// ============ PDF GENERATION (FIXED ALIGNMENT) ============
+// NEW: Reverse/cancel a completed slip (restores loan/advance balances)
+async function reverseSlip(id) {
+  const slip = data.salarySlips.find(s => s.id === id);
+  if (!slip) return;
+  if (slip.status !== 'Paid') {
+    if (!confirm('Delete this draft slip?')) return;
+    try {
+      showLoading('Deleting...');
+      await deleteFromFirebase(collections.salarySlips, id);
+      await loadData();
+      toast('Slip deleted!');
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    return;
+  }
+  
+  const w = data.workers.find(x => x.id === slip.workerId);
+  if (!confirm(`Reverse pay slip #${slip.slipNo} for ${w?.name || 'worker'}?\n\nThis will:\n• Restore loan/advance balances\n• Mark slip as Reversed\n\nContinue?`)) return;
+  
+  try {
+    showLoading('Reversing slip...');
+    
+    // Restore loan balances
+    for (const ld of (slip.loansDeducted || [])) {
+      const loan = data.loans.find(l => l.id === ld.loanId);
+      if (loan) {
+        loan.paidMonths = (loan.paidMonths || []).filter(m => m !== slip.month);
+        loan.paid = Math.max(0, (loan.paid || 0) - ld.amount);
+        loan.remaining = (loan.remaining || 0) + ld.amount;
+        loan.status = 'Active';
+        await updateInFirebase(collections.loans, loan.id, { 
+          paid: loan.paid, remaining: loan.remaining, 
+          status: loan.status, paidMonths: loan.paidMonths 
+        });
+      }
+    }
+    
+    // Restore advance balances
+    for (const ad of (slip.advancesDeducted || [])) {
+      const adv = data.advances.find(a => a.id === ad.advanceId);
+      if (adv) {
+        adv.paidMonths = (adv.paidMonths || []).filter(m => m !== slip.month);
+        adv.paid = Math.max(0, (adv.paid || 0) - ad.amount);
+        adv.remaining = (adv.remaining || 0) + ad.amount;
+        adv.status = 'Active';
+        await updateInFirebase(collections.advances, adv.id, { 
+          paid: adv.paid, remaining: adv.remaining, 
+          status: adv.status, paidMonths: adv.paidMonths 
+        });
+      }
+    }
+    
+    // Mark slip as reversed
+    await updateInFirebase(collections.salarySlips, id, { status: 'Reversed', reversedAt: today() });
+    
+    await loadData();
+    toast('Slip reversed! Loan/advance balances restored.');
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+}
+
+function viewSlipPreview(slip) {
+  const w = data.workers.find(x => x.id === slip.workerId);
+  const d = data.payslipDesign;
+  const c = data.company;
+  const earningsHtml = slip.earnings.map(e => `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${e.name}</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${fmt(e.amount)}</td></tr>`).join('');
+  const deductionsHtml = slip.deductions.length ? slip.deductions.map(x => {
+    const isLoan = x.kind === 'loan';
+    const isAdvance = x.kind === 'advance';
+    const bg = isLoan ? '#fef3c7' : isAdvance ? '#fce7f3' : '';
+    return `<tr style="background:${bg};"><td style="padding:8px;border-bottom:1px solid #eee;">${x.name}</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${fmt(x.amount)}</td></tr>`;
+  }).join('') : '<tr><td colspan="2" style="padding:8px;text-align:center;color:#999;">No deductions</td></tr>';
+  const gross = slip.basic + slip.totalAdditions;
+
+  document.getElementById('viewSlipBody').innerHTML = `
+    <div style="border:2px solid ${d.primaryColor};border-radius:10px;padding:30px;background:white;">
+      <div style="text-align:center;background:${d.primaryColor};color:white;padding:20px;margin:-30px -30px 20px -30px;border-radius:8px 8px 0 0;">
+        <h1 style="font-size:24px;margin-bottom:5px;">${c.name || 'LANKA SHOE'}</h1>
+        <p style="font-size:12px;opacity:0.9;">${c.address || ''}</p>
+      </div>
+      <h2 style="text-align:center;color:${d.primaryColor};margin-bottom:5px;">${d.slipTitle}</h2>
+      <p style="text-align:center;color:#64748b;font-size:13px;margin-bottom:20px;">Slip #${slip.slipNo} • Month: <strong>${slip.month}</strong> • Status: <span class="badge ${slip.status==='Paid'?'badge-success':slip.status==='Reversed'?'badge-danger':'badge-gray'}">${slip.status}</span></p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;padding:15px;background:#f8fafc;border-radius:8px;">
+        <div>
+          <p style="margin-bottom:5px;"><strong>Name:</strong> ${w?.name || '-'}</p>
+          <p style="margin-bottom:5px;"><strong>Emp ID:</strong> ${w?.empId || '-'}</p>
+          <p><strong>Position:</strong> ${w?.position || '-'}</p>
+        </div>
+        <div>
+          <p style="margin-bottom:5px;"><strong>Join Date:</strong> ${w?.joinDate || '-'}</p>
+          ${d.showBank ? `<p style="margin-bottom:5px;"><strong>Bank:</strong> ${w?.bank || '-'}</p><p><strong>Account:</strong> ${w?.account || '-'}</p>` : ''}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;">
+        <div>
+          <h3 style="color:${d.earningsColor};margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid ${d.earningsColor};"><i class="fas fa-plus-circle"></i> EARNINGS</h3>
+          <table style="width:100%;"><tbody>${earningsHtml}<tr style="background:#d1fae5;font-weight:bold;"><td style="padding:8px;">Total Earnings</td><td style="padding:8px;text-align:right;">${fmt(gross)}</td></tr></tbody></table>
+        </div>
+        <div>
+          <h3 style="color:${d.deductionsColor};margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid ${d.deductionsColor};"><i class="fas fa-minus-circle"></i> DEDUCTIONS</h3>
+          <table style="width:100%;"><tbody>${deductionsHtml}<tr style="background:#fee2e2;font-weight:bold;"><td style="padding:8px;">Total Deductions</td><td style="padding:8px;text-align:right;">${fmt(slip.totalDeductions)}</td></tr></tbody></table>
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,${d.primaryColor},${d.primaryColor}dd);color:white;padding:20px;border-radius:10px;text-align:center;margin-bottom:15px;">
+        <div style="font-size:12px;opacity:0.9;">NET SALARY</div>
+        <div style="font-size:32px;font-weight:bold;">${fmt(slip.net)}</div>
+      </div>
+      ${d.showLoans && slip.loansDeducted && slip.loansDeducted.length > 0 ? `
+        <div style="background:#fef3c7;padding:12px;border-radius:8px;border-left:4px solid ${d.loanColor};margin-bottom:10px;font-size:12px;">
+          <strong style="color:#92400e;"><i class="fas fa-hand-holding-usd"></i> ${d.loansTitle}:</strong>
+          <ul style="margin:5px 0 0 20px;color:#78350f;">${slip.loansDeducted.map(ld => { const loan = data.loans.find(l => l.id === ld.loanId); return `<li>${loan ? loan.type : 'Loan'}: ${fmt(ld.amount)}</li>`; }).join('')}</ul>
+        </div>
+      ` : ''}
+      ${d.showAdvances && slip.advancesDeducted && slip.advancesDeducted.length > 0 ? `
+        <div style="background:#fce7f3;padding:12px;border-radius:8px;border-left:4px solid ${d.advanceColor};margin-bottom:10px;font-size:12px;">
+          <strong style="color:#9d174d;"><i class="fas fa-money-check-alt"></i> ${d.advancesTitle}:</strong>
+          <ul style="margin:5px 0 0 20px;color:#831843;">${slip.advancesDeducted.map(ad => { const adv = data.advances.find(a => a.id === ad.advanceId); return `<li>${adv ? adv.type : 'Advance'}: ${fmt(ad.amount)}</li>`; }).join('')}</ul>
+        </div>
+      ` : ''}
+      ${d.showSignatures ? `<div style="display:flex;justify-content:space-between;margin-top:40px;padding-top:20px;">
+        <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign1Label}</div></div>
+        <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign2Label}</div></div>
+      </div>` : ''}
+      ${d.showFooter ? `<p style="text-align:center;margin-top:20px;font-size:11px;color:#64748b;font-style:italic;">${d.footerText}</p>` : ''}
+    </div>
+  `;
+}
+
+// ============ PDF GENERATION ============
 function downloadSlipPDF(slip) {
   const w = data.workers.find(x => x.id === slip.workerId);
   if (!w) return;
   const c = data.company;
   const d = data.payslipDesign;
-  
+
   const hex = d.primaryColor.replace('#','');
-  const r = parseInt(hex.substr(0,2),16);
-  const g = parseInt(hex.substr(2,2),16);
-  const b = parseInt(hex.substr(4,2),16);
-  
+  const r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
   const eHex = d.earningsColor.replace('#','');
-  const er = parseInt(eHex.substr(0,2),16);
-  const eg = parseInt(eHex.substr(2,2),16);
-  const eb = parseInt(eHex.substr(4,2),16);
-  
+  const er = parseInt(eHex.substr(0,2),16), eg = parseInt(eHex.substr(2,2),16), eb = parseInt(eHex.substr(4,2),16);
   const dHex = d.deductionsColor.replace('#','');
-  const dr = parseInt(dHex.substr(0,2),16);
-  const dg = parseInt(dHex.substr(2,2),16);
-  const db = parseInt(dHex.substr(4,2),16);
-  
+  const dr = parseInt(dHex.substr(0,2),16), dg = parseInt(dHex.substr(2,2),16), db = parseInt(dHex.substr(4,2),16);
+  const lHex = d.loanColor.replace('#','');
+  const lr = parseInt(lHex.substr(0,2),16), lg = parseInt(lHex.substr(2,2),16), lb = parseInt(lHex.substr(4,2),16);
+  const aHex = d.advanceColor.replace('#','');
+  const ar = parseInt(aHex.substr(0,2),16), ag = parseInt(aHex.substr(2,2),16), ab = parseInt(aHex.substr(4,2),16);
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: d.paperSize });
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
   const fontSize = d.fontSize === 'small' ? 9 : d.fontSize === 'large' ? 12 : 10;
-  
+  const marginX = 14;
+  const contentWidth = pageWidth - (marginX * 2);
+
+  if (d.showWatermark) {
+    doc.setTextColor(230, 230, 230);
+    doc.setFontSize(50);
+    doc.setFont('helvetica', 'bold');
+    doc.text(c.name || 'LANKA SHOE', pageWidth/2, pageHeight/2, { align: 'center', angle: 45 });
+  }
+
+  if (d.border !== 'none') {
+    doc.setDrawColor(r, g, b);
+    doc.setLineWidth(d.border === 'thick' ? 2 : 0.5);
+    doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
+    if (d.border === 'double') doc.rect(7, 7, pageWidth - 14, pageHeight - 14);
+  }
+
   let y = 15;
-  
-  // Header
+
   if (d.headerStyle === 'full') {
     doc.setFillColor(r, g, b);
     doc.rect(0, 0, pageWidth, 40, 'F');
@@ -2094,21 +2021,22 @@ function downloadSlipPDF(slip) {
     doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
     doc.text(c.name || 'LANKA SHOE', pageWidth/2, y, { align: 'center' });
-    y += 6;
+    y += 7;
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 100, 100);
     doc.text(c.address || '', pageWidth/2, y, { align: 'center' });
+    y += 5;
+    doc.text(`Phone: ${c.phone || '-'} | Email: ${c.email || '-'}`, pageWidth/2, y, { align: 'center' });
     y += 8;
   } else {
     doc.setTextColor(r, g, b);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text(c.name || 'LANKA SHOE', 14, y);
+    doc.text(c.name || 'LANKA SHOE', marginX, y);
     y += 10;
   }
-  
-  // Title
+
   doc.setTextColor(r, g, b);
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
@@ -2119,207 +2047,178 @@ function downloadSlipPDF(slip) {
   doc.setTextColor(100, 100, 100);
   doc.text(`Slip #${slip.slipNo} • Month: ${slip.month}`, pageWidth/2, y, { align: 'center' });
   y += 8;
-  
+
   doc.setDrawColor(r, g, b);
-  doc.line(14, y, pageWidth - 14, y);
-  y += 6;
-  
-  // Employee info
+  doc.setLineWidth(0.5);
+  doc.line(marginX, y, pageWidth - marginX, y);
+  y += 8;
+
   doc.setFontSize(fontSize);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(30, 41, 59);
-  doc.text('Employee Details', 14, y);
-  y += 5;
+  doc.text('Employee Details', marginX, y);
+  y += 6;
   doc.setFont('helvetica', 'normal');
-  doc.text(`Name: ${w.name}`, 14, y);
-  doc.text(`Join Date: ${w.joinDate}`, 115, y);
-  y += 5;
-  doc.text(`Employee ID: ${w.empId}`, 14, y);
-  if (d.showBank) doc.text(`Bank: ${w.bank || '-'}`, 115, y);
-  y += 5;
-  doc.text(`Position: ${w.position}`, 14, y);
-  if (d.showBank) doc.text(`Account: ${w.account || '-'}`, 115, y);
-  y += 5;
-  doc.text(`Department: ${w.department}`, 14, y);
-  if (d.showTax) doc.text(`Tax ID: ${w.taxId || '-'}`, 115, y);
-  y += 8;
+  doc.setFontSize(fontSize - 1);
   
-  // EARNINGS TABLE - FIXED ALIGNMENT
+  const col1X = marginX;
+  const col2X = pageWidth / 2 + 5;
+  const labelWidth = 30;
+  
+  doc.text('Name:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.name, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+  doc.text('Join Date:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.joinDate || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal');
+  y += 5;
+  
+  doc.text('Emp ID:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.empId, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+  if (d.showBank) { doc.text('Bank:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.bank || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
+  y += 5;
+  
+  doc.text('Position:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.position, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+  if (d.showBank) { doc.text('Account:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.account || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
+  y += 5;
+  
+  doc.text('Dept:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.department, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+  if (d.showTax) { doc.text('Tax ID:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.taxId || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
+  y += 8;
+
+  const grossTotal = slip.basic + slip.totalAdditions;
+  
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(er, eg, eb);
-  doc.text('EARNINGS', 14, y);
+  doc.setFontSize(fontSize);
+  doc.text('EARNINGS', marginX, y);
   y += 3;
-  
+
   const earningsBody = slip.earnings.map(e => [e.name, fmt(e.amount)]);
-  const grossTotal = slip.basic + slip.totalAdditions;
-  earningsBody.push(['TOTAL EARNINGS', fmt(grossTotal)]);
-  
+  earningsBody.push([{ content: 'TOTAL EARNINGS', styles: { fontStyle: 'bold', fillColor: [209, 250, 229] } }, { content: fmt(grossTotal), styles: { fontStyle: 'bold', fillColor: [209, 250, 229], halign: 'right' } }]);
+
   doc.autoTable({
     startY: y,
     head: [['Description', 'Amount']],
     body: earningsBody,
     theme: 'grid',
-    headStyles: { 
-      fillColor: [er, eg, eb], 
-      textColor: 255, 
-      fontSize: fontSize - 1,
-      halign: 'center'
-    },
-    styles: { 
-      fontSize: fontSize - 1,
-      cellPadding: 3
-    },
+    headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
+    styles: { fontSize: fontSize - 1, cellPadding: 3 },
     columnStyles: { 
-      0: { cellWidth: 'auto' },
-      1: { halign: 'right', cellWidth: 40 }  // PERFECT RIGHT ALIGNMENT
+      0: { cellWidth: contentWidth - 45 },
+      1: { halign: 'right', cellWidth: 45 }
     },
-    margin: { left: 14, right: pageWidth/2 + 5 }
+    margin: { left: marginX, right: marginX }
   });
-  
-  // DEDUCTIONS TABLE - FIXED ALIGNMENT
+
+  y = doc.lastAutoTable.finalY + 8;
+
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(dr, dg, db);
-  doc.text('DEDUCTIONS', pageWidth/2 + 10, y);
-  
-  const deductionsBody = slip.deductions.length ? slip.deductions.map(x => {
-    const isLoan = x.kind === 'loan';
-    const isAdvance = x.kind === 'advance';
-    return [`${isLoan ? '[LOAN] ' : isAdvance ? '[ADVANCE] ' : ''}${x.name}`, fmt(x.amount)];
-  }) : [['No deductions', '-']];
-  deductionsBody.push(['TOTAL DEDUCTIONS', fmt(slip.totalDeductions)]);
-  
+  doc.setFontSize(fontSize);
+  doc.text('DEDUCTIONS', marginX, y);
+  y += 3;
+
+  const deductionsBody = slip.deductions.length ? slip.deductions.map(x => [x.name, fmt(x.amount)]) : [['No deductions', '-']];
+  deductionsBody.push([{ content: 'TOTAL DEDUCTIONS', styles: { fontStyle: 'bold', fillColor: [254, 226, 226] } }, { content: fmt(slip.totalDeductions), styles: { fontStyle: 'bold', fillColor: [254, 226, 226], halign: 'right' } }]);
+
   doc.autoTable({
     startY: y,
     head: [['Description', 'Amount']],
     body: deductionsBody,
     theme: 'grid',
-    headStyles: { 
-      fillColor: [dr, dg, db], 
-      textColor: 255, 
-      fontSize: fontSize - 1,
-      halign: 'center'
-    },
-    styles: { 
-      fontSize: fontSize - 1,
-      cellPadding: 3
-    },
+    headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
+    styles: { fontSize: fontSize - 1, cellPadding: 3 },
     columnStyles: { 
-      0: { cellWidth: 'auto' },
-      1: { halign: 'right', cellWidth: 40 }  // PERFECT RIGHT ALIGNMENT
+      0: { cellWidth: contentWidth - 45 },
+      1: { halign: 'right', cellWidth: 45 }
     },
-    margin: { left: pageWidth/2 + 5, right: 14 }
+    margin: { left: marginX, right: marginX }
   });
-  
-  // Get the final Y position from both tables
-  const earningsFinalY = doc.lastAutoTable.finalY;
-  const deductionsFinalY = doc.autoTable.previous.finalY;
-  y = Math.max(earningsFinalY, deductionsFinalY) + 8;
-  
-  // NET SALARY BOX - PROPERLY ALIGNED
+
+  y = doc.lastAutoTable.finalY + 8;
+
   doc.setFillColor(r, g, b);
-  doc.roundedRect(14, y, pageWidth - 28, 25, 3, 3, 'F');
-  
+  doc.roundedRect(marginX, y, contentWidth, 22, 3, 3, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  
-  // Left side - Gross
-  doc.text('Gross Salary:', 20, y + 8);
-  doc.text(fmt(grossTotal), 20, y + 16);
-  
-  // Middle - Deductions
-  doc.text('Total Deductions:', 70, y + 8);
-  doc.text(fmt(slip.totalDeductions), 70, y + 16);
-  
-  // Right side - NET (LARGER)
-  doc.setFontSize(14);
-  doc.text('NET PAY:', pageWidth - 20, y + 12, { align: 'right' });
-  doc.setFontSize(18);
-  doc.text(fmt(slip.net), pageWidth - 20, y + 20, { align: 'right' });
-  
-  y += 35;
-  
-  // Analysis section
+  doc.text(`Gross Salary: ${fmt(grossTotal)}`, marginX + 5, y + 9);
+  doc.text(`Total Deductions: ${fmt(slip.totalDeductions)}`, marginX + 5, y + 16);
+  doc.setFontSize(16);
+  doc.text(`NET PAY: ${fmt(slip.net)}`, pageWidth - marginX - 5, y + 13, { align: 'right' });
+
+  y += 30;
+
+  if (d.showLoans && slip.loansDeducted && slip.loansDeducted.length > 0) {
+    const boxHeight = 10 + slip.loansDeducted.length * 5;
+    doc.setFillColor(254, 243, 199);
+    doc.roundedRect(marginX, y, contentWidth, boxHeight, 2, 2, 'F');
+    doc.setDrawColor(lr, lg, lb);
+    doc.setLineWidth(1.5);
+    doc.line(marginX, y, marginX, y + boxHeight);
+    doc.setTextColor(146, 64, 14);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(d.loansTitle + ':', marginX + 5, y + 6);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    let ly = y + 11;
+    slip.loansDeducted.forEach(ld => {
+      const loan = data.loans.find(l => l.id === ld.loanId);
+      doc.text(`• ${loan ? loan.type : 'Loan'}: ${fmt(ld.amount)}`, marginX + 8, ly);
+      ly += 5;
+    });
+    y += boxHeight + 5;
+  }
+
+  if (d.showAdvances && slip.advancesDeducted && slip.advancesDeducted.length > 0) {
+    const boxHeight = 10 + slip.advancesDeducted.length * 5;
+    doc.setFillColor(252, 231, 243);
+    doc.roundedRect(marginX, y, contentWidth, boxHeight, 2, 2, 'F');
+    doc.setDrawColor(ar, ag, ab);
+    doc.setLineWidth(1.5);
+    doc.line(marginX, y, marginX, y + boxHeight);
+    doc.setTextColor(157, 23, 77);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(d.advancesTitle + ':', marginX + 5, y + 6);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    let ay = y + 11;
+    slip.advancesDeducted.forEach(ad => {
+      const adv = data.advances.find(a => a.id === ad.advanceId);
+      doc.text(`• ${adv ? adv.type : 'Advance'}: ${fmt(ad.amount)}`, marginX + 8, ay);
+      ay += 5;
+    });
+    y += boxHeight + 5;
+  }
+
   if (d.showAnalysis) {
     const netPct = grossTotal > 0 ? (slip.net / grossTotal * 100).toFixed(1) : 0;
     const dedPct = grossTotal > 0 ? (slip.totalDeductions / grossTotal * 100).toFixed(1) : 0;
-    
     doc.setFillColor(248, 250, 252);
-    doc.roundedRect(14, y, pageWidth - 28, 15, 2, 2, 'F');
+    doc.roundedRect(marginX, y, contentWidth, 12, 2, 2, 'F');
     doc.setTextColor(30, 41, 59);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Net Salary: ${netPct}% of Gross  |  Deduction Ratio: ${dedPct}%`, pageWidth/2, y + 9, { align: 'center' });
-    y += 20;
+    doc.text(`Net Salary: ${netPct}% of Gross   |   Deduction Ratio: ${dedPct}%`, pageWidth/2, y + 8, { align: 'center' });
+    y += 18;
   }
-  
-  // Loan deductions
-  if (d.showLoans && slip.loansDeducted && slip.loansDeducted.length > 0) {
-    doc.setTextColor(146, 64, 14);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.text(d.loansTitle + ':', 14, y);
-    y += 4;
-    doc.setFont('helvetica', 'normal');
-    slip.loansDeducted.forEach(ld => {
-      const loan = data.loans.find(l => l.id === ld.loanId);
-      doc.text(`• ${loan ? loan.type : 'Loan'}: ${fmt(ld.amount)}`, 18, y);
-      y += 4;
-    });
-    y += 4;
-  }
-  
-  // Advance deductions
-  if (d.showAdvances && slip.advancesDeducted && slip.advancesDeducted.length > 0) {
-    doc.setTextColor(157, 23, 77);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.text(d.advancesTitle + ':', 14, y);
-    y += 4;
-    doc.setFont('helvetica', 'normal');
-    slip.advancesDeducted.forEach(ad => {
-      const advance = data.advances.find(a => a.id === ad.advanceId);
-      doc.text(`• ${advance ? advance.type : 'Advance'}: ${fmt(ad.amount)}`, 18, y);
-      y += 4;
-    });
-    y += 4;
-  }
-  
-  // Modifications
-  if (d.showModifications && slip.modifications && slip.modifications.length) {
-    doc.setTextColor(146, 64, 14);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Modifications from defaults:', 14, y);
-    y += 4;
-    doc.setFont('helvetica', 'normal');
-    slip.modifications.slice(0, 5).forEach(m => {
-      doc.text('• ' + m, 18, y);
-      y += 4;
-    });
-    y += 4;
-  }
-  
-  // Notes
+
   if (slip.notes) {
     doc.setTextColor(30, 64, 175);
     doc.setFontSize(9);
-    doc.text(`Notes: ${slip.notes}`, 14, y);
+    doc.text(`Notes: ${slip.notes}`, marginX, y);
     y += 8;
   }
-  
-  // Signatures
+
   if (d.showSignatures) {
     doc.setTextColor(30, 41, 59);
     doc.setDrawColor(30, 41, 59);
-    doc.line(20, 265, 70, 265);
-    doc.line(pageWidth - 70, 265, pageWidth - 20, 265);
+    doc.setLineWidth(0.5);
+    doc.line(marginX + 5, 265, marginX + 55, 265);
+    doc.line(pageWidth - marginX - 55, 265, pageWidth - marginX - 5, 265);
     doc.setFontSize(9);
-    doc.text(d.sign1Label, 45, 270, { align: 'center' });
-    doc.text(d.sign2Label, pageWidth - 45, 270, { align: 'center' });
+    doc.text(d.sign1Label, marginX + 30, 270, { align: 'center' });
+    doc.text(d.sign2Label, pageWidth - marginX - 30, 270, { align: 'center' });
   }
-  
-  // Footer
+
   if (d.showFooter && d.footerText) {
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139);
@@ -2327,155 +2226,111 @@ function downloadSlipPDF(slip) {
   }
   doc.setFontSize(8);
   doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
-  
+
   doc.save(`PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf`);
-  toast('PDF downloaded successfully!');
+  toast('PDF downloaded!');
 }
 
 // ============ REPORTS ============
 let currentReport = 'payroll';
-
 function selectReport(type, el) {
   currentReport = type;
   document.querySelectorAll('#reports .toggle-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
 }
-
 function generateReport() {
   const month = document.getElementById('rMonth').value;
   const dept = document.getElementById('rDept').value;
   const workerId = document.getElementById('rWorker').value;
-  
   let reportData = [], title = '', columns = [];
-  
+
   switch(currentReport) {
     case 'payroll':
-      title = 'Payroll Report';
-      columns = ['Slip #','Month','Employee','Basic','Additions','Deductions','Net','Status'];
+      title = 'Payroll Report'; columns = ['Slip #','Month','Employee','Basic','Additions','Deductions','Net','Status'];
       let slips = data.salarySlips;
       if (month) slips = slips.filter(s => s.month === month);
       if (workerId) slips = slips.filter(s => s.workerId === workerId);
       if (dept) slips = slips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dept; });
-      reportData = slips.map(s => {
-        const w = data.workers.find(x => x.id === s.workerId);
-        return [s.slipNo, s.month, w?.name||'-', fmt(s.basic), fmt(s.totalAdditions), fmt(s.totalDeductions), fmt(s.net), s.status];
-      });
+      reportData = slips.map(s => { const w = data.workers.find(x => x.id === s.workerId); return [s.slipNo, s.month, w?.name||'-', fmt(s.basic), fmt(s.totalAdditions), fmt(s.totalDeductions), fmt(s.net), s.status]; });
       break;
     case 'worker':
-      title = 'Worker Report';
-      columns = ['Emp ID','Name','Position','Department','Basic','Total Paid','Loan Balance','Advance Balance','Slips'];
+      title = 'Worker Report'; columns = ['Emp ID','Name','Position','Department','Basic','Total Paid','Loans','Advances'];
       let workers = data.workers;
       if (dept) workers = workers.filter(w => w.department === dept);
       reportData = workers.map(w => {
         const paid = data.salarySlips.filter(s => s.workerId === w.id).reduce((s,p) => s + p.net, 0);
         const loan = data.loans.filter(l => l.workerId === w.id && l.status === 'Active').reduce((s,l) => s + l.remaining, 0);
         const adv = data.advances.filter(a => a.workerId === w.id && a.status === 'Active').reduce((s,a) => s + a.remaining, 0);
-        return [w.empId, w.name, w.position, w.department, fmt(w.salary), fmt(paid), fmt(loan), fmt(adv), data.salarySlips.filter(s => s.workerId === w.id).length];
+        return [w.empId, w.name, w.position, w.department, fmt(w.salary), fmt(paid), fmt(loan), fmt(adv)];
       });
       break;
     case 'department':
-      title = 'Department Report';
-      columns = ['Department','Workers','Total Basic','Total Paid','Avg Salary'];
+      title = 'Department Report'; columns = ['Department','Workers','Total Basic','Total Paid'];
       const depts = dept ? [dept] : data.departments;
       reportData = depts.map(d => {
         const ws = data.workers.filter(w => w.department === d);
         const totalBasic = ws.reduce((s,w) => s + w.salary, 0);
         const paid = data.salarySlips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === d && (!month || s.month === month); }).reduce((s,p) => s + p.net, 0);
-        return [d, ws.length, fmt(totalBasic), fmt(paid), fmt(ws.length ? totalBasic/ws.length : 0)];
+        return [d, ws.length, fmt(totalBasic), fmt(paid)];
       });
       break;
     case 'loan':
-      title = 'Loan Report';
-      columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start Month','Months Paid','Progress','Status'];
+      title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status'];
       let loans = data.loans;
       if (workerId) loans = loans.filter(l => l.workerId === workerId);
-      reportData = loans.map(l => {
-        const w = data.workers.find(x => x.id === l.workerId);
-        const paidCount = (l.paidMonths || []).length;
-        const totalMonths = Math.ceil(l.amount / l.installment);
-        return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid), fmt(l.remaining), l.startMonth, `${paidCount}/${totalMonths}`, ((l.paid/l.amount)*100).toFixed(1)+'%', l.status];
-      });
+      reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid), fmt(l.remaining), l.startMonth, l.status]; });
       break;
     case 'advance':
-      title = 'Advance Report';
-      columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start Month','Months Paid','Progress','Status'];
+      title = 'Advance Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status'];
       let advs = data.advances;
       if (workerId) advs = advs.filter(a => a.workerId === workerId);
-      reportData = advs.map(a => {
-        const w = data.workers.find(x => x.id === a.workerId);
-        const paidCount = (a.paidMonths || []).length;
-        const totalMonths = Math.ceil(a.amount / a.installment);
-        return [w?.name||'-', a.type, fmt(a.amount), fmt(a.installment), fmt(a.paid), fmt(a.remaining), a.startMonth, `${paidCount}/${totalMonths}`, ((a.paid/a.amount)*100).toFixed(1)+'%', a.status];
-      });
+      reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.installment), fmt(a.paid), fmt(a.remaining), a.startMonth, a.status]; });
       break;
     case 'addition':
-      title = 'Additions Report';
-      columns = ['Date','Employee','Type','Month','Amount'];
+      title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount'];
       let adds = data.additions;
       if (workerId) adds = adds.filter(a => a.workerId === workerId);
       if (month) adds = adds.filter(a => a.month === month);
-      reportData = adds.map(a => {
-        const w = data.workers.find(x => x.id === a.workerId);
-        return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount)];
-      });
+      reportData = adds.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount)]; });
       break;
     case 'deduction':
-      title = 'Deductions Report';
-      columns = ['Date','Employee','Type','Month','Amount'];
+      title = 'Deductions Report'; columns = ['Date','Employee','Type','Month','Amount'];
       let deds = data.deductions;
       if (workerId) deds = deds.filter(d => d.workerId === workerId);
       if (month) deds = deds.filter(d => d.month === month);
-      reportData = deds.map(d => {
-        const w = data.workers.find(x => x.id === d.workerId);
-        return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount)];
-      });
+      reportData = deds.map(d => { const w = data.workers.find(x => x.id === d.workerId); return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount)]; });
       break;
   }
-  
-  const output = document.getElementById('reportOutput');
-  if (!reportData.length) {
-    output.innerHTML = '<div class="card"><div class="empty-state"><i class="fas fa-file-alt"></i><h3>No data</h3></div></div>';
-    return;
-  }
-  output.innerHTML = `
-    <div class="card">
-      <div class="card-header"><h2><i class="fas fa-file-alt"></i> ${title}</h2><span class="badge badge-primary">${reportData.length} records</span></div>
-      <div class="table-container">
-        <table>
-          <thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>
-          <tbody>${reportData.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
 
+  const output = document.getElementById('reportOutput');
+  if (!reportData.length) { output.innerHTML = '<div class="card"><div class="empty-state"><h3>No data</h3></div></div>'; return; }
+  output.innerHTML = `<div class="card">
+    <div class="card-header"><h2><i class="fas fa-file-alt"></i> ${title}</h2><span class="badge badge-primary">${reportData.length} records</span></div>
+    <div class="table-container"><table><thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>${reportData.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+}
 function exportReport(format) {
   const table = document.querySelector('#reportOutput table');
   if (!table) { toast('Generate report first', 'error'); return; }
   const rows = Array.from(table.querySelectorAll('tr'));
-  const data = rows.map(r => Array.from(r.querySelectorAll('th,td')).map(c => c.textContent));
-  
+  const rData = rows.map(r => Array.from(r.querySelectorAll('th,td')).map(c => c.textContent));
   if (format === 'csv') {
-    const csv = data.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const csv = rData.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `${currentReport}_${today()}.csv`;
-    a.click();
+    const a = document.createElement('a'); a.href = url; a.download = `${currentReport}_${today()}.csv`; a.click();
     toast('CSV exported!');
   } else {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text(currentReport.toUpperCase() + ' REPORT', 14, 20);
-    doc.autoTable({ startY: 35, head: [data[0]], body: data.slice(1), theme: 'grid', headStyles: { fillColor: [30, 64, 175] }, styles: { fontSize: 8 } });
+    doc.setFontSize(16); doc.text(currentReport.toUpperCase() + ' REPORT', 14, 20);
+    doc.autoTable({ startY: 35, head: [rData[0]], body: rData.slice(1), theme: 'grid', headStyles: { fillColor: [30, 64, 175] }, styles: { fontSize: 8 } });
     doc.save(`${currentReport}_${today()}.pdf`);
     toast('PDF exported!');
   }
 }
 
-// ============ SETTINGS ============
+// ============ DESIGN ============
 function loadDesignSettings() {
   const d = data.payslipDesign;
   document.getElementById('customPrimaryColor').value = d.primaryColor;
@@ -2511,27 +2366,19 @@ function loadDesignSettings() {
   document.getElementById('designLoansTitle').value = d.loansTitle || 'Loan Installments Deducted';
   document.getElementById('designAdvancesTitle').value = d.advancesTitle || 'Salary Advances Deducted';
 }
-
 function setActiveSwatch(pickerId, color) {
-  document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => {
-    s.classList.toggle('active', s.dataset.color === color);
-  });
+  document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => s.classList.toggle('active', s.dataset.color === color));
 }
-
 document.addEventListener('click', (e) => {
   if (e.target.classList.contains('color-swatch')) {
     const picker = e.target.closest('.color-picker-row');
     picker.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
     e.target.classList.add('active');
     const color = e.target.dataset.color;
-    if (picker.id === 'primaryColorPicker') document.getElementById('customPrimaryColor').value = color;
-    if (picker.id === 'earningsColorPicker') document.getElementById('customEarningsColor').value = color;
-    if (picker.id === 'deductionsColorPicker') document.getElementById('customDeductionsColor').value = color;
-    if (picker.id === 'loanColorPicker') document.getElementById('customLoanColor').value = color;
-    if (picker.id === 'advanceColorPicker') document.getElementById('customAdvanceColor').value = color;
+    const input = picker.querySelector('input[type="color"]');
+    if (input) input.value = color;
   }
 });
-
 async function saveDesign() {
   const designData = {
     primaryColor: document.getElementById('customPrimaryColor').value,
@@ -2566,20 +2413,16 @@ async function saveDesign() {
     showLoading('Saving design...');
     await saveToFirebase(collections.payslipDesign, 'config', designData);
     data.payslipDesign = designData;
-    toast('Design saved successfully!');
-  } catch (error) {
-    toast('Error saving design: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+    toast('Design saved!');
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
-
 function previewDesign() {
-  if (!data.salarySlips.length) { toast('Create a pay slip first to preview', 'error'); return; }
+  if (!data.salarySlips.length) { toast('Create a pay slip first', 'error'); return; }
   viewSlipPreview(data.salarySlips[data.salarySlips.length - 1]);
   openModal('viewSlipModal');
 }
 
+// ============ COMPANY & SALARY SETTINGS ============
 function loadCompanySettings() {
   const c = data.company;
   const s = data.salarySettings;
@@ -2621,15 +2464,11 @@ async function saveCompany(e) {
     address: document.getElementById('cAddress').value 
   };
   try {
-    showLoading('Saving company info...');
+    showLoading('Saving...');
     await saveToFirebase(collections.company, 'config', companyData);
     data.company = companyData;
-    toast('Company settings saved successfully!');
-  } catch (error) {
-    toast('Error saving company: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+    toast('Company info saved!');
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 async function saveSalarySettings(e) {
@@ -2647,51 +2486,37 @@ async function saveSalarySettings(e) {
     currency: document.getElementById('sCurrency').value
   };
   try {
-    showLoading('Saving settings...');
+    showLoading('Saving...');
     await saveToFirebase(collections.salarySettings, 'config', settingsData);
     data.salarySettings = settingsData;
     toast('Salary settings saved!');
-  } catch (error) {
-    toast('Error saving settings: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 async function addDepartment() {
   const name = document.getElementById('newDept').value.trim();
   if (!name) return;
-  if (data.departments.includes(name)) { toast('Department already exists', 'error'); return; }
+  if (data.departments.includes(name)) { toast('Department exists', 'error'); return; }
   try {
-    showLoading('Adding department...');
+    showLoading('Adding...');
     await saveToFirebase(collections.departments, null, { name });
     data.departments.push(name);
     document.getElementById('newDept').value = '';
     renderDepartments();
-    toast('Department added successfully!');
-  } catch (error) {
-    toast('Error adding department: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+    toast('Department added!');
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 async function removeDepartment(name) {
-  if (!confirm(`Delete department "${name}"?`)) return;
+  if (!confirm(`Delete "${name}"?`)) return;
   try {
-    showLoading('Removing department...');
+    showLoading('Removing...');
     const deptDoc = await db.collection(collections.departments).where('name', '==', name).get();
-    deptDoc.forEach(async doc => {
-      await deleteFromFirebase(collections.departments, doc.id);
-    });
+    deptDoc.forEach(async doc => { await deleteFromFirebase(collections.departments, doc.id); });
     data.departments = data.departments.filter(d => d !== name);
     renderDepartments();
-    toast('Department removed successfully!');
-  } catch (error) {
-    toast('Error removing department: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+    toast('Department removed!');
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 function renderDepartments() {
@@ -2711,10 +2536,8 @@ function renderDepartments() {
 function exportData() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `lankashoe_backup_${today()}.json`;
-  a.click();
-  toast('Data exported!');
+  const a = document.createElement('a'); a.href = url; a.download = `lankashoe_backup_${today()}.json`; a.click();
+  toast('Exported!');
 }
 
 function importData(e) {
@@ -2725,8 +2548,7 @@ function importData(e) {
     try {
       const imported = JSON.parse(ev.target.result);
       if (confirm('Replace all data with imported data?')) {
-        // This would require uploading to Firebase - simplified for now
-        toast('Import feature requires Firebase upload implementation', 'error');
+        toast('Import feature - contact admin', 'error');
       }
     } catch (err) { toast('Invalid file', 'error'); }
   };
@@ -2734,29 +2556,19 @@ function importData(e) {
 }
 
 async function clearAllData() {
-  if (!confirm('️ DELETE ALL DATA from Firebase?')) return;
-  if (!confirm('Last warning! This cannot be undone.')) return;
-  
+  if (!confirm('⚠️ DELETE ALL DATA?')) return;
+  if (!confirm('Last warning!')) return;
   try {
-    showLoading('Clearing all data...');
-    const collections_to_clear = Object.values(collections);
-    
-    for (const col of collections_to_clear) {
+    showLoading('Clearing...');
+    for (const col of Object.values(collections)) {
       const snapshot = await db.collection(col).get();
       const batch = db.batch();
-      snapshot.docs.forEach(doc => {
-        batch.delete(doc.ref);
-      });
+      snapshot.docs.forEach(doc => batch.delete(doc.ref));
       await batch.commit();
     }
-    
-    toast('All data cleared successfully!');
+    toast('All data cleared!');
     setTimeout(() => location.reload(), 1000);
-  } catch (error) {
-    toast('Error clearing data: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // ============ DASHBOARD ============
@@ -2769,14 +2581,15 @@ function refreshDashboard() {
   document.getElementById('statLoans').textContent = fmt(activeLoans);
   const activeAdvances = data.advances.filter(a => a.status === 'Active').reduce((s,a) => s + a.remaining, 0);
   document.getElementById('statAdvances').textContent = fmt(activeAdvances);
-  const monthDed = data.deductions.filter(d => d.month === currentMonth()).reduce((s,d) => s + d.amount, 0);
+  
+  const monthDed = data.deductions.filter(d => d.month === currentMonth()).reduce((s,d) => s + (parseFloat(d.amount) || 0), 0);
   document.getElementById('statDeductions').textContent = fmt(monthDed);
-  const monthAdd = data.additions.filter(a => a.month === currentMonth()).reduce((s,a) => s + a.amount, 0);
+  const monthAdd = data.additions.filter(a => a.month === currentMonth()).reduce((s,a) => s + (parseFloat(a.amount) || 0), 0);
   document.getElementById('statAdditions').textContent = fmt(monthAdd);
+  
   document.getElementById('statSlips').textContent = data.salarySlips.filter(s => s.month === currentMonth()).length;
-  
+
   Object.values(charts).forEach(c => c && c.destroy && c.destroy());
-  
   const months = [], payrollData = [];
   for (let i = 5; i >= 0; i--) {
     const d = new Date(); d.setMonth(d.getMonth() - i);
@@ -2788,20 +2601,18 @@ function refreshDashboard() {
     type: 'bar', data: { labels: months, datasets: [{ label: 'Net Payroll', data: payrollData, backgroundColor: 'rgba(30, 64, 175, 0.8)', borderRadius: 8 }] },
     options: { responsive: true, plugins: { legend: { display: false } } }
   });
-  
   const deptData = {};
   data.workers.forEach(w => { deptData[w.department] = (deptData[w.department] || 0) + 1; });
   charts.distribution = new Chart(document.getElementById('distributionChart'), {
     type: 'doughnut', data: { labels: Object.keys(deptData), datasets: [{ data: Object.values(deptData), backgroundColor: ['#1e40af','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#ec4899','#db2777'] }] },
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
-  
+
   const activities = [];
   data.salarySlips.slice(-3).reverse().forEach(s => {
     const w = data.workers.find(x => x.id === s.workerId);
     activities.push({ icon: 'fa-file-invoice', color: 'var(--success)', text: `Pay slip #${s.slipNo} for ${w?.name||'worker'} - ${fmt(s.net)}`, date: s.modifiedAt });
   });
-  
   const actDiv = document.getElementById('recentActivities');
   if (!activities.length) actDiv.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><h3>No activities</h3></div>';
   else actDiv.innerHTML = activities.map(a => `
@@ -2812,10 +2623,9 @@ function refreshDashboard() {
   `).join('');
 }
 
-// ============ INIT ============
 window.onload = async () => {
   if (!data.company.name) {
-    data.company = { name: 'LANKA SHOE', reg: 'LK-2024-001', tax: 'TAX-LK-12345', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
+    data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
   }
 };
 </script>
