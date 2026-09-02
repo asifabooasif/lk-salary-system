@@ -304,7 +304,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
           <g transform="translate(290, 130)"><rect width="50" height="60" rx="4" fill="rgba(255,255,255,0.3)" transform="rotate(15)"/><rect x="8" y="10" width="34" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/></g>
           <g transform="translate(310, 220)"><rect width="40" height="40" rx="8" fill="rgba(255,255,255,0.3)"/><rect x="8" y="25" width="6" height="10" fill="#34d399"/><rect x="17" y="18" width="6" height="17" fill="#34d399"/><rect x="26" y="12" width="6" height="23" fill="#34d399"/></g>
           <circle cx="90" cy="240" r="15" fill="rgba(251,191,36,0.6)"/>
-          <text x="90" y="245" text-anchor="middle" fill="white" font-size="14" font-weight="bold"></text>
         </svg>
       </div>
       <div class="illustration-text"><h1>LANKA SHOE</h1><p>Professional Salary Management System</p></div>
@@ -871,6 +870,24 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+// ============ CRITICAL FIX: Sanitize data for Firestore ============
+// Firestore REJECTS undefined values. This function recursively removes them.
+function sanitizeForFirestore(obj) {
+  if (obj === null || obj === undefined) return null;
+  if (typeof obj === 'number' && isNaN(obj)) return 0;
+  if (typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeForFirestore(item)).filter(item => item !== undefined && item !== null);
+  }
+  const result = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key) && obj[key] !== undefined) {
+      result[key] = sanitizeForFirestore(obj[key]);
+    }
+  }
+  return result;
+}
+
 function showLoading(msg = 'Loading...') {
   try {
     const overlay = document.getElementById('loadingOverlay');
@@ -1024,12 +1041,17 @@ async function loadData() {
   }
 }
 
+// ============ FIXED: All Firebase save functions now sanitize data ============
 async function saveToFirebase(collection, docId, dataObj) {
-  if (docId) await db.collection(collection).doc(docId).set(dataObj, { merge: true });
-  else { const docRef = await db.collection(collection).add(dataObj); return docRef.id; }
+  const cleanData = sanitizeForFirestore(dataObj);
+  if (docId) await db.collection(collection).doc(docId).set(cleanData, { merge: true });
+  else { const docRef = await db.collection(collection).add(cleanData); return docRef.id; }
 }
 async function deleteFromFirebase(collection, docId) { await db.collection(collection).doc(docId).delete(); }
-async function updateInFirebase(collection, docId, dataObj) { await db.collection(collection).doc(docId).update(dataObj); }
+async function updateInFirebase(collection, docId, dataObj) {
+  const cleanData = sanitizeForFirestore(dataObj);
+  await db.collection(collection).doc(docId).update(cleanData);
+}
 
 // ============ NAVIGATION ============
 document.querySelectorAll('.menu-item[data-section]').forEach(item => {
@@ -1105,11 +1127,11 @@ async function saveWorker(e) {
   const workerData = {
     name: document.getElementById('wName').value, empId: document.getElementById('wEmpId').value,
     position: document.getElementById('wPosition').value, department: document.getElementById('wDepartment').value,
-    salary: parseFloat(document.getElementById('wSalary').value), allowances: parseFloat(document.getElementById('wAllowances').value) || 0,
-    joinDate: document.getElementById('wJoinDate').value, phone: document.getElementById('wPhone').value,
-    email: document.getElementById('wEmail').value, bank: document.getElementById('wBank').value,
-    account: document.getElementById('wAccount').value, taxId: document.getElementById('wTaxId').value,
-    address: document.getElementById('wAddress').value, status: 'Active',
+    salary: parseFloat(document.getElementById('wSalary').value) || 0, allowances: parseFloat(document.getElementById('wAllowances').value) || 0,
+    joinDate: document.getElementById('wJoinDate').value, phone: document.getElementById('wPhone').value || '',
+    email: document.getElementById('wEmail').value || '', bank: document.getElementById('wBank').value || '',
+    account: document.getElementById('wAccount').value || '', taxId: document.getElementById('wTaxId').value || '',
+    address: document.getElementById('wAddress').value || '', status: 'Active',
     modifiedAt: today()
   };
   if (!editId) workerData.createdAt = today();
@@ -1340,12 +1362,12 @@ function openAddLoanModal() {
 }
 async function addLoan(e) {
   e.preventDefault();
-  const total = parseFloat(document.getElementById('lAmount').value);
+  const total = parseFloat(document.getElementById('lAmount').value) || 0;
   const loanData = {
     workerId: document.getElementById('lWorker').value, type: document.getElementById('lType').value,
-    amount: total, installment: parseFloat(document.getElementById('lInstallment').value),
+    amount: total, installment: parseFloat(document.getElementById('lInstallment').value) || 0,
     paid: 0, remaining: total, issueDate: document.getElementById('lIssueDate').value,
-    startMonth: document.getElementById('lStartMonth').value, reason: document.getElementById('lReason').value,
+    startMonth: document.getElementById('lStartMonth').value, reason: document.getElementById('lReason').value || '',
     status: 'Active', paidMonths: [], createdAt: today()
   };
   try {
@@ -1390,12 +1412,12 @@ function openAddAdvanceModal() {
 }
 async function addAdvance(e) {
   e.preventDefault();
-  const total = parseFloat(document.getElementById('aAmount').value);
+  const total = parseFloat(document.getElementById('aAmount').value) || 0;
   const advanceData = {
     workerId: document.getElementById('aWorker').value, type: document.getElementById('aType').value,
-    amount: total, installment: parseFloat(document.getElementById('aInstallment').value),
+    amount: total, installment: parseFloat(document.getElementById('aInstallment').value) || 0,
     paid: 0, remaining: total, issueDate: document.getElementById('aIssueDate').value,
-    startMonth: document.getElementById('aStartMonth').value, reason: document.getElementById('aReason').value,
+    startMonth: document.getElementById('aStartMonth').value, reason: document.getElementById('aReason').value || '',
     status: 'Active', paidMonths: [], createdAt: today()
   };
   try {
@@ -1465,7 +1487,7 @@ async function saveComponent() {
   if (!name) { toast('Enter name', 'error'); return; }
   const componentData = {
     name, type: document.getElementById('compType').value, calcType: document.getElementById('compCalcType').value,
-    value: parseFloat(document.getElementById('compValue').value) || 0, desc: document.getElementById('compDesc').value, active: true
+    value: parseFloat(document.getElementById('compValue').value) || 0, desc: document.getElementById('compDesc').value || '', active: true
   };
   try {
     showLoading('Saving...');
@@ -1481,9 +1503,9 @@ async function deleteComponent(id) {
   catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ SLIP BUILDER (FIXED - Shows defaults, allows customization) ============
+// ============ SLIP BUILDER ============
 let currentSlipData = null;
-let currentSlipDefaults = {}; // Store default amounts for comparison
+let currentSlipDefaults = {};
 
 function loadSlipDefaults() {
   const workerId = document.getElementById('slipWorker').value;
@@ -1540,7 +1562,6 @@ function loadSlipDefaults() {
     advanceBanner.innerHTML = '';
   }
 
-  // Reset defaults tracker
   currentSlipDefaults = {};
 
   let earningsHtml = `<div class="slip-row" data-type="earning" data-id="basic">
@@ -1636,13 +1657,12 @@ function loadSlipDefaults() {
   updateSlipSummary();
 }
 
-// FIXED: Safe updateSlipSummary that handles amount changes without errors
 function updateSlipSummary() {
   try {
     const workerId = document.getElementById('slipWorker').value;
     const w = data.workers.find(x => x.id === workerId);
     if (!w) return;
-    const earnings = [], deductions = [], loansDeducted = [], advancesDeducted = [], modifications = [];
+    const earnings = [], deductions = [], loansDeducted = [], advancesDeducted = [];
 
     document.querySelectorAll('#earningsContainer .slip-row').forEach(row => {
       try {
@@ -1651,7 +1671,7 @@ function updateSlipSummary() {
         const included = row.querySelector('.row-toggle')?.checked;
         const id = row.dataset.id;
         let name = id === 'basic' ? 'Basic Salary' : id === 'allowances' ? 'Fixed Allowances' : (data.salaryComponents.find(x=>x.id===id)?.name || 'Unknown');
-        if (included && amount > 0) earnings.push({ name, amount, id });
+        if (included && amount > 0) earnings.push({ name: name || 'Unknown', amount: amount || 0, id: id || '' });
         row.classList.toggle('excluded', !included);
       } catch (err) { console.error('Row error:', err); }
     });
@@ -1661,17 +1681,17 @@ function updateSlipSummary() {
         const amountInput = row.querySelector('.row-amount');
         const amount = amountInput ? (parseFloat(amountInput.value) || 0) : 0;
         const included = row.querySelector('.row-toggle')?.checked;
-        const id = row.dataset.id;
-        const kind = row.dataset.kind;
+        const id = row.dataset.id || '';
+        const kind = row.dataset.kind || '';
         let name = 'Unknown';
         if (id.startsWith('loan_')) { const l = data.loans.find(x => x.id === id.replace('loan_', '')); name = l ? `Loan - ${l.type}` : 'Loan'; }
         else if (id.startsWith('advance_')) { const a = data.advances.find(x => x.id === id.replace('advance_', '')); name = a ? `Advance - ${a.type}` : 'Advance'; }
         else { const c = data.salaryComponents.find(x => x.id === id); name = c ? c.name : 'Unknown'; }
 
         if (included && amount > 0) {
-          deductions.push({ name, amount, id, kind });
-          if (kind === 'loan') loansDeducted.push({ loanId: row.dataset.loanId, amount });
-          if (kind === 'advance') advancesDeducted.push({ advanceId: row.dataset.advanceId, amount });
+          deductions.push({ name: name || 'Unknown', amount: amount || 0, id: id || '', kind: kind || '' });
+          if (kind === 'loan') loansDeducted.push({ loanId: row.dataset.loanId || '', amount: amount || 0 });
+          if (kind === 'advance') advancesDeducted.push({ advanceId: row.dataset.advanceId || '', amount: amount || 0 });
         }
         row.classList.toggle('excluded', !included);
       } catch (err) { console.error('Row error:', err); }
@@ -1687,7 +1707,7 @@ function updateSlipSummary() {
     document.getElementById('sumDed').textContent = fmt(totalDeductions);
     document.getElementById('sumNet').textContent = fmt(net);
 
-    currentSlipData = { workerId, month: document.getElementById('slipMonth').value, notes: document.getElementById('slipNotes').value, earnings, deductions, loansDeducted, advancesDeducted, basic, totalAdditions: totalEarnings - basic, totalDeductions, net };
+    currentSlipData = { workerId: workerId || '', month: document.getElementById('slipMonth').value || '', notes: document.getElementById('slipNotes').value || '', earnings, deductions, loansDeducted, advancesDeducted, basic: basic || 0, totalAdditions: totalEarnings - basic, totalDeductions: totalDeductions || 0, net: net || 0 };
   } catch (err) {
     console.error('updateSlipSummary error:', err);
   }
@@ -1699,29 +1719,44 @@ function previewSlip() {
   openModal('viewSlipModal');
 }
 
-// FIXED: Ensure all fields are defined before saving to Firebase
+// ============ FIXED: finalizeSlip with sanitization ============
 async function finalizeSlip(status) {
   if (!currentSlipData) { toast('Select worker and month', 'error'); return; }
   const workerId = currentSlipData.workerId;
   const month = currentSlipData.month;
   const existingSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
 
-  // Ensure all fields have valid values (not undefined)
+  // Build slip data with NO undefined values
   const slipData = {
-    slipNo: existingSlip ? existingSlip.slipNo : 'SL-' + Date.now().toString().slice(-6),
+    slipNo: existingSlip ? (existingSlip.slipNo || '') : 'SL-' + Date.now().toString().slice(-6),
     workerId: workerId || '',
     month: month || '',
     notes: (currentSlipData.notes || '').toString(),
-    earnings: currentSlipData.earnings || [],
-    deductions: currentSlipData.deductions || [],
-    loansDeducted: currentSlipData.loansDeducted || [],
-    advancesDeducted: currentSlipData.advancesDeducted || [],
+    earnings: (currentSlipData.earnings || []).map(e => ({
+      name: e.name || 'Unknown',
+      amount: parseFloat(e.amount) || 0,
+      id: e.id || ''
+    })),
+    deductions: (currentSlipData.deductions || []).map(d => ({
+      name: d.name || 'Unknown',
+      amount: parseFloat(d.amount) || 0,
+      id: d.id || '',
+      kind: d.kind || ''
+    })),
+    loansDeducted: (currentSlipData.loansDeducted || []).map(ld => ({
+      loanId: ld.loanId || '',
+      amount: parseFloat(ld.amount) || 0
+    })),
+    advancesDeducted: (currentSlipData.advancesDeducted || []).map(ad => ({
+      advanceId: ad.advanceId || '',
+      amount: parseFloat(ad.amount) || 0
+    })),
     basic: parseFloat(currentSlipData.basic) || 0,
     totalAdditions: parseFloat(currentSlipData.totalAdditions) || 0,
     totalDeductions: parseFloat(currentSlipData.totalDeductions) || 0,
     net: parseFloat(currentSlipData.net) || 0,
     status: status || 'Draft',
-    createdAt: existingSlip ? existingSlip.createdAt : today(),
+    createdAt: existingSlip ? (existingSlip.createdAt || today()) : today(),
     modifiedAt: today()
   };
 
@@ -1739,7 +1774,7 @@ async function finalizeSlip(status) {
         if (loan && !loan.paidMonths.includes(month)) {
           loan.paidMonths.push(month);
           loan.paid = (loan.paid || 0) + ld.amount;
-          loan.remaining = Math.max(0, loan.remaining - ld.amount);
+          loan.remaining = Math.max(0, (loan.remaining || 0) - ld.amount);
           if (loan.remaining <= 0.01) { loan.remaining = 0; loan.status = 'Completed'; }
           await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths });
         }
@@ -1749,7 +1784,7 @@ async function finalizeSlip(status) {
         if (adv && !adv.paidMonths.includes(month)) {
           adv.paidMonths.push(month);
           adv.paid = (adv.paid || 0) + ad.amount;
-          adv.remaining = Math.max(0, adv.remaining - ad.amount);
+          adv.remaining = Math.max(0, (adv.remaining || 0) - ad.amount);
           if (adv.remaining <= 0.01) { adv.remaining = 0; adv.status = 'Completed'; }
           await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining: adv.remaining, status: adv.status, paidMonths: adv.paidMonths });
         }
@@ -1799,12 +1834,10 @@ function viewSlip(id) {
   openModal('viewSlipModal');
 }
 
-// NEW: Edit existing slip (opens slip builder with existing data)
 async function editSlip(id) {
   const slip = data.salarySlips.find(s => s.id === id);
   if (!slip) return;
   
-  // Navigate to slip builder
   showSection('slips');
   await new Promise(r => setTimeout(r, 200));
   
@@ -1814,10 +1847,8 @@ async function editSlip(id) {
   
   loadSlipDefaults();
   
-  // Wait for builder to render, then apply existing values
   await new Promise(r => setTimeout(r, 300));
   
-  // Apply existing earnings values
   slip.earnings.forEach(e => {
     const row = document.querySelector(`#earningsContainer .slip-row[data-id="${e.id}"]`);
     if (row) {
@@ -1828,7 +1859,6 @@ async function editSlip(id) {
     }
   });
   
-  // Apply existing deductions values
   slip.deductions.forEach(d => {
     const row = document.querySelector(`#deductionsContainer .slip-row[data-id="${d.id}"]`);
     if (row) {
@@ -1839,7 +1869,6 @@ async function editSlip(id) {
     }
   });
   
-  // Uncheck items not in existing slip
   document.querySelectorAll('#earningsContainer .slip-row, #deductionsContainer .slip-row').forEach(row => {
     const id = row.dataset.id;
     const inEarnings = slip.earnings.find(e => e.id === id);
@@ -1854,7 +1883,6 @@ async function editSlip(id) {
   toast('Slip loaded for editing. Make changes and finalize.');
 }
 
-// NEW: Reverse/cancel a completed slip (restores loan/advance balances)
 async function reverseSlip(id) {
   const slip = data.salarySlips.find(s => s.id === id);
   if (!slip) return;
@@ -1875,7 +1903,6 @@ async function reverseSlip(id) {
   try {
     showLoading('Reversing slip...');
     
-    // Restore loan balances
     for (const ld of (slip.loansDeducted || [])) {
       const loan = data.loans.find(l => l.id === ld.loanId);
       if (loan) {
@@ -1890,7 +1917,6 @@ async function reverseSlip(id) {
       }
     }
     
-    // Restore advance balances
     for (const ad of (slip.advancesDeducted || [])) {
       const adv = data.advances.find(a => a.id === ad.advanceId);
       if (adv) {
@@ -1905,7 +1931,6 @@ async function reverseSlip(id) {
       }
     }
     
-    // Mark slip as reversed
     await updateInFirebase(collections.salarySlips, id, { status: 'Reversed', reversedAt: today() });
     
     await loadData();
@@ -1959,18 +1984,6 @@ function viewSlipPreview(slip) {
         <div style="font-size:12px;opacity:0.9;">NET SALARY</div>
         <div style="font-size:32px;font-weight:bold;">${fmt(slip.net)}</div>
       </div>
-      ${d.showLoans && slip.loansDeducted && slip.loansDeducted.length > 0 ? `
-        <div style="background:#fef3c7;padding:12px;border-radius:8px;border-left:4px solid ${d.loanColor};margin-bottom:10px;font-size:12px;">
-          <strong style="color:#92400e;"><i class="fas fa-hand-holding-usd"></i> ${d.loansTitle}:</strong>
-          <ul style="margin:5px 0 0 20px;color:#78350f;">${slip.loansDeducted.map(ld => { const loan = data.loans.find(l => l.id === ld.loanId); return `<li>${loan ? loan.type : 'Loan'}: ${fmt(ld.amount)}</li>`; }).join('')}</ul>
-        </div>
-      ` : ''}
-      ${d.showAdvances && slip.advancesDeducted && slip.advancesDeducted.length > 0 ? `
-        <div style="background:#fce7f3;padding:12px;border-radius:8px;border-left:4px solid ${d.advanceColor};margin-bottom:10px;font-size:12px;">
-          <strong style="color:#9d174d;"><i class="fas fa-money-check-alt"></i> ${d.advancesTitle}:</strong>
-          <ul style="margin:5px 0 0 20px;color:#831843;">${slip.advancesDeducted.map(ad => { const adv = data.advances.find(a => a.id === ad.advanceId); return `<li>${adv ? adv.type : 'Advance'}: ${fmt(ad.amount)}</li>`; }).join('')}</ul>
-        </div>
-      ` : ''}
       ${d.showSignatures ? `<div style="display:flex;justify-content:space-between;margin-top:40px;padding-top:20px;">
         <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign1Label}</div></div>
         <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign2Label}</div></div>
@@ -1980,7 +1993,6 @@ function viewSlipPreview(slip) {
   `;
 }
 
-// ============ PDF GENERATION ============
 function downloadSlipPDF(slip) {
   const w = data.workers.find(x => x.id === slip.workerId);
   if (!w) return;
@@ -1993,10 +2005,6 @@ function downloadSlipPDF(slip) {
   const er = parseInt(eHex.substr(0,2),16), eg = parseInt(eHex.substr(2,2),16), eb = parseInt(eHex.substr(4,2),16);
   const dHex = d.deductionsColor.replace('#','');
   const dr = parseInt(dHex.substr(0,2),16), dg = parseInt(dHex.substr(2,2),16), db = parseInt(dHex.substr(4,2),16);
-  const lHex = d.loanColor.replace('#','');
-  const lr = parseInt(lHex.substr(0,2),16), lg = parseInt(lHex.substr(2,2),16), lb = parseInt(lHex.substr(4,2),16);
-  const aHex = d.advanceColor.replace('#','');
-  const ar = parseInt(aHex.substr(0,2),16), ag = parseInt(aHex.substr(2,2),16), ab = parseInt(aHex.substr(4,2),16);
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: d.paperSize });
@@ -2005,13 +2013,6 @@ function downloadSlipPDF(slip) {
   const fontSize = d.fontSize === 'small' ? 9 : d.fontSize === 'large' ? 12 : 10;
   const marginX = 14;
   const contentWidth = pageWidth - (marginX * 2);
-
-  if (d.showWatermark) {
-    doc.setTextColor(230, 230, 230);
-    doc.setFontSize(50);
-    doc.setFont('helvetica', 'bold');
-    doc.text(c.name || 'LANKA SHOE', pageWidth/2, pageHeight/2, { align: 'center', angle: 45 });
-  }
 
   if (d.border !== 'none') {
     doc.setDrawColor(r, g, b);
@@ -2163,69 +2164,6 @@ function downloadSlipPDF(slip) {
 
   y += 30;
 
-  if (d.showLoans && slip.loansDeducted && slip.loansDeducted.length > 0) {
-    const boxHeight = 10 + slip.loansDeducted.length * 5;
-    doc.setFillColor(254, 243, 199);
-    doc.roundedRect(marginX, y, contentWidth, boxHeight, 2, 2, 'F');
-    doc.setDrawColor(lr, lg, lb);
-    doc.setLineWidth(1.5);
-    doc.line(marginX, y, marginX, y + boxHeight);
-    doc.setTextColor(146, 64, 14);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text(d.loansTitle + ':', marginX + 5, y + 6);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    let ly = y + 11;
-    slip.loansDeducted.forEach(ld => {
-      const loan = data.loans.find(l => l.id === ld.loanId);
-      doc.text(`• ${loan ? loan.type : 'Loan'}: ${fmt(ld.amount)}`, marginX + 8, ly);
-      ly += 5;
-    });
-    y += boxHeight + 5;
-  }
-
-  if (d.showAdvances && slip.advancesDeducted && slip.advancesDeducted.length > 0) {
-    const boxHeight = 10 + slip.advancesDeducted.length * 5;
-    doc.setFillColor(252, 231, 243);
-    doc.roundedRect(marginX, y, contentWidth, boxHeight, 2, 2, 'F');
-    doc.setDrawColor(ar, ag, ab);
-    doc.setLineWidth(1.5);
-    doc.line(marginX, y, marginX, y + boxHeight);
-    doc.setTextColor(157, 23, 77);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text(d.advancesTitle + ':', marginX + 5, y + 6);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    let ay = y + 11;
-    slip.advancesDeducted.forEach(ad => {
-      const adv = data.advances.find(a => a.id === ad.advanceId);
-      doc.text(`• ${adv ? adv.type : 'Advance'}: ${fmt(ad.amount)}`, marginX + 8, ay);
-      ay += 5;
-    });
-    y += boxHeight + 5;
-  }
-
-  if (d.showAnalysis) {
-    const netPct = grossTotal > 0 ? (slip.net / grossTotal * 100).toFixed(1) : 0;
-    const dedPct = grossTotal > 0 ? (slip.totalDeductions / grossTotal * 100).toFixed(1) : 0;
-    doc.setFillColor(248, 250, 252);
-    doc.roundedRect(marginX, y, contentWidth, 12, 2, 2, 'F');
-    doc.setTextColor(30, 41, 59);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Net Salary: ${netPct}% of Gross   |   Deduction Ratio: ${dedPct}%`, pageWidth/2, y + 8, { align: 'center' });
-    y += 18;
-  }
-
-  if (slip.notes) {
-    doc.setTextColor(30, 64, 175);
-    doc.setFontSize(9);
-    doc.text(`Notes: ${slip.notes}`, marginX, y);
-    y += 8;
-  }
-
   if (d.showSignatures) {
     doc.setTextColor(30, 41, 59);
     doc.setDrawColor(30, 41, 59);
@@ -2371,8 +2309,6 @@ function loadDesignSettings() {
   document.getElementById('designShowAnalysis').checked = d.showAnalysis !== false;
   document.getElementById('designShowSignatures').checked = d.showSignatures !== false;
   document.getElementById('designShowFooter').checked = d.showFooter !== false;
-  document.getElementById('designShowLoans').checked = d.showLoans !== false;
-  document.getElementById('designShowAdvances').checked = d.showAdvances !== false;
   document.getElementById('designShowModifications').checked = d.showModifications === true;
   document.getElementById('designShowWatermark').checked = d.showWatermark === true;
   document.getElementById('designCurrency').value = d.currency || 'Rs';
@@ -2414,8 +2350,6 @@ async function saveDesign() {
     showAnalysis: document.getElementById('designShowAnalysis').checked,
     showSignatures: document.getElementById('designShowSignatures').checked,
     showFooter: document.getElementById('designShowFooter').checked,
-    showLoans: document.getElementById('designShowLoans').checked,
-    showAdvances: document.getElementById('designShowAdvances').checked,
     showModifications: document.getElementById('designShowModifications').checked,
     showWatermark: document.getElementById('designShowWatermark').checked,
     currency: document.getElementById('designCurrency').value,
@@ -2471,15 +2405,15 @@ async function saveCompany(e) {
   e.preventDefault();
   const companyData = { 
     name: document.getElementById('cName').value, 
-    reg: document.getElementById('cReg').value,
-    tax: document.getElementById('cTax').value,
-    phone: document.getElementById('cPhone').value, 
-    email: document.getElementById('cEmail').value, 
-    web: document.getElementById('cWeb').value,
-    logo: document.getElementById('cLogo').value,
-    bank: document.getElementById('cBank').value,
-    bankAccount: document.getElementById('cBankAccount').value,
-    address: document.getElementById('cAddress').value 
+    reg: document.getElementById('cReg').value || '',
+    tax: document.getElementById('cTax').value || '',
+    phone: document.getElementById('cPhone').value || '', 
+    email: document.getElementById('cEmail').value || '', 
+    web: document.getElementById('cWeb').value || '',
+    logo: document.getElementById('cLogo').value || '',
+    bank: document.getElementById('cBank').value || '',
+    bankAccount: document.getElementById('cBankAccount').value || '',
+    address: document.getElementById('cAddress').value || ''
   };
   try {
     showLoading('Saving...');
@@ -2492,16 +2426,16 @@ async function saveCompany(e) {
 async function saveSalarySettings(e) {
   e.preventDefault();
   const settingsData = {
-    taxRate: parseFloat(document.getElementById('sTaxRate').value),
-    epfEmp: parseFloat(document.getElementById('sEpfEmp').value),
-    epfEmpr: parseFloat(document.getElementById('sEpfEmpr').value),
-    etf: parseFloat(document.getElementById('sEtf').value),
-    otMult: parseFloat(document.getElementById('sOtMult').value),
-    workDays: parseInt(document.getElementById('sWorkDays').value),
-    workHours: parseInt(document.getElementById('sWorkHours').value),
-    payDay: parseInt(document.getElementById('sPayDay').value),
-    fyStart: parseInt(document.getElementById('sFyStart').value),
-    currency: document.getElementById('sCurrency').value
+    taxRate: parseFloat(document.getElementById('sTaxRate').value) || 0,
+    epfEmp: parseFloat(document.getElementById('sEpfEmp').value) || 0,
+    epfEmpr: parseFloat(document.getElementById('sEpfEmpr').value) || 0,
+    etf: parseFloat(document.getElementById('sEtf').value) || 0,
+    otMult: parseFloat(document.getElementById('sOtMult').value) || 0,
+    workDays: parseInt(document.getElementById('sWorkDays').value) || 0,
+    workHours: parseInt(document.getElementById('sWorkHours').value) || 0,
+    payDay: parseInt(document.getElementById('sPayDay').value) || 0,
+    fyStart: parseInt(document.getElementById('sFyStart').value) || 0,
+    currency: document.getElementById('sCurrency').value || 'Rs'
   };
   try {
     showLoading('Saving...');
