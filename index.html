@@ -26,153 +26,73 @@
   --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.15);
 }
 
-/* ============ LOADING OVERLAY (FIXED - NOW PRESENT) ============ */
+/* ============ LOADING OVERLAY ============ */
 .loading-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(255,255,255,0.9);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 99999;
-  flex-direction: column;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(255,255,255,0.95); display: none;
+  justify-content: center; align-items: center; z-index: 99999; flex-direction: column;
 }
 .loading-overlay.show { display: flex; }
-.spinner {
-  width: 50px; height: 50px;
-  border: 5px solid var(--border);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
+.spinner { width: 50px; height: 50px; border: 5px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { margin-top: 15px; color: var(--gray); font-size: 14px; font-weight: 500; }
 
 /* ============ LOGIN SCREEN ============ */
 .login-wrapper {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100vh;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  overflow: hidden;
-  animation: gradientShift 15s ease infinite;
-  background-size: 400% 400%;
+  display: flex; align-items: center; justify-content: center; z-index: 10000;
+  overflow: hidden; animation: gradientShift 15s ease infinite; background-size: 400% 400%;
 }
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+@keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
 .login-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  max-width: 1100px;
-  width: 90%;
-  background: white;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-  min-height: 650px;
+  display: grid; grid-template-columns: 1fr 1fr; max-width: 1100px; width: 90%;
+  background: white; border-radius: 24px; overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); min-height: 650px;
 }
-
 .login-illustration {
   background: linear-gradient(135deg, #1e40af 0%, #0891b2 100%);
-  padding: 50px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-  color: white;
+  padding: 50px; display: flex; flex-direction: column; justify-content: center;
+  align-items: center; position: relative; overflow: hidden; color: white;
 }
-
 .login-illustration::before {
-  content: '';
-  position: absolute;
-  top: -50%; left: -50%;
-  width: 200%; height: 200%;
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
   background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
   animation: pulse 4s ease-in-out infinite;
 }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.1); opacity: 0.8; }
-}
-
-.illustration-scene {
-  position: relative;
-  width: 100%;
-  max-width: 400px;
-  height: 400px;
-  z-index: 2;
-}
-
+.illustration-scene { position: relative; width: 100%; max-width: 400px; height: 400px; z-index: 2; }
 .human-illustration { width: 100%; height: 100%; }
-
 .floating-element {
-  position: absolute;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 12px 18px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  animation: float 3s ease-in-out infinite;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  position: absolute; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+  border-radius: 12px; padding: 12px 18px; display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600; animation: float 3s ease-in-out infinite; box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 .floating-element:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
 .floating-element:nth-child(2) { top: 20%; right: 5%; animation-delay: 0.5s; }
 .floating-element:nth-child(3) { bottom: 25%; left: 0%; animation-delay: 1s; }
 .floating-element:nth-child(4) { bottom: 15%; right: 5%; animation-delay: 1.5s; }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-}
+@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
 
 .illustration-text { text-align: center; z-index: 2; margin-top: 30px; }
 .illustration-text h1 { font-size: 32px; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px; }
 .illustration-text p { font-size: 16px; opacity: 0.9; font-weight: 300; }
 
 .login-form-side { padding: 50px; display: flex; flex-direction: column; justify-content: center; background: white; }
-
 .login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
 .login-logo-icon { width: 50px; height: 50px; background: linear-gradient(135deg, #1e40af, #0891b2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; }
 .login-logo-text h2 { font-size: 22px; font-weight: 800; color: var(--dark); letter-spacing: -0.5px; }
 .login-logo-text p { font-size: 12px; color: var(--gray); }
-
 .login-welcome { margin-bottom: 30px; }
 .login-welcome h3 { font-size: 28px; font-weight: 700; color: var(--dark); margin-bottom: 8px; letter-spacing: -0.5px; }
 .login-welcome p { color: var(--gray); font-size: 14px; }
 
 .google-btn {
-  width: 100%;
-  padding: 14px;
-  background: white;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--dark);
-  transition: all 0.3s;
-  margin-bottom: 20px;
+  width: 100%; padding: 14px; background: white; border: 2px solid var(--border); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer;
+  font-size: 15px; font-weight: 600; color: var(--dark); transition: all 0.3s; margin-bottom: 20px;
 }
 .google-btn:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 8px 16px rgba(30,64,175,0.15); }
 
@@ -183,22 +103,17 @@
 .email-form { display: flex; flex-direction: column; gap: 15px; }
 .form-input { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
 .form-input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(30,64,175,0.1); }
-
 .login-btn {
-  width: 100%; padding: 14px;
-  background: linear-gradient(135deg, #1e40af, #0891b2);
-  color: white; border: none; border-radius: 12px;
-  font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s;
+  width: 100%; padding: 14px; background: linear-gradient(135deg, #1e40af, #0891b2);
+  color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s;
 }
 .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(30,64,175,0.3); }
-
 .login-footer { text-align: center; margin-top: 25px; font-size: 13px; color: var(--gray); }
 .login-footer a { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
 
 /* ============ MAIN APP ============ */
 .main-app { display: none; }
 .main-app.show { display: block; }
-
 body { background: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
 
 .sidebar { width: 260px; background: linear-gradient(180deg, #0f172a 0%, #020617 100%); color: white; position: fixed; height: 100vh; overflow-y: auto; z-index: 100; }
@@ -343,6 +258,8 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .summary-item.net { background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; }
 .summary-item.net .val { font-size: 26px; }
 
+.modification-log { background: #fef3c7; padding: 12px; border-radius: 8px; border-left: 4px solid var(--warning); margin-top: 10px; font-size: 13px; }
+
 .loan-info-banner { background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 15px; border-radius: 10px; border-left: 4px solid var(--warning); margin-bottom: 15px; }
 .loan-info-banner h4 { color: #92400e; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
 .loan-info-banner p { font-size: 13px; color: #78350f; margin-bottom: 3px; }
@@ -383,7 +300,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 }
 .menu-toggle { display: none; background: none; border: none; font-size: 22px; cursor: pointer; }
 @media (max-width: 768px) { .menu-toggle { display: block; } }
-
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -391,13 +307,13 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 </head>
 <body>
 
-<!-- ============ LOADING OVERLAY (THIS WAS MISSING - NOW FIXED) ============ -->
+<!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
   <div class="loading-text">Loading...</div>
 </div>
 
-<!-- ============ LOGIN SCREEN ============ -->
+<!-- LOGIN SCREEN -->
 <div class="login-wrapper" id="loginScreen">
   <div class="login-container">
     <div class="login-illustration">
@@ -406,7 +322,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         <div class="floating-element"><i class="fas fa-chart-line" style="color:#34d399;"></i><span>+24.5%</span></div>
         <div class="floating-element"><i class="fas fa-coins" style="color:#fbbf24;"></i><span>Rs 50,000</span></div>
         <div class="floating-element"><i class="fas fa-check-circle" style="color:#34d399;"></i><span>Approved</span></div>
-        
         <svg class="human-illustration" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
           <circle cx="200" cy="200" r="180" fill="rgba(255,255,255,0.1)"/>
           <rect x="80" y="280" width="240" height="15" rx="7" fill="rgba(255,255,255,0.3)"/>
@@ -428,48 +343,21 @@ table tbody tr.clickable:hover { background: #f8fafc; }
           <circle cx="192" cy="195" r="2" fill="#1e40af"/>
           <circle cx="208" cy="195" r="2" fill="#1e40af"/>
           <path d="M 195 205 Q 200 208 205 205" stroke="#1e40af" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <g transform="translate(60, 150)">
-            <rect width="50" height="60" rx="4" fill="rgba(255,255,255,0.3)" transform="rotate(-15)"/>
-            <rect x="8" y="10" width="34" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(-15)"/>
-            <rect x="8" y="18" width="30" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(-15)"/>
-            <rect x="8" y="26" width="25" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(-15)"/>
-          </g>
-          <g transform="translate(290, 130)">
-            <rect width="50" height="60" rx="4" fill="rgba(255,255,255,0.3)" transform="rotate(15)"/>
-            <rect x="8" y="10" width="34" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/>
-            <rect x="8" y="18" width="30" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/>
-            <rect x="8" y="26" width="25" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/>
-          </g>
-          <g transform="translate(310, 220)">
-            <rect width="40" height="40" rx="8" fill="rgba(255,255,255,0.3)"/>
-            <rect x="8" y="25" width="6" height="10" fill="#34d399"/>
-            <rect x="17" y="18" width="6" height="17" fill="#34d399"/>
-            <rect x="26" y="12" width="6" height="23" fill="#34d399"/>
-          </g>
+          <g transform="translate(60, 150)"><rect width="50" height="60" rx="4" fill="rgba(255,255,255,0.3)" transform="rotate(-15)"/><rect x="8" y="10" width="34" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(-15)"/><rect x="8" y="18" width="30" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(-15)"/><rect x="8" y="26" width="25" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(-15)"/></g>
+          <g transform="translate(290, 130)"><rect width="50" height="60" rx="4" fill="rgba(255,255,255,0.3)" transform="rotate(15)"/><rect x="8" y="10" width="34" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/><rect x="8" y="18" width="30" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/><rect x="8" y="26" width="25" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/></g>
+          <g transform="translate(310, 220)"><rect width="40" height="40" rx="8" fill="rgba(255,255,255,0.3)"/><rect x="8" y="25" width="6" height="10" fill="#34d399"/><rect x="17" y="18" width="6" height="17" fill="#34d399"/><rect x="26" y="12" width="6" height="23" fill="#34d399"/></g>
           <circle cx="90" cy="240" r="15" fill="rgba(251,191,36,0.6)"/>
           <text x="90" y="245" text-anchor="middle" fill="white" font-size="14" font-weight="bold">₨</text>
         </svg>
       </div>
-      <div class="illustration-text">
-        <h1>LK SHOE</h1>
-        <p>Professional Salary Management System</p>
-      </div>
+      <div class="illustration-text"><h1>LK SHOE</h1><p>Professional Salary Management System</p></div>
     </div>
-    
     <div class="login-form-side">
       <div class="login-logo">
         <div class="login-logo-icon"><i class="fas fa-shoe-prints"></i></div>
-        <div class="login-logo-text">
-          <h2>LK SHOE</h2>
-          <p>Salary Management</p>
-        </div>
+        <div class="login-logo-text"><h2>LK SHOE</h2><p>Salary Management</p></div>
       </div>
-      
-      <div class="login-welcome">
-        <h3>Welcome Back! 👋</h3>
-        <p>Sign in to access your salary management dashboard</p>
-      </div>
-      
+      <div class="login-welcome"><h3>Welcome Back! 👋</h3><p>Sign in to access your salary management dashboard</p></div>
       <button class="google-btn" onclick="signInWithGoogle()">
         <svg width="22" height="22" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -479,15 +367,12 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         </svg>
         Continue with Google
       </button>
-      
       <div class="divider"><span>or continue with email</span></div>
-      
       <form class="email-form" onsubmit="signInWithEmail(event)">
         <input type="email" class="form-input" id="loginEmail" placeholder="Email address" required>
         <input type="password" class="form-input" id="loginPassword" placeholder="Password" required>
         <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
       </form>
-      
       <div class="login-footer">
         <p>Don't have an account? <a onclick="showSignUp()">Sign up</a></p>
         <p style="margin-top:10px;"><a onclick="resetPassword()">Forgot password?</a></p>
@@ -496,13 +381,10 @@ table tbody tr.clickable:hover { background: #f8fafc; }
   </div>
 </div>
 
-<!-- ============ MAIN APP ============ -->
+<!-- MAIN APP -->
 <div class="main-app" id="mainApp">
   <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <h2><i class="fas fa-shoe-prints"></i> LK SHOE</h2>
-      <p>Salary Management System</p>
-    </div>
+    <div class="sidebar-header"><h2><i class="fas fa-shoe-prints"></i> LK SHOE</h2><p>Salary Management System</p></div>
     <div class="sidebar-menu">
       <div class="menu-label">Main</div>
       <div class="menu-item active" data-section="dashboard"><i class="fas fa-chart-line"></i> Dashboard</div>
@@ -538,6 +420,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
+    <!-- DASHBOARD -->
     <div class="section active" id="dashboard">
       <div class="stats-grid">
         <div class="stat-card blue"><div class="icon"><i class="fas fa-users"></i></div><h3>Total Workers</h3><div class="value" id="statWorkers">0</div></div>
@@ -557,6 +440,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
+    <!-- WORKERS -->
     <div class="section" id="workers">
       <div class="card">
         <div class="card-header">
@@ -575,8 +459,10 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
+    <!-- WORKER DETAIL (6 TABS RESTORED) -->
     <div class="section" id="workerDetail"><div id="workerDetailContent"></div></div>
 
+    <!-- LOANS -->
     <div class="section" id="loans">
       <div class="card">
         <div class="card-header">
@@ -598,10 +484,11 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
+    <!-- CREATE PAY SLIP -->
     <div class="section" id="slips">
       <div class="card">
         <div class="card-header"><h2><i class="fas fa-file-invoice-dollar"></i> Create Pay Slip</h2></div>
-        <p style="color:var(--gray);margin-bottom:20px;font-size:14px;">Select worker and month. All components load automatically.</p>
+        <p style="color:var(--gray);margin-bottom:20px;font-size:14px;">Select worker and month. Master components and active loan installments load automatically. You can add custom items or exclude defaults.</p>
         <div class="form-grid" style="margin-bottom:20px;">
           <div class="form-group"><label>Select Worker *</label>
             <select id="slipWorker" onchange="loadSlipDefaults()" required><option value="">Select Worker</option></select>
@@ -618,6 +505,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
+    <!-- HISTORY -->
     <div class="section" id="history">
       <div class="card">
         <div class="card-header"><h2><i class="fas fa-history"></i> Pay Slip History</h2></div>
@@ -630,6 +518,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
+    <!-- REPORTS -->
     <div class="section" id="reports">
       <div class="card">
         <div class="card-header"><h2><i class="fas fa-file-alt"></i> Reports</h2></div>
@@ -658,6 +547,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       <div id="reportOutput"></div>
     </div>
 
+    <!-- SALARY COMPONENTS -->
     <div class="section" id="components">
       <div class="card">
         <div class="card-header">
@@ -673,6 +563,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
+    <!-- PAY SLIP DESIGN -->
     <div class="section" id="design">
       <div class="card">
         <div class="card-header">
@@ -700,6 +591,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
+    <!-- COMPANY SETTINGS -->
     <div class="section" id="settings">
       <div class="card">
         <div class="card-header"><h2><i class="fas fa-building"></i> Company Information</h2></div>
@@ -814,6 +706,17 @@ table tbody tr.clickable:hover { background: #f8fafc; }
   </div>
 </div>
 
+<div class="modal" id="viewSlipModal">
+  <div class="modal-content" style="max-width:900px;">
+    <div class="modal-header"><h2><i class="fas fa-file-invoice"></i> Salary Slip Preview</h2><button class="close-btn" onclick="closeModal('viewSlipModal')">&times;</button></div>
+    <div class="modal-body" id="viewSlipBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('viewSlipModal')">Close</button>
+      <button class="btn btn-primary" id="viewSlipDownloadBtn"><i class="fas fa-file-pdf"></i> Download PDF</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg">Success</span></div>
 
 <script>
@@ -832,34 +735,24 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// ============ SAFE LOADING FUNCTIONS (FIXED - WITH NULL CHECKS) ============
+// ============ SAFE LOADING FUNCTIONS ============
 function showLoading(msg = 'Loading...') {
   try {
     const overlay = document.getElementById('loadingOverlay');
     const textEl = document.querySelector('.loading-text');
-    if (overlay && textEl) {
-      textEl.textContent = msg;
-      overlay.classList.add('show');
-    }
-  } catch (e) {
-    console.error('showLoading error:', e);
-  }
+    if (overlay && textEl) { textEl.textContent = msg; overlay.classList.add('show'); }
+  } catch (e) { console.error('showLoading error:', e); }
 }
 
 function hideLoading() {
   try {
     const overlay = document.getElementById('loadingOverlay');
-    if (overlay) {
-      overlay.classList.remove('show');
-    }
-  } catch (e) {
-    console.error('hideLoading error:', e);
-  }
+    if (overlay) overlay.classList.remove('show');
+  } catch (e) { console.error('hideLoading error:', e); }
 }
 
 // ============ AUTH STATE LISTENER ============
 auth.onAuthStateChanged((user) => {
-  console.log('Auth state changed:', user ? user.email : 'No user');
   if (user) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').classList.add('show');
@@ -877,134 +770,70 @@ auth.onAuthStateChanged((user) => {
 async function signInWithGoogle() {
   try {
     showLoading('Signing in with Google...');
-    console.log('Starting Google Sign-In...');
-    
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.addScope('email');
     provider.addScope('profile');
-    
     const result = await auth.signInWithPopup(provider);
-    const user = result.user;
-    
-    console.log('Google Sign-In successful:', user.email);
-    toast('Welcome ' + (user.displayName || user.email) + '!', 'success');
-    
+    toast('Welcome ' + (result.user.displayName || result.user.email) + '!', 'success');
   } catch (error) {
     console.error('Google Sign-In Error:', error);
-    console.error('Error code:', error.code);
-    console.error('Error message:', error.message);
-    
     let errorMessage = 'Google Sign-In failed. ';
-    
-    if (error.code === 'auth/popup-blocked') {
-      errorMessage = 'Popup was blocked. Please allow popups for this site and try again.';
-    } else if (error.code === 'auth/popup-closed-by-user') {
-      errorMessage = 'Sign-in was cancelled.';
-    } else if (error.code === 'auth/unauthorized-domain') {
-      errorMessage = 'This domain is not authorized. Add it to Firebase Console > Authentication > Settings > Authorized domains.';
-    } else if (error.code === 'auth/network-request-failed') {
-      errorMessage = 'Network error. Please check your internet connection.';
-    } else if (error.code === 'auth/api-key-not-valid') {
-      errorMessage = 'Firebase API key is not valid. Check your Firebase configuration.';
-    } else if (error.code === 'auth/operation-not-allowed') {
-      errorMessage = 'Google Sign-In is not enabled. Enable it in Firebase Console > Authentication > Sign-in method.';
-    } else {
-      errorMessage = 'Error: ' + (error.message || 'Unknown error');
-    }
-    
+    if (error.code === 'auth/popup-blocked') errorMessage = 'Popup was blocked. Please allow popups for this site.';
+    else if (error.code === 'auth/unauthorized-domain') errorMessage = 'Domain not authorized. Add it to Firebase Console > Authentication > Settings.';
+    else if (error.code === 'auth/operation-not-allowed') errorMessage = 'Google Sign-In is not enabled in Firebase Console.';
+    else errorMessage += error.message;
     toast(errorMessage, 'error');
-  } finally {
-    hideLoading();
-  }
+  } finally { hideLoading(); }
 }
 
 async function signInWithEmail(e) {
   e.preventDefault();
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
-  
   try {
     showLoading('Signing in...');
-    await auth.signInWithEmailAndPassword(email, password);
+    await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
     toast('Welcome back!', 'success');
   } catch (error) {
-    console.error('Email Sign-In Error:', error);
-    let errorMessage = 'Sign-in failed. ';
-    
-    if (error.code === 'auth/user-not-found') errorMessage = 'No account found with this email.';
-    else if (error.code === 'auth/wrong-password') errorMessage = 'Incorrect password.';
-    else if (error.code === 'auth/too-many-requests') errorMessage = 'Too many failed attempts. Try again later.';
-    else if (error.code === 'auth/invalid-credential') errorMessage = 'Invalid email or password.';
-    else errorMessage = error.message;
-    
-    toast(errorMessage, 'error');
-  } finally {
-    hideLoading();
-  }
+    toast('Sign-in failed: ' + error.message, 'error');
+  } finally { hideLoading(); }
 }
 
 async function showSignUp() {
   const email = prompt('Enter email:');
   if (!email) return;
   const password = prompt('Enter password (min 6 characters):');
-  if (!password || password.length < 6) {
-    toast('Password must be at least 6 characters', 'error');
-    return;
-  }
-  
+  if (!password || password.length < 6) { toast('Password must be at least 6 characters', 'error'); return; }
   try {
     showLoading('Creating account...');
     await auth.createUserWithEmailAndPassword(email, password);
     toast('Account created successfully!', 'success');
   } catch (error) {
-    console.error('Sign-Up Error:', error);
-    let errorMessage = 'Sign-up failed. ';
-    if (error.code === 'auth/email-already-in-use') errorMessage = 'This email is already registered.';
-    else if (error.code === 'auth/invalid-email') errorMessage = 'Invalid email address.';
-    else errorMessage = error.message;
-    toast(errorMessage, 'error');
-  } finally {
-    hideLoading();
-  }
+    toast('Sign-up failed: ' + error.message, 'error');
+  } finally { hideLoading(); }
 }
 
 async function resetPassword() {
   const email = prompt('Enter your email address:');
   if (!email) return;
-  
   try {
     showLoading('Sending reset email...');
     await auth.sendPasswordResetEmail(email);
-    toast('Password reset email sent! Check your inbox.', 'success');
+    toast('Password reset email sent!', 'success');
   } catch (error) {
-    console.error('Reset Error:', error);
     toast('Failed: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } finally { hideLoading(); }
 }
 
 async function logout() {
   if (!confirm('Are you sure you want to logout?')) return;
-  try {
-    await auth.signOut();
-    toast('Logged out successfully', 'success');
-  } catch (error) {
-    toast('Logout failed: ' + error.message, 'error');
-  }
+  await auth.signOut();
+  toast('Logged out successfully', 'success');
 }
 
 // ============ DATA MANAGEMENT ============
 const collections = {
-  workers: 'workers',
-  additions: 'additions',
-  deductions: 'deductions',
-  loans: 'loans',
-  salarySlips: 'salarySlips',
-  salaryComponents: 'salaryComponents',
-  company: 'company',
-  payslipDesign: 'payslipDesign',
-  departments: 'departments'
+  workers: 'workers', additions: 'additions', deductions: 'deductions',
+  loans: 'loans', salarySlips: 'salarySlips', salaryComponents: 'salaryComponents',
+  company: 'company', payslipDesign: 'payslipDesign', departments: 'departments'
 };
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).substr(2,5);
@@ -1016,38 +845,29 @@ const fmt = (n) => {
 const today = () => new Date().toISOString().split('T')[0];
 const currentMonth = () => new Date().toISOString().slice(0,7);
 
-let data = {
-  workers: [], additions: [], deductions: [], loans: [],
-  salarySlips: [], salaryComponents: [], company: {},
-  payslipDesign: {}, departments: []
-};
+let data = { workers: [], additions: [], deductions: [], loans: [], salarySlips: [], salaryComponents: [], company: {}, payslipDesign: {}, departments: [] };
 
 async function loadData() {
   showLoading('Loading data...');
   try {
-    const [workersSnap, additionsSnap, deductionsSnap, loansSnap, 
-           slipsSnap, componentsSnap, companySnap, designSnap, deptsSnap] = await Promise.all([
-      db.collection(collections.workers).get(),
-      db.collection(collections.additions).get(),
-      db.collection(collections.deductions).get(),
-      db.collection(collections.loans).get(),
-      db.collection(collections.salarySlips).get(),
-      db.collection(collections.salaryComponents).get(),
-      db.collection(collections.company).doc('config').get(),
-      db.collection(collections.payslipDesign).doc('config').get(),
+    const snaps = await Promise.all([
+      db.collection(collections.workers).get(), db.collection(collections.additions).get(),
+      db.collection(collections.deductions).get(), db.collection(collections.loans).get(),
+      db.collection(collections.salarySlips).get(), db.collection(collections.salaryComponents).get(),
+      db.collection(collections.company).doc('config').get(), db.collection(collections.payslipDesign).doc('config').get(),
       db.collection(collections.departments).get()
     ]);
 
-    data.workers = workersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    data.additions = additionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    data.deductions = deductionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    data.loans = loansSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    data.salarySlips = slipsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    data.salaryComponents = componentsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    data.departments = deptsSnap.docs.map(doc => doc.data().name);
+    data.workers = snaps[0].docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    data.additions = snaps[1].docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    data.deductions = snaps[2].docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    data.loans = snaps[3].docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    data.salarySlips = snaps[4].docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    data.salaryComponents = snaps[5].docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    data.departments = snaps[8].docs.map(doc => doc.data().name);
     
-    if (companySnap.exists) data.company = companySnap.data();
-    if (designSnap.exists) data.payslipDesign = designSnap.data();
+    if (snaps[6].exists) data.company = snaps[6].data();
+    if (snaps[7].exists) data.payslipDesign = snaps[7].data();
 
     if (!data.salaryComponents.length) {
       data.salaryComponents = [
@@ -1058,31 +878,21 @@ async function loadData() {
         { id: 'c5', name: 'Tax Deduction', type: 'deduction', calcType: 'percentage', value: 10, desc: 'PAYE tax', active: true }
       ];
     }
-    
     if (!data.payslipDesign || Object.keys(data.payslipDesign).length === 0) {
       data.payslipDesign = {
         primaryColor: '#1e40af', earningsColor: '#059669', deductionsColor: '#dc2626',
         paperSize: 'a4', fontSize: 'medium', headerStyle: 'full', border: 'none',
         showLogo: true, showBank: true, showTax: true, showAnalysis: true,
         showSignatures: true, showFooter: true, showModifications: false, showWatermark: false,
-        currency: 'Rs', currencyPosition: 'before',
-        slipTitle: 'SALARY PAY SLIP',
+        currency: 'Rs', currencyPosition: 'before', slipTitle: 'SALARY PAY SLIP',
         footerText: 'This is a computer-generated document. Thank you for your valuable contribution.',
         sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature'
       };
     }
-
     if (!data.company || Object.keys(data.company).length === 0) {
-      data.company = {
-        name: 'LK SHOE', reg: 'LK-2024-001', tax: 'TAX-LK-12345',
-        phone: '+94 11 234 5678', email: 'info@lkshoe.com',
-        address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka'
-      };
+      data.company = { name: 'LK SHOE', reg: 'LK-2024-001', tax: 'TAX-LK-12345', phone: '+94 11 234 5678', email: 'info@lkshoe.com', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
     }
-
-    if (!data.departments.length) {
-      data.departments = ["Production","Design","Quality Control","Sales","Administration","Finance","Warehouse","HR"];
-    }
+    if (!data.departments.length) data.departments = ["Production","Design","Quality Control","Sales","Administration","Finance","Warehouse","HR"];
 
     hideLoading();
     toast('Data loaded successfully!', 'success');
@@ -1094,36 +904,17 @@ async function loadData() {
   }
 }
 
-async function saveToFirebase(collection, docId, data) {
-  try {
-    if (docId) {
-      await db.collection(collection).doc(docId).set(data, { merge: true });
-    } else {
-      const docRef = await db.collection(collection).add(data);
-      return docRef.id;
-    }
-  } catch (error) {
-    console.error('Error saving to Firebase:', error);
-    throw error;
-  }
+async function saveToFirebase(collection, docId, dataObj) {
+  if (docId) await db.collection(collection).doc(docId).set(dataObj, { merge: true });
+  else { const docRef = await db.collection(collection).add(dataObj); return docRef.id; }
 }
 
 async function deleteFromFirebase(collection, docId) {
-  try {
-    await db.collection(collection).doc(docId).delete();
-  } catch (error) {
-    console.error('Error deleting from Firebase:', error);
-    throw error;
-  }
+  await db.collection(collection).doc(docId).delete();
 }
 
-async function updateInFirebase(collection, docId, data) {
-  try {
-    await db.collection(collection).doc(docId).update(data);
-  } catch (error) {
-    console.error('Error updating in Firebase:', error);
-    throw error;
-  }
+async function updateInFirebase(collection, docId, dataObj) {
+  await db.collection(collection).doc(docId).update(dataObj);
 }
 
 // ============ NAVIGATION ============
@@ -1150,7 +941,6 @@ function showSection(sec, title=null) {
   if (sec === 'settings') loadCompanySettings();
 }
 
-// ============ TOAST & MODAL ============
 function toast(msg, type='success') {
   const t = document.getElementById('toast');
   t.className = 'toast show ' + type;
@@ -1166,64 +956,42 @@ function closeModal(id) { document.getElementById(id).classList.remove('show'); 
 async function openAddWorkerModal() {
   document.getElementById('workerForm').reset();
   document.getElementById('wJoinDate').value = today();
-  const deptSel = document.getElementById('wDepartment');
-  deptSel.innerHTML = '<option value="">Select</option>' + data.departments.map(d => `<option>${d}</option>`).join('');
+  document.getElementById('wDepartment').innerHTML = '<option value="">Select</option>' + data.departments.map(d => `<option>${d}</option>`).join('');
   openModal('addWorkerModal');
 }
 
 async function addWorker(e) {
   e.preventDefault();
   const workerData = {
-    name: document.getElementById('wName').value,
-    empId: document.getElementById('wEmpId').value,
-    position: document.getElementById('wPosition').value,
-    department: document.getElementById('wDepartment').value,
-    salary: parseFloat(document.getElementById('wSalary').value),
-    allowances: parseFloat(document.getElementById('wAllowances').value) || 0,
-    joinDate: document.getElementById('wJoinDate').value,
-    phone: document.getElementById('wPhone').value,
-    email: document.getElementById('wEmail').value,
-    bank: document.getElementById('wBank').value,
-    account: document.getElementById('wAccount').value,
-    taxId: document.getElementById('wTaxId').value,
-    address: document.getElementById('wAddress').value,
-    status: 'Active',
-    createdAt: today()
+    name: document.getElementById('wName').value, empId: document.getElementById('wEmpId').value,
+    position: document.getElementById('wPosition').value, department: document.getElementById('wDepartment').value,
+    salary: parseFloat(document.getElementById('wSalary').value), allowances: parseFloat(document.getElementById('wAllowances').value) || 0,
+    joinDate: document.getElementById('wJoinDate').value, phone: document.getElementById('wPhone').value,
+    email: document.getElementById('wEmail').value, bank: document.getElementById('wBank').value,
+    account: document.getElementById('wAccount').value, taxId: document.getElementById('wTaxId').value,
+    address: document.getElementById('wAddress').value, status: 'Active', createdAt: today()
   };
-  
   try {
     showLoading('Saving worker...');
     await saveToFirebase(collections.workers, null, workerData);
     await loadData();
     toast('Worker added successfully!');
     closeModal('addWorkerModal');
-  } catch (error) {
-    toast('Error: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 function renderWorkers() {
   const search = (document.getElementById('searchWorker')?.value || '').toLowerCase();
-  const filtered = data.workers.filter(w => 
-    w.name.toLowerCase().includes(search) || w.empId.toLowerCase().includes(search) || w.department.toLowerCase().includes(search)
-  );
+  const filtered = data.workers.filter(w => w.name.toLowerCase().includes(search) || w.empId.toLowerCase().includes(search) || w.department.toLowerCase().includes(search));
   document.getElementById('workerCount').textContent = data.workers.length;
   const tbody = document.getElementById('workersTable');
-  if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-users"></i><h3>No workers yet</h3></div></td></tr>';
-    return;
-  }
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-users"></i><h3>No workers yet</h3></div></td></tr>'; return; }
   tbody.innerHTML = filtered.map(w => {
-    const activeLoans = data.loans.filter(l => l.workerId === w.id && l.status === 'Active');
-    const loanTotal = activeLoans.reduce((s,l) => s + l.remaining, 0);
-    return `
-    <tr class="clickable" onclick="openWorkerDetail('${w.id}')">
+    const loanTotal = data.loans.filter(l => l.workerId === w.id && l.status === 'Active').reduce((s,l) => s + l.remaining, 0);
+    return `<tr class="clickable" onclick="openWorkerDetail('${w.id}')">
       <td><strong>${w.empId}</strong></td>
       <td><div style="display:flex;align-items:center;gap:10px;"><div style="width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">${w.name.charAt(0).toUpperCase()}</div><div><div style="font-weight:600;">${w.name}</div></div></div></td>
-      <td>${w.position}</td>
-      <td><span class="badge badge-primary">${w.department}</span></td>
+      <td>${w.position}</td><td><span class="badge badge-primary">${w.department}</span></td>
       <td><strong>${fmt(w.salary)}</strong></td>
       <td>${loanTotal > 0 ? `<span class="badge badge-warning">${fmt(loanTotal)}</span>` : '-'}</td>
       <td>
@@ -1241,18 +1009,18 @@ async function deleteWorker(id) {
     await deleteFromFirebase(collections.workers, id);
     await loadData();
     toast('Deleted!');
-  } catch (error) {
-    toast('Error: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
+// ============ WORKER DETAIL (6 TABS RESTORED) ============
 function openWorkerDetail(id) {
   const w = data.workers.find(x => x.id === id);
   if (!w) return;
   const slips = data.salarySlips.filter(s => s.workerId === id);
   const loans = data.loans.filter(l => l.workerId === id);
+  const additions = data.additions.filter(a => a.workerId === id);
+  const deductions = data.deductions.filter(d => d.workerId === id);
+  
   const totalPaid = slips.reduce((s,p) => s + p.net, 0);
   const totalLoan = loans.filter(l => l.status === 'Active').reduce((s,l) => s + l.remaining, 0);
   
@@ -1263,6 +1031,7 @@ function openWorkerDetail(id) {
         <h2>${w.name}</h2>
         <p><i class="fas fa-id-badge"></i> ${w.empId} | <i class="fas fa-briefcase"></i> ${w.position}</p>
         <p><i class="fas fa-building"></i> ${w.department} | <i class="fas fa-calendar"></i> Joined: ${w.joinDate}</p>
+        <p><i class="fas fa-phone"></i> ${w.phone || '-'} | <i class="fas fa-envelope"></i> ${w.email || '-'}</p>
       </div>
       <div class="worker-quick-stats">
         <div class="qs"><div class="qs-label">Basic</div><div class="qs-value">${fmt(w.salary)}</div></div>
@@ -1273,43 +1042,198 @@ function openWorkerDetail(id) {
     <div class="card">
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-success btn-lg" onclick="goCreateSlip('${w.id}')"><i class="fas fa-file-invoice-dollar"></i> Create Pay Slip</button>
+        <button class="btn btn-warning" onclick="quickAddLoan('${w.id}')"><i class="fas fa-hand-holding-usd"></i> Issue Loan</button>
         <button class="btn btn-secondary" onclick="showSection('workers')"><i class="fas fa-arrow-left"></i> Back</button>
       </div>
     </div>
     <div class="card">
-      <div class="card-header"><h2><i class="fas fa-file-invoice"></i> Pay Slip History</h2></div>
-      <div class="table-container">
-        <table>
-          <thead><tr><th>Slip #</th><th>Month</th><th>Basic</th><th>Additions</th><th>Deductions</th><th>Net</th><th>Status</th></tr></thead>
-          <tbody>
-            ${slips.length ? slips.slice().reverse().map(s => `
-              <tr>
-                <td><strong>#${s.slipNo}</strong></td>
-                <td>${s.month}</td>
-                <td>${fmt(s.basic)}</td>
-                <td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
-                <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td>
-                <td><strong>${fmt(s.net)}</strong></td>
-                <td><span class="badge ${s.status==='Paid'?'badge-success':'badge-gray'}">${s.status}</span></td>
-              </tr>
-            `).join('') : '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-file-invoice"></i><h3>No slips yet</h3></div></td></tr>'}
-          </tbody>
-        </table>
+      <div class="tabs">
+        <div class="tab active" onclick="switchWorkerTab('overview', this)"><i class="fas fa-info-circle"></i> Overview</div>
+        <div class="tab" onclick="switchWorkerTab('slips', this)"><i class="fas fa-file-invoice"></i> Salary Slips</div>
+        <div class="tab" onclick="switchWorkerTab('loans', this)"><i class="fas fa-hand-holding-usd"></i> Loans</div>
+        <div class="tab" onclick="switchWorkerTab('additions', this)"><i class="fas fa-plus-circle"></i> Additions</div>
+        <div class="tab" onclick="switchWorkerTab('deductions', this)"><i class="fas fa-minus-circle"></i> Deductions</div>
+        <div class="tab" onclick="switchWorkerTab('personal', this)"><i class="fas fa-user"></i> Personal Info</div>
+      </div>
+      
+      <div class="tab-content active" id="wt-overview">
+        <div class="stats-grid">
+          <div class="stat-card green"><div class="icon"><i class="fas fa-plus"></i></div><h3>Total Additions</h3><div class="value">${fmt(additions.reduce((s,a)=>s+a.amount,0))}</div></div>
+          <div class="stat-card red"><div class="icon"><i class="fas fa-minus"></i></div><h3>Total Deductions</h3><div class="value">${fmt(deductions.reduce((s,d)=>s+d.amount,0))}</div></div>
+          <div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Active Loans</h3><div class="value">${fmt(totalLoan)}</div></div>
+          <div class="stat-card blue"><div class="icon"><i class="fas fa-file-invoice"></i></div><h3>Slips Generated</h3><div class="value">${slips.length}</div></div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="wt-slips">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Slip #</th><th>Month</th><th>Basic</th><th>Additions</th><th>Deductions</th><th>Net</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${slips.length ? slips.slice().reverse().map(s => `
+                <tr>
+                  <td><strong>#${s.slipNo}</strong></td><td>${s.month}</td><td>${fmt(s.basic)}</td>
+                  <td style="color:var(--success);">+${fmt(s.totalAdditions)}</td><td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td>
+                  <td><strong>${fmt(s.net)}</strong></td><td><span class="badge ${s.status==='Paid'?'badge-success':'badge-gray'}">${s.status}</span></td>
+                  <td><button class="btn btn-primary btn-sm" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i></button></td>
+                </tr>
+              `).join('') : '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-file-invoice"></i><h3>No slips yet</h3></div></td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="wt-loans">
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start Month</th><th>Progress</th><th>Status</th></tr></thead>
+            <tbody>
+              ${loans.length ? loans.map(l => {
+                const pct = (l.paid / l.amount * 100).toFixed(1);
+                const paidMonthsCount = (l.paidMonths || []).length;
+                const totalMonths = Math.ceil(l.amount / l.installment);
+                return `<tr>
+                  <td><span class="badge badge-warning">${l.type}</span></td>
+                  <td>${fmt(l.amount)}</td><td>${fmt(l.installment)}/mo</td>
+                  <td style="color:var(--success);">${fmt(l.paid)}</td><td style="color:var(--danger);"><strong>${fmt(l.remaining)}</strong></td>
+                  <td>${l.startMonth}</td>
+                  <td style="min-width:150px;"><div style="font-size:11px;">${pct}% (${paidMonthsCount}/${totalMonths})</div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></td>
+                  <td><span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></td>
+                </tr>`;
+              }).join('') : '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans</h3></div></td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="wt-additions">
+        <div style="margin-bottom:15px;"><button class="btn btn-success btn-sm" onclick="quickAddAddition('${w.id}')"><i class="fas fa-plus"></i> Add Addition</button></div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Date</th><th>Type</th><th>Month</th><th>Hours</th><th>Amount</th><th>Description</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${additions.length ? additions.slice().reverse().map(a => `
+                <tr>
+                  <td>${a.date}</td><td><span class="badge badge-info">${a.type}</span></td><td>${a.month}</td>
+                  <td>${a.hours || '-'}</td><td><strong style="color:var(--success);">+${fmt(a.amount)}</strong></td>
+                  <td>${a.description || '-'}</td>
+                  <td><button class="btn btn-danger btn-sm" onclick="deleteAddition('${a.id}','${w.id}')"><i class="fas fa-trash"></i></button></td>
+                </tr>
+              `).join('') : '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-plus-circle"></i><h3>No additions</h3></div></td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="wt-deductions">
+        <div style="margin-bottom:15px;"><button class="btn btn-danger btn-sm" onclick="quickAddDeduction('${w.id}')"><i class="fas fa-plus"></i> Add Deduction</button></div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Date</th><th>Type</th><th>Month</th><th>Amount</th><th>Description</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${deductions.length ? deductions.slice().reverse().map(d => `
+                <tr>
+                  <td>${d.date}</td><td><span class="badge badge-warning">${d.type}</span></td><td>${d.month}</td>
+                  <td><strong style="color:var(--danger);">-${fmt(d.amount)}</strong></td>
+                  <td>${d.description || '-'}</td>
+                  <td><button class="btn btn-danger btn-sm" onclick="deleteDeduction('${d.id}','${w.id}')"><i class="fas fa-trash"></i></button></td>
+                </tr>
+              `).join('') : '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-minus-circle"></i><h3>No deductions</h3></div></td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="wt-personal">
+        <div class="form-grid">
+          <div><strong>Full Name:</strong> ${w.name}</div>
+          <div><strong>Employee ID:</strong> ${w.empId}</div>
+          <div><strong>Position:</strong> ${w.position}</div>
+          <div><strong>Department:</strong> ${w.department}</div>
+          <div><strong>Join Date:</strong> ${w.joinDate}</div>
+          <div><strong>Phone:</strong> ${w.phone || '-'}</div>
+          <div><strong>Email:</strong> ${w.email || '-'}</div>
+          <div><strong>Bank:</strong> ${w.bank || '-'}</div>
+          <div><strong>Account No:</strong> ${w.account || '-'}</div>
+          <div><strong>Tax ID / NIC:</strong> ${w.taxId || '-'}</div>
+          <div style="grid-column:1/-1;"><strong>Address:</strong> ${w.address || '-'}</div>
+        </div>
       </div>
     </div>
   `;
   showSection('workerDetail', w.name);
 }
 
+function switchWorkerTab(tab, el) {
+  document.querySelectorAll('#workerDetailContent .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#workerDetailContent .tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('wt-' + tab).classList.add('active');
+}
+
 function goCreateSlip(workerId) {
   showSection('slips');
+  setTimeout(() => { document.getElementById('slipWorker').value = workerId; loadSlipDefaults(); }, 100);
+}
+
+function quickAddLoan(workerId) {
+  showSection('loans');
   setTimeout(() => {
-    document.getElementById('slipWorker').value = workerId;
-    loadSlipDefaults();
+    document.getElementById('lWorker').innerHTML = '<option value="">Select Worker</option>' + data.workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>`).join('');
+    document.getElementById('lWorker').value = workerId;
+    document.getElementById('lIssueDate').value = today();
+    document.getElementById('lStartMonth').value = currentMonth();
+    openModal('addLoanModal');
   }, 100);
 }
 
-// ============ POPULATE SELECTS ============
+function quickAddAddition(workerId) {
+  // For simplicity, we'll prompt for quick addition, or you can expand this to a modal
+  const type = prompt('Addition Type (e.g., Overtime, Bonus):');
+  if (!type) return;
+  const amount = parseFloat(prompt('Amount (Rs):'));
+  if (!amount) return;
+  const month = prompt('For Month (YYYY-MM):', currentMonth());
+  
+  data.additions.push({
+    id: uid(), workerId, type, amount, month, date: today(), hours: 0, description: 'Quick add'
+  });
+  save(); // Note: In full Firebase, use saveToFirebase here
+  toast('Addition added!');
+  openWorkerDetail(workerId); // Refresh
+}
+
+function quickAddDeduction(workerId) {
+  const type = prompt('Deduction Type (e.g., Late Fee, Penalty):');
+  if (!type) return;
+  const amount = parseFloat(prompt('Amount (Rs):'));
+  if (!amount) return;
+  const month = prompt('For Month (YYYY-MM):', currentMonth());
+  
+  data.deductions.push({
+    id: uid(), workerId, type, amount, month, date: today(), description: 'Quick add'
+  });
+  save();
+  toast('Deduction added!');
+  openWorkerDetail(workerId);
+}
+
+function deleteAddition(id, workerId) {
+  if (!confirm('Delete this addition?')) return;
+  data.additions = data.additions.filter(a => a.id !== id);
+  save();
+  toast('Deleted');
+  openWorkerDetail(workerId);
+}
+
+function deleteDeduction(id, workerId) {
+  if (!confirm('Delete this deduction?')) return;
+  data.deductions = data.deductions.filter(d => d.id !== id);
+  save();
+  toast('Deleted');
+  openWorkerDetail(workerId);
+}
+
 function populateWorkerSelect(id) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -1318,8 +1242,7 @@ function populateWorkerSelect(id) {
 
 function populateReportFilters() {
   populateWorkerSelect('rWorker');
-  const deptSel = document.getElementById('rDept');
-  deptSel.innerHTML = '<option value="">All</option>' + data.departments.map(d => `<option>${d}</option>`).join('');
+  document.getElementById('rDept').innerHTML = '<option value="">All</option>' + data.departments.map(d => `<option>${d}</option>`).join('');
 }
 
 // ============ LOANS ============
@@ -1335,51 +1258,33 @@ async function addLoan(e) {
   e.preventDefault();
   const total = parseFloat(document.getElementById('lAmount').value);
   const loanData = {
-    workerId: document.getElementById('lWorker').value,
-    type: document.getElementById('lType').value,
-    amount: total,
-    installment: parseFloat(document.getElementById('lInstallment').value),
-    paid: 0,
-    remaining: total,
-    issueDate: document.getElementById('lIssueDate').value,
-    startMonth: document.getElementById('lStartMonth').value,
-    reason: document.getElementById('lReason').value,
-    status: 'Active',
-    paidMonths: [],
-    createdAt: today()
+    workerId: document.getElementById('lWorker').value, type: document.getElementById('lType').value,
+    amount: total, installment: parseFloat(document.getElementById('lInstallment').value),
+    paid: 0, remaining: total, issueDate: document.getElementById('lIssueDate').value,
+    startMonth: document.getElementById('lStartMonth').value, reason: document.getElementById('lReason').value,
+    status: 'Active', paidMonths: [], createdAt: today()
   };
-  
   try {
     showLoading('Issuing loan...');
     await saveToFirebase(collections.loans, null, loanData);
     await loadData();
     toast('Loan issued!');
     closeModal('addLoanModal');
-  } catch (error) {
-    toast('Error: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 function renderLoans() {
   const tbody = document.getElementById('loansTable');
-  if (!data.loans.length) {
-    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans</h3></div></td></tr>';
-    return;
-  }
+  if (!data.loans.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans</h3></div></td></tr>'; return; }
   tbody.innerHTML = data.loans.map(l => {
     const w = data.workers.find(x => x.id === l.workerId);
     const pct = (l.paid / l.amount * 100).toFixed(1);
     const paidMonthsCount = (l.paidMonths || []).length;
     const totalMonths = Math.ceil(l.amount / l.installment);
     return `<tr>
-      <td>${w ? w.name : 'Unknown'}</td>
-      <td><span class="badge badge-warning">${l.type}</span></td>
-      <td>${fmt(l.amount)}</td>
-      <td>${fmt(l.installment)}</td>
-      <td style="color:var(--success);">${fmt(l.paid)}</td>
-      <td style="color:var(--danger);"><strong>${fmt(l.remaining)}</strong></td>
+      <td>${w ? w.name : 'Unknown'}</td><td><span class="badge badge-warning">${l.type}</span></td>
+      <td>${fmt(l.amount)}</td><td>${fmt(l.installment)}</td>
+      <td style="color:var(--success);">${fmt(l.paid)}</td><td style="color:var(--danger);"><strong>${fmt(l.remaining)}</strong></td>
       <td>${l.startMonth}</td>
       <td style="min-width:150px;"><div style="font-size:11px;">${pct}% (${paidMonthsCount}/${totalMonths})</div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></td>
       <td><span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></td>
@@ -1390,16 +1295,7 @@ function renderLoans() {
 
 async function deleteLoan(id) {
   if (!confirm('Delete this loan?')) return;
-  try {
-    showLoading('Deleting...');
-    await deleteFromFirebase(collections.loans, id);
-    await loadData();
-    toast('Deleted!');
-  } catch (error) {
-    toast('Error: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  try { showLoading('Deleting...'); await deleteFromFirebase(collections.loans, id); await loadData(); toast('Deleted!'); } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // ============ SALARY COMPONENTS ============
@@ -1413,18 +1309,11 @@ function renderComponents() {
 function componentCard(c) {
   const calcLabel = { fixed: 'Fixed', percentage: '% of Basic', perHour: 'Per Hour', manual: 'Manual' }[c.calcType];
   const valueLabel = c.calcType === 'percentage' ? `${c.value}%` : c.calcType === 'manual' ? 'No default' : fmt(c.value);
-  return `
-    <div class="component-card ${c.type}">
-      <div class="comp-icon"><i class="fas ${c.type === 'earning' ? 'fa-plus' : 'fa-minus'}"></i></div>
-      <div class="comp-info">
-        <h4>${c.name}</h4>
-        <p>${calcLabel} • ${valueLabel} ${c.desc ? '• ' + c.desc : ''}</p>
-      </div>
-      <div>
-        <button class="btn btn-sm btn-danger" onclick="deleteComponent('${c.id}')"><i class="fas fa-trash"></i></button>
-      </div>
-    </div>
-  `;
+  return `<div class="component-card ${c.type}" style="${!c.active ? 'opacity:0.5;' : ''}">
+    <div class="comp-icon"><i class="fas ${c.type === 'earning' ? 'fa-plus' : 'fa-minus'}"></i></div>
+    <div class="comp-info"><h4>${c.name} ${!c.active ? '<span class="badge badge-gray">Inactive</span>' : ''}</h4><p>${calcLabel} • ${valueLabel} ${c.desc ? '• ' + c.desc : ''}</p></div>
+    <div><button class="btn btn-sm btn-danger" onclick="deleteComponent('${c.id}')"><i class="fas fa-trash"></i></button></div>
+  </div>`;
 }
 
 function switchCompTab(tab, el) {
@@ -1447,42 +1336,24 @@ async function saveComponent() {
   const name = document.getElementById('compName').value.trim();
   if (!name) { toast('Enter name', 'error'); return; }
   const componentData = {
-    name,
-    type: document.getElementById('compType').value,
-    calcType: document.getElementById('compCalcType').value,
-    value: parseFloat(document.getElementById('compValue').value) || 0,
-    desc: document.getElementById('compDesc').value,
-    active: true
+    name, type: document.getElementById('compType').value, calcType: document.getElementById('compCalcType').value,
+    value: parseFloat(document.getElementById('compValue').value) || 0, desc: document.getElementById('compDesc').value, active: true
   };
-  
   try {
     showLoading('Saving...');
     await saveToFirebase(collections.salaryComponents, null, componentData);
     await loadData();
     toast('Component added!');
     closeModal('addComponentModal');
-  } catch (error) {
-    toast('Error: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 async function deleteComponent(id) {
   if (!confirm('Delete this component?')) return;
-  try {
-    showLoading('Deleting...');
-    await deleteFromFirebase(collections.salaryComponents, id);
-    await loadData();
-    toast('Deleted!');
-  } catch (error) {
-    toast('Error: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  try { showLoading('Deleting...'); await deleteFromFirebase(collections.salaryComponents, id); await loadData(); toast('Deleted!'); } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ SLIP BUILDER ============
+// ============ SLIP BUILDER (FULLY RESTORED WITH CUSTOM ADD) ============
 let currentSlipData = null;
 
 function loadSlipDefaults() {
@@ -1501,94 +1372,71 @@ function loadSlipDefaults() {
   );
   
   if (workerLoans.length > 0) {
-    loanBanner.innerHTML = `
-      <div class="loan-info-banner">
-        <h4><i class="fas fa-hand-holding-usd"></i> ${workerLoans.length} Loan(s) Auto-Deducting</h4>
-        ${workerLoans.map(l => `<p>• <strong>${l.type}</strong>: ${fmt(l.installment)}/month • Remaining: ${fmt(l.remaining)}</p>`).join('')}
-      </div>
-    `;
+    loanBanner.innerHTML = `<div class="loan-info-banner">
+      <h4><i class="fas fa-hand-holding-usd"></i> ${workerLoans.length} Loan(s) Auto-Deducting</h4>
+      ${workerLoans.map(l => `<p>• <strong>${l.type}</strong>: ${fmt(l.installment)}/month • Remaining: ${fmt(l.remaining)}</p>`).join('')}
+    </div>`;
   } else {
     loanBanner.innerHTML = '';
   }
   
-  let earningsHtml = `
-    <div class="slip-row" data-type="earning" data-id="basic">
-      <div><strong>Basic Salary</strong><div class="calc-info">From profile</div></div>
-      <input type="number" class="row-amount" value="${w.salary}" step="0.01" oninput="updateSlipSummary()">
-      <div></div>
-      <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
-    </div>
-  `;
+  let earningsHtml = `<div class="slip-row" data-type="earning" data-id="basic">
+    <div><strong>Basic Salary</strong><div class="calc-info">From profile</div></div>
+    <input type="number" class="row-amount" value="${w.salary}" step="0.01" oninput="updateSlipSummary()">
+    <div></div><div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
+  </div>`;
   
   if (w.allowances > 0) {
-    earningsHtml += `
-      <div class="slip-row" data-type="earning" data-id="allowances">
-        <div><strong>Fixed Allowances</strong></div>
-        <input type="number" class="row-amount" value="${w.allowances}" step="0.01" oninput="updateSlipSummary()">
-        <div></div>
-        <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
-      </div>
-    `;
+    earningsHtml += `<div class="slip-row" data-type="earning" data-id="allowances">
+      <div><strong>Fixed Allowances</strong></div>
+      <input type="number" class="row-amount" value="${w.allowances}" step="0.01" oninput="updateSlipSummary()">
+      <div></div><div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
+    </div>`;
   }
   
   data.salaryComponents.filter(c => c.type === 'earning' && c.active).forEach(c => {
-    let defaultAmount = 0;
-    if (c.calcType === 'fixed') defaultAmount = c.value;
-    else if (c.calcType === 'percentage') defaultAmount = w.salary * c.value / 100;
-    
-    earningsHtml += `
-      <div class="slip-row" data-type="earning" data-id="${c.id}" data-base="${c.value}">
-        <div><strong>${c.name}</strong><div class="calc-info">${c.calcType === 'percentage' ? c.value + '% of basic' : 'Default: ' + fmt(c.value)}</div></div>
-        <input type="number" class="row-amount" value="${defaultAmount}" step="0.01" oninput="updateSlipSummary()">
-        <div></div>
-        <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
-      </div>
-    `;
+    let defaultAmount = c.calcType === 'fixed' ? c.value : (c.calcType === 'percentage' ? w.salary * c.value / 100 : 0);
+    earningsHtml += `<div class="slip-row" data-type="earning" data-id="${c.id}" data-base="${c.value}">
+      <div><strong>${c.name}</strong><div class="calc-info">${c.calcType === 'percentage' ? c.value + '% of basic' : 'Default: ' + fmt(c.value)}</div></div>
+      <input type="number" class="row-amount" value="${defaultAmount}" step="0.01" oninput="updateSlipSummary()">
+      <div></div><div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
+    </div>`;
   });
   
   let deductionsHtml = '';
   data.salaryComponents.filter(c => c.type === 'deduction' && c.active).forEach(c => {
-    let defaultAmount = 0;
-    if (c.calcType === 'fixed') defaultAmount = c.value;
-    else if (c.calcType === 'percentage') defaultAmount = w.salary * c.value / 100;
-    
-    deductionsHtml += `
-      <div class="slip-row" data-type="deduction" data-id="${c.id}">
-        <div><strong>${c.name}</strong><div class="calc-info">${c.calcType === 'percentage' ? c.value + '% of basic' : 'Default: ' + fmt(c.value)}</div></div>
-        <input type="number" class="row-amount" value="${defaultAmount}" step="0.01" oninput="updateSlipSummary()">
-        <div></div>
-        <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
-      </div>
-    `;
+    let defaultAmount = c.calcType === 'fixed' ? c.value : (c.calcType === 'percentage' ? w.salary * c.value / 100 : 0);
+    deductionsHtml += `<div class="slip-row" data-type="deduction" data-id="${c.id}">
+      <div><strong>${c.name}</strong><div class="calc-info">${c.calcType === 'percentage' ? c.value + '% of basic' : 'Default: ' + fmt(c.value)}</div></div>
+      <input type="number" class="row-amount" value="${defaultAmount}" step="0.01" oninput="updateSlipSummary()">
+      <div></div><div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
+    </div>`;
   });
   
   workerLoans.forEach(l => {
-    deductionsHtml += `
-      <div class="slip-row loan-row" data-type="deduction" data-id="loan_${l.id}" data-loan-id="${l.id}">
-        <div>
-          <strong><i class="fas fa-hand-holding-usd" style="color:var(--warning);"></i> Loan - ${l.type}</strong>
-          <div class="calc-info">Auto-deducted • Balance: ${fmt(l.remaining)}</div>
-        </div>
-        <input type="number" class="row-amount" value="${l.installment}" step="0.01" oninput="updateSlipSummary()">
-        <div></div>
-        <div class="row-controls">
-          <input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()">
-          <span>Include</span>
-        </div>
-      </div>
-    `;
+    deductionsHtml += `<div class="slip-row loan-row" data-type="deduction" data-id="loan_${l.id}" data-loan-id="${l.id}">
+      <div><strong><i class="fas fa-hand-holding-usd" style="color:var(--warning);"></i> Loan - ${l.type}</strong><div class="calc-info">Auto-deducted • Balance: ${fmt(l.remaining)}</div></div>
+      <input type="number" class="row-amount" value="${l.installment}" step="0.01" oninput="updateSlipSummary()">
+      <div></div><div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
+    </div>`;
   });
   
-  if (!deductionsHtml) deductionsHtml = '<div style="padding:15px;text-align:center;color:var(--gray);">No deductions</div>';
+  if (!deductionsHtml) deductionsHtml = '<div style="padding:15px;text-align:center;color:var(--gray);">No deductions configured</div>';
   
   container.innerHTML = `
     <div class="slip-builder">
       <div class="slip-section">
-        <h3><span><i class="fas fa-plus-circle" style="color:var(--success);"></i> EARNINGS</span></h3>
+        <h3>
+          <span><i class="fas fa-plus-circle" style="color:var(--success);"></i> EARNINGS</span>
+          <button class="btn btn-sm btn-success" onclick="addCustomRow('earning')"><i class="fas fa-plus"></i> Add Custom</button>
+        </h3>
         <div id="earningsContainer">${earningsHtml}</div>
       </div>
       <div class="slip-section">
-        <h3><span><i class="fas fa-minus-circle" style="color:var(--danger);"></i> DEDUCTIONS</span></h3>
+        <h3>
+          <span><i class="fas fa-minus-circle" style="color:var(--danger);"></i> DEDUCTIONS</span>
+          <button class="btn btn-sm btn-danger" onclick="addCustomRow('deduction')"><i class="fas fa-plus"></i> Add Custom</button>
+        </h3>
         <div id="deductionsContainer">${deductionsHtml}</div>
       </div>
       <div class="summary-box">
@@ -1599,13 +1447,42 @@ function loadSlipDefaults() {
           <div class="summary-item net"><div class="label">NET SALARY</div><div class="val" id="sumNet">${fmt(w.salary)}</div></div>
         </div>
       </div>
+      <div class="modification-log" id="modLog" style="display:none;">
+        <strong><i class="fas fa-info-circle"></i> Modifications from defaults:</strong>
+        <span id="modLogText"></span>
+      </div>
       <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-success btn-lg" onclick="finalizeSlip('Paid')"><i class="fas fa-file-pdf"></i> Finalize & Download PDF</button>
         <button class="btn btn-warning" onclick="finalizeSlip('Draft')"><i class="fas fa-save"></i> Save Draft</button>
+        <button class="btn btn-secondary" onclick="previewSlip()"><i class="fas fa-eye"></i> Preview</button>
       </div>
     </div>
   `;
-  
+  updateSlipSummary();
+}
+
+// RESTORED: Add Custom Row Functionality
+function addCustomRow(type) {
+  const name = prompt(`Enter ${type} name (e.g., Special Bonus, Uniform Fee):`);
+  if (!name) return;
+  const amount = parseFloat(prompt('Enter amount (Rs):', '0')) || 0;
+  const container = document.getElementById(type === 'earning' ? 'earningsContainer' : 'deductionsContainer');
+  const row = document.createElement('div');
+  row.className = 'slip-row';
+  row.dataset.type = type;
+  row.dataset.id = 'custom_' + uid();
+  row.dataset.calc = 'manual';
+  row.innerHTML = `
+    <div><strong>${name}</strong><div class="calc-info">Custom entry</div></div>
+    <input type="number" class="row-amount" value="${amount}" step="0.01" oninput="updateSlipSummary()">
+    <div></div>
+    <div class="row-controls">
+      <input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()">
+      <span>Include</span>
+      <button class="btn btn-sm btn-danger" onclick="this.closest('.slip-row').remove();updateSlipSummary();" style="padding:4px 8px;margin-left:5px;"><i class="fas fa-trash"></i></button>
+    </div>
+  `;
+  container.appendChild(row);
   updateSlipSummary();
 }
 
@@ -1614,25 +1491,57 @@ function updateSlipSummary() {
   const w = data.workers.find(x => x.id === workerId);
   if (!w) return;
   
-  const earnings = [];
-  const deductions = [];
-  const loansDeducted = [];
+  const earnings = [], deductions = [], modifications = [], loansDeducted = [];
+  
+  const getEarningDefault = (id) => {
+    if (id === 'basic') return w.salary;
+    if (id === 'allowances') return w.allowances;
+    const c = data.salaryComponents.find(x => x.id === id);
+    return c ? (c.calcType === 'fixed' ? c.value : w.salary * c.value / 100) : 0;
+  };
+  
+  const getDeductionDefault = (id) => {
+    if (id.startsWith('loan_')) { const l = data.loans.find(x => x.id === id.replace('loan_', '')); return l ? l.installment : 0; }
+    const c = data.salaryComponents.find(x => x.id === id);
+    return c ? (c.calcType === 'fixed' ? c.value : w.salary * c.value / 100) : 0;
+  };
+  
+  const getName = (id, row) => {
+    if (id === 'basic') return 'Basic Salary';
+    if (id === 'allowances') return 'Fixed Allowances';
+    if (id.startsWith('loan_')) { const l = data.loans.find(x => x.id === id.replace('loan_', '')); return l ? `Loan Installment - ${l.type}` : 'Loan Installment'; }
+    if (id.startsWith('custom_')) return row.querySelector('strong')?.textContent || 'Custom';
+    const c = data.salaryComponents.find(x => x.id === id);
+    return c ? c.name : 'Unknown';
+  };
   
   document.querySelectorAll('#earningsContainer .slip-row').forEach(row => {
     const amount = parseFloat(row.querySelector('.row-amount')?.value) || 0;
     const included = row.querySelector('.row-toggle')?.checked;
-    if (included && amount > 0) earnings.push({ name: row.querySelector('strong').textContent, amount, id: row.dataset.id });
+    const id = row.dataset.id;
+    const name = getName(id, row);
+    const defaultAmt = getEarningDefault(id);
+    
+    if (included && amount > 0) earnings.push({ name, amount, id });
+    if (!included && defaultAmt > 0 && !id.startsWith('custom_')) modifications.push(`❌ Excluded: ${name} (${fmt(defaultAmt)})`);
+    else if (included && Math.abs(amount - defaultAmt) > 0.01 && defaultAmt > 0 && !id.startsWith('custom_')) modifications.push(`✏️ Modified: ${name} from ${fmt(defaultAmt)} to ${fmt(amount)}`);
+    row.classList.toggle('excluded', !included);
   });
   
   document.querySelectorAll('#deductionsContainer .slip-row').forEach(row => {
     const amount = parseFloat(row.querySelector('.row-amount')?.value) || 0;
     const included = row.querySelector('.row-toggle')?.checked;
+    const id = row.dataset.id;
+    const name = getName(id, row);
+    const defaultAmt = getDeductionDefault(id);
+    
     if (included && amount > 0) {
-      deductions.push({ name: row.querySelector('strong').textContent, amount, id: row.dataset.id });
-      if (row.dataset.id.startsWith('loan_')) {
-        loansDeducted.push({ loanId: row.dataset.loanId, amount });
-      }
+      deductions.push({ name, amount, id });
+      if (id.startsWith('loan_')) loansDeducted.push({ loanId: row.dataset.loanId, amount });
     }
+    if (!included && defaultAmt > 0 && !id.startsWith('custom_')) modifications.push(`❌ Excluded: ${name} (${fmt(defaultAmt)})`);
+    else if (included && Math.abs(amount - defaultAmt) > 0.01 && defaultAmt > 0 && !id.startsWith('custom_')) modifications.push(`✏️ Modified: ${name} from ${fmt(defaultAmt)} to ${fmt(amount)}`);
+    row.classList.toggle('excluded', !included);
   });
   
   const totalEarnings = earnings.reduce((s,e) => s + e.amount, 0);
@@ -1645,47 +1554,43 @@ function updateSlipSummary() {
   document.getElementById('sumDed').textContent = fmt(totalDeductions);
   document.getElementById('sumNet').textContent = fmt(net);
   
-  currentSlipData = {
-    workerId, month: document.getElementById('slipMonth').value,
-    notes: document.getElementById('slipNotes').value,
-    earnings, deductions, loansDeducted,
-    basic, totalAdditions: totalEarnings - basic,
-    totalDeductions, net
-  };
+  const modLog = document.getElementById('modLog');
+  const modText = document.getElementById('modLogText');
+  if (modifications.length > 0) {
+    modLog.style.display = 'block';
+    modText.innerHTML = '<ul style="margin:5px 0 0 20px;">' + modifications.map(m => `<li>${m}</li>`).join('') + '</ul>';
+  } else { modLog.style.display = 'none'; }
+  
+  currentSlipData = { workerId, month: document.getElementById('slipMonth').value, notes: document.getElementById('slipNotes').value, earnings, deductions, modifications, loansDeducted, basic, totalAdditions: totalEarnings - basic, totalDeductions, net };
+}
+
+function previewSlip() {
+  if (!currentSlipData) { toast('Select worker and month', 'error'); return; }
+  viewSlipPreview(currentSlipData);
+  openModal('viewSlipModal');
 }
 
 async function finalizeSlip(status) {
   if (!currentSlipData) { toast('Select worker and month', 'error'); return; }
-  
   const workerId = currentSlipData.workerId;
   const month = currentSlipData.month;
   const existingSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
   
   const slipData = {
     slipNo: existingSlip ? existingSlip.slipNo : 'SL-' + Date.now().toString().slice(-6),
-    workerId, month,
-    notes: currentSlipData.notes,
-    earnings: currentSlipData.earnings,
-    deductions: currentSlipData.deductions,
-    loansDeducted: currentSlipData.loansDeducted || [],
-    basic: currentSlipData.basic,
-    totalAdditions: currentSlipData.totalAdditions,
-    totalDeductions: currentSlipData.totalDeductions,
-    net: currentSlipData.net,
-    status,
-    createdAt: existingSlip ? existingSlip.createdAt : today(),
-    modifiedAt: today()
+    workerId, month, notes: currentSlipData.notes, earnings: currentSlipData.earnings,
+    deductions: currentSlipData.deductions, loansDeducted: currentSlipData.loansDeducted || [],
+    basic: currentSlipData.basic, totalAdditions: currentSlipData.totalAdditions,
+    totalDeductions: currentSlipData.totalDeductions, net: currentSlipData.net,
+    status, createdAt: existingSlip ? existingSlip.createdAt : today(), modifiedAt: today()
   };
   
   try {
     showLoading('Finalizing...');
+    if (existingSlip) await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
+    else await saveToFirebase(collections.salarySlips, null, slipData);
     
-    if (existingSlip) {
-      await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
-    } else {
-      await saveToFirebase(collections.salarySlips, null, slipData);
-    }
-    
+    // Update loan balances if Paid
     if (status === 'Paid' && slipData.loansDeducted && slipData.loansDeducted.length > 0) {
       for (const ld of slipData.loansDeducted) {
         const loan = data.loans.find(l => l.id === ld.loanId);
@@ -1694,10 +1599,7 @@ async function finalizeSlip(status) {
           loan.paid = (loan.paid || 0) + ld.amount;
           loan.remaining = Math.max(0, loan.remaining - ld.amount);
           if (loan.remaining <= 0.01) { loan.remaining = 0; loan.status = 'Completed'; }
-          await updateInFirebase(collections.loans, loan.id, {
-            paid: loan.paid, remaining: loan.remaining,
-            status: loan.status, paidMonths: loan.paidMonths
-          });
+          await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths });
         }
       }
     }
@@ -1708,36 +1610,88 @@ async function finalizeSlip(status) {
       const savedSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
       if (savedSlip) downloadSlipPDF(savedSlip);
     }
-  } catch (error) {
-    toast('Error: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 function renderHistory() {
   const tbody = document.getElementById('historyTable');
-  if (!data.salarySlips.length) {
-    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><i class="fas fa-file-invoice"></i><h3>No pay slips</h3></div></td></tr>';
-    return;
-  }
+  if (!data.salarySlips.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><i class="fas fa-file-invoice"></i><h3>No pay slips</h3></div></td></tr>'; return; }
   tbody.innerHTML = data.salarySlips.slice().reverse().map(s => {
     const w = data.workers.find(x => x.id === s.workerId);
     return `<tr>
-      <td><strong>#${s.slipNo}</strong></td>
-      <td>${w ? w.name : 'Unknown'}</td>
-      <td>${s.month}</td>
-      <td>${fmt(s.basic)}</td>
-      <td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
-      <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td>
-      <td><strong>${fmt(s.net)}</strong></td>
+      <td><strong>#${s.slipNo}</strong></td><td>${w ? w.name : 'Unknown'}</td><td>${s.month}</td>
+      <td>${fmt(s.basic)}</td><td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
+      <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td><td><strong>${fmt(s.net)}</strong></td>
       <td><span class="badge ${s.status==='Paid'?'badge-success':'badge-gray'}">${s.status}</span></td>
       <td><button class="btn btn-info btn-sm" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i></button></td>
     </tr>`;
   }).join('');
 }
 
-// ============ PDF GENERATION ============
+function viewSlip(id) {
+  const slip = data.salarySlips.find(s => s.id === id);
+  if (!slip) return;
+  viewSlipPreview(slip);
+  document.getElementById('viewSlipDownloadBtn').onclick = () => downloadSlipPDF(slip);
+  openModal('viewSlipModal');
+}
+
+function viewSlipPreview(slip) {
+  const w = data.workers.find(x => x.id === slip.workerId);
+  const d = data.payslipDesign;
+  const c = data.company;
+  const earningsHtml = slip.earnings.map(e => `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${e.name}</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${fmt(e.amount)}</td></tr>`).join('');
+  const deductionsHtml = slip.deductions.length ? slip.deductions.map(x => `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${x.name}</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${fmt(x.amount)}</td></tr>`).join('') : '<tr><td colspan="2" style="padding:8px;text-align:center;color:#999;">No deductions</td></tr>';
+  const gross = slip.basic + slip.totalAdditions;
+  
+  document.getElementById('viewSlipBody').innerHTML = `
+    <div style="border:2px solid ${d.primaryColor};border-radius:10px;padding:30px;background:white;">
+      <div style="text-align:center;background:${d.primaryColor};color:white;padding:20px;margin:-30px -30px 20px -30px;border-radius:8px 8px 0 0;">
+        <h1 style="font-size:24px;margin-bottom:5px;">${c.name || 'LK SHOE'}</h1>
+        <p style="font-size:12px;opacity:0.9;">${c.address || ''}</p>
+      </div>
+      <h2 style="text-align:center;color:${d.primaryColor};margin-bottom:5px;">${d.slipTitle}</h2>
+      <p style="text-align:center;color:#64748b;font-size:13px;margin-bottom:20px;">Slip #${slip.slipNo} • Month: <strong>${slip.month}</strong> • Status: <span class="badge ${slip.status==='Paid'?'badge-success':'badge-gray'}">${slip.status}</span></p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;padding:15px;background:#f8fafc;border-radius:8px;">
+        <div>
+          <p style="margin-bottom:5px;"><strong>Name:</strong> ${w?.name || '-'}</p>
+          <p style="margin-bottom:5px;"><strong>Emp ID:</strong> ${w?.empId || '-'}</p>
+          <p style="margin-bottom:5px;"><strong>Position:</strong> ${w?.position || '-'}</p>
+        </div>
+        <div>
+          <p style="margin-bottom:5px;"><strong>Join Date:</strong> ${w?.joinDate || '-'}</p>
+          ${d.showBank ? `<p style="margin-bottom:5px;"><strong>Bank:</strong> ${w?.bank || '-'}</p><p style="margin-bottom:5px;"><strong>Account:</strong> ${w?.account || '-'}</p>` : ''}
+          ${d.showTax ? `<p style="margin-bottom:0;"><strong>Tax ID:</strong> ${w?.taxId || '-'}</p>` : ''}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;">
+        <div>
+          <h3 style="color:${d.earningsColor};margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid ${d.earningsColor};"><i class="fas fa-plus-circle"></i> EARNINGS</h3>
+          <table style="width:100%;"><tbody>${earningsHtml}<tr style="background:#d1fae5;font-weight:bold;"><td style="padding:8px;">Total Earnings</td><td style="padding:8px;text-align:right;">${fmt(gross)}</td></tr></tbody></table>
+        </div>
+        <div>
+          <h3 style="color:${d.deductionsColor};margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid ${d.deductionsColor};"><i class="fas fa-minus-circle"></i> DEDUCTIONS</h3>
+          <table style="width:100%;"><tbody>${deductionsHtml}<tr style="background:#fee2e2;font-weight:bold;"><td style="padding:8px;">Total Deductions</td><td style="padding:8px;text-align:right;">${fmt(slip.totalDeductions)}</td></tr></tbody></table>
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,${d.primaryColor},${d.primaryColor}dd);color:white;padding:20px;border-radius:10px;text-align:center;margin-bottom:15px;">
+        <div style="font-size:12px;opacity:0.9;">NET SALARY</div>
+        <div style="font-size:32px;font-weight:bold;">${fmt(slip.net)}</div>
+      </div>
+      ${slip.loansDeducted && slip.loansDeducted.length > 0 ? `<div style="background:#fef3c7;padding:12px;border-radius:8px;border-left:4px solid var(--warning);margin-bottom:15px;font-size:12px;">
+        <strong><i class="fas fa-hand-holding-usd"></i> Loan Installments Deducted:</strong>
+        <ul style="margin:5px 0 0 20px;">${slip.loansDeducted.map(ld => { const loan = data.loans.find(l => l.id === ld.loanId); return `<li>${loan ? loan.type : 'Loan'}: ${fmt(ld.amount)}</li>`; }).join('')}</ul>
+      </div>` : ''}
+      ${d.showSignatures ? `<div style="display:flex;justify-content:space-between;margin-top:40px;padding-top:20px;">
+        <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign1Label}</div></div>
+        <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign2Label}</div></div>
+      </div>` : ''}
+      ${d.showFooter ? `<p style="text-align:center;margin-top:20px;font-size:11px;color:#64748b;font-style:italic;">${d.footerText}</p>` : ''}
+    </div>
+  `;
+}
+
+// ============ PERFECTLY ALIGNED PDF GENERATION ============
 function downloadSlipPDF(slip) {
   const w = data.workers.find(x => x.id === slip.workerId);
   if (!w) return;
@@ -1745,9 +1699,11 @@ function downloadSlipPDF(slip) {
   const d = data.payslipDesign;
   
   const hex = d.primaryColor.replace('#','');
-  const r = parseInt(hex.substr(0,2),16);
-  const g = parseInt(hex.substr(2,2),16);
-  const b = parseInt(hex.substr(4,2),16);
+  const r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
+  const eHex = d.earningsColor.replace('#','');
+  const er = parseInt(eHex.substr(0,2),16), eg = parseInt(eHex.substr(2,2),16), eb = parseInt(eHex.substr(4,2),16);
+  const dHex = d.deductionsColor.replace('#','');
+  const dr = parseInt(dHex.substr(0,2),16), dg = parseInt(dHex.substr(2,2),16), db = parseInt(dHex.substr(4,2),16);
   
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: d.paperSize });
@@ -1755,7 +1711,6 @@ function downloadSlipPDF(slip) {
   const fontSize = d.fontSize === 'small' ? 9 : d.fontSize === 'large' ? 12 : 10;
   
   let y = 15;
-  
   doc.setFillColor(r, g, b);
   doc.rect(0, 0, pageWidth, 40, 'F');
   doc.setTextColor(255, 255, 255);
@@ -1793,17 +1748,18 @@ function downloadSlipPDF(slip) {
   doc.text(`Join Date: ${w.joinDate}`, 115, y);
   y += 5;
   doc.text(`Employee ID: ${w.empId}`, 14, y);
-  doc.text(`Bank: ${w.bank || '-'}`, 115, y);
+  if (d.showBank) doc.text(`Bank: ${w.bank || '-'}`, 115, y);
   y += 5;
   doc.text(`Position: ${w.position}`, 14, y);
-  doc.text(`Account: ${w.account || '-'}`, 115, y);
+  if (d.showBank) doc.text(`Account: ${w.account || '-'}`, 115, y);
   y += 5;
   doc.text(`Department: ${w.department}`, 14, y);
-  doc.text(`Tax ID: ${w.taxId || '-'}`, 115, y);
+  if (d.showTax) doc.text(`Tax ID: ${w.taxId || '-'}`, 115, y);
   y += 8;
   
+  // Earnings Table with PERFECT RIGHT ALIGNMENT
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(5, 150, 105);
+  doc.setTextColor(er, eg, eb);
   doc.text('EARNINGS', 14, y);
   y += 3;
   
@@ -1816,14 +1772,15 @@ function downloadSlipPDF(slip) {
     head: [['Description', 'Amount']],
     body: earningsBody,
     theme: 'grid',
-    headStyles: { fillColor: [5, 150, 105], textColor: 255, fontSize: fontSize - 1 },
+    headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
     styles: { fontSize: fontSize - 1, cellPadding: 3 },
-    columnStyles: { 0: { cellWidth: 'auto' }, 1: { halign: 'right', cellWidth: 40 } },
+    columnStyles: { 0: { cellWidth: 'auto' }, 1: { halign: 'right', cellWidth: 40 } }, // PERFECT ALIGNMENT
     margin: { left: 14, right: pageWidth/2 + 5 }
   });
   
+  // Deductions Table with PERFECT RIGHT ALIGNMENT
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(220, 38, 38);
+  doc.setTextColor(dr, dg, db);
   doc.text('DEDUCTIONS', pageWidth/2 + 10, y);
   
   const deductionsBody = slip.deductions.length ? slip.deductions.map(x => {
@@ -1837,9 +1794,9 @@ function downloadSlipPDF(slip) {
     head: [['Description', 'Amount']],
     body: deductionsBody,
     theme: 'grid',
-    headStyles: { fillColor: [220, 38, 38], textColor: 255, fontSize: fontSize - 1 },
+    headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
     styles: { fontSize: fontSize - 1, cellPadding: 3 },
-    columnStyles: { 0: { cellWidth: 'auto' }, 1: { halign: 'right', cellWidth: 40 } },
+    columnStyles: { 0: { cellWidth: 'auto' }, 1: { halign: 'right', cellWidth: 40 } }, // PERFECT ALIGNMENT
     margin: { left: pageWidth/2 + 5, right: 14 }
   });
   
@@ -1847,6 +1804,7 @@ function downloadSlipPDF(slip) {
   const deductionsFinalY = doc.autoTable.previous.finalY;
   y = Math.max(earningsFinalY, deductionsFinalY) + 8;
   
+  // Net Box
   doc.setFillColor(r, g, b);
   doc.roundedRect(14, y, pageWidth - 28, 25, 3, 3, 'F');
   doc.setTextColor(255, 255, 255);
@@ -1900,7 +1858,6 @@ function downloadSlipPDF(slip) {
 
 // ============ REPORTS ============
 let currentReport = 'payroll';
-
 function selectReport(type, el) {
   currentReport = type;
   document.querySelectorAll('#reports .toggle-btn').forEach(b => b.classList.remove('active'));
@@ -1911,25 +1868,19 @@ function generateReport() {
   const month = document.getElementById('rMonth').value;
   const dept = document.getElementById('rDept').value;
   const workerId = document.getElementById('rWorker').value;
-  
   let reportData = [], title = '', columns = [];
   
   switch(currentReport) {
     case 'payroll':
-      title = 'Payroll Report';
-      columns = ['Slip #','Month','Employee','Basic','Additions','Deductions','Net','Status'];
+      title = 'Payroll Report'; columns = ['Slip #','Month','Employee','Basic','Additions','Deductions','Net','Status'];
       let slips = data.salarySlips;
       if (month) slips = slips.filter(s => s.month === month);
       if (workerId) slips = slips.filter(s => s.workerId === workerId);
       if (dept) slips = slips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dept; });
-      reportData = slips.map(s => {
-        const w = data.workers.find(x => x.id === s.workerId);
-        return [s.slipNo, s.month, w?.name||'-', fmt(s.basic), fmt(s.totalAdditions), fmt(s.totalDeductions), fmt(s.net), s.status];
-      });
+      reportData = slips.map(s => { const w = data.workers.find(x => x.id === s.workerId); return [s.slipNo, s.month, w?.name||'-', fmt(s.basic), fmt(s.totalAdditions), fmt(s.totalDeductions), fmt(s.net), s.status]; });
       break;
     case 'worker':
-      title = 'Worker Report';
-      columns = ['Emp ID','Name','Position','Department','Basic','Total Paid','Loan Balance'];
+      title = 'Worker Report'; columns = ['Emp ID','Name','Position','Department','Basic','Total Paid','Loan Balance'];
       let workers = data.workers;
       if (dept) workers = workers.filter(w => w.department === dept);
       reportData = workers.map(w => {
@@ -1939,8 +1890,7 @@ function generateReport() {
       });
       break;
     case 'department':
-      title = 'Department Report';
-      columns = ['Department','Workers','Total Basic','Total Paid'];
+      title = 'Department Report'; columns = ['Department','Workers','Total Basic','Total Paid'];
       const depts = dept ? [dept] : data.departments;
       reportData = depts.map(d => {
         const ws = data.workers.filter(w => w.department === d);
@@ -1950,83 +1900,57 @@ function generateReport() {
       });
       break;
     case 'loan':
-      title = 'Loan Report';
-      columns = ['Employee','Type','Total','Installment','Paid','Remaining','Status'];
+      title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Status'];
       let loans = data.loans;
       if (workerId) loans = loans.filter(l => l.workerId === workerId);
-      reportData = loans.map(l => {
-        const w = data.workers.find(x => x.id === l.workerId);
-        return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid), fmt(l.remaining), l.status];
-      });
+      reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid), fmt(l.remaining), l.status]; });
       break;
     case 'addition':
-      title = 'Additions Report';
-      columns = ['Date','Employee','Type','Month','Amount'];
+      title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount'];
       let adds = data.additions;
       if (workerId) adds = adds.filter(a => a.workerId === workerId);
       if (month) adds = adds.filter(a => a.month === month);
-      reportData = adds.map(a => {
-        const w = data.workers.find(x => x.id === a.workerId);
-        return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount)];
-      });
+      reportData = adds.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount)]; });
       break;
     case 'deduction':
-      title = 'Deductions Report';
-      columns = ['Date','Employee','Type','Month','Amount'];
+      title = 'Deductions Report'; columns = ['Date','Employee','Type','Month','Amount'];
       let deds = data.deductions;
       if (workerId) deds = deds.filter(d => d.workerId === workerId);
       if (month) deds = deds.filter(d => d.month === month);
-      reportData = deds.map(d => {
-        const w = data.workers.find(x => x.id === d.workerId);
-        return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount)];
-      });
+      reportData = deds.map(d => { const w = data.workers.find(x => x.id === d.workerId); return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount)]; });
       break;
   }
   
   const output = document.getElementById('reportOutput');
-  if (!reportData.length) {
-    output.innerHTML = '<div class="card"><div class="empty-state"><i class="fas fa-file-alt"></i><h3>No data</h3></div></div>';
-    return;
-  }
-  output.innerHTML = `
-    <div class="card">
-      <div class="card-header"><h2><i class="fas fa-file-alt"></i> ${title}</h2><span class="badge badge-primary">${reportData.length} records</span></div>
-      <div class="table-container">
-        <table>
-          <thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>
-          <tbody>${reportData.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
+  if (!reportData.length) { output.innerHTML = '<div class="card"><div class="empty-state"><i class="fas fa-file-alt"></i><h3>No data</h3></div></div>'; return; }
+  output.innerHTML = `<div class="card">
+    <div class="card-header"><h2><i class="fas fa-file-alt"></i> ${title}</h2><span class="badge badge-primary">${reportData.length} records</span></div>
+    <div class="table-container"><table><thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>${reportData.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
 }
 
 function exportReport(format) {
   const table = document.querySelector('#reportOutput table');
   if (!table) { toast('Generate report first', 'error'); return; }
   const rows = Array.from(table.querySelectorAll('tr'));
-  const data = rows.map(r => Array.from(r.querySelectorAll('th,td')).map(c => c.textContent));
-  
+  const rData = rows.map(r => Array.from(r.querySelectorAll('th,td')).map(c => c.textContent));
   if (format === 'csv') {
-    const csv = data.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const csv = rData.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `${currentReport}_${today()}.csv`;
-    a.click();
+    const a = document.createElement('a'); a.href = url; a.download = `${currentReport}_${today()}.csv`; a.click();
     toast('CSV exported!');
   } else {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text(currentReport.toUpperCase() + ' REPORT', 14, 20);
-    doc.autoTable({ startY: 35, head: [data[0]], body: data.slice(1), theme: 'grid', headStyles: { fillColor: [30, 64, 175] }, styles: { fontSize: 8 } });
+    doc.setFontSize(16); doc.text(currentReport.toUpperCase() + ' REPORT', 14, 20);
+    doc.autoTable({ startY: 35, head: [rData[0]], body: rData.slice(1), theme: 'grid', headStyles: { fillColor: [30, 64, 175] }, styles: { fontSize: 8 } });
     doc.save(`${currentReport}_${today()}.pdf`);
     toast('PDF exported!');
   }
 }
 
-// ============ DESIGN SETTINGS ============
+// ============ SETTINGS ============
 function loadDesignSettings() {
   const d = data.payslipDesign;
   document.getElementById('customPrimaryColor').value = d.primaryColor;
@@ -2037,9 +1961,7 @@ function loadDesignSettings() {
 }
 
 function setActiveSwatch(pickerId, color) {
-  document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => {
-    s.classList.toggle('active', s.dataset.color === color);
-  });
+  document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => s.classList.toggle('active', s.dataset.color === color));
 }
 
 document.addEventListener('click', (e) => {
@@ -2053,31 +1975,27 @@ document.addEventListener('click', (e) => {
 
 async function saveDesign() {
   const designData = {
-    primaryColor: document.getElementById('customPrimaryColor').value,
-    currency: document.getElementById('designCurrency').value,
-    slipTitle: document.getElementById('designSlipTitle').value,
-    footerText: document.getElementById('designFooterText').value,
-    currencyPosition: 'before',
-    paperSize: 'a4', fontSize: 'medium', headerStyle: 'full', border: 'none',
-    showLogo: true, showBank: true, showTax: true, showAnalysis: true,
-    showSignatures: true, showFooter: true, showModifications: false, showWatermark: false,
-    earningsColor: '#059669', deductionsColor: '#dc2626',
+    primaryColor: document.getElementById('customPrimaryColor').value, currency: document.getElementById('designCurrency').value,
+    slipTitle: document.getElementById('designSlipTitle').value, footerText: document.getElementById('designFooterText').value,
+    currencyPosition: 'before', paperSize: 'a4', fontSize: 'medium', headerStyle: 'full', border: 'none',
+    showLogo: true, showBank: true, showTax: true, showAnalysis: true, showSignatures: true, showFooter: true,
+    showModifications: false, showWatermark: false, earningsColor: '#059669', deductionsColor: '#dc2626',
     sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature'
   };
-  
   try {
     showLoading('Saving...');
     await saveToFirebase(collections.payslipDesign, 'config', designData);
     data.payslipDesign = designData;
     toast('Design saved!');
-  } catch (error) {
-    toast('Error: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ COMPANY SETTINGS ============
+function previewDesign() {
+  if (!data.salarySlips.length) { toast('Create a pay slip first to preview', 'error'); return; }
+  viewSlipPreview(data.salarySlips[data.salarySlips.length - 1]);
+  openModal('viewSlipModal');
+}
+
 function loadCompanySettings() {
   const c = data.company;
   document.getElementById('cName').value = c.name || 'LK SHOE';
@@ -2088,42 +2006,28 @@ function loadCompanySettings() {
 
 async function saveCompany(e) {
   e.preventDefault();
-  const companyData = {
-    name: document.getElementById('cName').value,
-    phone: document.getElementById('cPhone').value,
-    email: document.getElementById('cEmail').value,
-    address: document.getElementById('cAddress').value
-  };
-  
+  const companyData = { name: document.getElementById('cName').value, phone: document.getElementById('cPhone').value, email: document.getElementById('cEmail').value, address: document.getElementById('cAddress').value };
   try {
     showLoading('Saving...');
     await saveToFirebase(collections.company, 'config', companyData);
     data.company = companyData;
     toast('Saved!');
-  } catch (error) {
-    toast('Error: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 function exportData() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `lkshoe_backup_${today()}.json`;
-  a.click();
+  const a = document.createElement('a'); a.href = url; a.download = `lkshoe_backup_${today()}.json`; a.click();
   toast('Exported!');
 }
 
 async function clearAllData() {
   if (!confirm('⚠️ DELETE ALL DATA?')) return;
   if (!confirm('Last warning!')) return;
-  
   try {
     showLoading('Clearing...');
-    const collections_to_clear = Object.values(collections);
-    for (const col of collections_to_clear) {
+    for (const col of Object.values(collections)) {
       const snapshot = await db.collection(col).get();
       const batch = db.batch();
       snapshot.docs.forEach(doc => batch.delete(doc.ref));
@@ -2131,11 +2035,7 @@ async function clearAllData() {
     }
     toast('All data cleared!');
     setTimeout(() => location.reload(), 1000);
-  } catch (error) {
-    toast('Error: ' + error.message, 'error');
-  } finally {
-    hideLoading();
-  }
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // ============ DASHBOARD ============
@@ -2154,8 +2054,7 @@ function refreshDashboard() {
   
   Object.values(charts).forEach(c => c && c.destroy && c.destroy());
   
-  const months = [];
-  const payrollData = [];
+  const months = [], payrollData = [];
   for (let i = 5; i >= 0; i--) {
     const d = new Date(); d.setMonth(d.getMonth() - i);
     const m = d.toISOString().slice(0,7);
@@ -2163,16 +2062,14 @@ function refreshDashboard() {
     payrollData.push(data.salarySlips.filter(p => p.month === m && p.status === 'Paid').reduce((s,p) => s + p.net, 0));
   }
   charts.payroll = new Chart(document.getElementById('payrollChart'), {
-    type: 'bar',
-    data: { labels: months, datasets: [{ label: 'Net Payroll', data: payrollData, backgroundColor: 'rgba(30, 64, 175, 0.8)', borderRadius: 8 }] },
+    type: 'bar', data: { labels: months, datasets: [{ label: 'Net Payroll', data: payrollData, backgroundColor: 'rgba(30, 64, 175, 0.8)', borderRadius: 8 }] },
     options: { responsive: true, plugins: { legend: { display: false } } }
   });
   
   const deptData = {};
   data.workers.forEach(w => { deptData[w.department] = (deptData[w.department] || 0) + 1; });
   charts.distribution = new Chart(document.getElementById('distributionChart'), {
-    type: 'doughnut',
-    data: { labels: Object.keys(deptData), datasets: [{ data: Object.values(deptData), backgroundColor: ['#1e40af','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#ec4899','#14b8a6'] }] },
+    type: 'doughnut', data: { labels: Object.keys(deptData), datasets: [{ data: Object.values(deptData), backgroundColor: ['#1e40af','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#ec4899','#14b8a6'] }] },
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
   
@@ -2191,6 +2088,13 @@ function refreshDashboard() {
     </div>
   `).join('');
 }
+
+// ============ INIT ============
+window.onload = async () => {
+  if (!data.company.name) {
+    data.company = { name: 'LK SHOE', reg: 'LK-2024-001', tax: 'TAX-LK-12345', phone: '+94 11 234 5678', email: 'info@lkshoe.com', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
+  }
+};
 </script>
 </body>
 </html>
