@@ -85,11 +85,11 @@ body { background: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
 .topbar { background: white; padding: 16px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; box-shadow: var(--shadow); }
 .topbar h1 { font-size: 20px; color: var(--dark); }
 .breadcrumb { font-size: 12px; color: var(--gray); }
-.section { display: none; animation: fadeIn 0.4s; }
+.section { display: none; animation: fadeIn 0.4s; width: 100%; }
 .section.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px; margin-bottom: 25px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
 .stat-card { background: white; padding: 22px; border-radius: 12px; box-shadow: var(--shadow); transition: transform 0.3s; }
 .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
 .stat-card .icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; margin-bottom: 15px; }
@@ -223,7 +223,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .advance-info-banner h4 { color: #9d174d; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
 .advance-info-banner p { font-size: 13px; color: #831843; margin-bottom: 3px; }
 
-/* FIXED: Full-width settings sections */
 .settings-section { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; border: 1px solid var(--border); width: 100%; }
 .settings-section h3 { font-size: 16px; margin-bottom: 20px; color: var(--dark); display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
 .setting-row { display: grid; grid-template-columns: 280px 1fr; gap: 20px; padding: 14px 0; align-items: center; border-bottom: 1px dashed var(--border); width: 100%; }
@@ -380,8 +379,8 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         <div class="stat-card green"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><h3>Monthly Payroll</h3><div class="value" id="statPayroll">Rs 0</div></div>
         <div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Active Loans</h3><div class="value" id="statLoans">Rs 0</div></div>
         <div class="stat-card pink"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Active Advances</h3><div class="value" id="statAdvances">Rs 0</div></div>
-        <div class="stat-card red"><div class="icon"><i class="fas fa-minus-circle"></i></div><h3>Deductions</h3><div class="value" id="statDeductions">Rs 0</div></div>
-        <div class="stat-card cyan"><div class="icon"><i class="fas fa-plus-circle"></i></div><h3>Additions</h3><div class="value" id="statAdditions">Rs 0</div></div>
+        <div class="stat-card red"><div class="icon"><i class="fas fa-minus-circle"></i></div><h3>Monthly Deductions</h3><div class="value" id="statDeductions">Rs 0</div></div>
+        <div class="stat-card cyan"><div class="icon"><i class="fas fa-plus-circle"></i></div><h3>Monthly Additions</h3><div class="value" id="statAdditions">Rs 0</div></div>
         <div class="stat-card purple"><div class="icon"><i class="fas fa-file-invoice"></i></div><h3>Slips This Month</h3><div class="value" id="statSlips">0</div></div>
       </div>
       <div class="charts-grid">
@@ -2450,10 +2449,13 @@ function refreshDashboard() {
   document.getElementById('statLoans').textContent = fmt(activeLoans);
   const activeAdvances = data.advances.filter(a => a.status === 'Active').reduce((s,a) => s + a.remaining, 0);
   document.getElementById('statAdvances').textContent = fmt(activeAdvances);
-  const monthDed = data.deductions.filter(d => d.month === currentMonth()).reduce((s,d) => s + d.amount, 0);
+  
+  // FIXED: Properly calculate monthly additions and deductions
+  const monthDed = data.deductions.filter(d => d.month === currentMonth()).reduce((s,d) => s + (parseFloat(d.amount) || 0), 0);
   document.getElementById('statDeductions').textContent = fmt(monthDed);
-  const monthAdd = data.additions.filter(a => a.month === currentMonth()).reduce((s,a) => s + a.amount, 0);
+  const monthAdd = data.additions.filter(a => a.month === currentMonth()).reduce((s,a) => s + (parseFloat(a.amount) || 0), 0);
   document.getElementById('statAdditions').textContent = fmt(monthAdd);
+  
   document.getElementById('statSlips').textContent = data.salarySlips.filter(s => s.month === currentMonth()).length;
 
   Object.values(charts).forEach(c => c && c.destroy && c.destroy());
