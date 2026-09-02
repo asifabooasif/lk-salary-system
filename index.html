@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LK SHOE - Salary Management System</title>
+<title>LANKA SHOE - Salary Management System</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -106,14 +106,14 @@ body { background: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
 .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; }
 .chart-card { background: white; padding: 22px; border-radius: 12px; box-shadow: var(--shadow); }
 .chart-card h3 { margin-bottom: 18px; color: var(--dark); font-size: 16px; }
-.card { background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.card { background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; width: 100%; }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--border); flex-wrap: wrap; gap: 10px; }
 .card-header h2 { font-size: 17px; color: var(--dark); display: flex; align-items: center; gap: 10px; }
 
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
 .form-group { display: flex; flex-direction: column; }
 .form-group label { font-size: 12px; font-weight: 600; color: var(--gray); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
-.form-group input, .form-group select, .form-group textarea { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; background: #f8fafc; }
+.form-group input, .form-group select, .form-group textarea { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; background: #f8fafc; width: 100%; }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
 .form-group textarea { resize: vertical; min-height: 70px; }
 .form-group.full { grid-column: 1 / -1; }
@@ -223,13 +223,15 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .advance-info-banner h4 { color: #9d174d; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
 .advance-info-banner p { font-size: 13px; color: #831843; margin-bottom: 3px; }
 
-.settings-section { background: white; border-radius: 10px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
-.settings-section h3 { font-size: 15px; margin-bottom: 15px; color: var(--dark); display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-.setting-row { display: grid; grid-template-columns: 220px 1fr; gap: 15px; padding: 10px 0; align-items: center; border-bottom: 1px dashed var(--border); }
+/* FIXED: Full-width settings sections */
+.settings-section { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; border: 1px solid var(--border); width: 100%; }
+.settings-section h3 { font-size: 16px; margin-bottom: 20px; color: var(--dark); display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+.setting-row { display: grid; grid-template-columns: 280px 1fr; gap: 20px; padding: 14px 0; align-items: center; border-bottom: 1px dashed var(--border); width: 100%; }
 .setting-row:last-child { border-bottom: none; }
-.setting-row label { font-size: 13px; font-weight: 600; color: var(--dark); }
+.setting-row label { font-size: 14px; font-weight: 600; color: var(--dark); }
+.setting-row .setting-desc { font-size: 12px; color: var(--gray); margin-top: 3px; }
 .color-picker-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.color-swatch { width: 35px; height: 35px; border-radius: 8px; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; }
+.color-swatch { width: 38px; height: 38px; border-radius: 8px; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; }
 .color-swatch.active { border-color: var(--dark); transform: scale(1.1); }
 
 .component-card { background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 15px; margin-bottom: 10px; display: grid; grid-template-columns: auto 1fr auto; gap: 15px; align-items: center; }
@@ -305,12 +307,12 @@ table tbody tr.clickable:hover { background: #f8fafc; }
           <text x="90" y="245" text-anchor="middle" fill="white" font-size="14" font-weight="bold">₨</text>
         </svg>
       </div>
-      <div class="illustration-text"><h1>LK SHOE</h1><p>Professional Salary Management System</p></div>
+      <div class="illustration-text"><h1>LANKA SHOE</h1><p>Professional Salary Management System</p></div>
     </div>
     <div class="login-form-side">
       <div class="login-logo">
         <div class="login-logo-icon"><i class="fas fa-shoe-prints"></i></div>
-        <div class="login-logo-text"><h2>LK SHOE</h2><p>Salary Management</p></div>
+        <div class="login-logo-text"><h2>LANKA SHOE</h2><p>Salary Management</p></div>
       </div>
       <div class="login-welcome"><h3>Welcome Back! 👋</h3><p>Sign in to access your salary management dashboard</p></div>
       <button class="google-btn" onclick="signInWithGoogle()">
@@ -334,7 +336,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <!-- MAIN APP -->
 <div class="main-app" id="mainApp">
   <div class="sidebar" id="sidebar">
-    <div class="sidebar-header"><h2><i class="fas fa-shoe-prints"></i> LK SHOE</h2><p>Salary Management System</p></div>
+    <div class="sidebar-header"><h2><i class="fas fa-shoe-prints"></i> LANKA SHOE</h2><p>Salary Management System</p></div>
     <div class="sidebar-menu">
       <div class="menu-label">Main</div>
       <div class="menu-item active" data-section="dashboard"><i class="fas fa-chart-line"></i> Dashboard</div>
@@ -448,7 +450,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
           <p>✅ Short-term advances (Salary Advance, Festival Advance, Emergency Cash)</p>
           <p>✅ Tracked <strong>separately</strong> from long-term loans</p>
           <p>✅ Auto-deducted from pay slip with separate display</p>
-          <p>✅ Both loans and advances can exist simultaneously for same worker</p>
         </div>
         <div class="table-container">
           <table>
@@ -554,33 +555,37 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         <div class="settings-section">
           <h3><i class="fas fa-palette" style="color:var(--primary);"></i> Color Scheme</h3>
           <div class="setting-row">
-            <div><label>Primary Color (Header/Net Box)</label></div>
+            <div><label>Primary Color (Header/Net Box)</label><div class="setting-desc">Used for header banner and net salary box</div></div>
             <div class="color-picker-row" id="primaryColorPicker">
               <div class="color-swatch active" style="background:#1e40af;" data-color="#1e40af"></div>
               <div class="color-swatch" style="background:#059669;" data-color="#059669"></div>
               <div class="color-swatch" style="background:#dc2626;" data-color="#dc2626"></div>
               <div class="color-swatch" style="background:#7c3aed;" data-color="#7c3aed"></div>
+              <div class="color-swatch" style="background:#0891b2;" data-color="#0891b2"></div>
+              <div class="color-swatch" style="background:#0f172a;" data-color="#0f172a"></div>
               <input type="color" id="customPrimaryColor" value="#1e40af" style="width:40px;height:35px;border:none;cursor:pointer;">
             </div>
           </div>
           <div class="setting-row">
-            <div><label>Earnings Section Color</label></div>
+            <div><label>Earnings Section Color</label><div class="setting-desc">Header color for earnings table</div></div>
             <div class="color-picker-row" id="earningsColorPicker">
               <div class="color-swatch active" style="background:#059669;" data-color="#059669"></div>
               <div class="color-swatch" style="background:#1e40af;" data-color="#1e40af"></div>
+              <div class="color-swatch" style="background:#0891b2;" data-color="#0891b2"></div>
               <input type="color" id="customEarningsColor" value="#059669" style="width:40px;height:35px;border:none;cursor:pointer;">
             </div>
           </div>
           <div class="setting-row">
-            <div><label>Deductions Section Color</label></div>
+            <div><label>Deductions Section Color</label><div class="setting-desc">Header color for deductions table</div></div>
             <div class="color-picker-row" id="deductionsColorPicker">
               <div class="color-swatch active" style="background:#dc2626;" data-color="#dc2626"></div>
               <div class="color-swatch" style="background:#d97706;" data-color="#d97706"></div>
+              <div class="color-swatch" style="background:#7c3aed;" data-color="#7c3aed"></div>
               <input type="color" id="customDeductionsColor" value="#dc2626" style="width:40px;height:35px;border:none;cursor:pointer;">
             </div>
           </div>
           <div class="setting-row">
-            <div><label>Loan Section Color</label></div>
+            <div><label>Loan Section Color</label><div class="setting-desc">Color for loan deductions section</div></div>
             <div class="color-picker-row" id="loanColorPicker">
               <div class="color-swatch active" style="background:#d97706;" data-color="#d97706"></div>
               <div class="color-swatch" style="background:#ea580c;" data-color="#ea580c"></div>
@@ -588,7 +593,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
             </div>
           </div>
           <div class="setting-row">
-            <div><label>Advance Section Color</label></div>
+            <div><label>Advance Section Color</label><div class="setting-desc">Color for advance deductions section</div></div>
             <div class="color-picker-row" id="advanceColorPicker">
               <div class="color-swatch active" style="background:#db2777;" data-color="#db2777"></div>
               <div class="color-swatch" style="background:#9333ea;" data-color="#9333ea"></div>
@@ -600,53 +605,53 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         <div class="settings-section">
           <h3><i class="fas fa-th-large" style="color:var(--primary);"></i> Layout & Format</h3>
           <div class="setting-row">
-            <div><label>Paper Size</label></div>
-            <select id="designPaperSize"><option value="a4">A4 (210 × 297 mm)</option><option value="letter">Letter</option><option value="a5">A5</option></select>
+            <div><label>Paper Size</label><div class="setting-desc">Output PDF page size</div></div>
+            <select id="designPaperSize"><option value="a4">A4 (210 × 297 mm)</option><option value="letter">Letter (216 × 279 mm)</option><option value="a5">A5 (148 × 210 mm)</option></select>
           </div>
           <div class="setting-row">
-            <div><label>Font Size</label></div>
+            <div><label>Font Size</label><div class="setting-desc">Text size on pay slip</div></div>
             <select id="designFontSize"><option value="small">Small (9pt)</option><option value="medium" selected>Medium (10pt)</option><option value="large">Large (12pt)</option></select>
           </div>
           <div class="setting-row">
-            <div><label>Header Style</label></div>
-            <select id="designHeaderStyle"><option value="full">Full Width Banner</option><option value="centered">Centered</option><option value="minimal">Minimal</option></select>
+            <div><label>Header Style</label><div class="setting-desc">Company header design</div></div>
+            <select id="designHeaderStyle"><option value="full">Full Width Banner</option><option value="centered">Centered Logo + Text</option><option value="minimal">Minimal (Text Only)</option></select>
           </div>
           <div class="setting-row">
-            <div><label>Border Style</label></div>
-            <select id="designBorder"><option value="none">No Border</option><option value="thin">Thin</option><option value="thick">Thick</option><option value="double">Double</option></select>
+            <div><label>Border Style</label><div class="setting-desc">Page border design</div></div>
+            <select id="designBorder"><option value="none">No Border</option><option value="thin">Thin Border</option><option value="thick">Thick Border</option><option value="double">Double Border</option></select>
           </div>
           <div class="setting-row">
-            <div><label>Currency Symbol</label></div>
+            <div><label>Currency Symbol</label><div class="setting-desc">Currency symbol used in amounts</div></div>
             <input type="text" id="designCurrency" value="Rs" maxlength="5" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;">
           </div>
           <div class="setting-row">
-            <div><label>Currency Position</label></div>
+            <div><label>Currency Position</label><div class="setting-desc">Where to place currency symbol</div></div>
             <select id="designCurrencyPosition"><option value="before">Before (Rs 1,000)</option><option value="after">After (1,000 Rs)</option></select>
           </div>
         </div>
 
         <div class="settings-section">
           <h3><i class="fas fa-eye" style="color:var(--primary);"></i> Show / Hide Sections</h3>
-          <div class="setting-row"><div><label>Show Company Logo</label></div><label><input type="checkbox" id="designShowLogo" checked> Enable</label></div>
-          <div class="setting-row"><div><label>Show Bank Details</label></div><label><input type="checkbox" id="designShowBank" checked> Enable</label></div>
-          <div class="setting-row"><div><label>Show Tax ID</label></div><label><input type="checkbox" id="designShowTax" checked> Enable</label></div>
-          <div class="setting-row"><div><label>Show Salary Analysis</label></div><label><input type="checkbox" id="designShowAnalysis" checked> Enable</label></div>
-          <div class="setting-row"><div><label>Show Signatures</label></div><label><input type="checkbox" id="designShowSignatures" checked> Enable</label></div>
-          <div class="setting-row"><div><label>Show Footer</label></div><label><input type="checkbox" id="designShowFooter" checked> Enable</label></div>
-          <div class="setting-row"><div><label>Show Loans Section</label></div><label><input type="checkbox" id="designShowLoans" checked> Enable</label></div>
-          <div class="setting-row"><div><label>Show Advances Section</label></div><label><input type="checkbox" id="designShowAdvances" checked> Enable</label></div>
-          <div class="setting-row"><div><label>Show Modifications Log</label></div><label><input type="checkbox" id="designShowModifications"> Enable</label></div>
-          <div class="setting-row"><div><label>Show Watermark</label></div><label><input type="checkbox" id="designShowWatermark"> Enable</label></div>
+          <div class="setting-row"><div><label>Show Company Logo</label><div class="setting-desc">Display logo in header</div></div><label><input type="checkbox" id="designShowLogo" checked> Enable</label></div>
+          <div class="setting-row"><div><label>Show Bank Details</label><div class="setting-desc">Bank name & account number</div></div><label><input type="checkbox" id="designShowBank" checked> Enable</label></div>
+          <div class="setting-row"><div><label>Show Tax ID</label><div class="setting-desc">Employee tax ID / NIC</div></div><label><input type="checkbox" id="designShowTax" checked> Enable</label></div>
+          <div class="setting-row"><div><label>Show Salary Analysis</label><div class="setting-desc">Percentage breakdown</div></div><label><input type="checkbox" id="designShowAnalysis" checked> Enable</label></div>
+          <div class="setting-row"><div><label>Show Signatures</label><div class="setting-desc">Employee & authorized signatures</div></div><label><input type="checkbox" id="designShowSignatures" checked> Enable</label></div>
+          <div class="setting-row"><div><label>Show Footer</label><div class="setting-desc">Footer text at bottom</div></div><label><input type="checkbox" id="designShowFooter" checked> Enable</label></div>
+          <div class="setting-row"><div><label>Show Loans Section</label><div class="setting-desc">Loan installments deducted</div></div><label><input type="checkbox" id="designShowLoans" checked> Enable</label></div>
+          <div class="setting-row"><div><label>Show Advances Section</label><div class="setting-desc">Salary advances deducted</div></div><label><input type="checkbox" id="designShowAdvances" checked> Enable</label></div>
+          <div class="setting-row"><div><label>Show Modifications Log</label><div class="setting-desc">Changes from defaults</div></div><label><input type="checkbox" id="designShowModifications"> Enable</label></div>
+          <div class="setting-row"><div><label>Show Watermark</label><div class="setting-desc">Company name as watermark</div></div><label><input type="checkbox" id="designShowWatermark"> Enable</label></div>
         </div>
 
         <div class="settings-section">
           <h3><i class="fas fa-font" style="color:var(--primary);"></i> Custom Text</h3>
-          <div class="setting-row"><div><label>Slip Title</label></div><input type="text" id="designSlipTitle" value="SALARY PAY SLIP" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-          <div class="setting-row"><div><label>Footer Text</label></div><textarea id="designFooterText" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;min-height:60px;">This is a computer-generated document. Thank you for your valuable contribution.</textarea></div>
-          <div class="setting-row"><div><label>Signature 1 Label</label></div><input type="text" id="designSign1Label" value="Employee Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-          <div class="setting-row"><div><label>Signature 2 Label</label></div><input type="text" id="designSign2Label" value="Authorized Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-          <div class="setting-row"><div><label>Loans Section Title</label></div><input type="text" id="designLoansTitle" value="Loan Installments Deducted" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-          <div class="setting-row"><div><label>Advances Section Title</label></div><input type="text" id="designAdvancesTitle" value="Salary Advances Deducted" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+          <div class="setting-row"><div><label>Slip Title</label><div class="setting-desc">Main title of the pay slip</div></div><input type="text" id="designSlipTitle" value="SALARY PAY SLIP" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+          <div class="setting-row"><div><label>Footer Text</label><div class="setting-desc">Appears at bottom of slip</div></div><textarea id="designFooterText" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;min-height:60px;">This is a computer-generated document. Thank you for your valuable contribution to LANKA SHOE.</textarea></div>
+          <div class="setting-row"><div><label>Signature 1 Label</label><div class="setting-desc">Left signature label</div></div><input type="text" id="designSign1Label" value="Employee Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+          <div class="setting-row"><div><label>Signature 2 Label</label><div class="setting-desc">Right signature label</div></div><input type="text" id="designSign2Label" value="Authorized Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+          <div class="setting-row"><div><label>Loans Section Title</label><div class="setting-desc">Title for loans section</div></div><input type="text" id="designLoansTitle" value="Loan Installments Deducted" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+          <div class="setting-row"><div><label>Advances Section Title</label><div class="setting-desc">Title for advances section</div></div><input type="text" id="designAdvancesTitle" value="Salary Advances Deducted" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
         </div>
       </div>
     </div>
@@ -658,17 +663,56 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         <form onsubmit="saveCompany(event)">
           <div class="form-grid">
             <div class="form-group"><label>Company Name *</label><input type="text" id="cName" required></div>
+            <div class="form-group"><label>Registration No.</label><input type="text" id="cReg"></div>
+            <div class="form-group"><label>Tax ID / BRN</label><input type="text" id="cTax"></div>
             <div class="form-group"><label>Phone</label><input type="tel" id="cPhone"></div>
             <div class="form-group"><label>Email</label><input type="email" id="cEmail"></div>
+            <div class="form-group"><label>Website</label><input type="text" id="cWeb"></div>
+            <div class="form-group"><label>Company Logo URL</label><input type="text" id="cLogo" placeholder="https://..."></div>
+            <div class="form-group"><label>Bank Name</label><input type="text" id="cBank"></div>
+            <div class="form-group"><label>Bank Account No.</label><input type="text" id="cBankAccount"></div>
             <div class="form-group full"><label>Address</label><textarea id="cAddress"></textarea></div>
-            <div class="form-group full"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button></div>
+            <div class="form-group full"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Company Info</button></div>
           </div>
         </form>
       </div>
+
+      <div class="card">
+        <div class="card-header"><h2><i class="fas fa-calculator"></i> Salary & Tax Settings</h2></div>
+        <form onsubmit="saveSalarySettings(event)">
+          <div class="form-grid">
+            <div class="form-group"><label>Default Tax Rate (%)</label><input type="number" id="sTaxRate" step="0.1" value="10"></div>
+            <div class="form-group"><label>EPF Employee Rate (%)</label><input type="number" id="sEpfEmp" step="0.1" value="8"></div>
+            <div class="form-group"><label>EPF Employer Rate (%)</label><input type="number" id="sEpfEmpr" step="0.1" value="12"></div>
+            <div class="form-group"><label>ETF Rate (%)</label><input type="number" id="sEtf" step="0.1" value="3"></div>
+            <div class="form-group"><label>OT Hourly Multiplier</label><input type="number" id="sOtMult" step="0.1" value="1.5"></div>
+            <div class="form-group"><label>Working Days / Month</label><input type="number" id="sWorkDays" value="26"></div>
+            <div class="form-group"><label>Working Hours / Day</label><input type="number" id="sWorkHours" value="8"></div>
+            <div class="form-group"><label>Pay Day (of month)</label><input type="number" id="sPayDay" min="1" max="31" value="30"></div>
+            <div class="form-group"><label>Financial Year Start</label>
+              <select id="sFyStart"><option value="1">January</option><option value="4">April</option><option value="7">July</option><option value="10">October</option></select>
+            </div>
+            <div class="form-group"><label>Default Currency</label><input type="text" id="sCurrency" value="Rs" maxlength="5"></div>
+            <div class="form-group full"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Salary Settings</button></div>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2><i class="fas fa-sitemap"></i> Departments</h2></div>
+        <div class="form-grid" style="margin-bottom:15px;">
+          <div class="form-group"><label>New Department</label><input type="text" id="newDept"></div>
+          <div class="form-group" style="display:flex;align-items:flex-end;"><button class="btn btn-primary" onclick="addDepartment()"><i class="fas fa-plus"></i> Add</button></div>
+        </div>
+        <div id="departmentsList"></div>
+      </div>
+
       <div class="card">
         <div class="card-header"><h2><i class="fas fa-database"></i> Data Management</h2></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="btn btn-success" onclick="exportData()"><i class="fas fa-download"></i> Export JSON</button>
+          <button class="btn btn-warning" onclick="document.getElementById('importFile').click()"><i class="fas fa-upload"></i> Import JSON</button>
+          <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
           <button class="btn btn-danger" onclick="clearAllData()"><i class="fas fa-trash"></i> Clear All</button>
         </div>
       </div>
@@ -679,9 +723,10 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <!-- MODALS -->
 <div class="modal" id="addWorkerModal">
   <div class="modal-content">
-    <div class="modal-header"><h2><i class="fas fa-user-plus"></i> Add New Worker</h2><button class="close-btn" onclick="closeModal('addWorkerModal')">&times;</button></div>
+    <div class="modal-header"><h2 id="workerModalTitle"><i class="fas fa-user-plus"></i> Add New Worker</h2><button class="close-btn" onclick="closeModal('addWorkerModal')">&times;</button></div>
     <div class="modal-body">
-      <form id="workerForm" onsubmit="addWorker(event)">
+      <form id="workerForm" onsubmit="saveWorker(event)">
+        <input type="hidden" id="wEditId">
         <div class="form-grid">
           <div class="form-group"><label>Full Name *</label><input type="text" id="wName" required></div>
           <div class="form-group"><label>Employee ID *</label><input type="text" id="wEmpId" required></div>
@@ -701,7 +746,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('addWorkerModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="document.getElementById('workerForm').requestSubmit()"><i class="fas fa-save"></i> Save Worker</button>
+      <button class="btn btn-primary" onclick="document.getElementById('workerForm').requestSubmit()"><i class="fas fa-save"></i> <span id="workerSaveBtnText">Save Worker</span></button>
     </div>
   </div>
 </div>
@@ -897,6 +942,7 @@ const collections = {
   workers: 'workers', additions: 'additions', deductions: 'deductions',
   loans: 'loans', advances: 'advances', salarySlips: 'salarySlips',
   salaryComponents: 'salaryComponents', company: 'company',
+  salarySettings: 'salarySettings',
   payslipDesign: 'payslipDesign', departments: 'departments'
 };
 
@@ -909,7 +955,7 @@ const fmt = (n) => {
 const today = () => new Date().toISOString().split('T')[0];
 const currentMonth = () => new Date().toISOString().slice(0,7);
 
-let data = { workers: [], additions: [], deductions: [], loans: [], advances: [], salarySlips: [], salaryComponents: [], company: {}, payslipDesign: {}, departments: [] };
+let data = { workers: [], additions: [], deductions: [], loans: [], advances: [], salarySlips: [], salaryComponents: [], company: {}, salarySettings: {}, payslipDesign: {}, departments: [] };
 
 async function loadData() {
   showLoading('Loading data...');
@@ -920,6 +966,7 @@ async function loadData() {
       db.collection(collections.advances).get(), db.collection(collections.salarySlips).get(),
       db.collection(collections.salaryComponents).get(),
       db.collection(collections.company).doc('config').get(),
+      db.collection(collections.salarySettings).doc('config').get(),
       db.collection(collections.payslipDesign).doc('config').get(),
       db.collection(collections.departments).get()
     ]);
@@ -930,9 +977,10 @@ async function loadData() {
     data.advances = snaps[4].docs.map(doc => ({ id: doc.id, ...doc.data() }));
     data.salarySlips = snaps[5].docs.map(doc => ({ id: doc.id, ...doc.data() }));
     data.salaryComponents = snaps[6].docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    data.departments = snaps[9].docs.map(doc => doc.data().name);
+    data.departments = snaps[10].docs.map(doc => doc.data().name);
     if (snaps[7].exists) data.company = snaps[7].data();
-    if (snaps[8].exists) data.payslipDesign = snaps[8].data();
+    if (snaps[8].exists) data.salarySettings = snaps[8].data();
+    if (snaps[9].exists) data.payslipDesign = snaps[9].data();
 
     if (!data.salaryComponents.length) {
       data.salaryComponents = [
@@ -952,13 +1000,19 @@ async function loadData() {
         showSignatures: true, showFooter: true, showLoans: true, showAdvances: true,
         showModifications: false, showWatermark: false,
         currency: 'Rs', currencyPosition: 'before', slipTitle: 'SALARY PAY SLIP',
-        footerText: 'This is a computer-generated document. Thank you for your valuable contribution.',
+        footerText: 'This is a computer-generated document. Thank you for your valuable contribution to LANKA SHOE.',
         sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature',
         loansTitle: 'Loan Installments Deducted', advancesTitle: 'Salary Advances Deducted'
       };
     }
+    if (!data.salarySettings || Object.keys(data.salarySettings).length === 0) {
+      data.salarySettings = {
+        taxRate: 10, epfEmp: 8, epfEmpr: 12, etf: 3,
+        otMult: 1.5, workDays: 26, workHours: 8, payDay: 30, fyStart: 1, currency: 'Rs'
+      };
+    }
     if (!data.company || Object.keys(data.company).length === 0) {
-      data.company = { name: 'LK SHOE', phone: '+94 11 234 5678', email: 'info@lkshoe.com', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
+      data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
     }
     if (!data.departments.length) data.departments = ["Production","Design","Quality Control","Sales","Administration","Finance","Warehouse","HR"];
 
@@ -1012,15 +1066,42 @@ function toast(msg, type='success') {
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-// ============ WORKERS ============
+// ============ WORKERS (ADD + EDIT) ============
 async function openAddWorkerModal() {
+  document.getElementById('workerModalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Add New Worker';
+  document.getElementById('workerSaveBtnText').textContent = 'Save Worker';
   document.getElementById('workerForm').reset();
+  document.getElementById('wEditId').value = '';
   document.getElementById('wJoinDate').value = today();
   document.getElementById('wDepartment').innerHTML = '<option value="">Select</option>' + data.departments.map(d => `<option>${d}</option>`).join('');
   openModal('addWorkerModal');
 }
-async function addWorker(e) {
+
+async function openEditWorkerModal(id) {
+  const w = data.workers.find(x => x.id === id);
+  if (!w) return;
+  document.getElementById('workerModalTitle').innerHTML = '<i class="fas fa-user-edit"></i> Edit Worker Details';
+  document.getElementById('workerSaveBtnText').textContent = 'Update Worker';
+  document.getElementById('wEditId').value = w.id;
+  document.getElementById('wName').value = w.name || '';
+  document.getElementById('wEmpId').value = w.empId || '';
+  document.getElementById('wPosition').value = w.position || '';
+  document.getElementById('wSalary').value = w.salary || 0;
+  document.getElementById('wAllowances').value = w.allowances || 0;
+  document.getElementById('wJoinDate').value = w.joinDate || '';
+  document.getElementById('wPhone').value = w.phone || '';
+  document.getElementById('wEmail').value = w.email || '';
+  document.getElementById('wBank').value = w.bank || '';
+  document.getElementById('wAccount').value = w.account || '';
+  document.getElementById('wTaxId').value = w.taxId || '';
+  document.getElementById('wAddress').value = w.address || '';
+  document.getElementById('wDepartment').innerHTML = '<option value="">Select</option>' + data.departments.map(d => `<option ${d === w.department ? 'selected' : ''}>${d}</option>`).join('');
+  openModal('addWorkerModal');
+}
+
+async function saveWorker(e) {
   e.preventDefault();
+  const editId = document.getElementById('wEditId').value;
   const workerData = {
     name: document.getElementById('wName').value, empId: document.getElementById('wEmpId').value,
     position: document.getElementById('wPosition').value, department: document.getElementById('wDepartment').value,
@@ -1028,13 +1109,20 @@ async function addWorker(e) {
     joinDate: document.getElementById('wJoinDate').value, phone: document.getElementById('wPhone').value,
     email: document.getElementById('wEmail').value, bank: document.getElementById('wBank').value,
     account: document.getElementById('wAccount').value, taxId: document.getElementById('wTaxId').value,
-    address: document.getElementById('wAddress').value, status: 'Active', createdAt: today()
+    address: document.getElementById('wAddress').value, status: 'Active',
+    modifiedAt: today()
   };
+  if (!editId) workerData.createdAt = today();
+
   try {
-    showLoading('Saving worker...');
-    await saveToFirebase(collections.workers, null, workerData);
+    showLoading(editId ? 'Updating worker...' : 'Saving worker...');
+    if (editId) {
+      await updateInFirebase(collections.workers, editId, workerData);
+    } else {
+      await saveToFirebase(collections.workers, null, workerData);
+    }
     await loadData();
-    toast('Worker added!');
+    toast(editId ? 'Worker updated!' : 'Worker added!');
     closeModal('addWorkerModal');
   } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
@@ -1057,6 +1145,7 @@ function renderWorkers() {
       <td>${advTotal > 0 ? `<span class="badge badge-pink">${fmt(advTotal)}</span>` : '-'}</td>
       <td>
         <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openWorkerDetail('${w.id}')"><i class="fas fa-eye"></i></button>
+        <button class="btn btn-info btn-sm" onclick="event.stopPropagation();openEditWorkerModal('${w.id}')"><i class="fas fa-edit"></i></button>
         <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteWorker('${w.id}')"><i class="fas fa-trash"></i></button>
       </td>
     </tr>`;
@@ -1099,6 +1188,7 @@ function openWorkerDetail(id) {
         <button class="btn btn-success btn-lg" onclick="goCreateSlip('${w.id}')"><i class="fas fa-file-invoice-dollar"></i> Create Pay Slip</button>
         <button class="btn btn-warning" onclick="quickAddLoan('${w.id}')"><i class="fas fa-hand-holding-usd"></i> Issue Loan</button>
         <button class="btn btn-pink" onclick="quickAddAdvance('${w.id}')"><i class="fas fa-money-check-alt"></i> Issue Advance</button>
+        <button class="btn btn-info" onclick="openEditWorkerModal('${w.id}')"><i class="fas fa-edit"></i> Edit Details</button>
         <button class="btn btn-secondary" onclick="showSection('workers')"><i class="fas fa-arrow-left"></i> Back</button>
       </div>
     </div>
@@ -1391,7 +1481,7 @@ async function deleteComponent(id) {
   catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ SLIP BUILDER (FIXED LOAN LOADING) ============
+// ============ SLIP BUILDER ============
 let currentSlipData = null;
 
 function loadSlipDefaults() {
@@ -1405,11 +1495,10 @@ function loadSlipDefaults() {
   const w = data.workers.find(x => x.id === workerId);
   if (!w) return;
 
-  // ROBUST FILTERING: Added fallback for older loans missing startMonth
   const workerLoans = data.loans.filter(l => {
     if (l.workerId !== workerId) return false;
     if (l.status !== 'Active') return false;
-    const start = l.startMonth || month; // Fallback if missing
+    const start = l.startMonth || month;
     if (start > month) return false;
     if ((l.paidMonths || []).includes(month)) return false;
     return true;
@@ -1418,13 +1507,12 @@ function loadSlipDefaults() {
   const workerAdvances = data.advances.filter(a => {
     if (a.workerId !== workerId) return false;
     if (a.status !== 'Active') return false;
-    const start = a.startMonth || month; // Fallback if missing
+    const start = a.startMonth || month;
     if (start > month) return false;
     if ((a.paidMonths || []).includes(month)) return false;
     return true;
   });
 
-  // Diagnostic Banners
   if (workerLoans.length > 0) {
     loanBanner.innerHTML = `<div class="loan-info-banner">
       <h4><i class="fas fa-hand-holding-usd"></i> ${workerLoans.length} Loan(s) Auto-Deducting</h4>
@@ -1484,7 +1572,6 @@ function loadSlipDefaults() {
     </div>`;
   });
 
-  // Append Loans
   workerLoans.forEach(l => {
     deductionsHtml += `<div class="slip-row loan-row" data-type="deduction" data-id="loan_${l.id}" data-loan-id="${l.id}" data-kind="loan">
       <div><strong><i class="fas fa-hand-holding-usd" style="color:var(--warning);"></i> Loan - ${l.type}</strong><div class="calc-info">Auto-deducted • Balance: ${fmt(l.remaining)}</div></div>
@@ -1493,7 +1580,6 @@ function loadSlipDefaults() {
     </div>`;
   });
 
-  // Append Advances
   workerAdvances.forEach(a => {
     deductionsHtml += `<div class="slip-row advance-row" data-type="deduction" data-id="advance_${a.id}" data-advance-id="${a.id}" data-kind="advance">
       <div><strong><i class="fas fa-money-check-alt" style="color:var(--pink);"></i> Advance - ${a.type}</strong><div class="calc-info">Auto-deducted • Balance: ${fmt(a.remaining)}</div></div>
@@ -1679,7 +1765,7 @@ function viewSlipPreview(slip) {
   document.getElementById('viewSlipBody').innerHTML = `
     <div style="border:2px solid ${d.primaryColor};border-radius:10px;padding:30px;background:white;">
       <div style="text-align:center;background:${d.primaryColor};color:white;padding:20px;margin:-30px -30px 20px -30px;border-radius:8px 8px 0 0;">
-        <h1 style="font-size:24px;margin-bottom:5px;">${c.name || 'LK SHOE'}</h1>
+        <h1 style="font-size:24px;margin-bottom:5px;">${c.name || 'LANKA SHOE'}</h1>
         <p style="font-size:12px;opacity:0.9;">${c.address || ''}</p>
       </div>
       <h2 style="text-align:center;color:${d.primaryColor};margin-bottom:5px;">${d.slipTitle}</h2>
@@ -1730,7 +1816,7 @@ function viewSlipPreview(slip) {
   `;
 }
 
-// ============ PDF GENERATION ============
+// ============ PDF GENERATION (FIXED ALIGNMENT) ============
 function downloadSlipPDF(slip) {
   const w = data.workers.find(x => x.id === slip.workerId);
   if (!w) return;
@@ -1751,21 +1837,64 @@ function downloadSlipPDF(slip) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: d.paperSize });
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
   const fontSize = d.fontSize === 'small' ? 9 : d.fontSize === 'large' ? 12 : 10;
+  const marginX = 14;
+  const contentWidth = pageWidth - (marginX * 2);
+
+  // Watermark
+  if (d.showWatermark) {
+    doc.setTextColor(230, 230, 230);
+    doc.setFontSize(50);
+    doc.setFont('helvetica', 'bold');
+    doc.text(c.name || 'LANKA SHOE', pageWidth/2, pageHeight/2, { align: 'center', angle: 45 });
+  }
+
+  // Border
+  if (d.border !== 'none') {
+    doc.setDrawColor(r, g, b);
+    doc.setLineWidth(d.border === 'thick' ? 2 : 0.5);
+    doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
+    if (d.border === 'double') doc.rect(7, 7, pageWidth - 14, pageHeight - 14);
+  }
 
   let y = 15;
-  doc.setFillColor(r, g, b);
-  doc.rect(0, 0, pageWidth, 40, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(22);
-  doc.setFont('helvetica', 'bold');
-  doc.text(c.name || 'LK SHOE', pageWidth/2, 18, { align: 'center' });
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.text(c.address || '', pageWidth/2, 26, { align: 'center' });
-  doc.text(`Phone: ${c.phone || '-'} | Email: ${c.email || '-'}`, pageWidth/2, 32, { align: 'center' });
-  y = 48;
 
+  // HEADER
+  if (d.headerStyle === 'full') {
+    doc.setFillColor(r, g, b);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text(c.name || 'LANKA SHOE', pageWidth/2, 18, { align: 'center' });
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(c.address || '', pageWidth/2, 26, { align: 'center' });
+    doc.text(`Phone: ${c.phone || '-'} | Email: ${c.email || '-'}`, pageWidth/2, 32, { align: 'center' });
+    y = 48;
+  } else if (d.headerStyle === 'centered') {
+    doc.setTextColor(r, g, b);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text(c.name || 'LANKA SHOE', pageWidth/2, y, { align: 'center' });
+    y += 7;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text(c.address || '', pageWidth/2, y, { align: 'center' });
+    y += 5;
+    doc.text(`Phone: ${c.phone || '-'} | Email: ${c.email || '-'}`, pageWidth/2, y, { align: 'center' });
+    y += 8;
+  } else {
+    doc.setTextColor(r, g, b);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text(c.name || 'LANKA SHOE', marginX, y);
+    y += 10;
+  }
+
+  // TITLE
   doc.setTextColor(r, g, b);
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
@@ -1778,36 +1907,51 @@ function downloadSlipPDF(slip) {
   y += 8;
 
   doc.setDrawColor(r, g, b);
-  doc.line(14, y, pageWidth - 14, y);
-  y += 6;
+  doc.setLineWidth(0.5);
+  doc.line(marginX, y, pageWidth - marginX, y);
+  y += 8;
 
+  // EMPLOYEE DETAILS - 2 columns
   doc.setFontSize(fontSize);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(30, 41, 59);
-  doc.text('Employee Details', 14, y);
-  y += 5;
+  doc.text('Employee Details', marginX, y);
+  y += 6;
   doc.setFont('helvetica', 'normal');
-  doc.text(`Name: ${w.name}`, 14, y);
-  doc.text(`Join Date: ${w.joinDate}`, 115, y);
+  doc.setFontSize(fontSize - 1);
+  
+  const col1X = marginX;
+  const col2X = pageWidth / 2 + 5;
+  const labelWidth = 30;
+  
+  doc.text('Name:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.name, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+  doc.text('Join Date:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.joinDate || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal');
   y += 5;
-  doc.text(`Employee ID: ${w.empId}`, 14, y);
-  if (d.showBank) doc.text(`Bank: ${w.bank || '-'}`, 115, y);
+  
+  doc.text('Emp ID:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.empId, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+  if (d.showBank) { doc.text('Bank:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.bank || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
   y += 5;
-  doc.text(`Position: ${w.position}`, 14, y);
-  if (d.showBank) doc.text(`Account: ${w.account || '-'}`, 115, y);
+  
+  doc.text('Position:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.position, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+  if (d.showBank) { doc.text('Account:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.account || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
   y += 5;
-  doc.text(`Department: ${w.department}`, 14, y);
-  if (d.showTax) doc.text(`Tax ID: ${w.taxId || '-'}`, 115, y);
+  
+  doc.text('Dept:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.department, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+  if (d.showTax) { doc.text('Tax ID:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.taxId || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
   y += 8;
 
+  // FIXED: Full-width stacked tables for perfect alignment
+  const grossTotal = slip.basic + slip.totalAdditions;
+  
+  // EARNINGS TABLE (FULL WIDTH)
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(er, eg, eb);
-  doc.text('EARNINGS', 14, y);
+  doc.setFontSize(fontSize);
+  doc.text('EARNINGS', marginX, y);
   y += 3;
 
   const earningsBody = slip.earnings.map(e => [e.name, fmt(e.amount)]);
-  const grossTotal = slip.basic + slip.totalAdditions;
-  earningsBody.push(['TOTAL EARNINGS', fmt(grossTotal)]);
+  earningsBody.push([{ content: 'TOTAL EARNINGS', styles: { fontStyle: 'bold', fillColor: [209, 250, 229] } }, { content: fmt(grossTotal), styles: { fontStyle: 'bold', fillColor: [209, 250, 229], halign: 'right' } }]);
 
   doc.autoTable({
     startY: y,
@@ -1816,16 +1960,24 @@ function downloadSlipPDF(slip) {
     theme: 'grid',
     headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
     styles: { fontSize: fontSize - 1, cellPadding: 3 },
-    columnStyles: { 0: { cellWidth: 'auto' }, 1: { halign: 'right', cellWidth: 40 } },
-    margin: { left: 14, right: pageWidth/2 + 5 }
+    columnStyles: { 
+      0: { cellWidth: contentWidth - 45 },
+      1: { halign: 'right', cellWidth: 45 }
+    },
+    margin: { left: marginX, right: marginX }
   });
 
+  y = doc.lastAutoTable.finalY + 8;
+
+  // DEDUCTIONS TABLE (FULL WIDTH)
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(dr, dg, db);
-  doc.text('DEDUCTIONS', pageWidth/2 + 10, y);
+  doc.setFontSize(fontSize);
+  doc.text('DEDUCTIONS', marginX, y);
+  y += 3;
 
   const deductionsBody = slip.deductions.length ? slip.deductions.map(x => [x.name, fmt(x.amount)]) : [['No deductions', '-']];
-  deductionsBody.push(['TOTAL DEDUCTIONS', fmt(slip.totalDeductions)]);
+  deductionsBody.push([{ content: 'TOTAL DEDUCTIONS', styles: { fontStyle: 'bold', fillColor: [254, 226, 226] } }, { content: fmt(slip.totalDeductions), styles: { fontStyle: 'bold', fillColor: [254, 226, 226], halign: 'right' } }]);
 
   doc.autoTable({
     startY: y,
@@ -1834,82 +1986,108 @@ function downloadSlipPDF(slip) {
     theme: 'grid',
     headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
     styles: { fontSize: fontSize - 1, cellPadding: 3 },
-    columnStyles: { 0: { cellWidth: 'auto' }, 1: { halign: 'right', cellWidth: 40 } },
-    margin: { left: pageWidth/2 + 5, right: 14 }
+    columnStyles: { 
+      0: { cellWidth: contentWidth - 45 },
+      1: { halign: 'right', cellWidth: 45 }
+    },
+    margin: { left: marginX, right: marginX }
   });
 
-  const earningsFinalY = doc.lastAutoTable.finalY;
-  const deductionsFinalY = doc.autoTable.previous.finalY;
-  y = Math.max(earningsFinalY, deductionsFinalY) + 8;
+  y = doc.lastAutoTable.finalY + 8;
 
+  // NET SALARY BOX (FULL WIDTH)
   doc.setFillColor(r, g, b);
-  doc.roundedRect(14, y, pageWidth - 28, 25, 3, 3, 'F');
+  doc.roundedRect(marginX, y, contentWidth, 22, 3, 3, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.text('Gross Salary:', 20, y + 8);
-  doc.text(fmt(grossTotal), 20, y + 16);
-  doc.text('Total Deductions:', 70, y + 8);
-  doc.text(fmt(slip.totalDeductions), 70, y + 16);
-  doc.setFontSize(14);
-  doc.text('NET PAY:', pageWidth - 20, y + 12, { align: 'right' });
-  doc.setFontSize(18);
-  doc.text(fmt(slip.net), pageWidth - 20, y + 20, { align: 'right' });
+  doc.text(`Gross Salary: ${fmt(grossTotal)}`, marginX + 5, y + 9);
+  doc.text(`Total Deductions: ${fmt(slip.totalDeductions)}`, marginX + 5, y + 16);
+  doc.setFontSize(16);
+  doc.text(`NET PAY: ${fmt(slip.net)}`, pageWidth - marginX - 5, y + 13, { align: 'right' });
 
-  y += 35;
+  y += 30;
 
+  // LOANS SECTION
   if (d.showLoans && slip.loansDeducted && slip.loansDeducted.length > 0) {
+    const boxHeight = 10 + slip.loansDeducted.length * 5;
     doc.setFillColor(254, 243, 199);
-    doc.roundedRect(14, y, pageWidth - 28, 8 + slip.loansDeducted.length * 5, 2, 2, 'F');
+    doc.roundedRect(marginX, y, contentWidth, boxHeight, 2, 2, 'F');
     doc.setDrawColor(lr, lg, lb);
-    doc.setLineWidth(1);
-    doc.line(14, y, 14, y + 8 + slip.loansDeducted.length * 5);
+    doc.setLineWidth(1.5);
+    doc.line(marginX, y, marginX, y + boxHeight);
     doc.setTextColor(146, 64, 14);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text(d.loansTitle + ':', 18, y + 5);
-    y += 9;
+    doc.text(d.loansTitle + ':', marginX + 5, y + 6);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
+    let ly = y + 11;
     slip.loansDeducted.forEach(ld => {
       const loan = data.loans.find(l => l.id === ld.loanId);
-      doc.text(`• ${loan ? loan.type : 'Loan'}: ${fmt(ld.amount)}`, 20, y);
-      y += 4;
+      doc.text(`• ${loan ? loan.type : 'Loan'}: ${fmt(ld.amount)}`, marginX + 8, ly);
+      ly += 5;
     });
-    y += 4;
+    y += boxHeight + 5;
   }
 
+  // ADVANCES SECTION
   if (d.showAdvances && slip.advancesDeducted && slip.advancesDeducted.length > 0) {
+    const boxHeight = 10 + slip.advancesDeducted.length * 5;
     doc.setFillColor(252, 231, 243);
-    doc.roundedRect(14, y, pageWidth - 28, 8 + slip.advancesDeducted.length * 5, 2, 2, 'F');
+    doc.roundedRect(marginX, y, contentWidth, boxHeight, 2, 2, 'F');
     doc.setDrawColor(ar, ag, ab);
-    doc.setLineWidth(1);
-    doc.line(14, y, 14, y + 8 + slip.advancesDeducted.length * 5);
+    doc.setLineWidth(1.5);
+    doc.line(marginX, y, marginX, y + boxHeight);
     doc.setTextColor(157, 23, 77);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text(d.advancesTitle + ':', 18, y + 5);
-    y += 9;
+    doc.text(d.advancesTitle + ':', marginX + 5, y + 6);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
+    let ay = y + 11;
     slip.advancesDeducted.forEach(ad => {
       const adv = data.advances.find(a => a.id === ad.advanceId);
-      doc.text(`• ${adv ? adv.type : 'Advance'}: ${fmt(ad.amount)}`, 20, y);
-      y += 4;
+      doc.text(`• ${adv ? adv.type : 'Advance'}: ${fmt(ad.amount)}`, marginX + 8, ay);
+      ay += 5;
     });
-    y += 4;
+    y += boxHeight + 5;
   }
 
+  // ANALYSIS
+  if (d.showAnalysis) {
+    const netPct = grossTotal > 0 ? (slip.net / grossTotal * 100).toFixed(1) : 0;
+    const dedPct = grossTotal > 0 ? (slip.totalDeductions / grossTotal * 100).toFixed(1) : 0;
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(marginX, y, contentWidth, 12, 2, 2, 'F');
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Net Salary: ${netPct}% of Gross   |   Deduction Ratio: ${dedPct}%`, pageWidth/2, y + 8, { align: 'center' });
+    y += 18;
+  }
+
+  // NOTES
+  if (slip.notes) {
+    doc.setTextColor(30, 64, 175);
+    doc.setFontSize(9);
+    doc.text(`Notes: ${slip.notes}`, marginX, y);
+    y += 8;
+  }
+
+  // SIGNATURES
   if (d.showSignatures) {
     doc.setTextColor(30, 41, 59);
     doc.setDrawColor(30, 41, 59);
-    doc.line(20, 265, 70, 265);
-    doc.line(pageWidth - 70, 265, pageWidth - 20, 265);
+    doc.setLineWidth(0.5);
+    doc.line(marginX + 5, 265, marginX + 55, 265);
+    doc.line(pageWidth - marginX - 55, 265, pageWidth - marginX - 5, 265);
     doc.setFontSize(9);
-    doc.text(d.sign1Label, 45, 270, { align: 'center' });
-    doc.text(d.sign2Label, pageWidth - 45, 270, { align: 'center' });
+    doc.text(d.sign1Label, marginX + 30, 270, { align: 'center' });
+    doc.text(d.sign2Label, pageWidth - marginX - 30, 270, { align: 'center' });
   }
 
+  // FOOTER
   if (d.showFooter && d.footerText) {
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139);
@@ -2113,29 +2291,139 @@ function previewDesign() {
   openModal('viewSlipModal');
 }
 
+// ============ COMPANY & SALARY SETTINGS ============
 function loadCompanySettings() {
   const c = data.company;
-  document.getElementById('cName').value = c.name || 'LK SHOE';
+  const s = data.salarySettings;
+  document.getElementById('cName').value = c.name || 'LANKA SHOE';
+  document.getElementById('cReg').value = c.reg || '';
+  document.getElementById('cTax').value = c.tax || '';
   document.getElementById('cPhone').value = c.phone || '';
   document.getElementById('cEmail').value = c.email || '';
+  document.getElementById('cWeb').value = c.web || '';
+  document.getElementById('cLogo').value = c.logo || '';
+  document.getElementById('cBank').value = c.bank || '';
+  document.getElementById('cBankAccount').value = c.bankAccount || '';
   document.getElementById('cAddress').value = c.address || '';
+  document.getElementById('sTaxRate').value = s.taxRate || 10;
+  document.getElementById('sEpfEmp').value = s.epfEmp || 8;
+  document.getElementById('sEpfEmpr').value = s.epfEmpr || 12;
+  document.getElementById('sEtf').value = s.etf || 3;
+  document.getElementById('sOtMult').value = s.otMult || 1.5;
+  document.getElementById('sWorkDays').value = s.workDays || 26;
+  document.getElementById('sWorkHours').value = s.workHours || 8;
+  document.getElementById('sPayDay').value = s.payDay || 30;
+  document.getElementById('sFyStart').value = s.fyStart || 1;
+  document.getElementById('sCurrency').value = s.currency || 'Rs';
+  renderDepartments();
 }
+
 async function saveCompany(e) {
   e.preventDefault();
-  const companyData = { name: document.getElementById('cName').value, phone: document.getElementById('cPhone').value, email: document.getElementById('cEmail').value, address: document.getElementById('cAddress').value };
+  const companyData = { 
+    name: document.getElementById('cName').value, 
+    reg: document.getElementById('cReg').value,
+    tax: document.getElementById('cTax').value,
+    phone: document.getElementById('cPhone').value, 
+    email: document.getElementById('cEmail').value, 
+    web: document.getElementById('cWeb').value,
+    logo: document.getElementById('cLogo').value,
+    bank: document.getElementById('cBank').value,
+    bankAccount: document.getElementById('cBankAccount').value,
+    address: document.getElementById('cAddress').value 
+  };
   try {
     showLoading('Saving...');
     await saveToFirebase(collections.company, 'config', companyData);
     data.company = companyData;
-    toast('Saved!');
+    toast('Company info saved!');
   } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
+
+async function saveSalarySettings(e) {
+  e.preventDefault();
+  const settingsData = {
+    taxRate: parseFloat(document.getElementById('sTaxRate').value),
+    epfEmp: parseFloat(document.getElementById('sEpfEmp').value),
+    epfEmpr: parseFloat(document.getElementById('sEpfEmpr').value),
+    etf: parseFloat(document.getElementById('sEtf').value),
+    otMult: parseFloat(document.getElementById('sOtMult').value),
+    workDays: parseInt(document.getElementById('sWorkDays').value),
+    workHours: parseInt(document.getElementById('sWorkHours').value),
+    payDay: parseInt(document.getElementById('sPayDay').value),
+    fyStart: parseInt(document.getElementById('sFyStart').value),
+    currency: document.getElementById('sCurrency').value
+  };
+  try {
+    showLoading('Saving...');
+    await saveToFirebase(collections.salarySettings, 'config', settingsData);
+    data.salarySettings = settingsData;
+    toast('Salary settings saved!');
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+}
+
+async function addDepartment() {
+  const name = document.getElementById('newDept').value.trim();
+  if (!name) return;
+  if (data.departments.includes(name)) { toast('Department exists', 'error'); return; }
+  try {
+    showLoading('Adding...');
+    await saveToFirebase(collections.departments, null, { name });
+    data.departments.push(name);
+    document.getElementById('newDept').value = '';
+    renderDepartments();
+    toast('Department added!');
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+}
+
+async function removeDepartment(name) {
+  if (!confirm(`Delete "${name}"?`)) return;
+  try {
+    showLoading('Removing...');
+    const deptDoc = await db.collection(collections.departments).where('name', '==', name).get();
+    deptDoc.forEach(async doc => { await deleteFromFirebase(collections.departments, doc.id); });
+    data.departments = data.departments.filter(d => d !== name);
+    renderDepartments();
+    toast('Department removed!');
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+}
+
+function renderDepartments() {
+  const list = document.getElementById('departmentsList');
+  if (!list) return;
+  if (!data.departments.length) { list.innerHTML = '<div class="empty-state"><h3>No departments</h3></div>'; return; }
+  list.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">' + 
+    data.departments.map(d => {
+      const count = data.workers.filter(w => w.department === d).length;
+      return `<div style="padding:12px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+        <div><strong>${d}</strong><div style="font-size:11px;color:var(--gray);">${count} workers</div></div>
+        <button class="btn btn-danger btn-sm" onclick="removeDepartment('${d}')"><i class="fas fa-trash"></i></button>
+      </div>`;
+    }).join('') + '</div>';
+}
+
 function exportData() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = `lkshoe_backup_${today()}.json`; a.click();
+  const a = document.createElement('a'); a.href = url; a.download = `lankashoe_backup_${today()}.json`; a.click();
   toast('Exported!');
 }
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (confirm('Replace all data with imported data?')) {
+        toast('Import feature - contact admin', 'error');
+      }
+    } catch (err) { toast('Invalid file', 'error'); }
+  };
+  reader.readAsText(file);
+}
+
 async function clearAllData() {
   if (!confirm('⚠️ DELETE ALL DATA?')) return;
   if (!confirm('Last warning!')) return;
@@ -2204,7 +2492,7 @@ function refreshDashboard() {
 
 window.onload = async () => {
   if (!data.company.name) {
-    data.company = { name: 'LK SHOE', phone: '+94 11 234 5678', email: 'info@lkshoe.com', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
+    data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
   }
 };
 </script>
