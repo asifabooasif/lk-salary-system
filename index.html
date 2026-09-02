@@ -304,7 +304,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
           <g transform="translate(290, 130)"><rect width="50" height="60" rx="4" fill="rgba(255,255,255,0.3)" transform="rotate(15)"/><rect x="8" y="10" width="34" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/></g>
           <g transform="translate(310, 220)"><rect width="40" height="40" rx="8" fill="rgba(255,255,255,0.3)"/><rect x="8" y="25" width="6" height="10" fill="#34d399"/><rect x="17" y="18" width="6" height="17" fill="#34d399"/><rect x="26" y="12" width="6" height="23" fill="#34d399"/></g>
           <circle cx="90" cy="240" r="15" fill="rgba(251,191,36,0.6)"/>
-          <text x="90" y="245" text-anchor="middle" fill="white" font-size="14" font-weight="bold">₨</text>
+          <text x="90" y="245" text-anchor="middle" fill="white" font-size="14" font-weight="bold"></text>
         </svg>
       </div>
       <div class="illustration-text"><h1>LANKA SHOE</h1><p>Professional Salary Management System</p></div>
@@ -1699,26 +1699,39 @@ function previewSlip() {
   openModal('viewSlipModal');
 }
 
+// FIXED: Ensure all fields are defined before saving to Firebase
 async function finalizeSlip(status) {
   if (!currentSlipData) { toast('Select worker and month', 'error'); return; }
   const workerId = currentSlipData.workerId;
   const month = currentSlipData.month;
   const existingSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
 
+  // Ensure all fields have valid values (not undefined)
   const slipData = {
     slipNo: existingSlip ? existingSlip.slipNo : 'SL-' + Date.now().toString().slice(-6),
-    workerId, month, notes: currentSlipData.notes,
-    earnings: currentSlipData.earnings, deductions: currentSlipData.deductions,
-    loansDeducted: currentSlipData.loansDeducted || [], advancesDeducted: currentSlipData.advancesDeducted || [],
-    basic: currentSlipData.basic, totalAdditions: currentSlipData.totalAdditions,
-    totalDeductions: currentSlipData.totalDeductions, net: currentSlipData.net,
-    status, createdAt: existingSlip ? existingSlip.createdAt : today(), modifiedAt: today()
+    workerId: workerId || '',
+    month: month || '',
+    notes: (currentSlipData.notes || '').toString(),
+    earnings: currentSlipData.earnings || [],
+    deductions: currentSlipData.deductions || [],
+    loansDeducted: currentSlipData.loansDeducted || [],
+    advancesDeducted: currentSlipData.advancesDeducted || [],
+    basic: parseFloat(currentSlipData.basic) || 0,
+    totalAdditions: parseFloat(currentSlipData.totalAdditions) || 0,
+    totalDeductions: parseFloat(currentSlipData.totalDeductions) || 0,
+    net: parseFloat(currentSlipData.net) || 0,
+    status: status || 'Draft',
+    createdAt: existingSlip ? existingSlip.createdAt : today(),
+    modifiedAt: today()
   };
 
   try {
     showLoading('Finalizing...');
-    if (existingSlip) await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
-    else await saveToFirebase(collections.salarySlips, null, slipData);
+    if (existingSlip) {
+      await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
+    } else {
+      await saveToFirebase(collections.salarySlips, null, slipData);
+    }
 
     if (status === 'Paid') {
       for (const ld of slipData.loansDeducted) {
@@ -1749,7 +1762,12 @@ async function finalizeSlip(status) {
       const savedSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
       if (savedSlip) downloadSlipPDF(savedSlip);
     }
-  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+  } catch (error) { 
+    console.error('Finalize error:', error);
+    toast('Error: ' + error.message, 'error'); 
+  } finally { 
+    hideLoading(); 
+  }
 }
 
 // ============ HISTORY WITH EDIT & REVERSE ============
@@ -2556,7 +2574,7 @@ function importData(e) {
 }
 
 async function clearAllData() {
-  if (!confirm('⚠️ DELETE ALL DATA?')) return;
+  if (!confirm('️ DELETE ALL DATA?')) return;
   if (!confirm('Last warning!')) return;
   try {
     showLoading('Clearing...');
