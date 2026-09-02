@@ -1001,19 +1001,24 @@ const firebaseConfig = {
   measurementId: "G-64NXH3T93L"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+// Enable Firebase Auth debugging
+firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
 // ============ AUTH STATE LISTENER ============
 auth.onAuthStateChanged((user) => {
+  console.log('Auth state changed:', user ? user.email : 'No user');
   if (user) {
     // User is signed in
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').classList.add('show');
     
     // Update user profile display
-    document.getElementById('userDisplayName').textContent = user.displayName || user.email;
+    document.getElementById('userDisplayName').textContent = user.displayName || user.email.split('@')[0];
     document.getElementById('userDisplayEmail').textContent = user.email;
     document.getElementById('userAvatar').textContent = (user.displayName || user.email).charAt(0).toUpperCase();
     
@@ -1028,14 +1033,43 @@ auth.onAuthStateChanged((user) => {
 
 // ============ AUTH FUNCTIONS ============
 async function signInWithGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
   try {
     showLoading('Signing in with Google...');
+    console.log('Starting Google Sign-In...');
+    
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+    
+    // Configure provider
+    provider.setCustomParameters({
+      'prompt': 'select_account'
+    });
+    
     const result = await auth.signInWithPopup(provider);
-    toast('Welcome ' + result.user.displayName + '!', 'success');
+    const user = result.user;
+    
+    console.log('Google Sign-In successful:', user.email);
+    toast('Welcome ' + (user.displayName || user.email) + '!', 'success');
+    
   } catch (error) {
     console.error('Google Sign-In Error:', error);
-    toast('Sign-in failed: ' + error.message, 'error');
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    
+    let errorMessage = 'Google Sign-In failed. ';
+    
+    if (error.code === 'auth/popup-blocked') {
+      errorMessage = 'Popup was blocked. Please allow popups for this site.';
+    } else if (error.code === 'auth/popup-closed-by-user') {
+      errorMessage = 'Sign-in was cancelled.';
+    } else if (error.code === 'auth/unauthorized-domain') {
+      errorMessage = 'This domain is not authorized. Please add it to Firebase Console > Authentication > Settings > Authorized domains';
+    } else if (error.code === 'auth/network-request-failed') {
+      errorMessage = 'Network error. Please check your internet connection.';
+    }
+    
+    toast(errorMessage, 'error');
   } finally {
     hideLoading();
   }
@@ -1052,7 +1086,17 @@ async function signInWithEmail(e) {
     toast('Welcome back!', 'success');
   } catch (error) {
     console.error('Email Sign-In Error:', error);
-    toast('Sign-in failed: ' + error.message, 'error');
+    let errorMessage = 'Sign-in failed. ';
+    
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No account found with this email.';
+    } else if (error.code === 'auth/wrong-password') {
+      errorMessage = 'Incorrect password.';
+    } else if (error.code === 'auth/too-many-requests') {
+      errorMessage = 'Too many failed attempts. Please try again later.';
+    }
+    
+    toast(errorMessage, 'error');
   } finally {
     hideLoading();
   }
@@ -1073,7 +1117,15 @@ async function showSignUp() {
     toast('Account created successfully!', 'success');
   } catch (error) {
     console.error('Sign-Up Error:', error);
-    toast('Sign-up failed: ' + error.message, 'error');
+    let errorMessage = 'Sign-up failed. ';
+    
+    if (error.code === 'auth/email-already-in-use') {
+      errorMessage = 'This email is already registered.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'Invalid email address.';
+    }
+    
+    toast(errorMessage, 'error');
   } finally {
     hideLoading();
   }
@@ -1086,7 +1138,7 @@ async function resetPassword() {
   try {
     showLoading('Sending reset email...');
     await auth.sendPasswordResetEmail(email);
-    toast('Password reset email sent!', 'success');
+    toast('Password reset email sent! Check your inbox.', 'success');
   } catch (error) {
     console.error('Reset Error:', error);
     toast('Failed: ' + error.message, 'error');
