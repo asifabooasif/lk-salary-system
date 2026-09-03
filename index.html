@@ -350,7 +350,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
       </form>
       <div class="login-footer">
-        <p>Don't have an account? <a onclick="showSignUp()">Sign up</a></p>
         <p style="margin-top:10px;"><a onclick="resetPassword()">Forgot password?</a></p>
       </div>
     </div>
@@ -541,10 +540,24 @@ table tbody tr.clickable:hover { background: #f8fafc; }
     <!-- HISTORY -->
     <div class="section" id="history">
       <div class="card">
-        <div class="card-header"><h2><i class="fas fa-history"></i> Pay Slip History</h2></div>
+        <div class="card-header">
+          <h2><i class="fas fa-history"></i> Pay Slip History</h2>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <select id="historySortMonth" onchange="renderHistory()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
+              <option value="all">All Months</option>
+            </select>
+            <select id="historySortYear" onchange="renderHistory()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
+              <option value="all">All Years</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
+        </div>
         <div class="table-container">
           <table>
-            <thead><tr><th>Slip #</th><th>Worker</th><th>Month</th><th>Basic</th><th>Additions</th><th>Deductions</th><th>Net</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Slip #</th><th>Worker</th><th>Month</th><th>Basic</th><th>Additions</th><th>Deductions</th><th>Net</th><th>Status</th><th>Created</th><th>Finalized</th><th>Actions</th></tr></thead>
             <tbody id="historyTable"></tbody>
           </table>
         </div>
@@ -755,7 +768,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
           <select id="userRole">
             <option value="admin">Admin (Full Access)</option>
             <option value="editor">Editor (Can Add/Edit)</option>
-            <option value="viewer">Viewer (Read Only)</option>
+            <option value="viewer">Viewer (Own Data Only)</option>
           </select>
         </div>
       </div>
@@ -776,13 +789,13 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         <div class="form-grid">
           <div class="form-group"><label>Full Name *</label><input type="text" id="wName" required></div>
           <div class="form-group"><label>Employee ID *</label><input type="text" id="wEmpId" required></div>
+          <div class="form-group"><label>Email *</label><input type="email" id="wEmail" required></div>
           <div class="form-group"><label>Position *</label><input type="text" id="wPosition" required></div>
           <div class="form-group"><label>Department *</label><select id="wDepartment" required><option value="">Select</option></select></div>
           <div class="form-group"><label>Basic Salary (Rs) *</label><input type="number" id="wSalary" step="0.01" required></div>
           <div class="form-group"><label>Fixed Allowances (Rs)</label><input type="number" id="wAllowances" step="0.01" value="0"></div>
           <div class="form-group"><label>Join Date *</label><input type="date" id="wJoinDate" required></div>
           <div class="form-group"><label>Phone</label><input type="tel" id="wPhone"></div>
-          <div class="form-group"><label>Email</label><input type="email" id="wEmail"></div>
           <div class="form-group"><label>Bank Name</label><input type="text" id="wBank"></div>
           <div class="form-group"><label>Account No.</label><input type="text" id="wAccount"></div>
           <div class="form-group"><label>Tax ID / NIC</label><input type="text" id="wTaxId"></div>
@@ -924,17 +937,18 @@ const USER_ROLES = {
   VIEWER: 'viewer'
 };
 
-// Default admin email - asifabooasif@gmail.com
+// Default admin email
 const DEFAULT_ADMIN_EMAIL = 'asifabooasif@gmail.com';
 
 // Initialize ROLE_CONFIG as empty object - MUST be defined before any functions use it
 var ROLE_CONFIG = {};
 
-let currentUserRole = USER_ROLES.VIEWER; // Default to viewer
-let usersCollection = 'userRoles'; // Firestore collection for user roles
+let currentUserRole = USER_ROLES.VIEWER;
+let currentUserId = null;
+let currentUserEmail = null;
+let usersCollection = 'userRoles';
 
 function getUserRole(email) {
-  // Ensure ROLE_CONFIG exists
   if (typeof ROLE_CONFIG === 'undefined') {
     ROLE_CONFIG = {};
   }
@@ -950,30 +964,32 @@ function hasPermission(requiredRole) {
   return roleHierarchy[currentUserRole] >= roleHierarchy[requiredRole];
 }
 
+function isAuthorizedUser(email) {
+  return email === DEFAULT_ADMIN_EMAIL || ROLE_CONFIG[email];
+}
+
 function applyRoleBasedUI() {
-  // Hide/show elements based on role
-  const adminOnly = document.querySelectorAll('[data-role="admin"]');
-  const editorPlus = document.querySelectorAll('[data-role="editor"]');
-  
-  adminOnly.forEach(el => {
-    if (!hasPermission(USER_ROLES.ADMIN)) {
-      el.style.display = 'none';
-    }
-  });
-  
-  editorPlus.forEach(el => {
-    if (!hasPermission(USER_ROLES.EDITOR)) {
-      el.style.display = 'none';
-    }
-  });
-  
-  // Show/hide User Management menu
   const menuUsers = document.getElementById('menuUsers');
+  const menuDesign = document.querySelector('[data-section="design"]');
+  const menuSettings = document.querySelector('[data-section="settings"]');
+  const menuComponents = document.querySelector('[data-section="components"]');
+  
   if (menuUsers) {
     menuUsers.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
   }
   
-  // Update buttons visibility
+  if (menuDesign) {
+    menuDesign.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+  }
+  
+  if (menuSettings) {
+    menuSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+  }
+  
+  if (menuComponents) {
+    menuComponents.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+  }
+  
   const btnAddWorker = document.getElementById('btnAddWorker');
   const btnAddLoan = document.getElementById('btnAddLoan');
   const btnAddAdvance = document.getElementById('btnAddAdvance');
@@ -997,7 +1013,6 @@ function applyRoleBasedUI() {
     if (btnClearAll) btnClearAll.style.display = 'none';
   }
   
-  // Update role badge
   const roleBadge = document.getElementById('userRoleBadge');
   if (roleBadge) {
     roleBadge.textContent = currentUserRole.toUpperCase();
@@ -1032,7 +1047,6 @@ function hideLoading() {
   try { const overlay = document.getElementById('loadingOverlay'); if (overlay) overlay.classList.remove('show'); } catch (e) {}
 }
 
-// Load user roles from Firestore
 async function loadUserRoles() {
   try {
     const snapshot = await db.collection(usersCollection).get();
@@ -1047,15 +1061,22 @@ async function loadUserRoles() {
 
 auth.onAuthStateChanged(async (user) => {
   if (user) {
-    // Load user roles from Firestore first
     await loadUserRoles();
     
-    // Determine user role
+    if (!isAuthorizedUser(user.email)) {
+      toast('Access denied. Your email is not authorized.', 'error');
+      await auth.signOut();
+      return;
+    }
+    
     if (user.email === DEFAULT_ADMIN_EMAIL) {
       currentUserRole = USER_ROLES.ADMIN;
     } else {
       currentUserRole = getUserRole(user.email);
     }
+    
+    currentUserId = user.uid;
+    currentUserEmail = user.email;
     
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').classList.add('show');
@@ -1074,18 +1095,21 @@ async function signInWithGoogle() {
   try {
     showLoading('Signing in with Google...');
     
-    // Ensure ROLE_CONFIG is initialized
     if (typeof ROLE_CONFIG === 'undefined') {
       ROLE_CONFIG = {};
     }
     
-    // Load roles first before sign-in
     await loadUserRoles();
     
     const provider = new firebase.auth.GoogleAuthProvider();
     const result = await auth.signInWithPopup(provider);
     
-    // Determine role after sign-in
+    if (!isAuthorizedUser(result.user.email)) {
+      toast('Access denied. Your email is not authorized. Contact admin.', 'error');
+      await auth.signOut();
+      return;
+    }
+    
     let role = USER_ROLES.VIEWER;
     if (result.user.email === DEFAULT_ADMIN_EMAIL) {
       role = USER_ROLES.ADMIN;
@@ -1109,18 +1133,22 @@ async function signInWithEmail(e) {
   try {
     showLoading('Signing in...');
     
-    // Ensure ROLE_CONFIG is initialized
     if (typeof ROLE_CONFIG === 'undefined') {
       ROLE_CONFIG = {};
     }
     
-    // Load roles first before sign-in
     await loadUserRoles();
     
-    await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
     const email = document.getElementById('loginEmail').value;
     
-    // Determine role after sign-in
+    if (!isAuthorizedUser(email)) {
+      toast('Access denied. Your email is not authorized. Contact admin.', 'error');
+      hideLoading();
+      return;
+    }
+    
+    await auth.signInWithEmailAndPassword(email, document.getElementById('loginPassword').value);
+    
     let role = USER_ROLES.VIEWER;
     if (email === DEFAULT_ADMIN_EMAIL) {
       role = USER_ROLES.ADMIN;
@@ -1130,14 +1158,6 @@ async function signInWithEmail(e) {
     
     toast(`Welcome back! Role: ${role.toUpperCase()}`);
   } catch (error) { toast('Sign-in failed: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-
-async function showSignUp() {
-  const email = prompt('Enter email:'); if (!email) return;
-  const password = prompt('Enter password (min 6 chars):');
-  if (!password || password.length < 6) { toast('Password must be 6+ chars', 'error'); return; }
-  try { showLoading('Creating account...'); await auth.createUserWithEmailAndPassword(email, password); toast('Account created!'); }
-  catch (error) { toast('Sign-up failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 async function resetPassword() {
@@ -1264,7 +1284,7 @@ function showSection(sec, title=null) {
   if (sec === 'loans') renderLoans();
   if (sec === 'advances') renderAdvances();
   if (sec === 'slips') { populateWorkerSelect('slipWorker'); document.getElementById('slipMonth').value = currentMonth(); }
-  if (sec === 'history') renderHistory();
+  if (sec === 'history') { populateHistoryFilters(); renderHistory(); }
   if (sec === 'reports') populateReportFilters();
   if (sec === 'components') renderComponents();
   if (sec === 'design') loadDesignSettings();
@@ -1274,7 +1294,6 @@ function showSection(sec, title=null) {
 
 function toast(msg, type='success') {
   const t = document.getElementById('toast');
-  // Clear any existing toast first
   t.classList.remove('show');
   
   setTimeout(() => {
@@ -1300,7 +1319,6 @@ function toggleActionMenu(btn) {
   if (!isOpen) dropdown.classList.add('show');
 }
 
-// ============ USER MANAGEMENT ============
 function openAddUserModal() {
   if (!hasPermission(USER_ROLES.ADMIN)) {
     toast('Permission denied. Admin role required.', 'error');
@@ -1440,12 +1458,12 @@ async function openEditWorkerModal(id) {
   document.getElementById('wEditId').value = w.id;
   document.getElementById('wName').value = w.name || '';
   document.getElementById('wEmpId').value = w.empId || '';
+  document.getElementById('wEmail').value = w.email || '';
   document.getElementById('wPosition').value = w.position || '';
   document.getElementById('wSalary').value = w.salary || 0;
   document.getElementById('wAllowances').value = w.allowances || 0;
   document.getElementById('wJoinDate').value = w.joinDate || '';
   document.getElementById('wPhone').value = w.phone || '';
-  document.getElementById('wEmail').value = w.email || '';
   document.getElementById('wBank').value = w.bank || '';
   document.getElementById('wAccount').value = w.account || '';
   document.getElementById('wTaxId').value = w.taxId || '';
@@ -1464,10 +1482,11 @@ async function saveWorker(e) {
   const currentUser = auth.currentUser;
   const workerData = {
     name: document.getElementById('wName').value, empId: document.getElementById('wEmpId').value,
-    position: document.getElementById('wPosition').value, department: document.getElementById('wDepartment').value,
+    email: document.getElementById('wEmail').value, position: document.getElementById('wPosition').value,
+    department: document.getElementById('wDepartment').value,
     salary: parseFloat(document.getElementById('wSalary').value) || 0, allowances: parseFloat(document.getElementById('wAllowances').value) || 0,
     joinDate: document.getElementById('wJoinDate').value, phone: document.getElementById('wPhone').value || '',
-    email: document.getElementById('wEmail').value || '', bank: document.getElementById('wBank').value || '',
+    bank: document.getElementById('wBank').value || '',
     account: document.getElementById('wAccount').value || '', taxId: document.getElementById('wTaxId').value || '',
     address: document.getElementById('wAddress').value || '', status: 'Active',
     modifiedAt: today(),
@@ -1495,8 +1514,14 @@ async function saveWorker(e) {
 
 function renderWorkers() {
   const search = (document.getElementById('searchWorker')?.value || '').toLowerCase();
-  const filtered = data.workers.filter(w => w.name.toLowerCase().includes(search) || w.empId.toLowerCase().includes(search) || w.department.toLowerCase().includes(search));
-  document.getElementById('workerCount').textContent = data.workers.length;
+  let workers = data.workers;
+  
+  if (currentUserRole === USER_ROLES.VIEWER) {
+    workers = workers.filter(w => w.email === currentUserEmail);
+  }
+  
+  const filtered = workers.filter(w => w.name.toLowerCase().includes(search) || w.empId.toLowerCase().includes(search) || w.department.toLowerCase().includes(search));
+  document.getElementById('workerCount').textContent = workers.length;
   const tbody = document.getElementById('workersTable');
   if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-users"></i><h3>No workers</h3></div></td></tr>'; return; }
   tbody.innerHTML = filtered.map(w => {
@@ -1542,6 +1567,12 @@ async function deleteWorker(id) {
 function openWorkerDetail(id) {
   const w = data.workers.find(x => x.id === id);
   if (!w) return;
+  
+  if (currentUserRole === USER_ROLES.VIEWER && w.email !== currentUserEmail) {
+    toast('Access denied. You can only view your own details.', 'error');
+    return;
+  }
+  
   const slips = data.salarySlips.filter(s => s.workerId === id);
   const loans = data.loans.filter(l => l.workerId === id);
   const advances = data.advances.filter(a => a.workerId === id);
@@ -1659,11 +1690,11 @@ function openWorkerDetail(id) {
         <div class="form-grid">
           <div><strong>Name:</strong> ${w.name}</div>
           <div><strong>Emp ID:</strong> ${w.empId}</div>
+          <div><strong>Email:</strong> ${w.email || '-'}</div>
           <div><strong>Position:</strong> ${w.position}</div>
           <div><strong>Department:</strong> ${w.department}</div>
           <div><strong>Join Date:</strong> ${w.joinDate}</div>
           <div><strong>Phone:</strong> ${w.phone || '-'}</div>
-          <div><strong>Email:</strong> ${w.email || '-'}</div>
           <div><strong>Bank:</strong> ${w.bank || '-'}</div>
           <div><strong>Account:</strong> ${w.account || '-'}</div>
           <div><strong>Tax ID:</strong> ${w.taxId || '-'}</div>
@@ -1713,11 +1744,21 @@ function quickAddAdvance(workerId) {
 function populateWorkerSelect(id) {
   const el = document.getElementById(id);
   if (!el) return;
-  el.innerHTML = '<option value="">Select Worker</option>' + data.workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>`).join('');
+  let workers = data.workers;
+  if (currentUserRole === USER_ROLES.VIEWER) {
+    workers = workers.filter(w => w.email === currentUserEmail);
+  }
+  el.innerHTML = '<option value="">Select Worker</option>' + workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>`).join('');
 }
 function populateReportFilters() {
   populateWorkerSelect('rWorker');
   document.getElementById('rDept').innerHTML = '<option value="">All</option>' + data.departments.map(d => `<option>${d}</option>`).join('');
+}
+
+function populateHistoryFilters() {
+  const monthSelect = document.getElementById('historySortMonth');
+  const months = [...new Set(data.salarySlips.map(s => s.month))].sort().reverse();
+  monthSelect.innerHTML = '<option value="all">All Months</option>' + months.map(m => `<option value="${m}">${m}</option>`).join('');
 }
 
 function openAddLoanModal() {
@@ -1757,9 +1798,16 @@ async function addLoan(e) {
 }
 function renderLoans() {
   const tbody = document.getElementById('loansTable');
-  if (!data.loans.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans</h3></div></td></tr>'; return; }
+  let loans = data.loans;
+  
+  if (currentUserRole === USER_ROLES.VIEWER) {
+    const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
+    loans = loans.filter(l => workerIds.includes(l.workerId));
+  }
+  
+  if (!loans.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans</h3></div></td></tr>'; return; }
   const canDelete = hasPermission(USER_ROLES.ADMIN);
-  tbody.innerHTML = data.loans.map(l => {
+  tbody.innerHTML = loans.map(l => {
     const w = data.workers.find(x => x.id === l.workerId);
     const pct = (l.paid / l.amount * 100).toFixed(1);
     return `<tr>
@@ -1833,9 +1881,16 @@ async function addAdvance(e) {
 }
 function renderAdvances() {
   const tbody = document.getElementById('advancesTable');
-  if (!data.advances.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-money-check-alt"></i><h3>No advances</h3></div></td></tr>'; return; }
+  let advances = data.advances;
+  
+  if (currentUserRole === USER_ROLES.VIEWER) {
+    const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
+    advances = advances.filter(a => workerIds.includes(a.workerId));
+  }
+  
+  if (!advances.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-money-check-alt"></i><h3>No advances</h3></div></td></tr>'; return; }
   const canDelete = hasPermission(USER_ROLES.ADMIN);
-  tbody.innerHTML = data.advances.map(a => {
+  tbody.innerHTML = advances.map(a => {
     const w = data.workers.find(x => x.id === a.workerId);
     const pct = (a.paid / a.amount * 100).toFixed(1);
     return `<tr>
@@ -2186,6 +2241,7 @@ async function finalizeSlip(status) {
     net: parseFloat(currentSlipData.net) || 0,
     status: status || 'Draft',
     createdAt: existingSlip ? (existingSlip.createdAt || today()) : today(),
+    createdTime: existingSlip ? (existingSlip.createdTime || new Date().toISOString()) : new Date().toISOString(),
     modifiedAt: today(),
     modifiedBy: currentUser.displayName || currentUser.email,
     modifiedByEmail: currentUser.email,
@@ -2240,17 +2296,38 @@ async function finalizeSlip(status) {
 
 function renderHistory() {
   const tbody = document.getElementById('historyTable');
-  if (!data.salarySlips.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><h3>No slips</h3></div></td></tr>'; return; }
+  let slips = data.salarySlips;
+  
+  if (currentUserRole === USER_ROLES.VIEWER) {
+    const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
+    slips = slips.filter(s => workerIds.includes(s.workerId));
+  }
+  
+  const sortMonth = document.getElementById('historySortMonth')?.value || 'all';
+  const sortYear = document.getElementById('historySortYear')?.value || 'all';
+  
+  if (sortMonth !== 'all') {
+    slips = slips.filter(s => s.month === sortMonth);
+  }
+  
+  if (sortYear !== 'all') {
+    slips = slips.filter(s => s.month && s.month.startsWith(sortYear));
+  }
+  
+  if (!slips.length) { tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><h3>No slips</h3></div></td></tr>'; return; }
   const canEdit = hasPermission(USER_ROLES.EDITOR);
   const canReverse = hasPermission(USER_ROLES.ADMIN);
-  tbody.innerHTML = data.salarySlips.slice().reverse().map(s => {
+  tbody.innerHTML = slips.slice().reverse().map(s => {
     const w = data.workers.find(x => x.id === s.workerId);
     const finalizedInfo = s.finalizedAt ? `Finalized: ${new Date(s.finalizedAt).toLocaleString()}` : '';
+    const createdInfo = s.createdTime ? new Date(s.createdTime).toLocaleString() : (s.createdAt || '-');
     return `<tr>
       <td><strong>#${s.slipNo}</strong></td><td>${w ? w.name : 'Unknown'}</td><td>${s.month}</td>
       <td>${fmt(s.basic)}</td><td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
       <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td><td><strong>${fmt(s.net)}</strong></td>
       <td><span class="badge ${s.status==='Paid'?'badge-success':'badge-gray'}">${s.status}</span></td>
+      <td style="font-size:11px;">${createdInfo}</td>
+      <td style="font-size:11px;">${s.finalizedAt ? new Date(s.finalizedAt).toLocaleString() : '-'}</td>
       <td>
         <div class="action-menu-wrapper">
           <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
@@ -2657,6 +2734,10 @@ function generateReport() {
     case 'payroll':
       title = 'Payroll Report'; columns = ['Slip #','Month','Employee','Basic','Additions','Deductions','Net','Status'];
       let slips = data.salarySlips;
+      if (currentUserRole === USER_ROLES.VIEWER) {
+        const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
+        slips = slips.filter(s => workerIds.includes(s.workerId));
+      }
       if (month) slips = slips.filter(s => s.month === month);
       if (workerId) slips = slips.filter(s => s.workerId === workerId);
       if (dept) slips = slips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dept; });
@@ -2665,6 +2746,9 @@ function generateReport() {
     case 'worker':
       title = 'Worker Report'; columns = ['Emp ID','Name','Position','Department','Basic','Total Paid','Loans','Advances'];
       let workers = data.workers;
+      if (currentUserRole === USER_ROLES.VIEWER) {
+        workers = workers.filter(w => w.email === currentUserEmail);
+      }
       if (dept) workers = workers.filter(w => w.department === dept);
       reportData = workers.map(w => {
         const paid = data.salarySlips.filter(s => s.workerId === w.id).reduce((s,p) => s + p.net, 0);
@@ -2686,18 +2770,30 @@ function generateReport() {
     case 'loan':
       title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status'];
       let loans = data.loans;
+      if (currentUserRole === USER_ROLES.VIEWER) {
+        const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
+        loans = loans.filter(l => workerIds.includes(l.workerId));
+      }
       if (workerId) loans = loans.filter(l => l.workerId === workerId);
       reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid), fmt(l.remaining), l.startMonth, l.status]; });
       break;
     case 'advance':
       title = 'Advance Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status'];
       let advs = data.advances;
+      if (currentUserRole === USER_ROLES.VIEWER) {
+        const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
+        advs = advs.filter(a => workerIds.includes(a.workerId));
+      }
       if (workerId) advs = advs.filter(a => a.workerId === workerId);
       reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.installment), fmt(a.paid), fmt(a.remaining), a.startMonth, a.status]; });
       break;
     case 'addition':
       title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount'];
       let adds = data.additions;
+      if (currentUserRole === USER_ROLES.VIEWER) {
+        const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
+        adds = adds.filter(a => workerIds.includes(a.workerId));
+      }
       if (workerId) adds = adds.filter(a => a.workerId === workerId);
       if (month) adds = adds.filter(a => a.month === month);
       reportData = adds.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount)]; });
@@ -2705,6 +2801,10 @@ function generateReport() {
     case 'deduction':
       title = 'Deductions Report'; columns = ['Date','Employee','Type','Month','Amount'];
       let deds = data.deductions;
+      if (currentUserRole === USER_ROLES.VIEWER) {
+        const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
+        deds = deds.filter(d => workerIds.includes(d.workerId));
+      }
       if (workerId) deds = deds.filter(d => d.workerId === workerId);
       if (month) deds = deds.filter(d => d.month === month);
       reportData = deds.map(d => { const w = data.workers.find(x => x.id === d.workerId); return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount)]; });
@@ -2950,14 +3050,17 @@ async function clearAllData() {
   } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ DASHBOARD (FIXED: Month filter + Advance total) ============
 let charts = {};
 function refreshDashboard() {
   const selectedYear = document.getElementById('dashboardYear')?.value || new Date().getFullYear().toString();
   const selectedMonth = document.getElementById('dashboardMonth')?.value || 'all';
   
-  // Filter slips by year and month
   let slipsForStats = data.salarySlips.filter(s => s.status === 'Paid');
+  
+  if (currentUserRole === USER_ROLES.VIEWER) {
+    const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
+    slipsForStats = slipsForStats.filter(s => workerIds.includes(s.workerId));
+  }
   
   if (selectedYear !== 'all') {
     slipsForStats = slipsForStats.filter(s => s.month && s.month.startsWith(selectedYear));
@@ -2967,7 +3070,6 @@ function refreshDashboard() {
     slipsForStats = slipsForStats.filter(s => s.month && s.month.endsWith(`-${selectedMonth}`));
   }
   
-  // Calculate stats
   const monthPayroll = slipsForStats.reduce((s,p) => s + (p.net || 0), 0);
   
   let monthlyAdditions = 0;
@@ -2987,13 +3089,27 @@ function refreshDashboard() {
     }
   });
   
-  const activeLoans = data.loans.filter(l => l.status === 'Active').reduce((s,l) => s + (l.remaining || 0), 0);
-  const activeAdvances = data.advances.filter(a => a.status === 'Active').reduce((s,a) => s + (a.remaining || 0), 0);
+  let activeLoans = data.loans.filter(l => l.status === 'Active');
+  let activeAdvances = data.advances.filter(a => a.status === 'Active');
   
-  document.getElementById('statWorkers').textContent = data.workers.length;
+  if (currentUserRole === USER_ROLES.VIEWER) {
+    const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
+    activeLoans = activeLoans.filter(l => workerIds.includes(l.workerId));
+    activeAdvances = activeAdvances.filter(a => workerIds.includes(a.workerId));
+  }
+  
+  const loansTotal = activeLoans.reduce((s,l) => s + (l.remaining || 0), 0);
+  const advancesTotal = activeAdvances.reduce((s,a) => s + (a.remaining || 0), 0);
+  
+  let workers = data.workers;
+  if (currentUserRole === USER_ROLES.VIEWER) {
+    workers = workers.filter(w => w.email === currentUserEmail);
+  }
+  
+  document.getElementById('statWorkers').textContent = workers.length;
   document.getElementById('statPayroll').textContent = fmt(monthPayroll);
-  document.getElementById('statLoans').textContent = fmt(activeLoans);
-  document.getElementById('statAdvances').textContent = fmt(activeAdvances);
+  document.getElementById('statLoans').textContent = fmt(loansTotal);
+  document.getElementById('statAdvances').textContent = fmt(advancesTotal);
   document.getElementById('statDeductions').textContent = fmt(monthlyDeductions);
   document.getElementById('statAdditions').textContent = fmt(monthlyAdditions);
   document.getElementById('statSlips').textContent = slipsForStats.length;
@@ -3025,14 +3141,14 @@ function refreshDashboard() {
   });
   
   const deptData = {};
-  data.workers.forEach(w => { deptData[w.department] = (deptData[w.department] || 0) + 1; });
+  workers.forEach(w => { deptData[w.department] = (deptData[w.department] || 0) + 1; });
   charts.distribution = new Chart(document.getElementById('distributionChart'), {
     type: 'doughnut', data: { labels: Object.keys(deptData), datasets: [{ data: Object.values(deptData), backgroundColor: ['#1e40af','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#ec4899','#db2777'] }] },
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
 
   const activities = [];
-  data.salarySlips.slice(-5).reverse().forEach(s => {
+  slipsForStats.slice(-5).reverse().forEach(s => {
     const w = data.workers.find(x => x.id === s.workerId);
     activities.push({ icon: 'fa-file-invoice', color: 'var(--success)', text: `Pay slip #${s.slipNo} for ${w?.name||'worker'} - ${fmt(s.net)}`, date: s.modifiedAt || s.createdAt });
   });
