@@ -2188,7 +2188,9 @@ async function finalizeSlip(status) {
     createdAt: existingSlip ? (existingSlip.createdAt || today()) : today(),
     modifiedAt: today(),
     modifiedBy: currentUser.displayName || currentUser.email,
-    modifiedByEmail: currentUser.email
+    modifiedByEmail: currentUser.email,
+    finalizedAt: status === 'Paid' ? new Date().toISOString() : null,
+    finalizedBy: status === 'Paid' ? (currentUser.displayName || currentUser.email) : null
   };
 
   try {
@@ -2196,8 +2198,6 @@ async function finalizeSlip(status) {
     if (existingSlip) {
       await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
     } else {
-      slipData.createdBy = currentUser.displayName || currentUser.email;
-      slipData.createdByEmail = currentUser.email;
       await saveToFirebase(collections.salarySlips, null, slipData);
     }
 
@@ -2245,6 +2245,7 @@ function renderHistory() {
   const canReverse = hasPermission(USER_ROLES.ADMIN);
   tbody.innerHTML = data.salarySlips.slice().reverse().map(s => {
     const w = data.workers.find(x => x.id === s.workerId);
+    const finalizedInfo = s.finalizedAt ? `Finalized: ${new Date(s.finalizedAt).toLocaleString()}` : '';
     return `<tr>
       <td><strong>#${s.slipNo}</strong></td><td>${w ? w.name : 'Unknown'}</td><td>${s.month}</td>
       <td>${fmt(s.basic)}</td><td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
@@ -2256,6 +2257,7 @@ function renderHistory() {
           <div class="action-dropdown">
             <div class="action-dropdown-item info" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i> View</div>
             <div class="action-dropdown-item info" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i> Download PDF</div>
+            ${finalizedInfo ? `<div class="action-dropdown-item disabled" title="${finalizedInfo}"><i class="fas fa-clock"></i> ${new Date(s.finalizedAt).toLocaleDateString()}</div>` : ''}
             ${canEdit ? `<div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
             ${canReverse ? `<div class="action-dropdown-item danger" onclick="reverseSlip('${s.id}')"><i class="fas fa-undo"></i> Reverse</div>` : ''}
           </div>
@@ -2437,7 +2439,7 @@ function viewSlipPreview(slip) {
         <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign2Label}</div></div>
       </div>` : ''}
       ${d.showFooter ? `<p style="text-align:center;margin-top:20px;font-size:11px;color:#64748b;font-style:italic;">${d.footerText}</p>` : ''}
-      ${slip.modifiedBy ? `<p style="text-align:center;margin-top:8px;font-size:10px;color:#94a3b8;">Last modified by: ${slip.modifiedBy} (${slip.modifiedByEmail || ''}) on ${slip.modifiedAt || '-'}</p>` : ''}
+      ${slip.finalizedBy ? `<p style="text-align:center;margin-top:8px;font-size:10px;color:#94a3b8;">Finalized by: ${slip.finalizedBy} on ${new Date(slip.finalizedAt).toLocaleString()}</p>` : ''}
     </div>
   `;
 }
@@ -2569,7 +2571,7 @@ function downloadSlipPDF(slip) {
     styles: { fontSize: fontSize - 1, cellPadding: 3 },
     columnStyles: { 
       0: { cellWidth: contentWidth - 45 },
-      1: { halign: 'right', cellWidth: 45 }
+      1: { halign: 'right', cellWidth: 40 }
     },
     margin: { left: marginX, right: marginX }
   });
@@ -2594,7 +2596,7 @@ function downloadSlipPDF(slip) {
     styles: { fontSize: fontSize - 1, cellPadding: 3 },
     columnStyles: { 
       0: { cellWidth: contentWidth - 45 },
-      1: { halign: 'right', cellWidth: 45 }
+      1: { halign: 'right', cellWidth: 40 }
     },
     margin: { left: marginX, right: marginX }
   });
@@ -2631,6 +2633,9 @@ function downloadSlipPDF(slip) {
   }
   doc.setFontSize(8);
   doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
+  if (slip.finalizedBy) {
+    doc.text(`Finalized by: ${slip.finalizedBy} on ${new Date(slip.finalizedAt).toLocaleString()}`, pageWidth/2, 295, { align: 'center' });
+  }
 
   doc.save(`PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf`);
   toast('PDF downloaded!');
