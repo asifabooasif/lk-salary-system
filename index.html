@@ -927,6 +927,9 @@ const USER_ROLES = {
 // Default admin email - asifabooasif@gmail.com
 const DEFAULT_ADMIN_EMAIL = 'asifabooasif@gmail.com';
 
+// Initialize ROLE_CONFIG as empty object
+let ROLE_CONFIG = {};
+
 let currentUserRole = USER_ROLES.VIEWER; // Default to viewer
 let usersCollection = 'userRoles'; // Firestore collection for user roles
 
@@ -1229,10 +1232,15 @@ function showSection(sec, title=null) {
 
 function toast(msg, type='success') {
   const t = document.getElementById('toast');
-  t.className = 'toast show ' + type;
-  document.getElementById('toastMsg').textContent = msg;
-  t.querySelector('i').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-  setTimeout(() => t.classList.remove('show'), 3000);
+  // Clear any existing toast first
+  t.classList.remove('show');
+  
+  setTimeout(() => {
+    t.className = 'toast show ' + type;
+    document.getElementById('toastMsg').textContent = msg;
+    t.querySelector('i').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }, 100);
 }
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
