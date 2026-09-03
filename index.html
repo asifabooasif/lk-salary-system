@@ -83,8 +83,7 @@ body { background: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
 .menu-item:hover { background: rgba(255,255,255,0.05); color: white; }
 .menu-item.active { background: rgba(30,64,175,0.3); color: white; border-left-color: var(--primary-light); }
 .menu-item i { width: 20px; font-size: 15px; }
-.menu-item.disabled { opacity: 0.5; cursor: not-allowed; }
-.main { margin-left: 260px; flex: 1; padding: 25px; width: calc(100vw - 260px); min-width: 0; }
+.main { margin-left: 260px; flex: 1; padding: 25px; width: calc(100% - 260px); min-width: 0; }
 .topbar { background: white; padding: 16px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; box-shadow: var(--shadow); }
 .topbar h1 { font-size: 20px; color: var(--dark); }
 .breadcrumb { font-size: 12px; color: var(--gray); }
@@ -329,6 +328,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
           <g transform="translate(290, 130)"><rect width="50" height="60" rx="4" fill="rgba(255,255,255,0.3)" transform="rotate(15)"/><rect x="8" y="10" width="34" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/></g>
           <g transform="translate(310, 220)"><rect width="40" height="40" rx="8" fill="rgba(255,255,255,0.3)"/><rect x="8" y="25" width="6" height="10" fill="#34d399"/><rect x="17" y="18" width="6" height="17" fill="#34d399"/><rect x="26" y="12" width="6" height="23" fill="#34d399"/></g>
           <circle cx="90" cy="240" r="15" fill="rgba(251,191,36,0.6)"/>
+          <text x="90" y="245" text-anchor="middle" fill="white" font-size="14" font-weight="bold">₨</text>
         </svg>
       </div>
       <div class="illustration-text"><h1>LANKA SHOE</h1><p>Professional Salary Management System</p></div>
@@ -374,7 +374,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       <div class="menu-item" data-section="components"><i class="fas fa-puzzle-piece"></i> Salary Components</div>
       <div class="menu-item" data-section="design"><i class="fas fa-paint-brush"></i> Pay Slip Design</div>
       <div class="menu-item" data-section="settings"><i class="fas fa-cog"></i> Company Settings</div>
-      <div class="menu-item" data-section="users" id="menuUsers"><i class="fas fa-user-shield"></i> User Management</div>
       <div class="menu-label">Account</div>
       <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
@@ -1217,14 +1216,20 @@ async function loadData() {
         sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature'
       };
     }
+    if (!data.company || Object.keys(data.company).length === 0) {
+      data.company = { 
+        name: 'LANKA SHOE', 
+        phone: '+94 11 234 5678', 
+        email: 'info@lankashoe.lk', 
+        address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka',
+        logo: 'https://i.postimg.cc/j5jxw2rG/Screenshot-2026-09-03-at-14-55-35.png' // YOUR LOGO ADDED HERE
+      };
+    }
     if (!data.salarySettings || Object.keys(data.salarySettings).length === 0) {
       data.salarySettings = {
         taxRate: 10, epfEmp: 8, epfEmpr: 12, etf: 3,
         otMult: 1.5, workDays: 26, workHours: 8, payDay: 30, fyStart: 1, currency: 'Rs'
       };
-    }
-    if (!data.company || Object.keys(data.company).length === 0) {
-      data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
     }
     if (!data.departments.length) data.departments = ["Production","Design","Quality Control","Sales","Administration","Finance","Warehouse","HR"];
 
@@ -2402,14 +2407,16 @@ function viewSlipPreview(slip) {
   const gross = slip.basic + slip.totalAdditions;
 
   document.getElementById('viewSlipBody').innerHTML = `
-    <div style="border:2px solid ${d.primaryColor};border-radius:10px;padding:30px;background:white;">
-      <div style="text-align:center;background:${d.primaryColor};color:white;padding:20px;margin:-30px -30px 20px -30px;border-radius:8px 8px 0 0;">
+    <div style="border:2px solid ${d.primaryColor};border-radius:10px;padding:30px;background:white; position: relative;">
+      ${d.showWatermark ? `<div style="position:absolute; top:40%; left:50%; transform:translate(-50%, -50%) rotate(-30deg); font-size:70px; font-weight:900; color:rgba(0,0,0,0.04); pointer-events:none; white-space:nowrap; z-index:0;">${c.name || 'LANKA SHOE'}</div>` : ''}
+      <div style="text-align:center;background:${d.primaryColor};color:white;padding:20px;margin:-30px -30px 20px -30px;border-radius:8px 8px 0 0; position: relative; z-index: 1;">
+        ${c.logo ? `<img src="${c.logo}" style="max-height:60px; margin-bottom:10px; object-fit: contain;">` : ''}
         <h1 style="font-size:24px;margin-bottom:5px;">${c.name || 'LANKA SHOE'}</h1>
         <p style="font-size:12px;opacity:0.9;">${c.address || ''}</p>
       </div>
-      <h2 style="text-align:center;color:${d.primaryColor};margin-bottom:5px;">${d.slipTitle}</h2>
-      <p style="text-align:center;color:#64748b;font-size:13px;margin-bottom:20px;">Slip #${slip.slipNo} • Month: <strong>${slip.month}</strong> • Status: <span class="badge ${slip.status==='Paid'?'badge-success':slip.status==='Reversed'?'badge-danger':'badge-gray'}">${slip.status}</span></p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;padding:15px;background:#f8fafc;border-radius:8px;">
+      <h2 style="text-align:center;color:${d.primaryColor};margin-bottom:5px; position: relative; z-index: 1;">${d.slipTitle}</h2>
+      <p style="text-align:center;color:#64748b;font-size:13px;margin-bottom:20px; position: relative; z-index: 1;">Slip #${slip.slipNo} • Month: <strong>${slip.month}</strong> • Status: <span class="badge ${slip.status==='Paid'?'badge-success':slip.status==='Reversed'?'badge-danger':'badge-gray'}">${slip.status}</span></p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;padding:15px;background:#f8fafc;border-radius:8px; position: relative; z-index: 1;">
         <div>
           <p style="margin-bottom:5px;"><strong>Name:</strong> ${w?.name || '-'}</p>
           <p style="margin-bottom:5px;"><strong>Emp ID:</strong> ${w?.empId || '-'}</p>
@@ -2420,7 +2427,7 @@ function viewSlipPreview(slip) {
           ${d.showBank ? `<p style="margin-bottom:5px;"><strong>Bank:</strong> ${w?.bank || '-'}</p><p><strong>Account:</strong> ${w?.account || '-'}</p>` : ''}
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px; position: relative; z-index: 1;">
         <div>
           <h3 style="color:${d.earningsColor};margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid ${d.earningsColor};"><i class="fas fa-plus-circle"></i> EARNINGS</h3>
           <table style="width:100%;"><tbody>${earningsHtml}<tr style="background:#d1fae5;font-weight:bold;"><td style="padding:8px;">Total Earnings</td><td style="padding:8px;text-align:right;">${fmt(gross)}</td></tr></tbody></table>
@@ -2430,16 +2437,16 @@ function viewSlipPreview(slip) {
           <table style="width:100%;"><tbody>${deductionsHtml}<tr style="background:#fee2e2;font-weight:bold;"><td style="padding:8px;">Total Deductions</td><td style="padding:8px;text-align:right;">${fmt(slip.totalDeductions)}</td></tr></tbody></table>
         </div>
       </div>
-      <div style="background:linear-gradient(135deg,${d.primaryColor},${d.primaryColor}dd);color:white;padding:20px;border-radius:10px;text-align:center;margin-bottom:15px;">
+      <div style="background:linear-gradient(135deg,${d.primaryColor},${d.primaryColor}dd);color:white;padding:20px;border-radius:10px;text-align:center;margin-bottom:15px; position: relative; z-index: 1;">
         <div style="font-size:12px;opacity:0.9;">NET SALARY</div>
         <div style="font-size:32px;font-weight:bold;">${fmt(slip.net)}</div>
       </div>
-      ${d.showSignatures ? `<div style="display:flex;justify-content:space-between;margin-top:40px;padding-top:20px;">
+      ${d.showSignatures ? `<div style="display:flex;justify-content:space-between;margin-top:40px;padding-top:20px; position: relative; z-index: 1;">
         <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign1Label}</div></div>
         <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign2Label}</div></div>
       </div>` : ''}
-      ${d.showFooter ? `<p style="text-align:center;margin-top:20px;font-size:11px;color:#64748b;font-style:italic;">${d.footerText}</p>` : ''}
-      ${slip.finalizedBy ? `<p style="text-align:center;margin-top:8px;font-size:10px;color:#94a3b8;">Finalized by: ${slip.finalizedBy} on ${new Date(slip.finalizedAt).toLocaleString()}</p>` : ''}
+      ${d.showFooter ? `<p style="text-align:center;margin-top:20px;font-size:11px;color:#64748b;font-style:italic; position: relative; z-index: 1;">${d.footerText}</p>` : ''}
+      ${slip.finalizedBy ? `<p style="text-align:center;margin-top:8px;font-size:10px;color:#94a3b8; position: relative; z-index: 1;">Finalized by: ${slip.finalizedBy} on ${new Date(slip.finalizedAt).toLocaleString()}</p>` : ''}
     </div>
   `;
 }
@@ -2474,18 +2481,29 @@ function downloadSlipPDF(slip) {
 
   let y = 15;
 
+  // ADD LOGO TO PDF HERE
+  if (c.logo && d.showLogo) {
+    try {
+      // Add image: addImage(imageData, format, x, y, width, height)
+      doc.addImage(c.logo, 'PNG', (pageWidth / 2) - 15, 5, 30, 15);
+      y = 25; // Adjust Y position after logo
+    } catch (err) {
+      console.warn("Logo could not be added to PDF (CORS restriction). Use a Base64 image for guaranteed PDF embedding.");
+    }
+  }
+
   if (d.headerStyle === 'full') {
     doc.setFillColor(r, g, b);
-    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.rect(0, y - 10, pageWidth, 40, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
     doc.setFont('helvetica', 'bold');
-    doc.text(c.name || 'LANKA SHOE', pageWidth/2, 18, { align: 'center' });
+    doc.text(c.name || 'LANKA SHOE', pageWidth/2, y + 3, { align: 'center' });
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(c.address || '', pageWidth/2, 26, { align: 'center' });
-    doc.text(`Phone: ${c.phone || '-'} | Email: ${c.email || '-'}`, pageWidth/2, 32, { align: 'center' });
-    y = 48;
+    doc.text(c.address || '', pageWidth/2, y + 11, { align: 'center' });
+    doc.text(`Phone: ${c.phone || '-'} | Email: ${c.email || '-'}`, pageWidth/2, y + 17, { align: 'center' });
+    y = y + 38;
   } else if (d.headerStyle === 'centered') {
     doc.setTextColor(r, g, b);
     doc.setFontSize(22);
@@ -2610,8 +2628,10 @@ function downloadSlipPDF(slip) {
   doc.setFont('helvetica', 'bold');
   doc.text(`Gross Salary: ${fmt(grossTotal)}`, marginX + 5, y + 9);
   doc.text(`Total Deductions: ${fmt(slip.totalDeductions)}`, marginX + 5, y + 16);
-  doc.setFontSize(16);
-  doc.text(`NET PAY: ${fmt(slip.net)}`, pageWidth - marginX - 5, y + 13, { align: 'right' });
+  doc.setFontSize(14);
+  doc.text('NET PAY:', pageWidth - marginX - 5, y + 12, { align: 'right' });
+  doc.setFontSize(18);
+  doc.text(fmt(slip.net), pageWidth - marginX - 5, y + 20, { align: 'right' });
 
   y += 30;
 
@@ -2826,7 +2846,8 @@ function loadCompanySettings() {
   document.getElementById('cPhone').value = c.phone || '';
   document.getElementById('cEmail').value = c.email || '';
   document.getElementById('cWeb').value = c.web || '';
-  document.getElementById('cLogo').value = c.logo || '';
+  // YOUR LOGO IS SET AS DEFAULT HERE
+  document.getElementById('cLogo').value = c.logo || 'https://i.postimg.cc/j5jxw2rG/Screenshot-2026-09-03-at-14-55-35.png';
   document.getElementById('cBank').value = c.bank || '';
   document.getElementById('cBankAccount').value = c.bankAccount || '';
   document.getElementById('cAddress').value = c.address || '';
@@ -2846,7 +2867,7 @@ async function saveCompany(e) {
     phone: document.getElementById('cPhone').value || '', 
     email: document.getElementById('cEmail').value || '', 
     web: document.getElementById('cWeb').value || '',
-    logo: document.getElementById('cLogo').value || '',
+    logo: document.getElementById('cLogo').value || 'https://i.postimg.cc/j5jxw2rG/Screenshot-2026-09-03-at-14-55-35.png',
     bank: document.getElementById('cBank').value || '',
     bankAccount: document.getElementById('cBankAccount').value || '',
     address: document.getElementById('cAddress').value || ''
@@ -3048,7 +3069,13 @@ function refreshDashboard() {
 
 window.onload = async () => {
   if (!data.company.name) {
-    data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
+    data.company = { 
+      name: 'LANKA SHOE', 
+      phone: '+94 11 234 5678', 
+      email: 'info@lankashoe.lk', 
+      address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka',
+      logo: 'https://i.postimg.cc/j5jxw2rG/Screenshot-2026-09-03-at-14-55-35.png' // YOUR LOGO IS SET AS DEFAULT HERE
+    };
   }
 };
 </script>
