@@ -927,13 +927,17 @@ const USER_ROLES = {
 // Default admin email - asifabooasif@gmail.com
 const DEFAULT_ADMIN_EMAIL = 'asifabooasif@gmail.com';
 
-// Initialize ROLE_CONFIG as empty object
-let ROLE_CONFIG = {};
+// Initialize ROLE_CONFIG as empty object - MUST be defined before any functions use it
+var ROLE_CONFIG = {};
 
 let currentUserRole = USER_ROLES.VIEWER; // Default to viewer
 let usersCollection = 'userRoles'; // Firestore collection for user roles
 
 function getUserRole(email) {
+  // Ensure ROLE_CONFIG exists
+  if (typeof ROLE_CONFIG === 'undefined') {
+    ROLE_CONFIG = {};
+  }
   return ROLE_CONFIG[email] || USER_ROLES.VIEWER;
 }
 
@@ -1069,6 +1073,12 @@ auth.onAuthStateChanged(async (user) => {
 async function signInWithGoogle() {
   try {
     showLoading('Signing in with Google...');
+    
+    // Ensure ROLE_CONFIG is initialized
+    if (typeof ROLE_CONFIG === 'undefined') {
+      ROLE_CONFIG = {};
+    }
+    
     // Load roles first before sign-in
     await loadUserRoles();
     
@@ -1098,6 +1108,12 @@ async function signInWithEmail(e) {
   e.preventDefault();
   try {
     showLoading('Signing in...');
+    
+    // Ensure ROLE_CONFIG is initialized
+    if (typeof ROLE_CONFIG === 'undefined') {
+      ROLE_CONFIG = {};
+    }
+    
     // Load roles first before sign-in
     await loadUserRoles();
     
