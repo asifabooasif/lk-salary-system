@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LK SHOE - Salary Management System</title>
+<title>LANKA SHOE - Salary Management System</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -83,7 +83,7 @@ body { background: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
 .menu-item:hover { background: rgba(255,255,255,0.05); color: white; }
 .menu-item.active { background: rgba(30,64,175,0.3); color: white; border-left-color: var(--primary-light); }
 .menu-item i { width: 20px; font-size: 15px; }
-
+.menu-item.disabled { opacity: 0.5; cursor: not-allowed; }
 .main { margin-left: 260px; flex: 1; padding: 25px; width: calc(100vw - 260px); min-width: 0; }
 .topbar { background: white; padding: 16px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; box-shadow: var(--shadow); }
 .topbar h1 { font-size: 20px; color: var(--dark); }
@@ -133,6 +133,7 @@ body { background: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
 .btn-info { background: linear-gradient(135deg, var(--secondary), #0e7490); color: white; }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
 .btn-lg { padding: 14px 28px; font-size: 15px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .table-container { overflow-x: auto; border-radius: 10px; }
 table { width: 100%; border-collapse: collapse; }
@@ -163,6 +164,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .action-dropdown-item.danger:hover { background: #fee2e2; }
 .action-dropdown-item.info { color: var(--primary); }
 .action-dropdown-item.warning { color: var(--warning); }
+.action-dropdown-item.disabled { opacity: 0.5; cursor: not-allowed; }
 
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
 .modal.show { display: flex; animation: fadeIn 0.3s; }
@@ -261,47 +263,14 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .user-info-display { text-align: right; }
 .user-info-display .name { font-weight: 600; font-size: 14px; }
 .user-info-display .email { font-size: 11px; color: var(--gray); }
+.user-role-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; margin-left: 8px; }
+.user-role-badge.admin { background: #dc2626; color: white; }
+.user-role-badge.editor { background: #059669; color: white; }
+.user-role-badge.viewer { background: #64748b; color: white; }
 
-/* FIXED: Dashboard filter bar with Year + Month */
-.dashboard-filter-bar {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
-  padding: 15px 20px;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border-radius: 10px;
-  margin-bottom: 20px;
-  border: 1px solid var(--border);
-}
-.dashboard-filter-bar label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--dark);
-}
-.dashboard-filter-bar select {
-  padding: 8px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  font-size: 14px;
-  background: white;
-  cursor: pointer;
-  min-width: 140px;
-}
-.dashboard-filter-bar select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
-}
-.filter-applied-badge {
-  background: var(--primary);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 15px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-left: auto;
-}
+.year-selector { display: flex; align-items: center; gap: 10px; }
+.year-selector select { padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; background: white; cursor: pointer; }
+.year-selector select:focus { outline: none; border-color: var(--primary); }
 
 @media (max-width: 768px) {
   .login-container { grid-template-columns: 1fr; }
@@ -314,7 +283,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
   .worker-quick-stats { margin-left: 0; justify-content: center; }
   .slip-row { grid-template-columns: 1fr; }
   .setting-row { grid-template-columns: 1fr; }
-  .dashboard-filter-bar { flex-direction: column; align-items: stretch; }
 }
 .menu-toggle { display: none; background: none; border: none; font-size: 22px; cursor: pointer; }
 @media (max-width: 768px) { .menu-toggle { display: block; } }
@@ -406,6 +374,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       <div class="menu-item" data-section="components"><i class="fas fa-puzzle-piece"></i> Salary Components</div>
       <div class="menu-item" data-section="design"><i class="fas fa-paint-brush"></i> Pay Slip Design</div>
       <div class="menu-item" data-section="settings"><i class="fas fa-cog"></i> Company Settings</div>
+      <div class="menu-item" data-section="users" id="menuUsers"><i class="fas fa-user-shield"></i> User Management</div>
       <div class="menu-label">Account</div>
       <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
     </div>
@@ -421,7 +390,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       <div style="display:flex;align-items:center;gap:12px;">
         <div class="user-profile-display">
           <div class="user-info-display">
-            <div class="name" id="userDisplayName">User</div>
+            <div class="name" id="userDisplayName">User <span class="user-role-badge" id="userRoleBadge"></span></div>
             <div class="email" id="userDisplayEmail">user@email.com</div>
           </div>
           <div class="user-avatar" id="userAvatar">U</div>
@@ -429,48 +398,50 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       </div>
     </div>
 
-    <!-- DASHBOARD (FIXED: Added Month Filter) -->
+    <!-- DASHBOARD -->
     <div class="section active" id="dashboard">
-      <!-- FIXED: Dashboard filter bar with Year + Month -->
-      <div class="dashboard-filter-bar">
-        <label><i class="fas fa-filter"></i> Filter Dashboard:</label>
-        <label for="dashboardYear">Year:</label>
-        <select id="dashboardYear" onchange="refreshDashboard()">
-          <option value="2024">2024</option>
-          <option value="2025">2025</option>
-          <option value="2026" selected>2026</option>
-          <option value="2027">2027</option>
-          <option value="all">All Years</option>
-        </select>
-        <label for="dashboardMonth">Month:</label>
-        <select id="dashboardMonth" onchange="refreshDashboard()">
-          <option value="all" selected>All Months</option>
-          <option value="01">January</option>
-          <option value="02">February</option>
-          <option value="03">March</option>
-          <option value="04">April</option>
-          <option value="05">May</option>
-          <option value="06">June</option>
-          <option value="07">July</option>
-          <option value="08">August</option>
-          <option value="09">September</option>
-          <option value="10">October</option>
-          <option value="11">November</option>
-          <option value="12">December</option>
-        </select>
-        <span class="filter-applied-badge" id="filterBadge">Showing: All</span>
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <h2><i class="fas fa-calendar-alt"></i> Dashboard View</h2>
+          <div class="year-selector">
+            <label style="font-size:13px;font-weight:600;color:var(--gray);">Year:</label>
+            <select id="dashboardYear" onchange="refreshDashboard()">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+              <option value="2027">2027</option>
+              <option value="all">All Years</option>
+            </select>
+            <label style="font-size:13px;font-weight:600;color:var(--gray);margin-left:15px;">Month:</label>
+            <select id="dashboardMonth" onchange="refreshDashboard()">
+              <option value="all">All Months</option>
+              <option value="01">January</option>
+              <option value="02">February</option>
+              <option value="03">March</option>
+              <option value="04">April</option>
+              <option value="05">May</option>
+              <option value="06">June</option>
+              <option value="07">July</option>
+              <option value="08">August</option>
+              <option value="09">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+        </div>
       </div>
-
       <div class="stats-grid">
         <div class="stat-card blue"><div class="icon"><i class="fas fa-users"></i></div><h3>Total Workers</h3><div class="value" id="statWorkers">0</div></div>
-        <div class="stat-card green"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><h3 id="payrollLabel">Monthly Payroll</h3><div class="value" id="statPayroll">Rs 0</div></div>
+        <div class="stat-card green"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><h3>Monthly Payroll</h3><div class="value" id="statPayroll">Rs 0</div></div>
         <div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Active Loans</h3><div class="value" id="statLoans">Rs 0</div></div>
-        <div class="stat-card red"><div class="icon"><i class="fas fa-minus-circle"></i></div><h3 id="deductionsLabel">Monthly Deductions</h3><div class="value" id="statDeductions">Rs 0</div></div>
-        <div class="stat-card cyan"><div class="icon"><i class="fas fa-plus-circle"></i></div><h3 id="additionsLabel">Monthly Additions</h3><div class="value" id="statAdditions">Rs 0</div></div>
-        <div class="stat-card purple"><div class="icon"><i class="fas fa-file-invoice"></i></div><h3 id="slipsLabel">Slips This Month</h3><div class="value" id="statSlips">0</div></div>
+        <div class="stat-card pink"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Active Advances</h3><div class="value" id="statAdvances">Rs 0</div></div>
+        <div class="stat-card red"><div class="icon"><i class="fas fa-minus-circle"></i></div><h3>Monthly Deductions</h3><div class="value" id="statDeductions">Rs 0</div></div>
+        <div class="stat-card cyan"><div class="icon"><i class="fas fa-plus-circle"></i></div><h3>Monthly Additions</h3><div class="value" id="statAdditions">Rs 0</div></div>
+        <div class="stat-card purple"><div class="icon"><i class="fas fa-file-invoice"></i></div><h3>Slips This Period</h3><div class="value" id="statSlips">0</div></div>
       </div>
       <div class="charts-grid">
-        <div class="chart-card"><h3><i class="fas fa-chart-bar" style="color:var(--primary);"></i> <span id="chartTitle">Monthly Payroll</span></h3><canvas id="payrollChart" height="100"></canvas></div>
+        <div class="chart-card"><h3><i class="fas fa-chart-bar" style="color:var(--primary);"></i> Monthly Payroll</h3><canvas id="payrollChart" height="100"></canvas></div>
         <div class="chart-card"><h3><i class="fas fa-chart-pie" style="color:var(--primary);"></i> Department</h3><canvas id="distributionChart"></canvas></div>
       </div>
       <div class="card">
@@ -486,7 +457,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
           <h2><i class="fas fa-list"></i> Workers List <span class="badge badge-primary" id="workerCount">0</span></h2>
           <div style="display:flex;gap:10px;align-items:center;">
             <input type="text" id="searchWorker" placeholder=" Search..." onkeyup="renderWorkers()" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;">
-            <button class="btn btn-primary" onclick="openAddWorkerModal()"><i class="fas fa-plus"></i> Add Worker</button>
+            <button class="btn btn-primary" id="btnAddWorker" onclick="openAddWorkerModal()"><i class="fas fa-plus"></i> Add Worker</button>
           </div>
         </div>
         <div class="table-container">
@@ -506,7 +477,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       <div class="card">
         <div class="card-header">
           <h2><i class="fas fa-hand-holding-usd"></i> Loans & Long-Term Advances</h2>
-          <button class="btn btn-warning" onclick="openAddLoanModal()"><i class="fas fa-plus"></i> Issue New Loan</button>
+          <button class="btn btn-warning" id="btnAddLoan" onclick="openAddLoanModal()"><i class="fas fa-plus"></i> Issue New Loan</button>
         </div>
         <div class="loan-info-banner">
           <h4><i class="fas fa-info-circle"></i> About Loans</h4>
@@ -528,7 +499,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       <div class="card">
         <div class="card-header">
           <h2><i class="fas fa-money-check-alt"></i> Salary Advances</h2>
-          <button class="btn btn-pink" onclick="openAddAdvanceModal()"><i class="fas fa-plus"></i> Issue New Advance</button>
+          <button class="btn btn-pink" id="btnAddAdvance" onclick="openAddAdvanceModal()"><i class="fas fa-plus"></i> Issue New Advance</button>
         </div>
         <div class="advance-info-banner">
           <h4><i class="fas fa-info-circle"></i> About Salary Advances</h4>
@@ -615,7 +586,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
       <div class="card">
         <div class="card-header">
           <h2><i class="fas fa-puzzle-piece"></i> Master Salary Components</h2>
-          <button class="btn btn-primary" onclick="openAddComponentModal()"><i class="fas fa-plus"></i> Add Component</button>
+          <button class="btn btn-primary" id="btnAddComponent" onclick="openAddComponentModal()"><i class="fas fa-plus"></i> Add Component</button>
         </div>
         <div class="tabs">
           <div class="tab active" onclick="switchCompTab('earnings', this)"><i class="fas fa-plus-circle" style="color:var(--success);"></i> Earnings</div>
@@ -633,7 +604,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
           <h2><i class="fas fa-paint-brush"></i> Pay Slip Design - Full Customization</h2>
           <div style="display:flex;gap:8px;">
             <button class="btn btn-secondary" onclick="previewDesign()"><i class="fas fa-eye"></i> Preview</button>
-            <button class="btn btn-primary" onclick="saveDesign()"><i class="fas fa-save"></i> Save Design</button>
+            <button class="btn btn-primary" id="btnSaveDesign" onclick="saveDesign()"><i class="fas fa-save"></i> Save Design</button>
           </div>
         </div>
 
@@ -730,7 +701,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
             <div class="form-group"><label>Bank Name</label><input type="text" id="cBank"></div>
             <div class="form-group"><label>Bank Account No.</label><input type="text" id="cBankAccount"></div>
             <div class="form-group full"><label>Address</label><textarea id="cAddress"></textarea></div>
-            <div class="form-group full"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Company Info</button></div>
+            <div class="form-group full"><button type="submit" class="btn btn-primary" id="btnSaveCompany"><i class="fas fa-save"></i> Save Company Info</button></div>
           </div>
         </form>
       </div>
@@ -739,7 +710,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
         <div class="card-header"><h2><i class="fas fa-sitemap"></i> Departments</h2></div>
         <div class="form-grid" style="margin-bottom:15px;">
           <div class="form-group"><label>New Department</label><input type="text" id="newDept"></div>
-          <div class="form-group" style="display:flex;align-items:flex-end;"><button class="btn btn-primary" onclick="addDepartment()"><i class="fas fa-plus"></i> Add</button></div>
+          <div class="form-group" style="display:flex;align-items:flex-end;"><button class="btn btn-primary" id="btnAddDepartment" onclick="addDepartment()"><i class="fas fa-plus"></i> Add</button></div>
         </div>
         <div id="departmentsList"></div>
       </div>
@@ -750,7 +721,23 @@ table tbody tr.clickable:hover { background: #f8fafc; }
           <button class="btn btn-success" onclick="exportData()"><i class="fas fa-download"></i> Export JSON</button>
           <button class="btn btn-warning" onclick="document.getElementById('importFile').click()"><i class="fas fa-upload"></i> Import JSON</button>
           <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
-          <button class="btn btn-danger" onclick="clearAllData()"><i class="fas fa-trash"></i> Clear All</button>
+          <button class="btn btn-danger" id="btnClearAll" onclick="clearAllData()"><i class="fas fa-trash"></i> Clear All</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- USER MANAGEMENT (ADMIN ONLY) -->
+    <div class="section" id="users">
+      <div class="card">
+        <div class="card-header">
+          <h2><i class="fas fa-user-shield"></i> User Management</h2>
+          <button class="btn btn-primary" onclick="openAddUserModal()"><i class="fas fa-user-plus"></i> Add User</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Email</th><th>Role</th><th>Last Login</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="usersTable"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -758,6 +745,28 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 </div>
 
 <!-- MODALS -->
+<div class="modal" id="addUserModal">
+  <div class="modal-content">
+    <div class="modal-header"><h2><i class="fas fa-user-plus"></i> Add/Update User Role</h2><button class="close-btn" onclick="closeModal('addUserModal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full"><label>User Email *</label><input type="email" id="userEmail" placeholder="user@example.com" required></div>
+        <div class="form-group full"><label>Role *</label>
+          <select id="userRole">
+            <option value="admin">Admin (Full Access)</option>
+            <option value="editor">Editor (Can Add/Edit)</option>
+            <option value="viewer">Viewer (Read Only)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveUserRole()"><i class="fas fa-save"></i> Save Role</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="addWorkerModal">
   <div class="modal-content">
     <div class="modal-header"><h2 id="workerModalTitle"><i class="fas fa-user-plus"></i> Add New Worker</h2><button class="close-btn" onclick="closeModal('addWorkerModal')">&times;</button></div>
@@ -908,34 +917,145 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-function getCurrentUser() {
-  const user = auth.currentUser;
-  if (!user) return { name: 'Unknown', email: 'unknown' };
-  return { name: user.displayName || user.email || 'Unknown', email: user.email || 'unknown' };
+// ============ ROLE-BASED ACCESS CONTROL ============
+const USER_ROLES = {
+  ADMIN: 'admin',
+  EDITOR: 'editor',
+  VIEWER: 'viewer'
+};
+
+// Default admin email - asifabooasif@gmail.com
+const DEFAULT_ADMIN_EMAIL = 'asifabooasif@gmail.com';
+
+let currentUserRole = USER_ROLES.VIEWER; // Default to viewer
+let usersCollection = 'userRoles'; // Firestore collection for user roles
+
+function getUserRole(email) {
+  return ROLE_CONFIG[email] || USER_ROLES.VIEWER;
+}
+
+function hasPermission(requiredRole) {
+  const roleHierarchy = {
+    [USER_ROLES.ADMIN]: 3,
+    [USER_ROLES.EDITOR]: 2,
+    [USER_ROLES.VIEWER]: 1
+  };
+  return roleHierarchy[currentUserRole] >= roleHierarchy[requiredRole];
+}
+
+function applyRoleBasedUI() {
+  // Hide/show elements based on role
+  const adminOnly = document.querySelectorAll('[data-role="admin"]');
+  const editorPlus = document.querySelectorAll('[data-role="editor"]');
+  
+  adminOnly.forEach(el => {
+    if (!hasPermission(USER_ROLES.ADMIN)) {
+      el.style.display = 'none';
+    }
+  });
+  
+  editorPlus.forEach(el => {
+    if (!hasPermission(USER_ROLES.EDITOR)) {
+      el.style.display = 'none';
+    }
+  });
+  
+  // Show/hide User Management menu
+  const menuUsers = document.getElementById('menuUsers');
+  if (menuUsers) {
+    menuUsers.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+  }
+  
+  // Update buttons visibility
+  const btnAddWorker = document.getElementById('btnAddWorker');
+  const btnAddLoan = document.getElementById('btnAddLoan');
+  const btnAddAdvance = document.getElementById('btnAddAdvance');
+  const btnAddComponent = document.getElementById('btnAddComponent');
+  const btnSaveDesign = document.getElementById('btnSaveDesign');
+  const btnSaveCompany = document.getElementById('btnSaveCompany');
+  const btnAddDepartment = document.getElementById('btnAddDepartment');
+  const btnClearAll = document.getElementById('btnClearAll');
+  
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    if (btnAddWorker) btnAddWorker.style.display = 'none';
+    if (btnAddLoan) btnAddLoan.style.display = 'none';
+    if (btnAddAdvance) btnAddAdvance.style.display = 'none';
+    if (btnAddComponent) btnAddComponent.style.display = 'none';
+  }
+  
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    if (btnSaveDesign) btnSaveDesign.style.display = 'none';
+    if (btnSaveCompany) btnSaveCompany.style.display = 'none';
+    if (btnAddDepartment) btnAddDepartment.style.display = 'none';
+    if (btnClearAll) btnClearAll.style.display = 'none';
+  }
+  
+  // Update role badge
+  const roleBadge = document.getElementById('userRoleBadge');
+  if (roleBadge) {
+    roleBadge.textContent = currentUserRole.toUpperCase();
+    roleBadge.className = 'user-role-badge ' + currentUserRole;
+  }
 }
 
 function sanitizeForFirestore(obj) {
   if (obj === null || obj === undefined) return null;
   if (typeof obj === 'number' && isNaN(obj)) return 0;
   if (typeof obj !== 'object') return obj;
-  if (Array.isArray(obj)) return obj.map(item => sanitizeForFirestore(item)).filter(item => item !== undefined && item !== null);
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeForFirestore(item)).filter(item => item !== undefined && item !== null);
+  }
   const result = {};
-  for (const key in obj) { if (obj.hasOwnProperty(key) && obj[key] !== undefined) result[key] = sanitizeForFirestore(obj[key]); }
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key) && obj[key] !== undefined) {
+      result[key] = sanitizeForFirestore(obj[key]);
+    }
+  }
   return result;
 }
 
 function showLoading(msg = 'Loading...') {
-  try { const overlay = document.getElementById('loadingOverlay'); const textEl = document.querySelector('.loading-text'); if (overlay && textEl) { textEl.textContent = msg; overlay.classList.add('show'); } } catch (e) { console.error(e); }
+  try {
+    const overlay = document.getElementById('loadingOverlay');
+    const textEl = document.querySelector('.loading-text');
+    if (overlay && textEl) { textEl.textContent = msg; overlay.classList.add('show'); }
+  } catch (e) { console.error(e); }
 }
-function hideLoading() { try { const overlay = document.getElementById('loadingOverlay'); if (overlay) overlay.classList.remove('show'); } catch (e) {} }
+function hideLoading() {
+  try { const overlay = document.getElementById('loadingOverlay'); if (overlay) overlay.classList.remove('show'); } catch (e) {}
+}
 
-auth.onAuthStateChanged((user) => {
+// Load user roles from Firestore
+async function loadUserRoles() {
+  try {
+    const snapshot = await db.collection(usersCollection).get();
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      ROLE_CONFIG[data.email] = data.role;
+    });
+  } catch (error) {
+    console.error('Error loading user roles:', error);
+  }
+}
+
+auth.onAuthStateChanged(async (user) => {
   if (user) {
+    // Load user roles from Firestore first
+    await loadUserRoles();
+    
+    // Determine user role
+    if (user.email === DEFAULT_ADMIN_EMAIL) {
+      currentUserRole = USER_ROLES.ADMIN;
+    } else {
+      currentUserRole = getUserRole(user.email);
+    }
+    
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainApp').classList.add('show');
     document.getElementById('userDisplayName').textContent = user.displayName || user.email.split('@')[0];
     document.getElementById('userDisplayEmail').textContent = user.email;
     document.getElementById('userAvatar').textContent = (user.displayName || user.email).charAt(0).toUpperCase();
+    applyRoleBasedUI();
     loadData();
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
@@ -948,7 +1068,8 @@ async function signInWithGoogle() {
     showLoading('Signing in with Google...');
     const provider = new firebase.auth.GoogleAuthProvider();
     const result = await auth.signInWithPopup(provider);
-    toast('Welcome ' + (result.user.displayName || result.user.email) + '!');
+    const role = result.user.email === DEFAULT_ADMIN_EMAIL ? USER_ROLES.ADMIN : getUserRole(result.user.email);
+    toast(`Welcome ${result.user.displayName || result.user.email}! Role: ${role.toUpperCase()}`);
   } catch (error) {
     let msg = 'Google Sign-In failed. ';
     if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups for this site.';
@@ -963,7 +1084,9 @@ async function signInWithEmail(e) {
   try {
     showLoading('Signing in...');
     await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
-    toast('Welcome back!');
+    const email = document.getElementById('loginEmail').value;
+    const role = email === DEFAULT_ADMIN_EMAIL ? USER_ROLES.ADMIN : getUserRole(email);
+    toast(`Welcome back! Role: ${role.toUpperCase()}`);
   } catch (error) { toast('Sign-in failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function showSignUp() {
@@ -988,7 +1111,8 @@ const collections = {
   workers: 'workers', additions: 'additions', deductions: 'deductions',
   loans: 'loans', advances: 'advances', salarySlips: 'salarySlips',
   salaryComponents: 'salaryComponents', company: 'company',
-  salarySettings: 'salarySettings', payslipDesign: 'payslipDesign', departments: 'departments'
+  salarySettings: 'salarySettings',
+  payslipDesign: 'payslipDesign', departments: 'departments'
 };
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).substr(2,5);
@@ -1039,12 +1163,19 @@ async function loadData() {
     if (!data.payslipDesign || Object.keys(data.payslipDesign).length === 0) {
       data.payslipDesign = {
         primaryColor: '#1e40af', earningsColor: '#059669', deductionsColor: '#dc2626',
+        loanColor: '#d97706', advanceColor: '#db2777',
         paperSize: 'a4', fontSize: 'medium', headerStyle: 'full', border: 'none',
         showLogo: true, showBank: true, showTax: true, showAnalysis: true,
         showSignatures: true, showFooter: true, showModifications: false, showWatermark: false,
         currency: 'Rs', currencyPosition: 'before', slipTitle: 'SALARY PAY SLIP',
         footerText: 'This is a computer-generated document. Thank you for your valuable contribution to LANKA SHOE.',
         sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature'
+      };
+    }
+    if (!data.salarySettings || Object.keys(data.salarySettings).length === 0) {
+      data.salarySettings = {
+        taxRate: 10, epfEmp: 8, epfEmpr: 12, etf: 3,
+        otMult: 1.5, workDays: 26, workHours: 8, payDay: 30, fyStart: 1, currency: 'Rs'
       };
     }
     if (!data.company || Object.keys(data.company).length === 0) {
@@ -1054,7 +1185,10 @@ async function loadData() {
 
     hideLoading();
     showSection('dashboard');
-  } catch (error) { console.error('Error:', error); hideLoading(); toast('Error: ' + error.message, 'error'); }
+  } catch (error) {
+    console.error('Error:', error); hideLoading();
+    toast('Error: ' + error.message, 'error');
+  }
 }
 
 async function saveToFirebase(collection, docId, dataObj) {
@@ -1090,6 +1224,7 @@ function showSection(sec, title=null) {
   if (sec === 'components') renderComponents();
   if (sec === 'design') loadDesignSettings();
   if (sec === 'settings') loadCompanySettings();
+  if (sec === 'users') renderUsers();
 }
 
 function toast(msg, type='success') {
@@ -1115,7 +1250,125 @@ function toggleActionMenu(btn) {
   if (!isOpen) dropdown.classList.add('show');
 }
 
+// ============ USER MANAGEMENT ============
+function openAddUserModal() {
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
+    return;
+  }
+  document.getElementById('userEmail').value = '';
+  document.getElementById('userRole').value = USER_ROLES.VIEWER;
+  openModal('addUserModal');
+}
+
+async function saveUserRole() {
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
+    return;
+  }
+  
+  const email = document.getElementById('userEmail').value.trim();
+  const role = document.getElementById('userRole').value;
+  
+  if (!email) {
+    toast('Please enter an email address', 'error');
+    return;
+  }
+  
+  try {
+    showLoading('Saving user role...');
+    await db.collection(usersCollection).doc(email).set({
+      email: email,
+      role: role,
+      updatedAt: new Date().toISOString(),
+      updatedBy: auth.currentUser.email
+    });
+    
+    ROLE_CONFIG[email] = role;
+    toast(`User ${email} role updated to ${role.toUpperCase()}`);
+    closeModal('addUserModal');
+    renderUsers();
+  } catch (error) {
+    toast('Error: ' + error.message, 'error');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function renderUsers() {
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    document.getElementById('users').innerHTML = '<div class="card"><div class="empty-state"><h3>Access Denied</h3><p>Admin role required to view this page.</p></div></div>';
+    return;
+  }
+  
+  try {
+    showLoading('Loading users...');
+    const snapshot = await db.collection(usersCollection).get();
+    const tbody = document.getElementById('usersTable');
+    
+    if (snapshot.empty) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><h3>No users configured</h3><p>Click "Add User" to assign roles to users.</p></div></td></tr>';
+      hideLoading();
+      return;
+    }
+    
+    let usersHtml = '';
+    snapshot.forEach(doc => {
+      const userData = doc.data();
+      usersHtml += `
+        <tr>
+          <td><strong>${userData.email}</strong></td>
+          <td><span class="badge badge-${userData.role === 'admin' ? 'danger' : userData.role === 'editor' ? 'success' : 'gray'}">${userData.role.toUpperCase()}</span></td>
+          <td>${userData.updatedAt ? new Date(userData.updatedAt).toLocaleDateString() : '-'}</td>
+          <td><span class="badge badge-success">Active</span></td>
+          <td>
+            <div class="action-menu-wrapper">
+              <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+              <div class="action-dropdown">
+                <div class="action-dropdown-item info" onclick="editUserRole('${userData.email}', '${userData.role}')"><i class="fas fa-edit"></i> Edit Role</div>
+                <div class="action-dropdown-item danger" onclick="deleteUserRole('${userData.email}')"><i class="fas fa-trash"></i> Remove</div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+    
+    tbody.innerHTML = usersHtml;
+    hideLoading();
+  } catch (error) {
+    toast('Error loading users: ' + error.message, 'error');
+    hideLoading();
+  }
+}
+
+function editUserRole(email, currentRole) {
+  document.getElementById('userEmail').value = email;
+  document.getElementById('userRole').value = currentRole;
+  openModal('addUserModal');
+}
+
+async function deleteUserRole(email) {
+  if (!confirm(`Remove role assignment for ${email}?`)) return;
+  
+  try {
+    showLoading('Removing user...');
+    await db.collection(usersCollection).doc(email).delete();
+    delete ROLE_CONFIG[email];
+    toast(`User ${email} removed`);
+    renderUsers();
+  } catch (error) {
+    toast('Error: ' + error.message, 'error');
+  } finally {
+    hideLoading();
+  }
+}
+
 async function openAddWorkerModal() {
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
   document.getElementById('workerModalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Add New Worker';
   document.getElementById('workerSaveBtnText').textContent = 'Save Worker';
   document.getElementById('workerForm').reset();
@@ -1126,6 +1379,10 @@ async function openAddWorkerModal() {
 }
 
 async function openEditWorkerModal(id) {
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
   const w = data.workers.find(x => x.id === id);
   if (!w) return;
   document.getElementById('workerModalTitle').innerHTML = '<i class="fas fa-user-edit"></i> Edit Worker Details';
@@ -1149,8 +1406,12 @@ async function openEditWorkerModal(id) {
 
 async function saveWorker(e) {
   e.preventDefault();
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
   const editId = document.getElementById('wEditId').value;
-  const currentUser = getCurrentUser();
+  const currentUser = auth.currentUser;
   const workerData = {
     name: document.getElementById('wName').value, empId: document.getElementById('wEmpId').value,
     position: document.getElementById('wPosition').value, department: document.getElementById('wDepartment').value,
@@ -1159,14 +1420,23 @@ async function saveWorker(e) {
     email: document.getElementById('wEmail').value || '', bank: document.getElementById('wBank').value || '',
     account: document.getElementById('wAccount').value || '', taxId: document.getElementById('wTaxId').value || '',
     address: document.getElementById('wAddress').value || '', status: 'Active',
-    modifiedAt: today(), modifiedBy: currentUser.name, modifiedByEmail: currentUser.email
+    modifiedAt: today(),
+    modifiedBy: currentUser.displayName || currentUser.email,
+    modifiedByEmail: currentUser.email
   };
-  if (!editId) { workerData.createdAt = today(); workerData.createdBy = currentUser.name; workerData.createdByEmail = currentUser.email; }
+  if (!editId) {
+    workerData.createdAt = today();
+    workerData.createdBy = currentUser.displayName || currentUser.email;
+    workerData.createdByEmail = currentUser.email;
+  }
 
   try {
     showLoading(editId ? 'Updating worker...' : 'Saving worker...');
-    if (editId) await updateInFirebase(collections.workers, editId, workerData);
-    else await saveToFirebase(collections.workers, null, workerData);
+    if (editId) {
+      await updateInFirebase(collections.workers, editId, workerData);
+    } else {
+      await saveToFirebase(collections.workers, null, workerData);
+    }
     await loadData();
     toast(editId ? 'Worker updated!' : 'Worker added!');
     closeModal('addWorkerModal');
@@ -1182,6 +1452,7 @@ function renderWorkers() {
   tbody.innerHTML = filtered.map(w => {
     const loanTotal = data.loans.filter(l => l.workerId === w.id && l.status === 'Active').reduce((s,l) => s + l.remaining, 0);
     const advTotal = data.advances.filter(a => a.workerId === w.id && a.status === 'Active').reduce((s,a) => s + a.remaining, 0);
+    const canEdit = hasPermission(USER_ROLES.EDITOR);
     return `<tr class="clickable" onclick="openWorkerDetail('${w.id}')">
       <td><strong>${w.empId}</strong></td>
       <td><div style="display:flex;align-items:center;gap:10px;"><div style="width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">${w.name.charAt(0).toUpperCase()}</div><div><div style="font-weight:600;">${w.name}</div></div></div></td>
@@ -1194,8 +1465,8 @@ function renderWorkers() {
           <button class="action-dots-btn" onclick="event.stopPropagation();toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
           <div class="action-dropdown">
             <div class="action-dropdown-item info" onclick="event.stopPropagation();openWorkerDetail('${w.id}')"><i class="fas fa-eye"></i> View</div>
-            <div class="action-dropdown-item warning" onclick="event.stopPropagation();openEditWorkerModal('${w.id}')"><i class="fas fa-edit"></i> Edit</div>
-            <div class="action-dropdown-item danger" onclick="event.stopPropagation();deleteWorker('${w.id}')"><i class="fas fa-trash"></i> Delete</div>
+            ${canEdit ? `<div class="action-dropdown-item warning" onclick="event.stopPropagation();openEditWorkerModal('${w.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
+            ${hasPermission(USER_ROLES.ADMIN) ? `<div class="action-dropdown-item danger" onclick="event.stopPropagation();deleteWorker('${w.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
           </div>
         </div>
       </td>
@@ -1204,13 +1475,17 @@ function renderWorkers() {
 }
 
 async function deleteWorker(id) {
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
+    return;
+  }
   if (!confirm('Delete this worker?')) return;
-  const currentUser = getCurrentUser();
+  const currentUser = auth.currentUser;
   try {
     showLoading('Deleting...');
     await deleteFromFirebase(collections.workers, id);
     await loadData();
-    toast(`Deleted by ${currentUser.name}`);
+    toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
   } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
@@ -1242,9 +1517,9 @@ function openWorkerDetail(id) {
     <div class="card">
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-success btn-lg" onclick="goCreateSlip('${w.id}')"><i class="fas fa-file-invoice-dollar"></i> Create Pay Slip</button>
-        <button class="btn btn-warning" onclick="quickAddLoan('${w.id}')"><i class="fas fa-hand-holding-usd"></i> Issue Loan</button>
-        <button class="btn btn-pink" onclick="quickAddAdvance('${w.id}')"><i class="fas fa-money-check-alt"></i> Issue Advance</button>
-        <button class="btn btn-info" onclick="openEditWorkerModal('${w.id}')"><i class="fas fa-edit"></i> Edit Details</button>
+        ${hasPermission(USER_ROLES.EDITOR) ? `<button class="btn btn-warning" onclick="quickAddLoan('${w.id}')"><i class="fas fa-hand-holding-usd"></i> Issue Loan</button>` : ''}
+        ${hasPermission(USER_ROLES.EDITOR) ? `<button class="btn btn-pink" onclick="quickAddAdvance('${w.id}')"><i class="fas fa-money-check-alt"></i> Issue Advance</button>` : ''}
+        ${hasPermission(USER_ROLES.EDITOR) ? `<button class="btn btn-info" onclick="openEditWorkerModal('${w.id}')"><i class="fas fa-edit"></i> Edit Details</button>` : ''}
         <button class="btn btn-secondary" onclick="showSection('workers')"><i class="fas fa-arrow-left"></i> Back</button>
       </div>
     </div>
@@ -1356,12 +1631,38 @@ function switchWorkerTab(tab, el) {
   el.classList.add('active');
   document.getElementById('wt-' + tab).classList.add('active');
 }
-function goCreateSlip(workerId) { showSection('slips'); setTimeout(() => { document.getElementById('slipWorker').value = workerId; loadSlipDefaults(); }, 100); }
-function quickAddLoan(workerId) { populateWorkerSelect('lWorker'); document.getElementById('loanForm').reset(); document.getElementById('lWorker').value = workerId; document.getElementById('lIssueDate').value = today(); document.getElementById('lStartMonth').value = currentMonth(); openModal('addLoanModal'); }
-function quickAddAdvance(workerId) { populateWorkerSelect('aWorker'); document.getElementById('advanceForm').reset(); document.getElementById('aWorker').value = workerId; document.getElementById('aIssueDate').value = today(); document.getElementById('aStartMonth').value = currentMonth(); openModal('addAdvanceModal'); }
+function goCreateSlip(workerId) {
+  showSection('slips');
+  setTimeout(() => { document.getElementById('slipWorker').value = workerId; loadSlipDefaults(); }, 100);
+}
+function quickAddLoan(workerId) {
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
+  populateWorkerSelect('lWorker');
+  document.getElementById('loanForm').reset();
+  document.getElementById('lWorker').value = workerId;
+  document.getElementById('lIssueDate').value = today();
+  document.getElementById('lStartMonth').value = currentMonth();
+  openModal('addLoanModal');
+}
+function quickAddAdvance(workerId) {
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
+  populateWorkerSelect('aWorker');
+  document.getElementById('advanceForm').reset();
+  document.getElementById('aWorker').value = workerId;
+  document.getElementById('aIssueDate').value = today();
+  document.getElementById('aStartMonth').value = currentMonth();
+  openModal('addAdvanceModal');
+}
 
 function populateWorkerSelect(id) {
-  const el = document.getElementById(id); if (!el) return;
+  const el = document.getElementById(id);
+  if (!el) return;
   el.innerHTML = '<option value="">Select Worker</option>' + data.workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>`).join('');
 }
 function populateReportFilters() {
@@ -1369,17 +1670,32 @@ function populateReportFilters() {
   document.getElementById('rDept').innerHTML = '<option value="">All</option>' + data.departments.map(d => `<option>${d}</option>`).join('');
 }
 
-function openAddLoanModal() { populateWorkerSelect('lWorker'); document.getElementById('loanForm').reset(); document.getElementById('lIssueDate').value = today(); document.getElementById('lStartMonth').value = currentMonth(); openModal('addLoanModal'); }
+function openAddLoanModal() {
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
+  populateWorkerSelect('lWorker');
+  document.getElementById('loanForm').reset();
+  document.getElementById('lIssueDate').value = today();
+  document.getElementById('lStartMonth').value = currentMonth();
+  openModal('addLoanModal');
+}
 async function addLoan(e) {
   e.preventDefault();
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
   const total = parseFloat(document.getElementById('lAmount').value) || 0;
-  const currentUser = getCurrentUser();
+  const currentUser = auth.currentUser;
   const loanData = {
     workerId: document.getElementById('lWorker').value, type: document.getElementById('lType').value,
     amount: total, installment: parseFloat(document.getElementById('lInstallment').value) || 0,
     paid: 0, remaining: total, issueDate: document.getElementById('lIssueDate').value,
     startMonth: document.getElementById('lStartMonth').value, reason: document.getElementById('lReason').value || '',
-    status: 'Active', paidMonths: [], createdAt: today(), createdBy: currentUser.name, createdByEmail: currentUser.email
+    status: 'Active', paidMonths: [], createdAt: today(),
+    createdBy: currentUser.displayName || currentUser.email, createdByEmail: currentUser.email
   };
   try {
     showLoading('Issuing loan...');
@@ -1392,6 +1708,7 @@ async function addLoan(e) {
 function renderLoans() {
   const tbody = document.getElementById('loansTable');
   if (!data.loans.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans</h3></div></td></tr>'; return; }
+  const canDelete = hasPermission(USER_ROLES.ADMIN);
   tbody.innerHTML = data.loans.map(l => {
     const w = data.workers.find(x => x.id === l.workerId);
     const pct = (l.paid / l.amount * 100).toFixed(1);
@@ -1407,7 +1724,7 @@ function renderLoans() {
         <div class="action-menu-wrapper">
           <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
           <div class="action-dropdown">
-            <div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>
+            ${canDelete ? `<div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
           </div>
         </div>
       </td>
@@ -1415,23 +1732,46 @@ function renderLoans() {
   }).join('');
 }
 async function deleteLoan(id) {
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
+    return;
+  }
   if (!confirm('Delete this loan?')) return;
-  const currentUser = getCurrentUser();
-  try { showLoading('Deleting...'); await deleteFromFirebase(collections.loans, id); await loadData(); toast(`Deleted by ${currentUser.name}`); }
-  catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+  const currentUser = auth.currentUser;
+  try {
+    showLoading('Deleting...');
+    await deleteFromFirebase(collections.loans, id);
+    await loadData();
+    toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-function openAddAdvanceModal() { populateWorkerSelect('aWorker'); document.getElementById('advanceForm').reset(); document.getElementById('aIssueDate').value = today(); document.getElementById('aStartMonth').value = currentMonth(); openModal('addAdvanceModal'); }
+function openAddAdvanceModal() {
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
+  populateWorkerSelect('aWorker');
+  document.getElementById('advanceForm').reset();
+  document.getElementById('aIssueDate').value = today();
+  document.getElementById('aStartMonth').value = currentMonth();
+  openModal('addAdvanceModal');
+}
 async function addAdvance(e) {
   e.preventDefault();
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
   const total = parseFloat(document.getElementById('aAmount').value) || 0;
-  const currentUser = getCurrentUser();
+  const currentUser = auth.currentUser;
   const advanceData = {
     workerId: document.getElementById('aWorker').value, type: document.getElementById('aType').value,
     amount: total, installment: parseFloat(document.getElementById('aInstallment').value) || 0,
     paid: 0, remaining: total, issueDate: document.getElementById('aIssueDate').value,
     startMonth: document.getElementById('aStartMonth').value, reason: document.getElementById('aReason').value || '',
-    status: 'Active', paidMonths: [], createdAt: today(), createdBy: currentUser.name, createdByEmail: currentUser.email
+    status: 'Active', paidMonths: [], createdAt: today(),
+    createdBy: currentUser.displayName || currentUser.email, createdByEmail: currentUser.email
   };
   try {
     showLoading('Issuing advance...');
@@ -1444,6 +1784,7 @@ async function addAdvance(e) {
 function renderAdvances() {
   const tbody = document.getElementById('advancesTable');
   if (!data.advances.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-money-check-alt"></i><h3>No advances</h3></div></td></tr>'; return; }
+  const canDelete = hasPermission(USER_ROLES.ADMIN);
   tbody.innerHTML = data.advances.map(a => {
     const w = data.workers.find(x => x.id === a.workerId);
     const pct = (a.paid / a.amount * 100).toFixed(1);
@@ -1459,7 +1800,7 @@ function renderAdvances() {
         <div class="action-menu-wrapper">
           <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
           <div class="action-dropdown">
-            <div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>
+            ${canDelete ? `<div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
           </div>
         </div>
       </td>
@@ -1467,19 +1808,28 @@ function renderAdvances() {
   }).join('');
 }
 async function deleteAdvance(id) {
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
+    return;
+  }
   if (!confirm('Delete this advance?')) return;
-  const currentUser = getCurrentUser();
-  try { showLoading('Deleting...'); await deleteFromFirebase(collections.advances, id); await loadData(); toast(`Deleted by ${currentUser.name}`); }
-  catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+  const currentUser = auth.currentUser;
+  try {
+    showLoading('Deleting...');
+    await deleteFromFirebase(collections.advances, id);
+    await loadData();
+    toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
+  } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 function renderComponents() {
   const earnings = data.salaryComponents.filter(c => c.type === 'earning');
   const deductions = data.salaryComponents.filter(c => c.type === 'deduction');
-  document.getElementById('earningsComponentsList').innerHTML = earnings.length ? earnings.map(c => componentCard(c)).join('') : '<div class="empty-state"><h3>No earnings</h3></div>';
-  document.getElementById('deductionsComponentsList').innerHTML = deductions.length ? deductions.map(c => componentCard(c)).join('') : '<div class="empty-state"><h3>No deductions</h3></div>';
+  const canDelete = hasPermission(USER_ROLES.ADMIN);
+  document.getElementById('earningsComponentsList').innerHTML = earnings.length ? earnings.map(c => componentCard(c, canDelete)).join('') : '<div class="empty-state"><h3>No earnings</h3></div>';
+  document.getElementById('deductionsComponentsList').innerHTML = deductions.length ? deductions.map(c => componentCard(c, canDelete)).join('') : '<div class="empty-state"><h3>No deductions</h3></div>';
 }
-function componentCard(c) {
+function componentCard(c, canDelete) {
   const calcLabel = { fixed: 'Fixed', percentage: '% of Basic', perHour: 'Per Hour', manual: 'Manual' }[c.calcType];
   const valueLabel = c.calcType === 'percentage' ? `${c.value}%` : c.calcType === 'manual' ? 'No default' : fmt(c.value);
   return `<div class="component-card ${c.type}" style="${!c.active ? 'opacity:0.5;' : ''}">
@@ -1489,7 +1839,7 @@ function componentCard(c) {
       <div class="action-menu-wrapper">
         <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
         <div class="action-dropdown">
-          <div class="action-dropdown-item danger" onclick="deleteComponent('${c.id}')"><i class="fas fa-trash"></i> Delete</div>
+          ${canDelete ? `<div class="action-dropdown-item danger" onclick="deleteComponent('${c.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
         </div>
       </div>
     </div>
@@ -1502,6 +1852,10 @@ function switchCompTab(tab, el) {
   document.getElementById('comp-' + tab).classList.add('active');
 }
 function openAddComponentModal() {
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
   document.getElementById('compName').value = '';
   document.getElementById('compType').value = 'earning';
   document.getElementById('compCalcType').value = 'fixed';
@@ -1510,6 +1864,10 @@ function openAddComponentModal() {
   openModal('addComponentModal');
 }
 async function saveComponent() {
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
   const name = document.getElementById('compName').value.trim();
   if (!name) { toast('Enter name', 'error'); return; }
   const componentData = {
@@ -1525,6 +1883,10 @@ async function saveComponent() {
   } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function deleteComponent(id) {
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
+    return;
+  }
   if (!confirm('Delete?')) return;
   try { showLoading('Deleting...'); await deleteFromFirebase(collections.salaryComponents, id); await loadData(); toast('Deleted!'); }
   catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
@@ -1567,14 +1929,18 @@ function loadSlipDefaults() {
       <h4><i class="fas fa-hand-holding-usd"></i> ${workerLoans.length} Loan(s) Auto-Deducting</h4>
       ${workerLoans.map(l => `<p>• <strong>${l.type}</strong>: ${fmt(l.installment)}/mo • Remaining: ${fmt(l.remaining)}</p>`).join('')}
     </div>`;
-  } else { loanBanner.innerHTML = ''; }
+  } else {
+    loanBanner.innerHTML = '';
+  }
 
   if (workerAdvances.length > 0) {
     advanceBanner.innerHTML = `<div class="advance-info-banner">
       <h4><i class="fas fa-money-check-alt"></i> ${workerAdvances.length} Advance(s) Auto-Deducting</h4>
       ${workerAdvances.map(a => `<p>• <strong>${a.type}</strong>: ${fmt(a.installment)}/mo • Remaining: ${fmt(a.remaining)}</p>`).join('')}
     </div>`;
-  } else { advanceBanner.innerHTML = ''; }
+  } else {
+    advanceBanner.innerHTML = '';
+  }
 
   currentSlipDefaults = {};
 
@@ -1722,7 +2088,9 @@ function updateSlipSummary() {
     document.getElementById('sumNet').textContent = fmt(net);
 
     currentSlipData = { workerId: workerId || '', month: document.getElementById('slipMonth').value || '', notes: document.getElementById('slipNotes').value || '', earnings, deductions, loansDeducted, advancesDeducted, basic: basic || 0, totalAdditions: totalEarnings - basic, totalDeductions: totalDeductions || 0, net: net || 0 };
-  } catch (err) { console.error('updateSlipSummary error:', err); }
+  } catch (err) {
+    console.error('updateSlipSummary error:', err);
+  }
 }
 
 function previewSlip() {
@@ -1736,29 +2104,52 @@ async function finalizeSlip(status) {
   const workerId = currentSlipData.workerId;
   const month = currentSlipData.month;
   const existingSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
-  const currentUser = getCurrentUser();
+  const currentUser = auth.currentUser;
 
   const slipData = {
     slipNo: existingSlip ? (existingSlip.slipNo || '') : 'SL-' + Date.now().toString().slice(-6),
-    workerId: workerId || '', month: month || '',
+    workerId: workerId || '',
+    month: month || '',
     notes: (currentSlipData.notes || '').toString(),
-    earnings: (currentSlipData.earnings || []).map(e => ({ name: e.name || 'Unknown', amount: parseFloat(e.amount) || 0, id: e.id || '' })),
-    deductions: (currentSlipData.deductions || []).map(d => ({ name: d.name || 'Unknown', amount: parseFloat(d.amount) || 0, id: d.id || '', kind: d.kind || '' })),
-    loansDeducted: (currentSlipData.loansDeducted || []).map(ld => ({ loanId: ld.loanId || '', amount: parseFloat(ld.amount) || 0 })),
-    advancesDeducted: (currentSlipData.advancesDeducted || []).map(ad => ({ advanceId: ad.advanceId || '', amount: parseFloat(ad.amount) || 0 })),
+    earnings: (currentSlipData.earnings || []).map(e => ({
+      name: e.name || 'Unknown',
+      amount: parseFloat(e.amount) || 0,
+      id: e.id || ''
+    })),
+    deductions: (currentSlipData.deductions || []).map(d => ({
+      name: d.name || 'Unknown',
+      amount: parseFloat(d.amount) || 0,
+      id: d.id || '',
+      kind: d.kind || ''
+    })),
+    loansDeducted: (currentSlipData.loansDeducted || []).map(ld => ({
+      loanId: ld.loanId || '',
+      amount: parseFloat(ld.amount) || 0
+    })),
+    advancesDeducted: (currentSlipData.advancesDeducted || []).map(ad => ({
+      advanceId: ad.advanceId || '',
+      amount: parseFloat(ad.amount) || 0
+    })),
     basic: parseFloat(currentSlipData.basic) || 0,
     totalAdditions: parseFloat(currentSlipData.totalAdditions) || 0,
     totalDeductions: parseFloat(currentSlipData.totalDeductions) || 0,
     net: parseFloat(currentSlipData.net) || 0,
     status: status || 'Draft',
     createdAt: existingSlip ? (existingSlip.createdAt || today()) : today(),
-    modifiedAt: today(), modifiedBy: currentUser.name, modifiedByEmail: currentUser.email
+    modifiedAt: today(),
+    modifiedBy: currentUser.displayName || currentUser.email,
+    modifiedByEmail: currentUser.email
   };
 
   try {
     showLoading('Finalizing...');
-    if (existingSlip) await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
-    else { slipData.createdBy = currentUser.name; slipData.createdByEmail = currentUser.email; await saveToFirebase(collections.salarySlips, null, slipData); }
+    if (existingSlip) {
+      await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
+    } else {
+      slipData.createdBy = currentUser.displayName || currentUser.email;
+      slipData.createdByEmail = currentUser.email;
+      await saveToFirebase(collections.salarySlips, null, slipData);
+    }
 
     if (status === 'Paid') {
       for (const ld of slipData.loansDeducted) {
@@ -1789,12 +2180,19 @@ async function finalizeSlip(status) {
       const savedSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
       if (savedSlip) downloadSlipPDF(savedSlip);
     }
-  } catch (error) { console.error('Finalize error:', error); toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+  } catch (error) { 
+    console.error('Finalize error:', error);
+    toast('Error: ' + error.message, 'error'); 
+  } finally { 
+    hideLoading(); 
+  }
 }
 
 function renderHistory() {
   const tbody = document.getElementById('historyTable');
   if (!data.salarySlips.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><h3>No slips</h3></div></td></tr>'; return; }
+  const canEdit = hasPermission(USER_ROLES.EDITOR);
+  const canReverse = hasPermission(USER_ROLES.ADMIN);
   tbody.innerHTML = data.salarySlips.slice().reverse().map(s => {
     const w = data.workers.find(x => x.id === s.workerId);
     return `<tr>
@@ -1808,8 +2206,8 @@ function renderHistory() {
           <div class="action-dropdown">
             <div class="action-dropdown-item info" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i> View</div>
             <div class="action-dropdown-item info" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i> Download PDF</div>
-            <div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>
-            <div class="action-dropdown-item danger" onclick="reverseSlip('${s.id}')"><i class="fas fa-undo"></i> Reverse</div>
+            ${canEdit ? `<div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
+            ${canReverse ? `<div class="action-dropdown-item danger" onclick="reverseSlip('${s.id}')"><i class="fas fa-undo"></i> Reverse</div>` : ''}
           </div>
         </div>
       </td>
@@ -1826,47 +2224,83 @@ function viewSlip(id) {
 }
 
 async function editSlip(id) {
+  if (!hasPermission(USER_ROLES.EDITOR)) {
+    toast('Permission denied. Editor role required.', 'error');
+    return;
+  }
   const slip = data.salarySlips.find(s => s.id === id);
   if (!slip) return;
+  
   showSection('slips');
   await new Promise(r => setTimeout(r, 200));
+  
   document.getElementById('slipWorker').value = slip.workerId;
   document.getElementById('slipMonth').value = slip.month;
   document.getElementById('slipNotes').value = slip.notes || '';
+  
   loadSlipDefaults();
+  
   await new Promise(r => setTimeout(r, 300));
+  
   slip.earnings.forEach(e => {
     const row = document.querySelector(`#earningsContainer .slip-row[data-id="${e.id}"]`);
-    if (row) { const input = row.querySelector('.row-amount'); if (input) input.value = e.amount; const toggle = row.querySelector('.row-toggle'); if (toggle) toggle.checked = true; }
+    if (row) {
+      const input = row.querySelector('.row-amount');
+      if (input) input.value = e.amount;
+      const toggle = row.querySelector('.row-toggle');
+      if (toggle) toggle.checked = true;
+    }
   });
+  
   slip.deductions.forEach(d => {
     const row = document.querySelector(`#deductionsContainer .slip-row[data-id="${d.id}"]`);
-    if (row) { const input = row.querySelector('.row-amount'); if (input) input.value = d.amount; const toggle = row.querySelector('.row-toggle'); if (toggle) toggle.checked = true; }
+    if (row) {
+      const input = row.querySelector('.row-amount');
+      if (input) input.value = d.amount;
+      const toggle = row.querySelector('.row-toggle');
+      if (toggle) toggle.checked = true;
+    }
   });
+  
   document.querySelectorAll('#earningsContainer .slip-row, #deductionsContainer .slip-row').forEach(row => {
     const id = row.dataset.id;
     const inEarnings = slip.earnings.find(e => e.id === id);
     const inDeductions = slip.deductions.find(d => d.id === id);
-    if (!inEarnings && !inDeductions) { const toggle = row.querySelector('.row-toggle'); if (toggle) toggle.checked = false; }
+    if (!inEarnings && !inDeductions) {
+      const toggle = row.querySelector('.row-toggle');
+      if (toggle) toggle.checked = false;
+    }
   });
+  
   updateSlipSummary();
   toast('Slip loaded for editing. Make changes and finalize.');
 }
 
 async function reverseSlip(id) {
-  const slip = data.salarySlips.find(s => s.id === id);
-  if (!slip) return;
-  const currentUser = getCurrentUser();
-  if (slip.status !== 'Paid') {
-    if (!confirm('Delete this draft slip?')) return;
-    try { showLoading('Deleting...'); await deleteFromFirebase(collections.salarySlips, id); await loadData(); toast(`Deleted by ${currentUser.name}`); }
-    catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
     return;
   }
+  const slip = data.salarySlips.find(s => s.id === id);
+  if (!slip) return;
+  const currentUser = auth.currentUser;
+  if (slip.status !== 'Paid') {
+    if (!confirm('Delete this draft slip?')) return;
+    try {
+      showLoading('Deleting...');
+      await deleteFromFirebase(collections.salarySlips, id);
+      await loadData();
+      toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    return;
+  }
+  
   const w = data.workers.find(x => x.id === slip.workerId);
   if (!confirm(`Reverse pay slip #${slip.slipNo} for ${w?.name || 'worker'}?\n\nThis will:\n• Restore loan/advance balances\n• Mark slip as Reversed\n\nContinue?`)) return;
+  
   try {
     showLoading('Reversing slip...');
+    
     for (const ld of (slip.loansDeducted || [])) {
       const loan = data.loans.find(l => l.id === ld.loanId);
       if (loan) {
@@ -1874,9 +2308,13 @@ async function reverseSlip(id) {
         loan.paid = Math.max(0, (loan.paid || 0) - ld.amount);
         loan.remaining = (loan.remaining || 0) + ld.amount;
         loan.status = 'Active';
-        await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths });
+        await updateInFirebase(collections.loans, loan.id, { 
+          paid: loan.paid, remaining: loan.remaining, 
+          status: loan.status, paidMonths: loan.paidMonths 
+        });
       }
     }
+    
     for (const ad of (slip.advancesDeducted || [])) {
       const adv = data.advances.find(a => a.id === ad.advanceId);
       if (adv) {
@@ -1884,12 +2322,17 @@ async function reverseSlip(id) {
         adv.paid = Math.max(0, (adv.paid || 0) - ad.amount);
         adv.remaining = (adv.remaining || 0) + ad.amount;
         adv.status = 'Active';
-        await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining: adv.remaining, status: adv.status, paidMonths: adv.paidMonths });
+        await updateInFirebase(collections.advances, adv.id, { 
+          paid: adv.paid, remaining: adv.remaining, 
+          status: adv.status, paidMonths: adv.paidMonths 
+        });
       }
     }
-    await updateInFirebase(collections.salarySlips, id, { status: 'Reversed', reversedAt: today(), reversedBy: currentUser.name, reversedByEmail: currentUser.email });
+    
+    await updateInFirebase(collections.salarySlips, id, { status: 'Reversed', reversedAt: today(), reversedBy: currentUser.displayName || currentUser.email, reversedByEmail: currentUser.email });
+    
     await loadData();
-    toast(`Slip reversed by ${currentUser.name}! Loan/advance balances restored.`);
+    toast(`Slip reversed by ${currentUser.displayName || currentUser.email}! Loan/advance balances restored.`);
   } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
@@ -2043,12 +2486,15 @@ function downloadSlipPDF(slip) {
   doc.text('Name:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.name, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
   doc.text('Join Date:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.joinDate || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal');
   y += 5;
+  
   doc.text('Emp ID:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.empId, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
   if (d.showBank) { doc.text('Bank:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.bank || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
   y += 5;
+  
   doc.text('Position:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.position, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
   if (d.showBank) { doc.text('Account:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.account || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
   y += 5;
+  
   doc.text('Dept:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.department, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
   if (d.showTax) { doc.text('Tax ID:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.taxId || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
   y += 8;
@@ -2065,10 +2511,16 @@ function downloadSlipPDF(slip) {
   earningsBody.push([{ content: 'TOTAL EARNINGS', styles: { fontStyle: 'bold', fillColor: [209, 250, 229] } }, { content: fmt(grossTotal), styles: { fontStyle: 'bold', fillColor: [209, 250, 229], halign: 'right' } }]);
 
   doc.autoTable({
-    startY: y, head: [['Description', 'Amount']], body: earningsBody, theme: 'grid',
+    startY: y,
+    head: [['Description', 'Amount']],
+    body: earningsBody,
+    theme: 'grid',
     headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
     styles: { fontSize: fontSize - 1, cellPadding: 3 },
-    columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 45 } },
+    columnStyles: { 
+      0: { cellWidth: contentWidth - 45 },
+      1: { halign: 'right', cellWidth: 45 }
+    },
     margin: { left: marginX, right: marginX }
   });
 
@@ -2084,10 +2536,16 @@ function downloadSlipPDF(slip) {
   deductionsBody.push([{ content: 'TOTAL DEDUCTIONS', styles: { fontStyle: 'bold', fillColor: [254, 226, 226] } }, { content: fmt(slip.totalDeductions), styles: { fontStyle: 'bold', fillColor: [254, 226, 226], halign: 'right' } }]);
 
   doc.autoTable({
-    startY: y, head: [['Description', 'Amount']], body: deductionsBody, theme: 'grid',
+    startY: y,
+    head: [['Description', 'Amount']],
+    body: deductionsBody,
+    theme: 'grid',
     headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
     styles: { fontSize: fontSize - 1, cellPadding: 3 },
-    columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 45 } },
+    columnStyles: { 
+      0: { cellWidth: contentWidth - 45 },
+      1: { halign: 'right', cellWidth: 45 }
+    },
     margin: { left: marginX, right: marginX }
   });
 
@@ -2220,7 +2678,7 @@ function exportReport(format) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     doc.setFontSize(16); doc.text(currentReport.toUpperCase() + ' REPORT', 14, 20);
-    doc.autoTable({ startY: 35, head: [rData[0]], body: data.slice(1), theme: 'grid', headStyles: { fillColor: [30, 64, 175] }, styles: { fontSize: 8 } });
+    doc.autoTable({ startY: 35, head: [rData[0]], body: rData.slice(1), theme: 'grid', headStyles: { fillColor: [30, 64, 175] }, styles: { fontSize: 8 } });
     doc.save(`${currentReport}_${today()}.pdf`);
     toast('PDF exported!');
   }
@@ -2266,6 +2724,10 @@ document.addEventListener('click', (e) => {
   }
 });
 async function saveDesign() {
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
+    return;
+  }
   const designData = {
     primaryColor: document.getElementById('customPrimaryColor').value,
     earningsColor: document.getElementById('customEarningsColor').value,
@@ -2318,12 +2780,21 @@ function loadCompanySettings() {
 
 async function saveCompany(e) {
   e.preventDefault();
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
+    return;
+  }
   const companyData = { 
-    name: document.getElementById('cName').value, reg: document.getElementById('cReg').value || '',
-    tax: document.getElementById('cTax').value || '', phone: document.getElementById('cPhone').value || '', 
-    email: document.getElementById('cEmail').value || '', web: document.getElementById('cWeb').value || '',
-    logo: document.getElementById('cLogo').value || '', bank: document.getElementById('cBank').value || '',
-    bankAccount: document.getElementById('cBankAccount').value || '', address: document.getElementById('cAddress').value || ''
+    name: document.getElementById('cName').value, 
+    reg: document.getElementById('cReg').value || '',
+    tax: document.getElementById('cTax').value || '',
+    phone: document.getElementById('cPhone').value || '', 
+    email: document.getElementById('cEmail').value || '', 
+    web: document.getElementById('cWeb').value || '',
+    logo: document.getElementById('cLogo').value || '',
+    bank: document.getElementById('cBank').value || '',
+    bankAccount: document.getElementById('cBankAccount').value || '',
+    address: document.getElementById('cAddress').value || ''
   };
   try {
     showLoading('Saving...');
@@ -2334,6 +2805,10 @@ async function saveCompany(e) {
 }
 
 async function addDepartment() {
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
+    return;
+  }
   const name = document.getElementById('newDept').value.trim();
   if (!name) return;
   if (data.departments.includes(name)) { toast('Department exists', 'error'); return; }
@@ -2348,6 +2823,10 @@ async function addDepartment() {
 }
 
 async function removeDepartment(name) {
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
+    return;
+  }
   if (!confirm(`Delete "${name}"?`)) return;
   try {
     showLoading('Removing...');
@@ -2363,12 +2842,13 @@ function renderDepartments() {
   const list = document.getElementById('departmentsList');
   if (!list) return;
   if (!data.departments.length) { list.innerHTML = '<div class="empty-state"><h3>No departments</h3></div>'; return; }
+  const canDelete = hasPermission(USER_ROLES.ADMIN);
   list.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">' + 
     data.departments.map(d => {
       const count = data.workers.filter(w => w.department === d).length;
       return `<div style="padding:12px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
         <div><strong>${d}</strong><div style="font-size:11px;color:var(--gray);">${count} workers</div></div>
-        <button class="btn btn-danger btn-sm" onclick="removeDepartment('${d}')"><i class="fas fa-trash"></i></button>
+        ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="removeDepartment('${d}')"><i class="fas fa-trash"></i></button>` : ''}
       </div>`;
     }).join('') + '</div>';
 }
@@ -2387,13 +2867,19 @@ function importData(e) {
   reader.onload = (ev) => {
     try {
       const imported = JSON.parse(ev.target.result);
-      if (confirm('Replace all data with imported data?')) { toast('Import feature - contact admin', 'error'); }
+      if (confirm('Replace all data with imported data?')) {
+        toast('Import feature - contact admin', 'error');
+      }
     } catch (err) { toast('Invalid file', 'error'); }
   };
   reader.readAsText(file);
 }
 
 async function clearAllData() {
+  if (!hasPermission(USER_ROLES.ADMIN)) {
+    toast('Permission denied. Admin role required.', 'error');
+    return;
+  }
   if (!confirm('️ DELETE ALL DATA?')) return;
   if (!confirm('Last warning!')) return;
   try {
@@ -2409,123 +2895,73 @@ async function clearAllData() {
   } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ DASHBOARD (FIXED: Added Month Filter) ============
+// ============ DASHBOARD (FIXED: Month filter + Advance total) ============
 let charts = {};
-const monthNames = {
-  '01': 'January', '02': 'February', '03': 'March', '04': 'April',
-  '05': 'May', '06': 'June', '07': 'July', '08': 'August',
-  '09': 'September', '10': 'October', '11': 'November', '12': 'December'
-};
-
 function refreshDashboard() {
   const selectedYear = document.getElementById('dashboardYear')?.value || new Date().getFullYear().toString();
   const selectedMonth = document.getElementById('dashboardMonth')?.value || 'all';
   
-  // Update filter badge
-  const filterBadge = document.getElementById('filterBadge');
-  if (selectedYear === 'all' && selectedMonth === 'all') {
-    filterBadge.textContent = 'Showing: All Time';
-  } else if (selectedMonth === 'all') {
-    filterBadge.textContent = `Showing: Year ${selectedYear}`;
-  } else {
-    filterBadge.textContent = `Showing: ${monthNames[selectedMonth]} ${selectedYear}`;
-  }
-
-  // Update stat labels based on filter
-  const payrollLabel = document.getElementById('payrollLabel');
-  const deductionsLabel = document.getElementById('deductionsLabel');
-  const additionsLabel = document.getElementById('additionsLabel');
-  const slipsLabel = document.getElementById('slipsLabel');
-  const chartTitle = document.getElementById('chartTitle');
-  
-  if (selectedMonth === 'all') {
-    payrollLabel.textContent = selectedYear === 'all' ? 'Total Payroll (All Time)' : `Payroll ${selectedYear}`;
-    deductionsLabel.textContent = selectedYear === 'all' ? 'Total Deductions (All Time)' : `Deductions ${selectedYear}`;
-    additionsLabel.textContent = selectedYear === 'all' ? 'Total Additions (All Time)' : `Additions ${selectedYear}`;
-    slipsLabel.textContent = selectedYear === 'all' ? 'Total Slips (All Time)' : `Slips ${selectedYear}`;
-    chartTitle.textContent = selectedYear === 'all' ? 'Payroll (All Time - Monthly)' : `Monthly Payroll ${selectedYear}`;
-  } else {
-    payrollLabel.textContent = `${monthNames[selectedMonth]} Payroll`;
-    deductionsLabel.textContent = `${monthNames[selectedMonth]} Deductions`;
-    additionsLabel.textContent = `${monthNames[selectedMonth]} Additions`;
-    slipsLabel.textContent = `${monthNames[selectedMonth]} Slips`;
-    chartTitle.textContent = `Monthly Payroll ${selectedYear}`;
-  }
-
-  // Filter paid slips
+  // Filter slips by year and month
   let slipsForStats = data.salarySlips.filter(s => s.status === 'Paid');
+  
   if (selectedYear !== 'all') {
     slipsForStats = slipsForStats.filter(s => s.month && s.month.startsWith(selectedYear));
   }
+  
   if (selectedMonth !== 'all') {
     slipsForStats = slipsForStats.filter(s => s.month && s.month.endsWith(`-${selectedMonth}`));
   }
-
-  // Calculate stats for the filtered period
-  let monthlyPayroll = 0;
+  
+  // Calculate stats
+  const monthPayroll = slipsForStats.reduce((s,p) => s + (p.net || 0), 0);
+  
   let monthlyAdditions = 0;
   let monthlyDeductions = 0;
+  slipsForStats.forEach(s => {
+    if (s.earnings && Array.isArray(s.earnings)) {
+      s.earnings.forEach(e => {
+        if (e.id !== 'basic' && e.id !== 'allowances') {
+          monthlyAdditions += (e.amount || 0);
+        }
+      });
+    }
+    if (s.deductions && Array.isArray(s.deductions)) {
+      s.deductions.forEach(d => {
+        monthlyDeductions += (d.amount || 0);
+      });
+    }
+  });
   
-  if (selectedMonth !== 'all') {
-    // Single month - calculate for that specific month
-    const monthFilter = `${selectedYear}-${selectedMonth}`;
-    const monthSlips = slipsForStats.filter(s => s.month === monthFilter);
-    monthlyPayroll = monthSlips.reduce((s,p) => s + (p.net || 0), 0);
-    monthSlips.forEach(s => {
-      if (s.earnings && Array.isArray(s.earnings)) {
-        s.earnings.forEach(e => { if (e.id !== 'basic' && e.id !== 'allowances') monthlyAdditions += (e.amount || 0); });
-      }
-      if (s.deductions && Array.isArray(s.deductions)) {
-        s.deductions.forEach(d => { monthlyDeductions += (d.amount || 0); });
-      }
-    });
-  } else {
-    // All months of year (or all time) - sum all
-    monthlyPayroll = slipsForStats.reduce((s,p) => s + (p.net || 0), 0);
-    slipsForStats.forEach(s => {
-      if (s.earnings && Array.isArray(s.earnings)) {
-        s.earnings.forEach(e => { if (e.id !== 'basic' && e.id !== 'allowances') monthlyAdditions += (e.amount || 0); });
-      }
-      if (s.deductions && Array.isArray(s.deductions)) {
-        s.deductions.forEach(d => { monthlyDeductions += (d.amount || 0); });
-      }
-    });
-  }
-
-  document.getElementById('statWorkers').textContent = data.workers.length;
-  document.getElementById('statPayroll').textContent = fmt(monthlyPayroll);
   const activeLoans = data.loans.filter(l => l.status === 'Active').reduce((s,l) => s + (l.remaining || 0), 0);
+  const activeAdvances = data.advances.filter(a => a.status === 'Active').reduce((s,a) => s + (a.remaining || 0), 0);
+  
+  document.getElementById('statWorkers').textContent = data.workers.length;
+  document.getElementById('statPayroll').textContent = fmt(monthPayroll);
   document.getElementById('statLoans').textContent = fmt(activeLoans);
+  document.getElementById('statAdvances').textContent = fmt(activeAdvances);
   document.getElementById('statDeductions').textContent = fmt(monthlyDeductions);
   document.getElementById('statAdditions').textContent = fmt(monthlyAdditions);
   document.getElementById('statSlips').textContent = slipsForStats.length;
 
   Object.values(charts).forEach(c => c && c.destroy && c.destroy());
   
-  // Chart data based on filter
   const months = [];
   const payrollData = [];
   
   if (selectedYear === 'all') {
-    // Show last 12 months
     for (let i = 11; i >= 0; i--) {
       const d = new Date(); d.setMonth(d.getMonth() - i);
       const m = d.toISOString().slice(0,7);
       months.push(m);
       payrollData.push(slipsForStats.filter(p => p.month === m).reduce((s,p) => s + (p.net || 0), 0));
     }
-  } else if (selectedMonth === 'all') {
-    // Show all 12 months of selected year
+  } else {
     for (let m = 1; m <= 12; m++) {
       const monthStr = `${selectedYear}-${String(m).padStart(2, '0')}`;
-      months.push(monthNames[String(m).padStart(2, '0')]);
-      payrollData.push(slipsForStats.filter(p => p.month === monthStr).reduce((s,p) => s + (p.net || 0), 0));
+      months.push(monthStr);
+      const monthSlips = slipsForStats.filter(p => p.month === monthStr);
+      payrollData.push(monthSlips.reduce((s,p) => s + (p.net || 0), 0));
     }
-  } else {
-    // Single month - show just that month
-    const monthStr = `${selectedYear}-${selectedMonth}`;
-    months.push(`${monthNames[selectedMonth]} ${selectedYear}`);
-    payrollData.push(slipsForStats.filter(p => p.month === monthStr).reduce((s,p) => s + (p.net || 0), 0));
   }
   
   charts.payroll = new Chart(document.getElementById('payrollChart'), {
