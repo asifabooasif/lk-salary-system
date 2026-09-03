@@ -1069,9 +1069,20 @@ auth.onAuthStateChanged(async (user) => {
 async function signInWithGoogle() {
   try {
     showLoading('Signing in with Google...');
+    // Load roles first before sign-in
+    await loadUserRoles();
+    
     const provider = new firebase.auth.GoogleAuthProvider();
     const result = await auth.signInWithPopup(provider);
-    const role = result.user.email === DEFAULT_ADMIN_EMAIL ? USER_ROLES.ADMIN : getUserRole(result.user.email);
+    
+    // Determine role after sign-in
+    let role = USER_ROLES.VIEWER;
+    if (result.user.email === DEFAULT_ADMIN_EMAIL) {
+      role = USER_ROLES.ADMIN;
+    } else {
+      role = getUserRole(result.user.email);
+    }
+    
     toast(`Welcome ${result.user.displayName || result.user.email}! Role: ${role.toUpperCase()}`);
   } catch (error) {
     let msg = 'Google Sign-In failed. ';
@@ -1082,16 +1093,29 @@ async function signInWithGoogle() {
     toast(msg, 'error');
   } finally { hideLoading(); }
 }
+
 async function signInWithEmail(e) {
   e.preventDefault();
   try {
     showLoading('Signing in...');
+    // Load roles first before sign-in
+    await loadUserRoles();
+    
     await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
     const email = document.getElementById('loginEmail').value;
-    const role = email === DEFAULT_ADMIN_EMAIL ? USER_ROLES.ADMIN : getUserRole(email);
+    
+    // Determine role after sign-in
+    let role = USER_ROLES.VIEWER;
+    if (email === DEFAULT_ADMIN_EMAIL) {
+      role = USER_ROLES.ADMIN;
+    } else {
+      role = getUserRole(email);
+    }
+    
     toast(`Welcome back! Role: ${role.toUpperCase()}`);
   } catch (error) { toast('Sign-in failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
+
 async function showSignUp() {
   const email = prompt('Enter email:'); if (!email) return;
   const password = prompt('Enter password (min 6 chars):');
@@ -1099,11 +1123,13 @@ async function showSignUp() {
   try { showLoading('Creating account...'); await auth.createUserWithEmailAndPassword(email, password); toast('Account created!'); }
   catch (error) { toast('Sign-up failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
+
 async function resetPassword() {
   const email = prompt('Enter your email:'); if (!email) return;
   try { showLoading('Sending email...'); await auth.sendPasswordResetEmail(email); toast('Reset email sent!'); }
   catch (error) { toast('Failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
+
 async function logout() {
   if (!confirm('Logout?')) return;
   await auth.signOut();
