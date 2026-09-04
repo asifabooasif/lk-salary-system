@@ -271,7 +271,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 </head>
 <body>
 <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div class="loading-text">Loading...</div></div>
-<!-- LOGIN SCREEN -->
 <div class="login-wrapper" id="loginScreen">
 <div class="login-container">
 <div class="login-illustration">
@@ -325,13 +324,10 @@ Continue with Google
 <input type="password" class="form-input" id="loginPassword" placeholder="Password" required>
 <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
 </form>
-<div class="login-footer">
-<p style="margin-top:10px;"><a onclick="resetPassword()">Forgot password?</a></p>
+<div class="login-footer"><p style="margin-top:10px;"><a onclick="resetPassword()">Forgot password?</a></p></div>
 </div>
 </div>
 </div>
-</div>
-<!-- MAIN APP -->
 <div class="main-app" id="mainApp">
 <div class="sidebar" id="sidebar">
 <div class="sidebar-header"><h2><i class="fas fa-shoe-prints"></i> LANKA SHOE</h2><p>Salary Management System</p></div>
@@ -370,7 +366,6 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- DASHBOARD -->
 <div class="section active" id="dashboard">
 <div class="card" style="margin-bottom:20px;">
 <div class="card-header">
@@ -378,27 +373,17 @@ Continue with Google
 <div class="year-selector">
 <label style="font-size:13px;font-weight:600;color:var(--gray);">Year:</label>
 <select id="dashboardYear" onchange="refreshDashboard()">
-<option value="2024">2024</option>
-<option value="2025">2025</option>
-<option value="2026" selected>2026</option>
-<option value="2027">2027</option>
+<option value="2024">2024</option><option value="2025">2025</option>
+<option value="2026" selected>2026</option><option value="2027">2027</option>
 <option value="all">All Years</option>
 </select>
 <label style="font-size:13px;font-weight:600;color:var(--gray);margin-left:15px;">Month:</label>
 <select id="dashboardMonth" onchange="refreshDashboard()">
 <option value="all">All Months</option>
-<option value="01">January</option>
-<option value="02">February</option>
-<option value="03">March</option>
-<option value="04">April</option>
-<option value="05">May</option>
-<option value="06">June</option>
-<option value="07">July</option>
-<option value="08">August</option>
-<option value="09">September</option>
-<option value="10">October</option>
-<option value="11">November</option>
-<option value="12">December</option>
+<option value="01">January</option><option value="02">February</option><option value="03">March</option>
+<option value="04">April</option><option value="05">May</option><option value="06">June</option>
+<option value="07">July</option><option value="08">August</option><option value="09">September</option>
+<option value="10">October</option><option value="11">November</option><option value="12">December</option>
 </select>
 </div>
 </div>
@@ -421,7 +406,6 @@ Continue with Google
 <div id="recentActivities"></div>
 </div>
 </div>
-<!-- WORKERS -->
 <div class="section" id="workers">
 <div class="card">
 <div class="card-header">
@@ -437,9 +421,7 @@ Continue with Google
 <select id="filterWorkerDept" onchange="renderWorkers()"><option value="">All</option></select>
 <label>Status:</label>
 <select id="filterWorkerStatus" onchange="renderWorkers()">
-<option value="">All</option>
-<option value="Active">Active</option>
-<option value="Inactive">Inactive</option>
+<option value="">All</option><option value="Active">Active</option><option value="Inactive">Inactive</option>
 </select>
 <button class="filter-reset" onclick="resetWorkerFilters()"><i class="fas fa-times"></i> Reset</button>
 </div>
@@ -451,9 +433,7 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- WORKER DETAIL -->
 <div class="section" id="workerDetail"><div id="workerDetailContent"></div></div>
-<!-- LOANS -->
 <div class="section" id="loans">
 <div class="card">
 <div class="card-header">
@@ -470,11 +450,8 @@ Continue with Google
 <i class="fas fa-filter" style="color:var(--primary);"></i>
 <label>Year:</label>
 <select id="filterLoanYear" onchange="renderLoans()">
-<option value="all">All Years</option>
-<option value="2024">2024</option>
-<option value="2025">2025</option>
-<option value="2026">2026</option>
-<option value="2027">2027</option>
+<option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option>
+<option value="2026">2026</option><option value="2027">2027</option>
 </select>
 <label>Month:</label>
 <select id="filterLoanMonth" onchange="renderLoans()">
@@ -486,9 +463,7 @@ Continue with Google
 </select>
 <label>Status:</label>
 <select id="filterLoanStatus" onchange="renderLoans()">
-<option value="all">All</option>
-<option value="Active">Active</option>
-<option value="Completed">Completed</option>
+<option value="all">All</option><option value="Active">Active</option><option value="Completed">Completed</option>
 </select>
 <label>Type:</label>
 <select id="filterLoanType" onchange="renderLoans()">
@@ -506,7 +481,6 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- SALARY ADVANCES -->
 <div class="section" id="advances">
 <div class="card">
 <div class="card-header">
@@ -517,17 +491,15 @@ Continue with Google
 <h4><i class="fas fa-info-circle"></i> About Salary Advances</h4>
 <p>✅ Short-term advances (Salary Advance, Festival Advance, Emergency Cash)</p>
 <p>✅ <strong>Multiple advances for same worker are automatically combined</strong> into one total</p>
-<p>✅ Auto-deducted from pay slip with separate display</p>
+<p>✅ <strong>Full combined amount</strong> is deducted from salary in that month</p>
+<p>✅ Remaining balance (if any) carries to next month</p>
 </div>
 <div class="filter-bar">
 <i class="fas fa-filter" style="color:var(--primary);"></i>
 <label>Year:</label>
 <select id="filterAdvYear" onchange="renderAdvances()">
-<option value="all">All Years</option>
-<option value="2024">2024</option>
-<option value="2025">2025</option>
-<option value="2026">2026</option>
-<option value="2027">2027</option>
+<option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option>
+<option value="2026">2026</option><option value="2027">2027</option>
 </select>
 <label>Month:</label>
 <select id="filterAdvMonth" onchange="renderAdvances()">
@@ -539,9 +511,7 @@ Continue with Google
 </select>
 <label>Status:</label>
 <select id="filterAdvStatus" onchange="renderAdvances()">
-<option value="all">All</option>
-<option value="Active">Active</option>
-<option value="Completed">Completed</option>
+<option value="all">All</option><option value="Active">Active</option><option value="Completed">Completed</option>
 </select>
 <label>Type:</label>
 <select id="filterAdvType" onchange="renderAdvances()">
@@ -559,7 +529,6 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- CREATE PAY SLIP -->
 <div class="section" id="slips">
 <div class="card">
 <div class="card-header"><h2><i class="fas fa-file-invoice-dollar"></i> Create Pay Slip</h2></div>
@@ -580,7 +549,6 @@ Continue with Google
 <div id="slipBuilderContent"></div>
 </div>
 </div>
-<!-- HISTORY -->
 <div class="section" id="history">
 <div class="card">
 <div class="card-header">
@@ -591,10 +559,8 @@ Continue with Google
 </select>
 <select id="historySortYear" onchange="renderHistory()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
 <option value="all">All Years</option>
-<option value="2024">2024</option>
-<option value="2025">2025</option>
-<option value="2026">2026</option>
-<option value="2027">2027</option>
+<option value="2024">2024</option><option value="2025">2025</option>
+<option value="2026">2026</option><option value="2027">2027</option>
 </select>
 </div>
 </div>
@@ -606,7 +572,6 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- REPORTS -->
 <div class="section" id="reports">
 <div class="card">
 <div class="card-header"><h2><i class="fas fa-file-alt"></i> Reports</h2></div>
@@ -635,7 +600,6 @@ Continue with Google
 </div>
 <div id="reportOutput"></div>
 </div>
-<!-- SALARY COMPONENTS -->
 <div class="section" id="components">
 <div class="card">
 <div class="card-header">
@@ -650,7 +614,6 @@ Continue with Google
 <div class="tab-content" id="comp-deductions"><div id="deductionsComponentsList"></div></div>
 </div>
 </div>
-<!-- PAY SLIP DESIGN -->
 <div class="section" id="design">
 <div class="card">
 <div class="card-header">
@@ -733,7 +696,6 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- COMPANY SETTINGS -->
 <div class="section" id="settings">
 <div class="card">
 <div class="card-header"><h2><i class="fas fa-building"></i> Company Information</h2></div>
@@ -771,7 +733,6 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- USER MANAGEMENT (ADMIN ONLY) -->
 <div class="section" id="users">
 <div class="card">
 <div class="card-header">
@@ -788,7 +749,6 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- MODALS -->
 <div class="modal" id="addUserModal">
 <div class="modal-content">
 <div class="modal-header"><h2><i class="fas fa-user-plus"></i> Add/Update User Role</h2><button class="close-btn" onclick="closeModal('addUserModal')">&times;</button></div>
@@ -872,11 +832,10 @@ Continue with Google
 <div class="modal-header"><h2><i class="fas fa-money-check-alt"></i> Issue New Salary Advance</h2><button class="close-btn" onclick="closeModal('addAdvanceModal')">&times;</button></div>
 <div class="modal-body">
 <div class="advance-info-banner">
-<h4><i class="fas fa-lightbulb"></i> Salary Advance vs Loan</h4>
-<p>• <strong>Advance</strong>: Short-term (salary advance, festival advance, emergency cash)</p>
-<p>• <strong>Loan</strong>: Long-term (personal, equipment, vehicle loans)</p>
-<p>• <strong>Multiple advances for same worker are automatically combined</strong> into one total</p>
-<p>• Both auto-deduct from pay slip but tracked separately</p>
+<h4><i class="fas fa-lightbulb"></i> Salary Advance Rules</h4>
+<p>• <strong>Multiple advances</strong> for same worker are <strong>automatically combined</strong></p>
+<p>• The <strong>full combined amount</strong> is deducted from salary in that month</p>
+<p>• If not fully paid, remaining carries to next month</p>
 </div>
 <form id="advanceForm" onsubmit="addAdvance(event)">
 <div class="form-grid">
@@ -889,7 +848,6 @@ Continue with Google
 </select>
 </div>
 <div class="form-group"><label>New Advance Amount (Rs) *</label><input type="number" id="aAmount" step="0.01" required></div>
-<div class="form-group"><label>Monthly Installment (Rs) *</label><input type="number" id="aInstallment" step="0.01" required></div>
 <div class="form-group"><label>Issue Date *</label><input type="date" id="aIssueDate" required></div>
 <div class="form-group"><label>First Deduction Month *</label><input type="month" id="aStartMonth" required></div>
 <div class="form-group full"><label>Reason / Notes</label><textarea id="aReason"></textarea></div>
@@ -939,9 +897,30 @@ Continue with Google
 </div>
 </div>
 </div>
+<div class="modal" id="addOneTimeModal">
+<div class="modal-content" style="max-width:600px;">
+<div class="modal-header"><h2 id="oneTimeModalTitle"><i class="fas fa-plus-circle"></i> Add One-Time Entry</h2><button class="close-btn" onclick="closeModal('addOneTimeModal')">&times;</button></div>
+<div class="modal-body">
+<form id="oneTimeForm" onsubmit="saveOneTimeEntry(event)">
+<input type="hidden" id="otType">
+<input type="hidden" id="otWorkerId">
+<div class="form-grid">
+<div class="form-group"><label>Type *</label><input type="text" id="otEntryType" placeholder="e.g., Bonus, Overtime" required></div>
+<div class="form-group"><label>Amount (Rs) *</label><input type="number" id="otAmount" step="0.01" required></div>
+<div class="form-group"><label>Month *</label><input type="month" id="otMonth" required></div>
+<div class="form-group"><label>Date *</label><input type="date" id="otDate" required></div>
+<div class="form-group full"><label>Notes</label><textarea id="otNotes"></textarea></div>
+</div>
+</form>
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" onclick="closeModal('addOneTimeModal')">Cancel</button>
+<button class="btn btn-primary" onclick="document.getElementById('oneTimeForm').requestSubmit()"><i class="fas fa-save"></i> Save</button>
+</div>
+</div>
+</div>
 <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg">Success</span></div>
 <script>
-// ============ FIREBASE CONFIG ============
 const firebaseConfig = {
 apiKey: "AIzaSyCWjiSNJWgCp5xSC4jWfFrjnxgJ6sILC7w",
 authDomain: "lk-salary.firebaseapp.com",
@@ -954,12 +933,7 @@ measurementId: "G-64NXH3T93L"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
-// ============ ROLE-BASED ACCESS CONTROL ============
-const USER_ROLES = {
-ADMIN: 'admin',
-EDITOR: 'editor',
-VIEWER: 'viewer'
-};
+const USER_ROLES = { ADMIN: 'admin', EDITOR: 'editor', VIEWER: 'viewer' };
 const DEFAULT_ADMIN_EMAIL = 'asifabooasif@gmail.com';
 var ROLE_CONFIG = {};
 let currentUserRole = USER_ROLES.VIEWER;
@@ -971,16 +945,10 @@ if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
 return ROLE_CONFIG[email] || USER_ROLES.VIEWER;
 }
 function hasPermission(requiredRole) {
-const roleHierarchy = {
-[USER_ROLES.ADMIN]: 3,
-[USER_ROLES.EDITOR]: 2,
-[USER_ROLES.VIEWER]: 1
-};
+const roleHierarchy = { [USER_ROLES.ADMIN]: 3, [USER_ROLES.EDITOR]: 2, [USER_ROLES.VIEWER]: 1 };
 return roleHierarchy[currentUserRole] >= roleHierarchy[requiredRole];
 }
-function isAuthorizedUser(email) {
-return email === DEFAULT_ADMIN_EMAIL || ROLE_CONFIG[email];
-}
+function isAuthorizedUser(email) { return email === DEFAULT_ADMIN_EMAIL || ROLE_CONFIG[email]; }
 function applyRoleBasedUI() {
 const menuUsers = document.getElementById('menuUsers');
 const menuDesign = document.querySelector('[data-section="design"]');
@@ -1011,62 +979,32 @@ if (btnAddDepartment) btnAddDepartment.style.display = 'none';
 if (btnClearAll) btnClearAll.style.display = 'none';
 }
 const roleBadge = document.getElementById('userRoleBadge');
-if (roleBadge) {
-roleBadge.textContent = currentUserRole.toUpperCase();
-roleBadge.className = 'user-role-badge ' + currentUserRole;
-}
+if (roleBadge) { roleBadge.textContent = currentUserRole.toUpperCase(); roleBadge.className = 'user-role-badge ' + currentUserRole; }
 }
 function sanitizeForFirestore(obj) {
 if (obj === null || obj === undefined) return null;
 if (typeof obj === 'number' && isNaN(obj)) return 0;
 if (typeof obj !== 'object') return obj;
-if (Array.isArray(obj)) {
-return obj.map(item => sanitizeForFirestore(item)).filter(item => item !== undefined && item !== null);
-}
+if (Array.isArray(obj)) return obj.map(item => sanitizeForFirestore(item)).filter(item => item !== undefined && item !== null);
 const result = {};
-for (const key in obj) {
-if (obj.hasOwnProperty(key) && obj[key] !== undefined) {
-result[key] = sanitizeForFirestore(obj[key]);
-}
-}
+for (const key in obj) { if (obj.hasOwnProperty(key) && obj[key] !== undefined) result[key] = sanitizeForFirestore(obj[key]); }
 return result;
 }
 function showLoading(msg = 'Loading...') {
-try {
-const overlay = document.getElementById('loadingOverlay');
-const textEl = document.querySelector('.loading-text');
-if (overlay && textEl) { textEl.textContent = msg; overlay.classList.add('show'); }
-} catch (e) { console.error(e); }
+try { const overlay = document.getElementById('loadingOverlay'); const textEl = document.querySelector('.loading-text'); if (overlay && textEl) { textEl.textContent = msg; overlay.classList.add('show'); } } catch (e) { console.error(e); }
 }
-function hideLoading() {
-try { const overlay = document.getElementById('loadingOverlay'); if (overlay) overlay.classList.remove('show'); } catch (e) {}
-}
+function hideLoading() { try { const overlay = document.getElementById('loadingOverlay'); if (overlay) overlay.classList.remove('show'); } catch (e) {} }
 async function loadUserRoles() {
-try {
-const snapshot = await db.collection(usersCollection).get();
-snapshot.forEach(doc => {
-const data = doc.data();
-ROLE_CONFIG[data.email] = data.role;
-});
-} catch (error) {
-console.error('Error loading user roles:', error);
-}
+try { const snapshot = await db.collection(usersCollection).get(); snapshot.forEach(doc => { const data = doc.data(); ROLE_CONFIG[data.email] = data.role; }); }
+catch (error) { console.error('Error loading user roles:', error); }
 }
 auth.onAuthStateChanged(async (user) => {
 if (user) {
 await loadUserRoles();
-if (!isAuthorizedUser(user.email)) {
-toast('Access denied. Your email is not authorized.', 'error');
-await auth.signOut();
-return;
-}
-if (user.email === DEFAULT_ADMIN_EMAIL) {
-currentUserRole = USER_ROLES.ADMIN;
-} else {
-currentUserRole = getUserRole(user.email);
-}
-currentUserId = user.uid;
-currentUserEmail = user.email;
+if (!isAuthorizedUser(user.email)) { toast('Access denied. Your email is not authorized.', 'error'); await auth.signOut(); return; }
+if (user.email === DEFAULT_ADMIN_EMAIL) currentUserRole = USER_ROLES.ADMIN;
+else currentUserRole = getUserRole(user.email);
+currentUserId = user.uid; currentUserEmail = user.email;
 document.getElementById('loginScreen').style.display = 'none';
 document.getElementById('mainApp').classList.add('show');
 document.getElementById('userDisplayName').textContent = user.displayName || user.email.split('@')[0];
@@ -1086,11 +1024,7 @@ if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
 await loadUserRoles();
 const provider = new firebase.auth.GoogleAuthProvider();
 const result = await auth.signInWithPopup(provider);
-if (!isAuthorizedUser(result.user.email)) {
-toast('Access denied. Your email is not authorized. Contact admin.', 'error');
-await auth.signOut();
-return;
-}
+if (!isAuthorizedUser(result.user.email)) { toast('Access denied. Your email is not authorized. Contact admin.', 'error'); await auth.signOut(); return; }
 let role = USER_ROLES.VIEWER;
 if (result.user.email === DEFAULT_ADMIN_EMAIL) role = USER_ROLES.ADMIN;
 else role = getUserRole(result.user.email);
@@ -1111,11 +1045,7 @@ showLoading('Signing in...');
 if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
 await loadUserRoles();
 const email = document.getElementById('loginEmail').value;
-if (!isAuthorizedUser(email)) {
-toast('Access denied. Your email is not authorized. Contact admin.', 'error');
-hideLoading();
-return;
-}
+if (!isAuthorizedUser(email)) { toast('Access denied. Your email is not authorized. Contact admin.', 'error'); hideLoading(); return; }
 await auth.signInWithEmailAndPassword(email, document.getElementById('loginPassword').value);
 let role = USER_ROLES.VIEWER;
 if (email === DEFAULT_ADMIN_EMAIL) role = USER_ROLES.ADMIN;
@@ -1128,17 +1058,12 @@ const email = prompt('Enter your email:'); if (!email) return;
 try { showLoading('Sending email...'); await auth.sendPasswordResetEmail(email); toast('Reset email sent!'); }
 catch (error) { toast('Failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
-async function logout() {
-if (!confirm('Logout?')) return;
-await auth.signOut();
-toast('Logged out');
-}
+async function logout() { if (!confirm('Logout?')) return; await auth.signOut(); toast('Logged out'); }
 const collections = {
 workers: 'workers', additions: 'additions', deductions: 'deductions',
 loans: 'loans', advances: 'advances', salarySlips: 'salarySlips',
 salaryComponents: 'salaryComponents', company: 'company',
-salarySettings: 'salarySettings',
-payslipDesign: 'payslipDesign', departments: 'departments'
+salarySettings: 'salarySettings', payslipDesign: 'payslipDesign', departments: 'departments'
 };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).substr(2,5);
 const fmt = (n) => {
@@ -1195,10 +1120,7 @@ sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature'
 };
 }
 if (!data.salarySettings || Object.keys(data.salarySettings).length === 0) {
-data.salarySettings = {
-taxRate: 10, epfEmp: 8, epfEmpr: 12, etf: 3,
-otMult: 1.5, workDays: 26, workHours: 8, payDay: 30, fyStart: 1, currency: 'Rs'
-};
+data.salarySettings = { taxRate: 10, epfEmp: 8, epfEmpr: 12, etf: 3, otMult: 1.5, workDays: 26, workHours: 8, payDay: 30, fyStart: 1, currency: 'Rs' };
 }
 if (!data.company || Object.keys(data.company).length === 0) {
 data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
@@ -1206,10 +1128,7 @@ data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lank
 if (!data.departments.length) data.departments = ["Production","Design","Quality Control","Sales","Administration","Finance","Warehouse","HR"];
 hideLoading();
 showSection('dashboard');
-} catch (error) {
-console.error('Error:', error); hideLoading();
-toast('Error: ' + error.message, 'error');
-}
+} catch (error) { console.error('Error:', error); hideLoading(); toast('Error: ' + error.message, 'error'); }
 }
 async function saveToFirebase(collection, docId, dataObj) {
 const cleanData = sanitizeForFirestore(dataObj);
@@ -1221,9 +1140,7 @@ async function updateInFirebase(collection, docId, dataObj) {
 const cleanData = sanitizeForFirestore(dataObj);
 await db.collection(collection).doc(docId).update(cleanData);
 }
-document.querySelectorAll('.menu-item[data-section]').forEach(item => {
-item.addEventListener('click', () => showSection(item.dataset.section));
-});
+document.querySelectorAll('.menu-item[data-section]').forEach(item => { item.addEventListener('click', () => showSection(item.dataset.section)); });
 function showSection(sec, title=null) {
 document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1256,9 +1173,7 @@ setTimeout(() => t.classList.remove('show'), 3000);
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 document.addEventListener('click', (e) => {
-if (!e.target.closest('.action-menu-wrapper')) {
-document.querySelectorAll('.action-dropdown.show').forEach(d => d.classList.remove('show'));
-}
+if (!e.target.closest('.action-menu-wrapper')) { document.querySelectorAll('.action-dropdown.show').forEach(d => d.classList.remove('show')); }
 });
 function toggleActionMenu(btn) {
 const dropdown = btn.nextElementSibling;
@@ -1267,29 +1182,19 @@ document.querySelectorAll('.action-dropdown.show').forEach(d => d.classList.remo
 if (!isOpen) dropdown.classList.add('show');
 }
 function openAddUserModal() {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
 document.getElementById('userEmail').value = '';
 document.getElementById('userRole').value = USER_ROLES.VIEWER;
 openModal('addUserModal');
 }
 async function saveUserRole() {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
 const email = document.getElementById('userEmail').value.trim();
 const role = document.getElementById('userRole').value;
 if (!email) { toast('Please enter an email address', 'error'); return; }
 try {
 showLoading('Saving user role...');
-await db.collection(usersCollection).doc(email).set({
-email: email, role: role,
-updatedAt: new Date().toISOString(),
-updatedBy: auth.currentUser.email
-});
+await db.collection(usersCollection).doc(email).set({ email: email, role: role, updatedAt: new Date().toISOString(), updatedBy: auth.currentUser.email });
 ROLE_CONFIG[email] = role;
 toast(`User ${email} role updated to ${role.toUpperCase()}`);
 closeModal('addUserModal');
@@ -1297,24 +1202,16 @@ renderUsers();
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function renderUsers() {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-document.getElementById('users').innerHTML = '<div class="card"><div class="empty-state"><h3>Access Denied</h3><p>Admin role required to view this page.</p></div></div>';
-return;
-}
+if (!hasPermission(USER_ROLES.ADMIN)) { document.getElementById('users').innerHTML = '<div class="card"><div class="empty-state"><h3>Access Denied</h3><p>Admin role required to view this page.</p></div></div>'; return; }
 try {
 showLoading('Loading users...');
 const snapshot = await db.collection(usersCollection).get();
 const tbody = document.getElementById('usersTable');
-if (snapshot.empty) {
-tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><h3>No users configured</h3><p>Click "Add User" to assign roles to users.</p></div></td></tr>';
-hideLoading();
-return;
-}
+if (snapshot.empty) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><h3>No users configured</h3><p>Click "Add User" to assign roles to users.</p></div></td></tr>'; hideLoading(); return; }
 let usersHtml = '';
 snapshot.forEach(doc => {
 const userData = doc.data();
-usersHtml += `
-<tr>
+usersHtml += `<tr>
 <td><strong>${userData.email}</strong></td>
 <td><span class="badge badge-${userData.role === 'admin' ? 'danger' : userData.role === 'editor' ? 'success' : 'gray'}">${userData.role.toUpperCase()}</span></td>
 <td>${userData.updatedAt ? new Date(userData.updatedAt).toLocaleDateString() : '-'}</td>
@@ -1328,18 +1225,13 @@ usersHtml += `
 </div>
 </div>
 </td>
-</tr>
-`;
+</tr>`;
 });
 tbody.innerHTML = usersHtml;
 hideLoading();
 } catch (error) { toast('Error loading users: ' + error.message, 'error'); hideLoading(); }
 }
-function editUserRole(email, currentRole) {
-document.getElementById('userEmail').value = email;
-document.getElementById('userRole').value = currentRole;
-openModal('addUserModal');
-}
+function editUserRole(email, currentRole) { document.getElementById('userEmail').value = email; document.getElementById('userRole').value = currentRole; openModal('addUserModal'); }
 async function deleteUserRole(email) {
 if (!confirm(`Remove role assignment for ${email}?`)) return;
 try {
@@ -1350,7 +1242,6 @@ toast(`User ${email} removed`);
 renderUsers();
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
-// ============ WORKERS FILTERS ============
 function resetWorkerFilters() {
 document.getElementById('filterWorkerDept').value = '';
 document.getElementById('filterWorkerStatus').value = '';
@@ -1405,18 +1296,11 @@ email: document.getElementById('wEmail').value, position: document.getElementByI
 department: document.getElementById('wDepartment').value,
 salary: parseFloat(document.getElementById('wSalary').value) || 0, allowances: parseFloat(document.getElementById('wAllowances').value) || 0,
 joinDate: document.getElementById('wJoinDate').value, phone: document.getElementById('wPhone').value || '',
-bank: document.getElementById('wBank').value || '',
-account: document.getElementById('wAccount').value || '', taxId: document.getElementById('wTaxId').value || '',
+bank: document.getElementById('wBank').value || '', account: document.getElementById('wAccount').value || '', taxId: document.getElementById('wTaxId').value || '',
 address: document.getElementById('wAddress').value || '', status: document.getElementById('wEditId').value ? (data.workers.find(x=>x.id===editId)?.status || 'Active') : 'Active',
-modifiedAt: today(),
-modifiedBy: currentUser.displayName || currentUser.email,
-modifiedByEmail: currentUser.email
+modifiedAt: today(), modifiedBy: currentUser.displayName || currentUser.email, modifiedByEmail: currentUser.email
 };
-if (!editId) {
-workerData.createdAt = today();
-workerData.createdBy = currentUser.displayName || currentUser.email;
-workerData.createdByEmail = currentUser.email;
-}
+if (!editId) { workerData.createdAt = today(); workerData.createdBy = currentUser.displayName || currentUser.email; workerData.createdByEmail = currentUser.email; }
 try {
 showLoading(editId ? 'Updating worker...' : 'Saving worker...');
 if (editId) await updateInFirebase(collections.workers, editId, workerData);
@@ -1432,9 +1316,7 @@ const search = (document.getElementById('searchWorker')?.value || '').toLowerCas
 const deptFilter = document.getElementById('filterWorkerDept')?.value || '';
 const statusFilter = document.getElementById('filterWorkerStatus')?.value || '';
 let workers = data.workers;
-if (currentUserRole === USER_ROLES.VIEWER) {
-workers = workers.filter(w => w.email === currentUserEmail);
-}
+if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
 if (deptFilter) workers = workers.filter(w => w.department === deptFilter);
 if (statusFilter) workers = workers.filter(w => (w.status || 'Active') === statusFilter);
 const filtered = workers.filter(w => w.name.toLowerCase().includes(search) || w.empId.toLowerCase().includes(search) || w.department.toLowerCase().includes(search));
@@ -1469,20 +1351,13 @@ async function deleteWorker(id) {
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
 if (!confirm('Delete this worker?')) return;
 const currentUser = auth.currentUser;
-try {
-showLoading('Deleting...');
-await deleteFromFirebase(collections.workers, id);
-await loadData();
-toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+try { showLoading('Deleting...'); await deleteFromFirebase(collections.workers, id); await loadData(); toast(`Deleted by ${currentUser.displayName || currentUser.email}`); }
+catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function openWorkerDetail(id) {
 const w = data.workers.find(x => x.id === id);
 if (!w) return;
-if (currentUserRole === USER_ROLES.VIEWER && w.email !== currentUserEmail) {
-toast('Access denied. You can only view your own details.', 'error');
-return;
-}
+if (currentUserRole === USER_ROLES.VIEWER && w.email !== currentUserEmail) { toast('Access denied. You can only view your own details.', 'error'); return; }
 const slips = data.salarySlips.filter(s => s.workerId === id);
 const loans = data.loans.filter(l => l.workerId === id);
 const advances = data.advances.filter(a => a.workerId === id);
@@ -1539,7 +1414,7 @@ ${hasPermission(USER_ROLES.EDITOR) ? `<button class="btn btn-info" onclick="open
 <td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
 <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td>
 <td><strong>${fmt(s.net)}</strong></td>
-<td><span class="badge ${s.status==='Paid'?'badge-success':'badge-gray'}">${s.status}</span></td>
+<td><span class="badge ${s.status==='Paid'?'badge-success':s.status==='Reversed'?'badge-danger':'badge-gray'}">${s.status}</span></td>
 </tr>`).join('') : '<tr><td colspan="7"><div class="empty-state"><h3>No slips</h3></div></td></tr>'}</tbody>
 </table></div>
 </div>
@@ -1562,38 +1437,60 @@ return `<tr>
 </div>
 <div class="tab-content" id="wt-advances">
 <div class="table-container"><table>
-<thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th></tr></thead>
+<thead><tr><th>Type</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th></tr></thead>
 <tbody>${advances.length ? advances.map(a => {
-const pct = (a.paid / a.amount * 100).toFixed(1);
+const pct = a.amount > 0 ? (a.paid / a.amount * 100).toFixed(1) : 0;
 return `<tr>
 <td><span class="badge badge-pink">${a.type}</span></td>
-<td>${fmt(a.amount)}</td><td>${fmt(a.installment)}</td>
+<td>${fmt(a.amount)}</td>
 <td style="color:var(--success);">${fmt(a.paid)}</td>
 <td style="color:var(--danger);"><strong>${fmt(a.remaining)}</strong></td>
 <td>${a.startMonth}</td>
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:linear-gradient(90deg,#db2777,#ec4899);"></div></div></td>
 <td><span class="badge ${a.status==='Active'?'badge-pink':'badge-success'}">${a.status}</span></td>
 </tr>`;
-}).join('') : '<tr><td colspan="8"><div class="empty-state"><h3>No advances</h3></div></td></tr>'}</tbody>
+}).join('') : '<tr><td colspan="7"><div class="empty-state"><h3>No advances</h3></div></td></tr>'}</tbody>
 </table></div>
 </div>
 <div class="tab-content" id="wt-additions">
-<div class="table-container"><table>
-<thead><tr><th>Date</th><th>Type</th><th>Month</th><th>Amount</th></tr></thead>
-<tbody>${data.additions.filter(a=>a.workerId===id).length ? data.additions.filter(a=>a.workerId===id).slice().reverse().map(a => `<tr>
-<td>${a.date}</td><td><span class="badge badge-info">${a.type}</span></td><td>${a.month}</td>
-<td><strong style="color:var(--success);">+${fmt(a.amount)}</strong></td>
-</tr>`).join('') : '<tr><td colspan="4"><div class="empty-state"><h3>No additions</h3></div></td></tr>'}</tbody>
-</table></div>
+<div class="filter-bar">
+<i class="fas fa-filter" style="color:var(--success);"></i>
+<label>Year:</label>
+<select id="wtAddYear" onchange="renderWorkerAdditions('${id}')">
+<option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option>
+<option value="2026">2026</option><option value="2027">2027</option>
+</select>
+<label>Month:</label>
+<select id="wtAddMonth" onchange="renderWorkerAdditions('${id}')">
+<option value="all">All Months</option>
+<option value="01">January</option><option value="02">February</option><option value="03">March</option>
+<option value="04">April</option><option value="05">May</option><option value="06">June</option>
+<option value="07">July</option><option value="08">August</option><option value="09">September</option>
+<option value="10">October</option><option value="11">November</option><option value="12">December</option>
+</select>
+${hasPermission(USER_ROLES.EDITOR) ? `<button class="btn btn-success btn-sm" onclick="openAddOneTimeModal('addition','${id}')"><i class="fas fa-plus"></i> Add</button>` : ''}
+</div>
+<div id="wtAdditionsContent"></div>
 </div>
 <div class="tab-content" id="wt-deductions">
-<div class="table-container"><table>
-<thead><tr><th>Date</th><th>Type</th><th>Month</th><th>Amount</th></tr></thead>
-<tbody>${data.deductions.filter(d=>d.workerId===id).length ? data.deductions.filter(d=>d.workerId===id).slice().reverse().map(d => `<tr>
-<td>${d.date}</td><td><span class="badge badge-warning">${d.type}</span></td><td>${d.month}</td>
-<td><strong style="color:var(--danger);">-${fmt(d.amount)}</strong></td>
-</tr>`).join('') : '<tr><td colspan="4"><div class="empty-state"><h3>No deductions</h3></div></td></tr>'}</tbody>
-</table></div>
+<div class="filter-bar">
+<i class="fas fa-filter" style="color:var(--danger);"></i>
+<label>Year:</label>
+<select id="wtDedYear" onchange="renderWorkerDeductions('${id}')">
+<option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option>
+<option value="2026">2026</option><option value="2027">2027</option>
+</select>
+<label>Month:</label>
+<select id="wtDedMonth" onchange="renderWorkerDeductions('${id}')">
+<option value="all">All Months</option>
+<option value="01">January</option><option value="02">February</option><option value="03">March</option>
+<option value="04">April</option><option value="05">May</option><option value="06">June</option>
+<option value="07">July</option><option value="08">August</option><option value="09">September</option>
+<option value="10">October</option><option value="11">November</option><option value="12">December</option>
+</select>
+${hasPermission(USER_ROLES.EDITOR) ? `<button class="btn btn-danger btn-sm" onclick="openAddOneTimeModal('deduction','${id}')"><i class="fas fa-plus"></i> Add</button>` : ''}
+</div>
+<div id="wtDeductionsContent"></div>
 </div>
 <div class="tab-content" id="wt-personal">
 <div class="form-grid">
@@ -1614,6 +1511,140 @@ ${w.modifiedBy ? `<div style="grid-column:1/-1;"><strong>Last Modified By:</stro
 </div>
 `;
 showSection('workerDetail', w.name);
+renderWorkerAdditions(id);
+renderWorkerDeductions(id);
+}
+function renderWorkerAdditions(workerId) {
+const yearFilter = document.getElementById('wtAddYear')?.value || 'all';
+const monthFilter = document.getElementById('wtAddMonth')?.value || 'all';
+const container = document.getElementById('wtAdditionsContent');
+if (!container) return;
+// Get additions from pay slips (earnings excluding basic/allowances)
+const workerSlips = data.salarySlips.filter(s => s.workerId === workerId && s.status === 'Paid');
+let additionsFromSlips = [];
+workerSlips.forEach(slip => {
+if (slip.earnings && Array.isArray(slip.earnings)) {
+slip.earnings.forEach(e => {
+if (e.id !== 'basic' && e.id !== 'allowances' && e.amount > 0) {
+additionsFromSlips.push({ date: slip.month, type: e.name, month: slip.month, amount: e.amount, source: 'Pay Slip #' + slip.slipNo });
+}
+});
+}
+});
+// Also get standalone additions
+const standaloneAdds = data.additions.filter(a => a.workerId === workerId);
+const allAdds = [...additionsFromSlips, ...standaloneAdds];
+// Apply filters
+let filtered = allAdds;
+if (yearFilter !== 'all') filtered = filtered.filter(a => a.month && a.month.startsWith(yearFilter));
+if (monthFilter !== 'all') filtered = filtered.filter(a => a.month && a.month.endsWith(`-${monthFilter}`));
+filtered.sort((a,b) => (b.month || '').localeCompare(a.month || ''));
+const total = filtered.reduce((s,a) => s + (a.amount || 0), 0);
+if (!filtered.length) {
+container.innerHTML = '<div class="empty-state"><i class="fas fa-plus-circle"></i><h3>No additions</h3></div>';
+return;
+}
+container.innerHTML = `
+<div style="padding:10px 15px;background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+<strong style="color:#065f46;"><i class="fas fa-calculator"></i> Total Additions:</strong>
+<strong style="color:#065f46;font-size:18px;">${fmt(total)}</strong>
+</div>
+<div class="table-container"><table>
+<thead><tr><th>Month</th><th>Type</th><th>Amount</th><th>Source</th></tr></thead>
+<tbody>${filtered.map(a => `<tr>
+<td>${a.month || '-'}</td>
+<td><span class="badge badge-info">${a.type}</span></td>
+<td><strong style="color:var(--success);">+${fmt(a.amount)}</strong></td>
+<td style="font-size:11px;color:var(--gray);">${a.source || '-'}</td>
+</tr>`).join('')}</tbody>
+</table></div>`;
+}
+function renderWorkerDeductions(workerId) {
+const yearFilter = document.getElementById('wtDedYear')?.value || 'all';
+const monthFilter = document.getElementById('wtDedMonth')?.value || 'all';
+const container = document.getElementById('wtDeductionsContent');
+if (!container) return;
+// Get deductions from pay slips
+const workerSlips = data.salarySlips.filter(s => s.workerId === workerId && s.status === 'Paid');
+let deductionsFromSlips = [];
+workerSlips.forEach(slip => {
+if (slip.deductions && Array.isArray(slip.deductions)) {
+slip.deductions.forEach(d => {
+if (d.amount > 0) {
+deductionsFromSlips.push({ date: slip.month, type: d.name, month: slip.month, amount: d.amount, source: 'Pay Slip #' + slip.slipNo, kind: d.kind || '' });
+}
+});
+}
+});
+// Also get standalone deductions
+const standaloneDeds = data.deductions.filter(d => d.workerId === workerId);
+const allDeds = [...deductionsFromSlips, ...standaloneDeds];
+// Apply filters
+let filtered = allDeds;
+if (yearFilter !== 'all') filtered = filtered.filter(d => d.month && d.month.startsWith(yearFilter));
+if (monthFilter !== 'all') filtered = filtered.filter(d => d.month && d.month.endsWith(`-${monthFilter}`));
+filtered.sort((a,b) => (b.month || '').localeCompare(a.month || ''));
+const total = filtered.reduce((s,d) => s + (d.amount || 0), 0);
+if (!filtered.length) {
+container.innerHTML = '<div class="empty-state"><i class="fas fa-minus-circle"></i><h3>No deductions</h3></div>';
+return;
+}
+container.innerHTML = `
+<div style="padding:10px 15px;background:linear-gradient(135deg,#fee2e2,#fecaca);border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+<strong style="color:#991b1b;"><i class="fas fa-calculator"></i> Total Deductions:</strong>
+<strong style="color:#991b1b;font-size:18px;">${fmt(total)}</strong>
+</div>
+<div class="table-container"><table>
+<thead><tr><th>Month</th><th>Type</th><th>Amount</th><th>Source</th></tr></thead>
+<tbody>${filtered.map(d => {
+const bg = d.kind === 'loan' ? '#fef3c7' : d.kind === 'advance' ? '#fce7f3' : '';
+return `<tr style="background:${bg};">
+<td>${d.month || '-'}</td>
+<td><span class="badge badge-warning">${d.type}</span></td>
+<td><strong style="color:var(--danger);">-${fmt(d.amount)}</strong></td>
+<td style="font-size:11px;color:var(--gray);">${d.source || '-'}</td>
+</tr>`;
+}).join('')}</tbody>
+</table></div>`;
+}
+function openAddOneTimeModal(type, workerId) {
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+document.getElementById('oneTimeModalTitle').innerHTML = `<i class="fas fa-${type==='addition'?'plus-circle':'minus-circle'}"></i> Add One-Time ${type==='addition'?'Addition':'Deduction'}`;
+document.getElementById('oneTimeForm').reset();
+document.getElementById('otType').value = type;
+document.getElementById('otWorkerId').value = workerId;
+document.getElementById('otDate').value = today();
+document.getElementById('otMonth').value = currentMonth();
+openModal('addOneTimeModal');
+}
+async function saveOneTimeEntry(e) {
+e.preventDefault();
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+const type = document.getElementById('otType').value;
+const workerId = document.getElementById('otWorkerId').value;
+const currentUser = auth.currentUser;
+const entryData = {
+workerId: workerId,
+type: document.getElementById('otEntryType').value,
+amount: parseFloat(document.getElementById('otAmount').value) || 0,
+month: document.getElementById('otMonth').value,
+date: document.getElementById('otDate').value,
+notes: document.getElementById('otNotes').value || '',
+createdAt: today(),
+createdBy: currentUser.displayName || currentUser.email,
+createdByEmail: currentUser.email
+};
+try {
+showLoading('Saving...');
+const collection = type === 'addition' ? collections.additions : collections.deductions;
+await saveToFirebase(collection, null, entryData);
+await loadData();
+toast('Entry added!');
+closeModal('addOneTimeModal');
+// Re-render the appropriate tab
+if (type === 'addition') renderWorkerAdditions(workerId);
+else renderWorkerDeductions(workerId);
+} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function switchWorkerTab(tab, el) {
 document.querySelectorAll('#workerDetailContent .tab').forEach(t => t.classList.remove('active'));
@@ -1647,9 +1678,7 @@ function populateWorkerSelect(id) {
 const el = document.getElementById(id);
 if (!el) return;
 let workers = data.workers;
-if (currentUserRole === USER_ROLES.VIEWER) {
-workers = workers.filter(w => w.email === currentUserEmail);
-}
+if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
 el.innerHTML = '<option value="">Select Worker</option>' + workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>`).join('');
 }
 function populateReportFilters() {
@@ -1690,7 +1719,6 @@ toast('Loan issued!');
 closeModal('addLoanModal');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
-// ============ LOANS FILTERS ============
 function resetLoanFilters() {
 document.getElementById('filterLoanYear').value = 'all';
 document.getElementById('filterLoanMonth').value = 'all';
@@ -1705,23 +1733,14 @@ if (currentUserRole === USER_ROLES.VIEWER) {
 const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
 loans = loans.filter(l => workerIds.includes(l.workerId));
 }
-// Apply filters
 const yearFilter = document.getElementById('filterLoanYear')?.value || 'all';
 const monthFilter = document.getElementById('filterLoanMonth')?.value || 'all';
 const statusFilter = document.getElementById('filterLoanStatus')?.value || 'all';
 const typeFilter = document.getElementById('filterLoanType')?.value || 'all';
-if (yearFilter !== 'all') {
-loans = loans.filter(l => l.startMonth && l.startMonth.startsWith(yearFilter));
-}
-if (monthFilter !== 'all') {
-loans = loans.filter(l => l.startMonth && l.startMonth.endsWith(`-${monthFilter}`));
-}
-if (statusFilter !== 'all') {
-loans = loans.filter(l => l.status === statusFilter);
-}
-if (typeFilter !== 'all') {
-loans = loans.filter(l => l.type === typeFilter);
-}
+if (yearFilter !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.startsWith(yearFilter));
+if (monthFilter !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.endsWith(`-${monthFilter}`));
+if (statusFilter !== 'all') loans = loans.filter(l => l.status === statusFilter);
+if (typeFilter !== 'all') loans = loans.filter(l => l.type === typeFilter);
 if (!loans.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans</h3></div></td></tr>'; return; }
 const canDelete = hasPermission(USER_ROLES.ADMIN);
 tbody.innerHTML = loans.map(l => {
@@ -1750,12 +1769,8 @@ async function deleteLoan(id) {
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
 if (!confirm('Delete this loan?')) return;
 const currentUser = auth.currentUser;
-try {
-showLoading('Deleting...');
-await deleteFromFirebase(collections.loans, id);
-await loadData();
-toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+try { showLoading('Deleting...'); await deleteFromFirebase(collections.loans, id); await loadData(); toast(`Deleted by ${currentUser.displayName || currentUser.email}`); }
+catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function openAddAdvanceModal() {
 if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
@@ -1765,30 +1780,23 @@ document.getElementById('aIssueDate').value = today();
 document.getElementById('aStartMonth').value = currentMonth();
 openModal('addAdvanceModal');
 }
-// ============ ADVANCE AGGREGATION LOGIC ============
 async function addAdvance(e) {
 e.preventDefault();
 if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 const newAmount = parseFloat(document.getElementById('aAmount').value) || 0;
-const newInstallment = parseFloat(document.getElementById('aInstallment').value) || 0;
 const workerId = document.getElementById('aWorker').value;
 const advType = document.getElementById('aType').value;
 const issueDate = document.getElementById('aIssueDate').value;
 const startMonth = document.getElementById('aStartMonth').value;
 const reason = document.getElementById('aReason').value || '';
 const currentUser = auth.currentUser;
-
 try {
 showLoading('Processing advance...');
-// Check if worker has an existing ACTIVE advance - if yes, combine into it
 const existingActive = data.advances.find(a => a.workerId === workerId && a.status === 'Active');
 if (existingActive) {
-// AGGREGATE: Add new amount to existing advance total
 const updatedData = {
 amount: (existingActive.amount || 0) + newAmount,
 remaining: (existingActive.remaining || 0) + newAmount,
-installment: newInstallment > 0 ? newInstallment : existingActive.installment,
-type: existingActive.type, // keep original type
 reason: (existingActive.reason || '') + (reason ? ' | ' + reason : ''),
 modifiedAt: today(),
 modifiedBy: currentUser.displayName || currentUser.email,
@@ -1798,10 +1806,9 @@ await updateInFirebase(collections.advances, existingActive.id, updatedData);
 await loadData();
 toast(`Advance added! Combined total: ${fmt(updatedData.amount)}`);
 } else {
-// Create new advance record
 const advanceData = {
 workerId: workerId, type: advType,
-amount: newAmount, installment: newInstallment,
+amount: newAmount, installment: newAmount,
 paid: 0, remaining: newAmount, issueDate: issueDate,
 startMonth: startMonth, reason: reason,
 status: 'Active', paidMonths: [], createdAt: today(),
@@ -1814,7 +1821,6 @@ toast('Advance issued!');
 closeModal('addAdvanceModal');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
-// ============ ADVANCES FILTERS ============
 function resetAdvanceFilters() {
 document.getElementById('filterAdvYear').value = 'all';
 document.getElementById('filterAdvMonth').value = 'all';
@@ -1829,23 +1835,14 @@ if (currentUserRole === USER_ROLES.VIEWER) {
 const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
 advances = advances.filter(a => workerIds.includes(a.workerId));
 }
-// Apply filters
 const yearFilter = document.getElementById('filterAdvYear')?.value || 'all';
 const monthFilter = document.getElementById('filterAdvMonth')?.value || 'all';
 const statusFilter = document.getElementById('filterAdvStatus')?.value || 'all';
 const typeFilter = document.getElementById('filterAdvType')?.value || 'all';
-if (yearFilter !== 'all') {
-advances = advances.filter(a => a.startMonth && a.startMonth.startsWith(yearFilter));
-}
-if (monthFilter !== 'all') {
-advances = advances.filter(a => a.startMonth && a.startMonth.endsWith(`-${monthFilter}`));
-}
-if (statusFilter !== 'all') {
-advances = advances.filter(a => a.status === statusFilter);
-}
-if (typeFilter !== 'all') {
-advances = advances.filter(a => a.type === typeFilter);
-}
+if (yearFilter !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.startsWith(yearFilter));
+if (monthFilter !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.endsWith(`-${monthFilter}`));
+if (statusFilter !== 'all') advances = advances.filter(a => a.status === statusFilter);
+if (typeFilter !== 'all') advances = advances.filter(a => a.type === typeFilter);
 if (!advances.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-money-check-alt"></i><h3>No advances</h3></div></td></tr>'; return; }
 const canDelete = hasPermission(USER_ROLES.ADMIN);
 tbody.innerHTML = advances.map(a => {
@@ -1874,12 +1871,8 @@ async function deleteAdvance(id) {
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
 if (!confirm('Delete this advance?')) return;
 const currentUser = auth.currentUser;
-try {
-showLoading('Deleting...');
-await deleteFromFirebase(collections.advances, id);
-await loadData();
-toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+try { showLoading('Deleting...'); await deleteFromFirebase(collections.advances, id); await loadData(); toast(`Deleted by ${currentUser.displayName || currentUser.email}`); }
+catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderComponents() {
 const earnings = data.salaryComponents.filter(c => c.type === 'earning');
@@ -1973,21 +1966,17 @@ loanBanner.innerHTML = `<div class="loan-info-banner">
 <h4><i class="fas fa-hand-holding-usd"></i> ${workerLoans.length} Loan(s) Auto-Deducting</h4>
 ${workerLoans.map(l => `<p>• <strong>${l.type}</strong>: ${fmt(l.installment)}/mo • Remaining: ${fmt(l.remaining)}</p>`).join('')}
 </div>`;
-} else {
-loanBanner.innerHTML = '';
-}
+} else loanBanner.innerHTML = '';
+// Combined advance - show total remaining as default deduction
 if (workerAdvances.length > 0) {
-// Show total combined advance amount
-const totalAdvRemaining = workerAdvances.reduce((s,a) => s + (a.remaining || 0), 0);
-const totalAdvInstallment = workerAdvances.reduce((s,a) => s + (a.installment || 0), 0);
+const totalRemaining = workerAdvances.reduce((s,a) => s + (a.remaining || 0), 0);
 advanceBanner.innerHTML = `<div class="advance-info-banner">
-<h4><i class="fas fa-money-check-alt"></i> ${workerAdvances.length} Advance(s) Auto-Deducting (Combined Total)</h4>
-${workerAdvances.map(a => `<p>• <strong>${a.type}</strong>: ${fmt(a.installment)}/mo • Balance: ${fmt(a.remaining)}</p>`).join('')}
-<p style="margin-top:8px;font-weight:600;color:#831843;"><i class="fas fa-calculator"></i> Combined Total Deduction: ${fmt(totalAdvInstallment)}/mo • Total Balance: ${fmt(totalAdvRemaining)}</p>
+<h4><i class="fas fa-money-check-alt"></i> Salary Advance (Combined) - Auto-Deducting</h4>
+<p>• <strong>${workerAdvances.length}</strong> advance record(s) combined</p>
+<p>• <strong>Total Balance:</strong> ${fmt(totalRemaining)}</p>
+<p style="margin-top:8px;font-weight:600;color:#831843;"><i class="fas fa-info-circle"></i> Full combined amount will be deducted from this month's salary</p>
 </div>`;
-} else {
-advanceBanner.innerHTML = '';
-}
+} else advanceBanner.innerHTML = '';
 currentSlipDefaults = {};
 let earningsHtml = `<div class="slip-row" data-type="earning" data-id="basic">
 <div><strong>Basic Salary</strong><div class="calc-info">From profile</div></div>
@@ -2037,15 +2026,20 @@ deductionsHtml += `<div class="slip-row loan-row" data-type="deduction" data-id=
 </div>`;
 currentSlipDefaults[`loan_${l.id}`] = l.installment;
 });
-workerAdvances.forEach(a => {
-deductionsHtml += `<div class="slip-row advance-row" data-type="deduction" data-id="advance_${a.id}" data-advance-id="${a.id}" data-kind="advance">
-<div><strong><i class="fas fa-money-check-alt" style="color:var(--pink);"></i> Advance - ${a.type}</strong><div class="calc-info">Auto-deducted • Balance: ${fmt(a.remaining)}</div></div>
-<input type="number" class="row-amount" value="${a.installment || 0}" step="0.01" oninput="updateSlipSummary()">
-<div><span class="default-amount">Default: ${fmt(a.installment)}</span></div>
+// COMBINED ADVANCE - ONE ROW with total remaining as default
+if (workerAdvances.length > 0) {
+const totalRemaining = workerAdvances.reduce((s,a) => s + (a.remaining || 0), 0);
+const advanceIds = workerAdvances.map(a => a.id).join(',');
+const typeNames = [...new Set(workerAdvances.map(a => a.type))].join(', ');
+deductionsHtml += `<div class="slip-row advance-row" data-type="deduction" data-id="combined_advance" data-advance-ids="${advanceIds}" data-kind="combined_advance">
+<div><strong><i class="fas fa-money-check-alt" style="color:var(--pink);"></i> Salary Advance (Combined)</strong>
+<div class="calc-info">${workerAdvances.length} advance(s) • Types: ${typeNames} • Total Balance: ${fmt(totalRemaining)}</div></div>
+<input type="number" class="row-amount" value="${totalRemaining}" step="0.01" oninput="updateSlipSummary()">
+<div><span class="default-amount">Default: ${fmt(totalRemaining)} (Full amount)</span></div>
 <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
 </div>`;
-currentSlipDefaults[`advance_${a.id}`] = a.installment;
-});
+currentSlipDefaults['combined_advance'] = totalRemaining;
+}
 if (!deductionsHtml) deductionsHtml = '<div style="padding:15px;text-align:center;color:var(--gray);">No deductions configured</div>';
 container.innerHTML = `
 <div class="slip-builder">
@@ -2100,12 +2094,32 @@ const id = row.dataset.id || '';
 const kind = row.dataset.kind || '';
 let name = 'Unknown';
 if (id.startsWith('loan_')) { const l = data.loans.find(x => x.id === id.replace('loan_', '')); name = l ? `Loan - ${l.type}` : 'Loan'; }
-else if (id.startsWith('advance_')) { const a = data.advances.find(x => x.id === id.replace('advance_', '')); name = a ? `Advance - ${a.type}` : 'Advance'; }
+else if (id === 'combined_advance') {
+const advanceIds = (row.dataset.advanceIds || '').split(',').filter(x => x);
+const count = advanceIds.length;
+name = `Salary Advance (Combined - ${count} record${count>1?'s':''})`;
+}
 else { const c = data.salaryComponents.find(x => x.id === id); name = c ? c.name : 'Unknown'; }
 if (included && amount > 0) {
 deductions.push({ name: name || 'Unknown', amount: amount || 0, id: id || '', kind: kind || '' });
 if (kind === 'loan') loansDeducted.push({ loanId: row.dataset.loanId || '', amount: amount || 0 });
-if (kind === 'advance') advancesDeducted.push({ advanceId: row.dataset.advanceId || '', amount: amount || 0 });
+if (kind === 'combined_advance') {
+// Distribute payment proportionally across all advances
+const advanceIds = (row.dataset.advanceIds || '').split(',').filter(x => x);
+const totalPaid = amount || 0;
+// Get current remaining for each advance
+const advancesWithRemaining = advanceIds.map(aid => {
+const adv = data.advances.find(a => a.id === aid);
+return adv ? { id: aid, remaining: adv.remaining || 0 } : null;
+}).filter(x => x);
+const totalRemaining = advancesWithRemaining.reduce((s,a) => s + a.remaining, 0);
+// Distribute proportionally
+advancesWithRemaining.forEach(adv => {
+const proportion = totalRemaining > 0 ? adv.remaining / totalRemaining : 1/advancesWithRemaining.length;
+const paymentForThis = Math.round(totalPaid * proportion * 100) / 100;
+advancesDeducted.push({ advanceId: adv.id, amount: paymentForThis });
+});
+}
 }
 row.classList.toggle('excluded', !included);
 } catch (err) { console.error('Row error:', err); }
@@ -2119,9 +2133,7 @@ document.getElementById('sumGross').textContent = fmt(totalEarnings);
 document.getElementById('sumDed').textContent = fmt(totalDeductions);
 document.getElementById('sumNet').textContent = fmt(net);
 currentSlipData = { workerId: workerId || '', month: document.getElementById('slipMonth').value || '', notes: document.getElementById('slipNotes').value || '', earnings, deductions, loansDeducted, advancesDeducted, basic: basic || 0, totalAdditions: totalEarnings - basic, totalDeductions: totalDeductions || 0, net: net || 0 };
-} catch (err) {
-console.error('updateSlipSummary error:', err);
-}
+} catch (err) { console.error('updateSlipSummary error:', err); }
 }
 function previewSlip() {
 if (!currentSlipData) { toast('Select worker and month', 'error'); return; }
@@ -2136,21 +2148,12 @@ const existingSlip = data.salarySlips.find(s => s.workerId === workerId && s.mon
 const currentUser = auth.currentUser;
 const slipData = {
 slipNo: existingSlip ? (existingSlip.slipNo || '') : 'SL-' + Date.now().toString().slice(-6),
-workerId: workerId || '',
-month: month || '',
+workerId: workerId || '', month: month || '',
 notes: (currentSlipData.notes || '').toString(),
-earnings: (currentSlipData.earnings || []).map(e => ({
-name: e.name || 'Unknown', amount: parseFloat(e.amount) || 0, id: e.id || ''
-})),
-deductions: (currentSlipData.deductions || []).map(d => ({
-name: d.name || 'Unknown', amount: parseFloat(d.amount) || 0, id: d.id || '', kind: d.kind || ''
-})),
-loansDeducted: (currentSlipData.loansDeducted || []).map(ld => ({
-loanId: ld.loanId || '', amount: parseFloat(ld.amount) || 0
-})),
-advancesDeducted: (currentSlipData.advancesDeducted || []).map(ad => ({
-advanceId: ad.advanceId || '', amount: parseFloat(ad.amount) || 0
-})),
+earnings: (currentSlipData.earnings || []).map(e => ({ name: e.name || 'Unknown', amount: parseFloat(e.amount) || 0, id: e.id || '' })),
+deductions: (currentSlipData.deductions || []).map(d => ({ name: d.name || 'Unknown', amount: parseFloat(d.amount) || 0, id: d.id || '', kind: d.kind || '' })),
+loansDeducted: (currentSlipData.loansDeducted || []).map(ld => ({ loanId: ld.loanId || '', amount: parseFloat(ld.amount) || 0 })),
+advancesDeducted: (currentSlipData.advancesDeducted || []).map(ad => ({ advanceId: ad.advanceId || '', amount: parseFloat(ad.amount) || 0 })),
 basic: parseFloat(currentSlipData.basic) || 0,
 totalAdditions: parseFloat(currentSlipData.totalAdditions) || 0,
 totalDeductions: parseFloat(currentSlipData.totalDeductions) || 0,
@@ -2169,9 +2172,12 @@ showLoading('Finalizing...');
 if (existingSlip) await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
 else await saveToFirebase(collections.salarySlips, null, slipData);
 if (status === 'Paid') {
+// Update loans
 for (const ld of slipData.loansDeducted) {
 const loan = data.loans.find(l => l.id === ld.loanId);
-if (loan && !loan.paidMonths.includes(month)) {
+if (loan) {
+if (!loan.paidMonths) loan.paidMonths = [];
+if (!loan.paidMonths.includes(month)) {
 loan.paidMonths.push(month);
 loan.paid = (loan.paid || 0) + ld.amount;
 loan.remaining = Math.max(0, (loan.remaining || 0) - ld.amount);
@@ -2179,10 +2185,15 @@ if (loan.remaining <= 0.01) { loan.remaining = 0; loan.status = 'Completed'; }
 await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths });
 }
 }
+}
+// Update advances (distributed payments)
 for (const ad of slipData.advancesDeducted) {
 const adv = data.advances.find(a => a.id === ad.advanceId);
-if (adv && !adv.paidMonths.includes(month)) {
+if (adv) {
+if (!adv.paidMonths) adv.paidMonths = [];
+if (!adv.paidMonths.includes(month)) {
 adv.paidMonths.push(month);
+}
 adv.paid = (adv.paid || 0) + ad.amount;
 adv.remaining = Math.max(0, (adv.remaining || 0) - ad.amount);
 if (adv.remaining <= 0.01) { adv.remaining = 0; adv.status = 'Completed'; }
@@ -2196,10 +2207,7 @@ await loadData();
 const savedSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
 if (savedSlip) downloadSlipPDF(savedSlip);
 }
-} catch (error) {
-console.error('Finalize error:', error);
-toast('Error: ' + error.message, 'error');
-} finally { hideLoading(); }
+} catch (error) { console.error('Finalize error:', error); toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderHistory() {
 const tbody = document.getElementById('historyTable');
@@ -2210,12 +2218,8 @@ slips = slips.filter(s => workerIds.includes(s.workerId));
 }
 const sortMonth = document.getElementById('historySortMonth')?.value || 'all';
 const sortYear = document.getElementById('historySortYear')?.value || 'all';
-if (sortMonth !== 'all') {
-slips = slips.filter(s => s.month === sortMonth);
-}
-if (sortYear !== 'all') {
-slips = slips.filter(s => s.month && s.month.startsWith(sortYear));
-}
+if (sortMonth !== 'all') slips = slips.filter(s => s.month === sortMonth);
+if (sortYear !== 'all') slips = slips.filter(s => s.month && s.month.startsWith(sortYear));
 if (!slips.length) { tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><h3>No slips</h3></div></td></tr>'; return; }
 const canEdit = hasPermission(USER_ROLES.EDITOR);
 const canReverse = hasPermission(USER_ROLES.ADMIN);
@@ -2227,7 +2231,7 @@ return `<tr>
 <td><strong>#${s.slipNo}</strong></td><td>${w ? w.name : 'Unknown'}</td><td>${s.month}</td>
 <td>${fmt(s.basic)}</td><td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
 <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td><td><strong>${fmt(s.net)}</strong></td>
-<td><span class="badge ${s.status==='Paid'?'badge-success':'badge-gray'}">${s.status}</span></td>
+<td><span class="badge ${s.status==='Paid'?'badge-success':s.status==='Reversed'?'badge-danger':'badge-gray'}">${s.status}</span></td>
 <td style="font-size:11px;">${createdInfo}</td>
 <td style="font-size:11px;">${s.finalizedAt ? new Date(s.finalizedAt).toLocaleString() : '-'}</td>
 <td>
@@ -2237,7 +2241,7 @@ return `<tr>
 <div class="action-dropdown-item info" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i> View</div>
 <div class="action-dropdown-item info" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i> Download PDF</div>
 ${finalizedInfo ? `<div class="action-dropdown-item disabled" title="${finalizedInfo}"><i class="fas fa-clock"></i> ${new Date(s.finalizedAt).toLocaleDateString()}</div>` : ''}
-${canEdit ? `<div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
+${canEdit && s.status !== 'Reversed' ? `<div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
 ${canReverse ? `<div class="action-dropdown-item danger" onclick="reverseSlip('${s.id}')"><i class="fas fa-undo"></i> Reverse</div>` : ''}
 </div>
 </div>
@@ -2265,30 +2269,17 @@ loadSlipDefaults();
 await new Promise(r => setTimeout(r, 300));
 slip.earnings.forEach(e => {
 const row = document.querySelector(`#earningsContainer .slip-row[data-id="${e.id}"]`);
-if (row) {
-const input = row.querySelector('.row-amount');
-if (input) input.value = e.amount;
-const toggle = row.querySelector('.row-toggle');
-if (toggle) toggle.checked = true;
-}
+if (row) { const input = row.querySelector('.row-amount'); if (input) input.value = e.amount; const toggle = row.querySelector('.row-toggle'); if (toggle) toggle.checked = true; }
 });
 slip.deductions.forEach(d => {
 const row = document.querySelector(`#deductionsContainer .slip-row[data-id="${d.id}"]`);
-if (row) {
-const input = row.querySelector('.row-amount');
-if (input) input.value = d.amount;
-const toggle = row.querySelector('.row-toggle');
-if (toggle) toggle.checked = true;
-}
+if (row) { const input = row.querySelector('.row-amount'); if (input) input.value = d.amount; const toggle = row.querySelector('.row-toggle'); if (toggle) toggle.checked = true; }
 });
 document.querySelectorAll('#earningsContainer .slip-row, #deductionsContainer .slip-row').forEach(row => {
 const id = row.dataset.id;
 const inEarnings = slip.earnings.find(e => e.id === id);
 const inDeductions = slip.deductions.find(d => d.id === id);
-if (!inEarnings && !inDeductions) {
-const toggle = row.querySelector('.row-toggle');
-if (toggle) toggle.checked = false;
-}
+if (!inEarnings && !inDeductions) { const toggle = row.querySelector('.row-toggle'); if (toggle) toggle.checked = false; }
 });
 updateSlipSummary();
 toast('Slip loaded for editing. Make changes and finalize.');
@@ -2309,13 +2300,10 @@ toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
 return;
 }
 const w = data.workers.find(x => x.id === slip.workerId);
-if (!confirm(`Reverse pay slip #${slip.slipNo} for ${w?.name || 'worker'}?
-This will:
-• Restore loan/advance balances
-• Mark slip as Reversed
-Continue?`)) return;
+if (!confirm(`Reverse pay slip #${slip.slipNo} for ${w?.name || 'worker'}?\n\nThis will:\n• Restore loan balances\n• Restore advance balances\n• Mark slip as Reversed\n\nContinue?`)) return;
 try {
 showLoading('Reversing slip...');
+// Restore loans
 for (const ld of (slip.loansDeducted || [])) {
 const loan = data.loans.find(l => l.id === ld.loanId);
 if (loan) {
@@ -2329,6 +2317,7 @@ status: loan.status, paidMonths: loan.paidMonths
 });
 }
 }
+// Restore advances
 for (const ad of (slip.advancesDeducted || [])) {
 const adv = data.advances.find(a => a.id === ad.advanceId);
 if (adv) {
@@ -2344,7 +2333,7 @@ status: adv.status, paidMonths: adv.paidMonths
 }
 await updateInFirebase(collections.salarySlips, id, { status: 'Reversed', reversedAt: today(), reversedBy: currentUser.displayName || currentUser.email, reversedByEmail: currentUser.email });
 await loadData();
-toast(`Slip reversed by ${currentUser.displayName || currentUser.email}! Loan/advance balances restored.`);
+toast(`Slip reversed by ${currentUser.displayName || currentUser.email}! All balances restored.`);
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function viewSlipPreview(slip) {
@@ -2354,7 +2343,7 @@ const c = data.company;
 const earningsHtml = slip.earnings.map(e => `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${e.name}</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${fmt(e.amount)}</td></tr>`).join('');
 const deductionsHtml = slip.deductions.length ? slip.deductions.map(x => {
 const isLoan = x.kind === 'loan';
-const isAdvance = x.kind === 'advance';
+const isAdvance = x.kind === 'combined_advance' || x.kind === 'advance';
 const bg = isLoan ? '#fef3c7' : isAdvance ? '#fce7f3' : '';
 return `<tr style="background:${bg};"><td style="padding:8px;border-bottom:1px solid #eee;">${x.name}</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${fmt(x.amount)}</td></tr>`;
 }).join('') : '<tr><td colspan="2" style="padding:8px;text-align:center;color:#999;">No deductions</td></tr>';
@@ -2509,10 +2498,7 @@ body: earningsBody,
 theme: 'grid',
 headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
 styles: { fontSize: fontSize - 1, cellPadding: 3 },
-columnStyles: {
-0: { cellWidth: contentWidth - 45 },
-1: { halign: 'right', cellWidth: 40 }
-},
+columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } },
 margin: { left: marginX, right: marginX }
 });
 y = doc.lastAutoTable.finalY + 8;
@@ -2530,10 +2516,7 @@ body: deductionsBody,
 theme: 'grid',
 headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
 styles: { fontSize: fontSize - 1, cellPadding: 3 },
-columnStyles: {
-0: { cellWidth: contentWidth - 45 },
-1: { halign: 'right', cellWidth: 40 }
-},
+columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } },
 margin: { left: marginX, right: marginX }
 });
 y = doc.lastAutoTable.finalY + 8;
@@ -2585,10 +2568,7 @@ switch(currentReport) {
 case 'payroll':
 title = 'Payroll Report'; columns = ['Slip #','Month','Employee','Basic','Additions','Deductions','Net','Status'];
 let slips = data.salarySlips;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-slips = slips.filter(s => workerIds.includes(s.workerId));
-}
+if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); slips = slips.filter(s => workerIds.includes(s.workerId)); }
 if (month) slips = slips.filter(s => s.month === month);
 if (workerId) slips = slips.filter(s => s.workerId === workerId);
 if (dept) slips = slips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dept; });
@@ -2597,9 +2577,7 @@ break;
 case 'worker':
 title = 'Worker Report'; columns = ['Emp ID','Name','Position','Department','Basic','Total Paid','Loans','Advances'];
 let workers = data.workers;
-if (currentUserRole === USER_ROLES.VIEWER) {
-workers = workers.filter(w => w.email === currentUserEmail);
-}
+if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
 if (dept) workers = workers.filter(w => w.department === dept);
 reportData = workers.map(w => {
 const paid = data.salarySlips.filter(s => s.workerId === w.id).reduce((s,p) => s + p.net, 0);
@@ -2621,30 +2599,21 @@ break;
 case 'loan':
 title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status'];
 let loans = data.loans;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-loans = loans.filter(l => workerIds.includes(l.workerId));
-}
+if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); loans = loans.filter(l => workerIds.includes(l.workerId)); }
 if (workerId) loans = loans.filter(l => l.workerId === workerId);
 reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid), fmt(l.remaining), l.startMonth, l.status]; });
 break;
 case 'advance':
-title = 'Advance Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status'];
+title = 'Advance Report'; columns = ['Employee','Type','Total','Paid','Remaining','Start','Status'];
 let advs = data.advances;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-advs = advs.filter(a => workerIds.includes(a.workerId));
-}
+if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); advs = advs.filter(a => workerIds.includes(a.workerId)); }
 if (workerId) advs = advs.filter(a => a.workerId === workerId);
-reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.installment), fmt(a.paid), fmt(a.remaining), a.startMonth, a.status]; });
+reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.paid), fmt(a.remaining), a.startMonth, a.status]; });
 break;
 case 'addition':
 title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount'];
 let adds = data.additions;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-adds = adds.filter(a => workerIds.includes(a.workerId));
-}
+if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); adds = adds.filter(a => workerIds.includes(a.workerId)); }
 if (workerId) adds = adds.filter(a => a.workerId === workerId);
 if (month) adds = adds.filter(a => a.month === month);
 reportData = adds.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount)]; });
@@ -2652,10 +2621,7 @@ break;
 case 'deduction':
 title = 'Deductions Report'; columns = ['Date','Employee','Type','Month','Amount'];
 let deds = data.deductions;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-deds = deds.filter(d => workerIds.includes(d.workerId));
-}
+if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); deds = deds.filter(d => workerIds.includes(d.workerId)); }
 if (workerId) deds = deds.filter(d => d.workerId === workerId);
 if (month) deds = deds.filter(d => d.month === month);
 reportData = deds.map(d => { const w = data.workers.find(x => x.id === d.workerId); return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount)]; });
@@ -2714,9 +2680,7 @@ document.getElementById('designFooterText').value = d.footerText || '';
 document.getElementById('designSign1Label').value = d.sign1Label || 'Employee Signature';
 document.getElementById('designSign2Label').value = d.sign2Label || 'Authorized Signature';
 }
-function setActiveSwatch(pickerId, color) {
-document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => s.classList.toggle('active', s.dataset.color === color));
-}
+function setActiveSwatch(pickerId, color) { document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => s.classList.toggle('active', s.dataset.color === color)); }
 document.addEventListener('click', (e) => {
 if (e.target.classList.contains('color-swatch')) {
 const picker = e.target.closest('.color-picker-row');
@@ -2781,16 +2745,11 @@ async function saveCompany(e) {
 e.preventDefault();
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
 const companyData = {
-name: document.getElementById('cName').value,
-reg: document.getElementById('cReg').value || '',
-tax: document.getElementById('cTax').value || '',
-phone: document.getElementById('cPhone').value || '',
-email: document.getElementById('cEmail').value || '',
-web: document.getElementById('cWeb').value || '',
-logo: document.getElementById('cLogo').value || '',
-bank: document.getElementById('cBank').value || '',
-bankAccount: document.getElementById('cBankAccount').value || '',
-address: document.getElementById('cAddress').value || ''
+name: document.getElementById('cName').value, reg: document.getElementById('cReg').value || '',
+tax: document.getElementById('cTax').value || '', phone: document.getElementById('cPhone').value || '',
+email: document.getElementById('cEmail').value || '', web: document.getElementById('cWeb').value || '',
+logo: document.getElementById('cLogo').value || '', bank: document.getElementById('cBank').value || '',
+bankAccount: document.getElementById('cBankAccount').value || '', address: document.getElementById('cAddress').value || ''
 };
 try {
 showLoading('Saving...');
@@ -2852,9 +2811,7 @@ const reader = new FileReader();
 reader.onload = (ev) => {
 try {
 const imported = JSON.parse(ev.target.result);
-if (confirm('Replace all data with imported data?')) {
-toast('Import feature - contact admin', 'error');
-}
+if (confirm('Replace all data with imported data?')) { toast('Import feature - contact admin', 'error'); }
 } catch (err) { toast('Invalid file', 'error'); }
 };
 reader.readAsText(file);
@@ -2880,39 +2837,19 @@ function refreshDashboard() {
 const selectedYear = document.getElementById('dashboardYear')?.value || new Date().getFullYear().toString();
 const selectedMonth = document.getElementById('dashboardMonth')?.value || 'all';
 const periodLabel = document.getElementById('chartPeriodLabel');
-
-// Filter paid slips by year/month
 let slipsForStats = data.salarySlips.filter(s => s.status === 'Paid');
 if (currentUserRole === USER_ROLES.VIEWER) {
 const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
 slipsForStats = slipsForStats.filter(s => workerIds.includes(s.workerId));
 }
-if (selectedYear !== 'all') {
-slipsForStats = slipsForStats.filter(s => s.month && s.month.startsWith(selectedYear));
-}
-if (selectedMonth !== 'all') {
-slipsForStats = slipsForStats.filter(s => s.month && s.month.endsWith(`-${selectedMonth}`));
-}
-
-// Calculate stats from filtered slips
+if (selectedYear !== 'all') slipsForStats = slipsForStats.filter(s => s.month && s.month.startsWith(selectedYear));
+if (selectedMonth !== 'all') slipsForStats = slipsForStats.filter(s => s.month && s.month.endsWith(`-${selectedMonth}`));
 const monthPayroll = slipsForStats.reduce((s,p) => s + (p.net || 0), 0);
-let monthlyAdditions = 0;
-let monthlyDeductions = 0;
+let monthlyAdditions = 0, monthlyDeductions = 0;
 slipsForStats.forEach(s => {
-if (s.earnings && Array.isArray(s.earnings)) {
-s.earnings.forEach(e => {
-if (e.id !== 'basic' && e.id !== 'allowances') {
-monthlyAdditions += (e.amount || 0);
-}
+if (s.earnings && Array.isArray(s.earnings)) s.earnings.forEach(e => { if (e.id !== 'basic' && e.id !== 'allowances') monthlyAdditions += (e.amount || 0); });
+if (s.deductions && Array.isArray(s.deductions)) s.deductions.forEach(d => { monthlyDeductions += (d.amount || 0); });
 });
-}
-if (s.deductions && Array.isArray(s.deductions)) {
-s.deductions.forEach(d => {
-monthlyDeductions += (d.amount || 0);
-});
-}
-});
-
 let activeLoans = data.loans.filter(l => l.status === 'Active');
 let activeAdvances = data.advances.filter(a => a.status === 'Active');
 if (currentUserRole === USER_ROLES.VIEWER) {
@@ -2922,13 +2859,8 @@ activeAdvances = activeAdvances.filter(a => workerIds.includes(a.workerId));
 }
 const loansTotal = activeLoans.reduce((s,l) => s + (l.remaining || 0), 0);
 const advancesTotal = activeAdvances.reduce((s,a) => s + (a.remaining || 0), 0);
-
 let workers = data.workers;
-if (currentUserRole === USER_ROLES.VIEWER) {
-workers = workers.filter(w => w.email === currentUserEmail);
-}
-
-// Update stat cards
+if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
 document.getElementById('statWorkers').textContent = workers.length;
 document.getElementById('statPayroll').textContent = fmt(monthPayroll);
 document.getElementById('statLoans').textContent = fmt(loansTotal);
@@ -2936,33 +2868,21 @@ document.getElementById('statAdvances').textContent = fmt(advancesTotal);
 document.getElementById('statDeductions').textContent = fmt(monthlyDeductions);
 document.getElementById('statAdditions').textContent = fmt(monthlyAdditions);
 document.getElementById('statSlips').textContent = slipsForStats.length;
-
-// Destroy existing charts
 Object.values(charts).forEach(c => c && c.destroy && c.destroy());
-
-// Build chart data based on filter
-const months = [];
-const payrollData = [];
+const months = [], payrollData = [];
 let chartLabel = '';
-
 if (selectedYear === 'all') {
-// Show last 12 months
 chartLabel = '(Last 12 Months)';
 for (let i = 11; i >= 0; i--) {
 const d = new Date(); d.setMonth(d.getMonth() - i);
 const m = d.toISOString().slice(0,7);
 months.push(m);
-// Get ALL paid slips for this month (not filtered by year)
 const monthSlips = data.salarySlips.filter(s => s.status === 'Paid' && s.month === m);
 let filtered = monthSlips;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-filtered = filtered.filter(s => workerIds.includes(s.workerId));
-}
+if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); filtered = filtered.filter(s => workerIds.includes(s.workerId)); }
 payrollData.push(filtered.reduce((s,p) => s + (p.net || 0), 0));
 }
 } else if (selectedMonth === 'all') {
-// Show all 12 months of selected year
 chartLabel = `(${selectedYear})`;
 for (let m = 1; m <= 12; m++) {
 const monthStr = `${selectedYear}-${String(m).padStart(2, '0')}`;
@@ -2971,29 +2891,23 @@ const monthSlips = slipsForStats.filter(p => p.month === monthStr);
 payrollData.push(monthSlips.reduce((s,p) => s + (p.net || 0), 0));
 }
 } else {
-// Show only the selected month
 const monthStr = `${selectedYear}-${selectedMonth}`;
 months.push(monthStr);
 const monthSlips = slipsForStats.filter(p => p.month === monthStr);
 payrollData.push(monthSlips.reduce((s,p) => s + (p.net || 0), 0));
 chartLabel = `(${monthStr})`;
 }
-
 if (periodLabel) periodLabel.textContent = chartLabel;
-
 charts.payroll = new Chart(document.getElementById('payrollChart'), {
 type: 'bar', data: { labels: months, datasets: [{ label: 'Net Payroll', data: payrollData, backgroundColor: 'rgba(30, 64, 175, 0.8)', borderRadius: 8 }] },
 options: { responsive: true, plugins: { legend: { display: false } } }
 });
-
 const deptData = {};
 workers.forEach(w => { deptData[w.department] = (deptData[w.department] || 0) + 1; });
 charts.distribution = new Chart(document.getElementById('distributionChart'), {
 type: 'doughnut', data: { labels: Object.keys(deptData), datasets: [{ data: Object.values(deptData), backgroundColor: ['#1e40af','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#ec4899','#db2777'] }] },
 options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
 });
-
-// Recent activities - use filtered slips
 const activities = [];
 slipsForStats.slice(-5).reverse().forEach(s => {
 const w = data.workers.find(x => x.id === s.workerId);
