@@ -1754,6 +1754,109 @@ renderTimeline();
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
+// ============ USER MANAGEMENT (Admin Only) ============
+function openAddUserModal() {
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
+document.getElementById('userEmail').value = '';
+document.getElementById('userRole').value = USER_ROLES.VIEWER;
+openModal('addUserModal');
+}
+async function saveUserRole() {
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
+const email = document.getElementById('userEmail').value.trim();
+const role = document.getElementById('userRole').value;
+if (!email) {
+toast('Please enter an email address', 'error');
+return;
+}
+try {
+showLoading('Saving user role...');
+await db.collection(usersCollection).doc(email).set({
+email: email,
+role: role,
+updatedAt: new Date().toISOString(),
+updatedBy: auth.currentUser.email
+});
+ROLE_CONFIG[email] = role;
+await logActivity('edit', 'user', email, `User role set to ${role.toUpperCase()}`);
+toast(`User ${email} role updated to ${role.toUpperCase()}`);
+closeModal('addUserModal');
+renderUsers();
+} catch (error) {
+toast('Error: ' + error.message, 'error');
+} finally {
+hideLoading();
+}
+}
+async function renderUsers() {
+if (!hasPermission(USER_ROLES.ADMIN)) {
+document.getElementById('users').innerHTML = '<div class="card"><div class="empty-state"><h3>Access Denied</h3><p>Admin role required to view this page.</p></div></div>';
+return;
+}
+try {
+showLoading('Loading users...');
+const snapshot = await db.collection(usersCollection).get();
+const tbody = document.getElementById('usersTable');
+if (snapshot.empty) {
+tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><h3>No users configured</h3><p>Click "Add User" to assign roles to users.</p></div></td></tr>';
+hideLoading();
+return;
+}
+let usersHtml = '';
+snapshot.forEach(doc => {
+const userData = doc.data();
+usersHtml += `
+<tr>
+<td><strong>${userData.email}</strong></td>
+<td><span class="badge badge-${userData.role === 'admin' ? 'danger' : userData.role === 'editor' ? 'success' : 'gray'}">${userData.role.toUpperCase()}</span></td>
+<td>${userData.updatedAt ? new Date(userData.updatedAt).toLocaleDateString() : '-'}</td>
+<td><span class="badge badge-success">Active</span></td>
+<td>
+<div class="action-menu-wrapper">
+<button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+<div class="action-dropdown">
+<div class="action-dropdown-item info" onclick="editUserRole('${userData.email}', '${userData.role}')"><i class="fas fa-edit"></i> Edit Role</div>
+<div class="action-dropdown-item danger" onclick="deleteUserRole('${userData.email}')"><i class="fas fa-trash"></i> Remove</div>
+</div>
+</div>
+</td>
+</tr>
+`;
+});
+tbody.innerHTML = usersHtml;
+hideLoading();
+} catch (error) {
+toast('Error loading users: ' + error.message, 'error');
+hideLoading();
+}
+}
+function editUserRole(email, currentRole) {
+document.getElementById('userEmail').value = email;
+document.getElementById('userRole').value = currentRole;
+openModal('addUserModal');
+}
+async function deleteUserRole(email) {
+if (!confirm(`Remove role assignment for ${email}?`)) return;
+try {
+showLoading('Removing user...');
+await db.collection(usersCollection).doc(email).delete();
+delete ROLE_CONFIG[email];
+await logActivity('delete', 'user', email, 'User role removed');
+toast(`User ${email} removed`);
+renderUsers();
+} catch (error) {
+toast('Error: ' + error.message, 'error');
+} finally {
+hideLoading();
+}
+}
+
 function resetWorkerFilters() {
 document.getElementById('filterWorkerDept').value = '';
 document.getElementById('filterWorkerStatus').value = '';
@@ -1766,7 +1869,10 @@ const current = sel.value;
 sel.innerHTML = '<option value="">All</option>' + data.departments.map(d => `<option ${d===current?'selected':''}>${d}</option>`).join('');
 }
 async function openAddWorkerModal() {
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 document.getElementById('workerModalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Add New Worker';
 document.getElementById('workerSaveBtnText').textContent = 'Save Worker';
 document.getElementById('workerForm').reset();
@@ -1776,7 +1882,10 @@ document.getElementById('wDepartment').innerHTML = '<option value="">Select</opt
 openModal('addWorkerModal');
 }
 async function openEditWorkerModal(id) {
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 const w = data.workers.find(x => x.id === id);
 if (!w) return;
 document.getElementById('workerModalTitle').innerHTML = '<i class="fas fa-user-edit"></i> Edit Worker Details';
@@ -1799,7 +1908,10 @@ openModal('addWorkerModal');
 }
 async function saveWorker(e) {
 e.preventDefault();
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 const editId = document.getElementById('wEditId').value;
 const currentUser = auth.currentUser;
 const workerData = {
@@ -1810,9 +1922,15 @@ salary: parseFloat(document.getElementById('wSalary').value) || 0, allowances: p
 joinDate: document.getElementById('wJoinDate').value, phone: document.getElementById('wPhone').value || '',
 bank: document.getElementById('wBank').value || '', account: document.getElementById('wAccount').value || '', taxId: document.getElementById('wTaxId').value || '',
 address: document.getElementById('wAddress').value || '', status: 'Active',
-modifiedAt: today(), modifiedBy: currentUser.displayName || currentUser.email, modifiedByEmail: currentUser.email
+modifiedAt: today(),
+modifiedBy: currentUser.displayName || currentUser.email,
+modifiedByEmail: currentUser.email
 };
-if (!editId) { workerData.createdAt = today(); workerData.createdBy = currentUser.displayName || currentUser.email; workerData.createdByEmail = currentUser.email; }
+if (!editId) {
+workerData.createdAt = today();
+workerData.createdBy = currentUser.displayName || currentUser.email;
+workerData.createdByEmail = currentUser.email;
+}
 try {
 showLoading(editId ? 'Updating worker...' : 'Saving worker...');
 if (editId) {
@@ -1865,7 +1983,10 @@ ${hasPermission(USER_ROLES.ADMIN) ? `<div class="action-dropdown-item danger" on
 }).join('');
 }
 async function deleteWorker(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
 const w = data.workers.find(x => x.id === id);
 if (!confirm(`Delete worker ${w?.name || ''}?`)) return;
 const currentUser = auth.currentUser;
@@ -1880,7 +2001,10 @@ toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
 function openWorkerDetail(id) {
 const w = data.workers.find(x => x.id === id);
 if (!w) return;
-if (currentUserRole === USER_ROLES.VIEWER && w.email !== currentUserEmail) { toast('Access denied. You can only view your own details.', 'error'); return; }
+if (currentUserRole === USER_ROLES.VIEWER && w.email !== currentUserEmail) {
+toast('Access denied. You can only view your own details.', 'error');
+return;
+}
 const slips = data.salarySlips.filter(s => s.workerId === id);
 const loans = data.loans.filter(l => l.workerId === id);
 const advances = data.advances.filter(a => a.workerId === id);
@@ -2026,7 +2150,10 @@ showSection('slips');
 setTimeout(() => { document.getElementById('slipWorker').value = workerId; loadSlipDefaults(); }, 100);
 }
 function quickAddLoan(workerId) {
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 populateWorkerSelect('lWorker');
 document.getElementById('loanForm').reset();
 document.getElementById('lWorker').value = workerId;
@@ -2035,7 +2162,10 @@ document.getElementById('lStartMonth').value = currentMonth();
 openModal('addLoanModal');
 }
 function quickAddAdvance(workerId) {
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 populateWorkerSelect('aWorker');
 document.getElementById('advanceForm').reset();
 document.getElementById('aWorker').value = workerId;
@@ -2060,7 +2190,10 @@ const months = [...new Set(data.salarySlips.map(s => s.month))].sort().reverse()
 monthSelect.innerHTML = '<option value="all">All Months</option>' + months.map(m => `<option value="${m}">${m}</option>`).join('');
 }
 function openAddLoanModal() {
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 populateWorkerSelect('lWorker');
 document.getElementById('loanForm').reset();
 document.getElementById('lIssueDate').value = today();
@@ -2069,7 +2202,10 @@ openModal('addLoanModal');
 }
 async function addLoan(e) {
 e.preventDefault();
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 const total = parseFloat(document.getElementById('lAmount').value) || 0;
 const currentUser = auth.currentUser;
 const workerId = document.getElementById('lWorker').value;
@@ -2140,7 +2276,10 @@ ${canDelete ? `<div class="action-dropdown-item danger" onclick="deleteLoan('${l
 }).join('');
 }
 async function deleteLoan(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
 const loan = data.loans.find(l => l.id === id);
 if (!confirm('Delete this loan?')) return;
 const currentUser = auth.currentUser;
@@ -2153,7 +2292,10 @@ toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function openAddAdvanceModal() {
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 populateWorkerSelect('aWorker');
 document.getElementById('advanceForm').reset();
 document.getElementById('aIssueDate').value = today();
@@ -2162,7 +2304,10 @@ openModal('addAdvanceModal');
 }
 async function addAdvance(e) {
 e.preventDefault();
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 const newAmount = parseFloat(document.getElementById('aAmount').value) || 0;
 const workerId = document.getElementById('aWorker').value;
 const advType = document.getElementById('aType').value;
@@ -2252,7 +2397,10 @@ ${canDelete ? `<div class="action-dropdown-item danger" onclick="deleteAdvance('
 }).join('');
 }
 async function deleteAdvance(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
 const adv = data.advances.find(a => a.id === id);
 if (!confirm('Delete this advance?')) return;
 const currentUser = auth.currentUser;
@@ -2294,7 +2442,10 @@ el.classList.add('active');
 document.getElementById('comp-' + tab).classList.add('active');
 }
 function openAddComponentModal() {
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 document.getElementById('compName').value = '';
 document.getElementById('compType').value = 'earning';
 document.getElementById('compCalcType').value = 'fixed';
@@ -2303,7 +2454,10 @@ document.getElementById('compDesc').value = '';
 openModal('addComponentModal');
 }
 async function saveComponent() {
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 const name = document.getElementById('compName').value.trim();
 if (!name) { toast('Enter name', 'error'); return; }
 const componentData = {
@@ -2320,7 +2474,10 @@ closeModal('addComponentModal');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function deleteComponent(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
 const c = data.salaryComponents.find(x => x.id === id);
 if (!confirm('Delete?')) return;
 try { showLoading('Deleting...'); await deleteFromFirebase(collections.salaryComponents, id); await logActivity('delete', 'component', c?.name || 'Component', 'Component deleted'); await loadData(); toast('Deleted!'); }
@@ -2644,7 +2801,10 @@ document.getElementById('viewSlipDownloadBtn').onclick = () => downloadSlipPDF(s
 openModal('viewSlipModal');
 }
 async function editSlip(id) {
-if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.EDITOR)) {
+toast('Permission denied. Editor role required.', 'error');
+return;
+}
 const slip = data.salarySlips.find(s => s.id === id);
 if (!slip) return;
 showSection('slips');
@@ -2672,7 +2832,10 @@ updateSlipSummary();
 toast('Slip loaded for editing. Make changes and finalize.');
 }
 async function reverseSlip(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
 const slip = data.salarySlips.find(s => s.id === id);
 if (!slip) return;
 const currentUser = auth.currentUser;
@@ -3067,7 +3230,10 @@ if (input) input.value = color;
 }
 });
 async function saveDesign() {
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
 const designData = {
 primaryColor: document.getElementById('customPrimaryColor').value,
 earningsColor: document.getElementById('customEarningsColor').value,
@@ -3119,7 +3285,10 @@ renderDepartments();
 }
 async function saveCompany(e) {
 e.preventDefault();
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
 const companyData = {
 name: document.getElementById('cName').value, reg: document.getElementById('cReg').value || '',
 tax: document.getElementById('cTax').value || '', phone: document.getElementById('cPhone').value || '',
@@ -3136,7 +3305,10 @@ toast('Company info saved!');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function addDepartment() {
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
 const name = document.getElementById('newDept').value.trim();
 if (!name) return;
 if (data.departments.includes(name)) { toast('Department exists', 'error'); return; }
@@ -3151,7 +3323,10 @@ toast('Department added!');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function removeDepartment(name) {
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
 if (!confirm(`Delete "${name}"?`)) return;
 try {
 showLoading('Removing...');
@@ -3196,7 +3371,10 @@ if (confirm('Replace all data with imported data?')) { toast('Import feature - c
 reader.readAsText(file);
 }
 async function clearAllData() {
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
 if (!confirm('️ DELETE ALL DATA?')) return;
 if (!confirm('Last warning!')) return;
 try {
