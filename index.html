@@ -252,7 +252,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .year-selector { display: flex; align-items: center; gap: 10px; }
 .year-selector select { padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; background: white; cursor: pointer; }
 .year-selector select:focus { outline: none; border-color: var(--primary); }
-/* Timeline styles */
 .timeline { position: relative; padding-left: 40px; }
 .timeline::before { content: ''; position: absolute; left: 18px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--primary), var(--secondary)); }
 .timeline-item { position: relative; margin-bottom: 20px; animation: fadeIn 0.3s; }
@@ -392,7 +391,6 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- DASHBOARD -->
 <div class="section active" id="dashboard">
 <div class="card" style="margin-bottom:20px;">
 <div class="card-header">
@@ -433,7 +431,6 @@ Continue with Google
 <div id="recentActivities"></div>
 </div>
 </div>
-<!-- MY LOANS & ADVANCES (NEW - All roles) -->
 <div class="section" id="myloans">
 <div class="card">
 <div class="card-header">
@@ -465,7 +462,6 @@ Continue with Google
 <div class="tab-content" id="myla-history"><div id="myPaymentHistoryContent"></div></div>
 </div>
 </div>
-<!-- WORKERS -->
 <div class="section" id="workers">
 <div class="card">
 <div class="card-header">
@@ -806,7 +802,6 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- ACTIVITY TIMELINE (NEW - Admin only) -->
 <div class="section" id="timeline">
 <div class="card">
 <div class="card-header">
@@ -860,7 +855,6 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- MODALS -->
 <div class="modal" id="addUserModal">
 <div class="modal-content">
 <div class="modal-header"><h2><i class="fas fa-user-plus"></i> Add/Update User Role</h2><button class="close-btn" onclick="closeModal('addUserModal')">&times;</button></div>
@@ -1062,26 +1056,18 @@ return roleHierarchy[currentUserRole] >= roleHierarchy[requiredRole];
 }
 function isAuthorizedUser(email) { return email === DEFAULT_ADMIN_EMAIL || ROLE_CONFIG[email]; }
 
-// ============ ACTIVITY LOGGING ============
 async function logActivity(action, entityType, entityName, details = '') {
 try {
 const logData = {
-action: action, // create, edit, delete, payroll, reverse, login, settings
-entityType: entityType, // worker, loan, advance, slip, component, company, department, user, design
-entityName: entityName || '',
-details: details || '',
-userEmail: currentUserEmail || 'system',
+action: action, entityType: entityType, entityName: entityName || '',
+details: details || '', userEmail: currentUserEmail || 'system',
 userName: currentUserName || currentUserEmail || 'system',
 userRole: currentUserRole || 'unknown',
-timestamp: new Date().toISOString(),
-date: today(),
-month: currentMonth()
+timestamp: new Date().toISOString(), date: today(), month: currentMonth()
 };
 await db.collection(activityLogsCollection).add(sanitizeForFirestore(logData));
 activityLogsCache.unshift({ id: 'new', ...logData });
-} catch (error) {
-console.error('Error logging activity:', error);
-}
+} catch (error) { console.error('Error logging activity:', error); }
 }
 
 function applyRoleBasedUI() {
@@ -1328,7 +1314,7 @@ document.querySelectorAll('.action-dropdown.show').forEach(d => d.classList.remo
 if (!isOpen) dropdown.classList.add('show');
 }
 
-// ============ MY LOANS & ADVANCES (NEW - All roles) ============
+// ============ MY LOANS & ADVANCES (All roles) ============
 function renderMyLoansAdvances() {
 const yearFilter = document.getElementById('myLAYear')?.value || 'all';
 const monthFilter = document.getElementById('myLAMonth')?.value || 'all';
@@ -1337,17 +1323,12 @@ const titleSpan = document.getElementById('myLATitle');
 const tabLoansLabel = document.getElementById('tabLoansLabel');
 const tabAdvancesLabel = document.getElementById('tabAdvancesLabel');
 
-// For admins, show ALL workers' loans and advances
 if (currentUserRole === USER_ROLES.ADMIN) {
-titleSpan.textContent = 'All Workers\' Loans & Advances';
+titleSpan.textContent = "All Workers' Loans & Advances";
 tabLoansLabel.textContent = 'All Loans';
 tabAdvancesLabel.textContent = 'All Advances';
-
-// Get all loans and advances (no filtering by worker)
 let allLoans = data.loans;
 let allAdvances = data.advances;
-
-// Apply year/month filters
 if (yearFilter !== 'all') {
 allLoans = allLoans.filter(l => l.issueDate && l.issueDate.startsWith(yearFilter));
 allAdvances = allAdvances.filter(a => a.issueDate && a.issueDate.startsWith(yearFilter));
@@ -1356,23 +1337,18 @@ if (monthFilter !== 'all') {
 allLoans = allLoans.filter(l => l.startMonth && l.startMonth.endsWith(`-${monthFilter}`));
 allAdvances = allAdvances.filter(a => a.startMonth && a.startMonth.endsWith(`-${monthFilter}`));
 }
-
 infoDiv.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-left:4px solid var(--primary);">
 <h4 style="color:#1e40af;margin-bottom:8px;"><i class="fas fa-shield-alt"></i> Admin View - All Workers</h4>
 <p style="color:#1e3a8a;font-size:13px;">Viewing all loans and advances across the organization.</p>
 </div>`;
-
 renderMyLoansContent(allLoans, yearFilter, monthFilter);
 renderMyAdvancesContent(allAdvances, yearFilter, monthFilter);
-renderMyPaymentHistory(null, yearFilter, monthFilter); // null = all workers
+renderMyPaymentHistory(null, yearFilter, monthFilter);
 } else {
-// For non-admins, show only their own data
 titleSpan.textContent = 'My Loans & Salary Advances';
 tabLoansLabel.textContent = 'My Loans';
 tabAdvancesLabel.textContent = 'My Advances';
-
 const myWorker = data.workers.find(w => w.email === currentUserEmail);
-
 if (!myWorker) {
 infoDiv.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-left:4px solid var(--warning);">
 <h4 style="color:#92400e;margin-bottom:8px;"><i class="fas fa-info-circle"></i> No Worker Profile Found</h4>
@@ -1383,7 +1359,6 @@ document.getElementById('myAdvancesContent').innerHTML = '';
 document.getElementById('myPaymentHistoryContent').innerHTML = '';
 return;
 }
-
 infoDiv.innerHTML = `<div class="worker-profile-header" style="margin-bottom:20px;">
 <div class="worker-avatar">${myWorker.name.charAt(0).toUpperCase()}</div>
 <div class="worker-info">
@@ -1395,7 +1370,6 @@ infoDiv.innerHTML = `<div class="worker-profile-header" style="margin-bottom:20p
 <div class="qs"><div class="qs-label">Basic Salary</div><div class="qs-value">${fmt(myWorker.salary)}</div></div>
 </div>
 </div>`;
-
 renderMyLoans(myWorker.id, yearFilter, monthFilter);
 renderMyAdvances(myWorker.id, yearFilter, monthFilter);
 renderMyPaymentHistory(myWorker.id, yearFilter, monthFilter);
@@ -1408,11 +1382,9 @@ if (!loans.length) {
 container.innerHTML = '<div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans found</h3><p>No loan records match the selected filters.</p></div>';
 return;
 }
-
 const totalLoan = loans.reduce((s,l) => s + (l.amount || 0), 0);
 const totalPaid = loans.reduce((s,l) => s + (l.paid || 0), 0);
 const totalRemaining = loans.reduce((s,l) => s + (l.remaining || 0), 0);
-
 container.innerHTML = `
 <div class="stats-grid" style="margin-bottom:20px;">
 <div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Total Loans</h3><div class="value">${fmt(totalLoan)}</div></div>
@@ -1446,11 +1418,9 @@ if (!advances.length) {
 container.innerHTML = '<div class="empty-state"><i class="fas fa-money-check-alt"></i><h3>No advances found</h3><p>No advance records match the selected filters.</p></div>';
 return;
 }
-
 const totalAdv = advances.reduce((s,a) => s + (a.amount || 0), 0);
 const totalPaid = advances.reduce((s,a) => s + (a.paid || 0), 0);
 const totalRemaining = advances.reduce((s,a) => s + (a.remaining || 0), 0);
-
 container.innerHTML = `
 <div class="stats-grid" style="margin-bottom:20px;">
 <div class="stat-card pink"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Total Advances</h3><div class="value">${fmt(totalAdv)}</div></div>
@@ -1494,27 +1464,18 @@ renderMyAdvancesContent(advances, yearFilter, monthFilter);
 
 function renderMyPaymentHistory(workerId, yearFilter, monthFilter) {
 let slips = data.salarySlips.filter(s => s.status === 'Paid');
-
-// Filter by worker if specified (null means all workers for admin)
-if (workerId) {
-slips = slips.filter(s => s.workerId === workerId);
-}
-
+if (workerId) slips = slips.filter(s => s.workerId === workerId);
 if (yearFilter !== 'all') slips = slips.filter(s => s.month && s.month.startsWith(yearFilter));
 if (monthFilter !== 'all') slips = slips.filter(s => s.month && s.month.endsWith(`-${monthFilter}`));
-
 slips.sort((a,b) => (b.month || '').localeCompare(a.month || ''));
-
 const container = document.getElementById('myPaymentHistoryContent');
 if (!slips.length) {
 container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><h3>No payment history</h3><p>No finalized pay slips found.</p></div>';
 return;
 }
-
 const totalPaid = slips.reduce((s,p) => s + (p.net || 0), 0);
 const totalLoanPaid = slips.reduce((s,p) => s + (p.loansDeducted || []).reduce((x,l) => x + (l.amount || 0), 0), 0);
 const totalAdvPaid = slips.reduce((s,p) => s + (p.advancesDeducted || []).reduce((x,a) => x + (a.amount || 0), 0), 0);
-
 container.innerHTML = `
 <div class="stats-grid" style="margin-bottom:20px;">
 <div class="stat-card green"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><h3>Total Salary Paid</h3><div class="value">${fmt(totalPaid)}</div></div>
@@ -1659,16 +1620,13 @@ ${paidMonths.length ? `<div class="timeline">${paidMonths.map(m => `
 openModal('viewAdvanceDetailModal');
 }
 
-// ============ ACTIVITY TIMELINE (NEW - Admin only) ============
+// ============ ACTIVITY TIMELINE (Admin only) ============
 async function populateTimelineUserFilter() {
 if (!hasPermission(USER_ROLES.ADMIN)) return;
 try {
 const snapshot = await db.collection(activityLogsCollection).get();
 const users = new Set();
-snapshot.forEach(doc => {
-const d = doc.data();
-if (d.userEmail) users.add(d.userEmail);
-});
+snapshot.forEach(doc => { const d = doc.data(); if (d.userEmail) users.add(d.userEmail); });
 const sel = document.getElementById('timelineUser');
 const current = sel.value;
 sel.innerHTML = '<option value="all">All Users</option>' + [...users].map(u => `<option value="${u}" ${u===current?'selected':''}>${u}</option>`).join('');
@@ -1688,12 +1646,10 @@ showLoading('Loading timeline...');
 let snapshot = await db.collection(activityLogsCollection).orderBy('timestamp', 'desc').limit(500).get();
 let logs = [];
 snapshot.forEach(doc => logs.push({ id: doc.id, ...doc.data() }));
-// Apply filters
 if (yearFilter !== 'all') logs = logs.filter(l => l.timestamp && l.timestamp.startsWith(yearFilter));
 if (monthFilter !== 'all') logs = logs.filter(l => l.month && l.month.endsWith(`-${monthFilter}`));
 if (userFilter !== 'all') logs = logs.filter(l => l.userEmail === userFilter);
 if (actionFilter !== 'all') logs = logs.filter(l => l.action === actionFilter);
-// Stats
 document.getElementById('tlStatTotal').textContent = logs.length;
 document.getElementById('tlStatCreate').textContent = logs.filter(l => l.action === 'create').length;
 document.getElementById('tlStatEdit').textContent = logs.filter(l => l.action === 'edit').length;
@@ -1798,69 +1754,6 @@ renderTimeline();
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-function openAddUserModal() {
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
-document.getElementById('userEmail').value = '';
-document.getElementById('userRole').value = USER_ROLES.VIEWER;
-openModal('addUserModal');
-}
-async function saveUserRole() {
-if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
-const email = document.getElementById('userEmail').value.trim();
-const role = document.getElementById('userRole').value;
-if (!email) { toast('Please enter an email address', 'error'); return; }
-try {
-showLoading('Saving user role...');
-await db.collection(usersCollection).doc(email).set({ email: email, role: role, updatedAt: new Date().toISOString(), updatedBy: auth.currentUser.email });
-ROLE_CONFIG[email] = role;
-await logActivity('edit', 'user', email, `User role set to ${role.toUpperCase()}`);
-toast(`User ${email} role updated to ${role.toUpperCase()}`);
-closeModal('addUserModal');
-renderUsers();
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-async function renderUsers() {
-if (!hasPermission(USER_ROLES.ADMIN)) { document.getElementById('users').innerHTML = '<div class="card"><div class="empty-state"><h3>Access Denied</h3><p>Admin role required to view this page.</p></div></div>'; return; }
-try {
-showLoading('Loading users...');
-const snapshot = await db.collection(usersCollection).get();
-const tbody = document.getElementById('usersTable');
-if (snapshot.empty) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><h3>No users configured</h3><p>Click "Add User" to assign roles to users.</p></div></td></tr>'; hideLoading(); return; }
-let usersHtml = '';
-snapshot.forEach(doc => {
-const userData = doc.data();
-usersHtml += `<tr>
-<td><strong>${userData.email}</strong></td>
-<td><span class="badge badge-${userData.role === 'admin' ? 'danger' : userData.role === 'editor' ? 'success' : 'gray'}">${userData.role.toUpperCase()}</span></td>
-<td>${userData.updatedAt ? new Date(userData.updatedAt).toLocaleDateString() : '-'}</td>
-<td><span class="badge badge-success">Active</span></td>
-<td>
-<div class="action-menu-wrapper">
-<button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
-<div class="action-dropdown">
-<div class="action-dropdown-item info" onclick="editUserRole('${userData.email}', '${userData.role}')"><i class="fas fa-edit"></i> Edit Role</div>
-<div class="action-dropdown-item danger" onclick="deleteUserRole('${userData.email}')"><i class="fas fa-trash"></i> Remove</div>
-</div>
-</div>
-</td>
-</tr>`;
-});
-tbody.innerHTML = usersHtml;
-hideLoading();
-} catch (error) { toast('Error loading users: ' + error.message, 'error'); hideLoading(); }
-}
-function editUserRole(email, currentRole) { document.getElementById('userEmail').value = email; document.getElementById('userRole').value = currentRole; openModal('addUserModal'); }
-async function deleteUserRole(email) {
-if (!confirm(`Remove role assignment for ${email}?`)) return;
-try {
-showLoading('Removing user...');
-await db.collection(usersCollection).doc(email).delete();
-delete ROLE_CONFIG[email];
-await logActivity('delete', 'user', email, 'User role removed');
-toast(`User ${email} removed`);
-renderUsers();
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
 function resetWorkerFilters() {
 document.getElementById('filterWorkerDept').value = '';
 document.getElementById('filterWorkerStatus').value = '';
@@ -2980,10 +2873,7 @@ y += 3;
 const earningsBody = slip.earnings.map(e => [e.name, fmt(e.amount)]);
 earningsBody.push([{ content: 'TOTAL EARNINGS', styles: { fontStyle: 'bold', fillColor: [209, 250, 229] } }, { content: fmt(grossTotal), styles: { fontStyle: 'bold', fillColor: [209, 250, 229], halign: 'right' } }]);
 doc.autoTable({
-startY: y,
-head: [['Description', 'Amount']],
-body: earningsBody,
-theme: 'grid',
+startY: y, head: [['Description', 'Amount']], body: earningsBody, theme: 'grid',
 headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
 styles: { fontSize: fontSize - 1, cellPadding: 3 },
 columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } },
@@ -2998,10 +2888,7 @@ y += 3;
 const deductionsBody = slip.deductions.length ? slip.deductions.map(x => [x.name, fmt(x.amount)]) : [['No deductions', '-']];
 deductionsBody.push([{ content: 'TOTAL DEDUCTIONS', styles: { fontStyle: 'bold', fillColor: [254, 226, 226] } }, { content: fmt(slip.totalDeductions), styles: { fontStyle: 'bold', fillColor: [254, 226, 226], halign: 'right' } }]);
 doc.autoTable({
-startY: y,
-head: [['Description', 'Amount']],
-body: deductionsBody,
-theme: 'grid',
+startY: y, head: [['Description', 'Amount']], body: deductionsBody, theme: 'grid',
 headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
 styles: { fontSize: fontSize - 1, cellPadding: 3 },
 columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } },
@@ -3420,6 +3307,37 @@ if (!data.company.name) {
 data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
 }
 };
+</script>
+
+<!-- ============ SECURITY MEASURES ============ -->
+<script>
+(function() {
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+      (e.ctrlKey && (e.key === 'U' || e.key === 'S'))) {
+      e.preventDefault();
+      return false;
+    }
+  });
+  console.clear();
+  const noop = function() {};
+  console.log = noop;
+  console.warn = noop;
+  console.error = noop;
+  console.info = noop;
+  console.debug = noop;
+  console.dir = noop;
+  console.log('%c⚠️ WARNING', 'color: red; font-size: 30px; font-weight: bold;');
+  console.log('%cThis is a protected system. Unauthorized access and reverse engineering are strictly prohibited.', 'color: orange; font-size: 14px;');
+  document.addEventListener('selectstart', function(e) { e.preventDefault(); });
+  setInterval(function() {
+    const widthThreshold = window.outerWidth - window.innerWidth > 160;
+    const heightThreshold = window.outerHeight - window.innerHeight > 160;
+    if (widthThreshold || heightThreshold) { console.clear(); }
+  }, 1000);
+})();
 </script>
 </body>
 </html>
