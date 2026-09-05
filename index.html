@@ -437,7 +437,7 @@ Continue with Google
 <div class="section" id="myloans">
 <div class="card">
 <div class="card-header">
-<h2><i class="fas fa-wallet"></i> My Loans & Salary Advances</h2>
+<h2><i class="fas fa-wallet"></i> <span id="myLATitle">My Loans & Salary Advances</span></h2>
 <div class="year-selector">
 <label style="font-size:13px;font-weight:600;color:var(--gray);">Year:</label>
 <select id="myLAYear" onchange="renderMyLoansAdvances()">
@@ -456,8 +456,8 @@ Continue with Google
 </div>
 <div id="myWorkerInfo"></div>
 <div class="tabs">
-<div class="tab active" onclick="switchMyLATab('loans', this)"><i class="fas fa-hand-holding-usd" style="color:var(--warning);"></i> My Loans</div>
-<div class="tab" onclick="switchMyLATab('advances', this)"><i class="fas fa-money-check-alt" style="color:var(--pink);"></i> My Advances</div>
+<div class="tab active" onclick="switchMyLATab('loans', this)"><i class="fas fa-hand-holding-usd" style="color:var(--warning);"></i> <span id="tabLoansLabel">My Loans</span></div>
+<div class="tab" onclick="switchMyLATab('advances', this)"><i class="fas fa-money-check-alt" style="color:var(--pink);"></i> <span id="tabAdvancesLabel">My Advances</span></div>
 <div class="tab" onclick="switchMyLATab('history', this)"><i class="fas fa-history" style="color:var(--primary);"></i> Payment History</div>
 </div>
 <div class="tab-content active" id="myla-loans"><div id="myLoansContent"></div></div>
@@ -1330,9 +1330,49 @@ if (!isOpen) dropdown.classList.add('show');
 
 // ============ MY LOANS & ADVANCES (NEW - All roles) ============
 function renderMyLoansAdvances() {
-// Find the current user's worker record
-const myWorker = data.workers.find(w => w.email === currentUserEmail);
+const yearFilter = document.getElementById('myLAYear')?.value || 'all';
+const monthFilter = document.getElementById('myLAMonth')?.value || 'all';
 const infoDiv = document.getElementById('myWorkerInfo');
+const titleSpan = document.getElementById('myLATitle');
+const tabLoansLabel = document.getElementById('tabLoansLabel');
+const tabAdvancesLabel = document.getElementById('tabAdvancesLabel');
+
+// For admins, show ALL workers' loans and advances
+if (currentUserRole === USER_ROLES.ADMIN) {
+titleSpan.textContent = 'All Workers\' Loans & Advances';
+tabLoansLabel.textContent = 'All Loans';
+tabAdvancesLabel.textContent = 'All Advances';
+
+// Get all loans and advances (no filtering by worker)
+let allLoans = data.loans;
+let allAdvances = data.advances;
+
+// Apply year/month filters
+if (yearFilter !== 'all') {
+allLoans = allLoans.filter(l => l.issueDate && l.issueDate.startsWith(yearFilter));
+allAdvances = allAdvances.filter(a => a.issueDate && a.issueDate.startsWith(yearFilter));
+}
+if (monthFilter !== 'all') {
+allLoans = allLoans.filter(l => l.startMonth && l.startMonth.endsWith(`-${monthFilter}`));
+allAdvances = allAdvances.filter(a => a.startMonth && a.startMonth.endsWith(`-${monthFilter}`));
+}
+
+infoDiv.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-left:4px solid var(--primary);">
+<h4 style="color:#1e40af;margin-bottom:8px;"><i class="fas fa-shield-alt"></i> Admin View - All Workers</h4>
+<p style="color:#1e3a8a;font-size:13px;">Viewing all loans and advances across the organization.</p>
+</div>`;
+
+renderMyLoansContent(allLoans, yearFilter, monthFilter);
+renderMyAdvancesContent(allAdvances, yearFilter, monthFilter);
+renderMyPaymentHistory(null, yearFilter, monthFilter); // null = all workers
+} else {
+// For non-admins, show only their own data
+titleSpan.textContent = 'My Loans & Salary Advances';
+tabLoansLabel.textContent = 'My Loans';
+tabAdvancesLabel.textContent = 'My Advances';
+
+const myWorker = data.workers.find(w => w.email === currentUserEmail);
+
 if (!myWorker) {
 infoDiv.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-left:4px solid var(--warning);">
 <h4 style="color:#92400e;margin-bottom:8px;"><i class="fas fa-info-circle"></i> No Worker Profile Found</h4>
@@ -1343,6 +1383,7 @@ document.getElementById('myAdvancesContent').innerHTML = '';
 document.getElementById('myPaymentHistoryContent').innerHTML = '';
 return;
 }
+
 infoDiv.innerHTML = `<div class="worker-profile-header" style="margin-bottom:20px;">
 <div class="worker-avatar">${myWorker.name.charAt(0).toUpperCase()}</div>
 <div class="worker-info">
@@ -1354,24 +1395,24 @@ infoDiv.innerHTML = `<div class="worker-profile-header" style="margin-bottom:20p
 <div class="qs"><div class="qs-label">Basic Salary</div><div class="qs-value">${fmt(myWorker.salary)}</div></div>
 </div>
 </div>`;
-renderMyLoans(myWorker.id);
-renderMyAdvances(myWorker.id);
-renderMyPaymentHistory(myWorker.id);
+
+renderMyLoans(myWorker.id, yearFilter, monthFilter);
+renderMyAdvances(myWorker.id, yearFilter, monthFilter);
+renderMyPaymentHistory(myWorker.id, yearFilter, monthFilter);
 }
-function renderMyLoans(workerId) {
-const yearFilter = document.getElementById('myLAYear')?.value || 'all';
-const monthFilter = document.getElementById('myLAMonth')?.value || 'all';
-let loans = data.loans.filter(l => l.workerId === workerId);
-if (yearFilter !== 'all') loans = loans.filter(l => l.issueDate && l.issueDate.startsWith(yearFilter));
-if (monthFilter !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.endsWith(`-${monthFilter}`));
+}
+
+function renderMyLoansContent(loans, yearFilter, monthFilter) {
 const container = document.getElementById('myLoansContent');
 if (!loans.length) {
-container.innerHTML = '<div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans found</h3><p>You have no loan records.</p></div>';
+container.innerHTML = '<div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans found</h3><p>No loan records match the selected filters.</p></div>';
 return;
 }
+
 const totalLoan = loans.reduce((s,l) => s + (l.amount || 0), 0);
 const totalPaid = loans.reduce((s,l) => s + (l.paid || 0), 0);
 const totalRemaining = loans.reduce((s,l) => s + (l.remaining || 0), 0);
+
 container.innerHTML = `
 <div class="stats-grid" style="margin-bottom:20px;">
 <div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Total Loans</h3><div class="value">${fmt(totalLoan)}</div></div>
@@ -1380,10 +1421,12 @@ container.innerHTML = `
 <div class="stat-card blue"><div class="icon"><i class="fas fa-list"></i></div><h3>Loan Count</h3><div class="value">${loans.length}</div></div>
 </div>
 <div class="table-container"><table>
-<thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Issue Date</th><th>Start Month</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
+<thead><tr><th>Worker</th><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Issue Date</th><th>Start Month</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
 <tbody>${loans.map(l => {
+const w = data.workers.find(x => x.id === l.workerId);
 const pct = (l.paid / l.amount * 100).toFixed(1);
 return `<tr>
+<td>${w ? w.name : 'Unknown'}</td>
 <td><span class="badge badge-warning">${l.type}</span></td>
 <td>${fmt(l.amount)}</td><td>${fmt(l.installment)}</td>
 <td style="color:var(--success);">${fmt(l.paid)}</td>
@@ -1396,20 +1439,18 @@ return `<tr>
 }).join('')}</tbody>
 </table></div>`;
 }
-function renderMyAdvances(workerId) {
-const yearFilter = document.getElementById('myLAYear')?.value || 'all';
-const monthFilter = document.getElementById('myLAMonth')?.value || 'all';
-let advances = data.advances.filter(a => a.workerId === workerId);
-if (yearFilter !== 'all') advances = advances.filter(a => a.issueDate && a.issueDate.startsWith(yearFilter));
-if (monthFilter !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.endsWith(`-${monthFilter}`));
+
+function renderMyAdvancesContent(advances, yearFilter, monthFilter) {
 const container = document.getElementById('myAdvancesContent');
 if (!advances.length) {
-container.innerHTML = '<div class="empty-state"><i class="fas fa-money-check-alt"></i><h3>No advances found</h3><p>You have no advance records.</p></div>';
+container.innerHTML = '<div class="empty-state"><i class="fas fa-money-check-alt"></i><h3>No advances found</h3><p>No advance records match the selected filters.</p></div>';
 return;
 }
+
 const totalAdv = advances.reduce((s,a) => s + (a.amount || 0), 0);
 const totalPaid = advances.reduce((s,a) => s + (a.paid || 0), 0);
 const totalRemaining = advances.reduce((s,a) => s + (a.remaining || 0), 0);
+
 container.innerHTML = `
 <div class="stats-grid" style="margin-bottom:20px;">
 <div class="stat-card pink"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Total Advances</h3><div class="value">${fmt(totalAdv)}</div></div>
@@ -1418,10 +1459,12 @@ container.innerHTML = `
 <div class="stat-card blue"><div class="icon"><i class="fas fa-list"></i></div><h3>Advance Count</h3><div class="value">${advances.length}</div></div>
 </div>
 <div class="table-container"><table>
-<thead><tr><th>Type</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Issue Date</th><th>Start Month</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
+<thead><tr><th>Worker</th><th>Type</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Issue Date</th><th>Start Month</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
 <tbody>${advances.map(a => {
+const w = data.workers.find(x => x.id === a.workerId);
 const pct = a.amount > 0 ? (a.paid / a.amount * 100).toFixed(1) : 0;
 return `<tr>
+<td>${w ? w.name : 'Unknown'}</td>
 <td><span class="badge badge-pink">${a.type}</span></td>
 <td>${fmt(a.amount)}</td>
 <td style="color:var(--success);">${fmt(a.paid)}</td>
@@ -1434,21 +1477,44 @@ return `<tr>
 }).join('')}</tbody>
 </table></div>`;
 }
-function renderMyPaymentHistory(workerId) {
-const yearFilter = document.getElementById('myLAYear')?.value || 'all';
-const monthFilter = document.getElementById('myLAMonth')?.value || 'all';
-let slips = data.salarySlips.filter(s => s.workerId === workerId && s.status === 'Paid');
+
+function renderMyLoans(workerId, yearFilter, monthFilter) {
+let loans = data.loans.filter(l => l.workerId === workerId);
+if (yearFilter !== 'all') loans = loans.filter(l => l.issueDate && l.issueDate.startsWith(yearFilter));
+if (monthFilter !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.endsWith(`-${monthFilter}`));
+renderMyLoansContent(loans, yearFilter, monthFilter);
+}
+
+function renderMyAdvances(workerId, yearFilter, monthFilter) {
+let advances = data.advances.filter(a => a.workerId === workerId);
+if (yearFilter !== 'all') advances = advances.filter(a => a.issueDate && a.issueDate.startsWith(yearFilter));
+if (monthFilter !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.endsWith(`-${monthFilter}`));
+renderMyAdvancesContent(advances, yearFilter, monthFilter);
+}
+
+function renderMyPaymentHistory(workerId, yearFilter, monthFilter) {
+let slips = data.salarySlips.filter(s => s.status === 'Paid');
+
+// Filter by worker if specified (null means all workers for admin)
+if (workerId) {
+slips = slips.filter(s => s.workerId === workerId);
+}
+
 if (yearFilter !== 'all') slips = slips.filter(s => s.month && s.month.startsWith(yearFilter));
 if (monthFilter !== 'all') slips = slips.filter(s => s.month && s.month.endsWith(`-${monthFilter}`));
+
 slips.sort((a,b) => (b.month || '').localeCompare(a.month || ''));
+
 const container = document.getElementById('myPaymentHistoryContent');
 if (!slips.length) {
 container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><h3>No payment history</h3><p>No finalized pay slips found.</p></div>';
 return;
 }
+
 const totalPaid = slips.reduce((s,p) => s + (p.net || 0), 0);
 const totalLoanPaid = slips.reduce((s,p) => s + (p.loansDeducted || []).reduce((x,l) => x + (l.amount || 0), 0), 0);
 const totalAdvPaid = slips.reduce((s,p) => s + (p.advancesDeducted || []).reduce((x,a) => x + (a.amount || 0), 0), 0);
+
 container.innerHTML = `
 <div class="stats-grid" style="margin-bottom:20px;">
 <div class="stat-card green"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><h3>Total Salary Paid</h3><div class="value">${fmt(totalPaid)}</div></div>
@@ -1457,12 +1523,14 @@ container.innerHTML = `
 <div class="stat-card blue"><div class="icon"><i class="fas fa-file-invoice"></i></div><h3>Pay Slips</h3><div class="value">${slips.length}</div></div>
 </div>
 <div class="table-container"><table>
-<thead><tr><th>Month</th><th>Slip #</th><th>Basic</th><th>Additions</th><th>Deductions</th><th>Loan Paid</th><th>Advance Paid</th><th>Net Salary</th><th>Actions</th></tr></thead>
+<thead><tr><th>Month</th><th>Slip #</th><th>Worker</th><th>Basic</th><th>Additions</th><th>Deductions</th><th>Loan Paid</th><th>Advance Paid</th><th>Net Salary</th><th>Actions</th></tr></thead>
 <tbody>${slips.map(s => {
+const w = data.workers.find(x => x.id === s.workerId);
 const loanPaid = (s.loansDeducted || []).reduce((x,l) => x + (l.amount || 0), 0);
 const advPaid = (s.advancesDeducted || []).reduce((x,a) => x + (a.amount || 0), 0);
 return `<tr>
 <td><strong>${s.month}</strong></td><td>#${s.slipNo}</td>
+<td>${w ? w.name : 'Unknown'}</td>
 <td>${fmt(s.basic)}</td>
 <td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
 <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td>
@@ -1474,12 +1542,14 @@ return `<tr>
 }).join('')}</tbody>
 </table></div>`;
 }
+
 function switchMyLATab(tab, el) {
 document.querySelectorAll('#myloans .tab').forEach(t => t.classList.remove('active'));
 document.querySelectorAll('#myloans .tab-content').forEach(t => t.classList.remove('active'));
 el.classList.add('active');
 document.getElementById('myla-' + tab).classList.add('active');
 }
+
 function viewLoanDetail(id) {
 const loan = data.loans.find(l => l.id === id);
 if (!loan) return;
@@ -1534,6 +1604,7 @@ ${paidMonths.length ? `<div class="timeline">${paidMonths.map(m => `
 </div>`;
 openModal('viewLoanDetailModal');
 }
+
 function viewAdvanceDetail(id) {
 const adv = data.advances.find(a => a.id === id);
 if (!adv) return;
