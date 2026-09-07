@@ -99,6 +99,7 @@ body { background: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
 .stat-card.cyan .icon { background: linear-gradient(135deg, #0891b2, #06b6d4); }
 .stat-card.purple .icon { background: linear-gradient(135deg, #7c3aed, #a855f7); }
 .stat-card.pink .icon { background: linear-gradient(135deg, #db2777, #ec4899); }
+.stat-card.indigo .icon { background: linear-gradient(135deg, #4f46e5, #6366f1); }
 .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; }
 .chart-card { background: white; padding: 22px; border-radius: 12px; box-shadow: var(--shadow); }
 .chart-card h3 { margin-bottom: 18px; color: var(--dark); font-size: 16px; }
@@ -254,18 +255,22 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .timeline::before { content: ''; position: absolute; left: 18px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--primary), var(--secondary)); }
 .timeline-item { position: relative; margin-bottom: 20px; animation: fadeIn 0.3s; }
 .timeline-dot { position: absolute; left: -30px; top: 8px; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-.timeline-dot.create { background: linear-gradient(135deg, #059669, #10b981); }
-.timeline-dot.edit { background: linear-gradient(135deg, #d97706, #f59e0b); }
-.timeline-dot.delete { background: linear-gradient(135deg, #dc2626, #ef4444); }
+.timeline-dot.creation { background: linear-gradient(135deg, #059669, #10b981); }
+.timeline-dot.addition { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.timeline-dot.payment { background: linear-gradient(135deg, #1e40af, #3b82f6); }
+.timeline-dot.reversal { background: linear-gradient(135deg, #dc2626, #ef4444); }
 .timeline-dot.login { background: linear-gradient(135deg, #1e40af, #3b82f6); }
-.timeline-dot.payroll { background: linear-gradient(135deg, #7c3aed, #a855f7); }
-.timeline-dot.reverse { background: linear-gradient(135deg, #db2777, #ec4899); }
 .timeline-dot.settings { background: linear-gradient(135deg, #0891b2, #06b6d4); }
 .timeline-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 15px 18px; box-shadow: var(--shadow); transition: all 0.2s; }
 .timeline-card:hover { box-shadow: var(--shadow-lg); transform: translateX(3px); }
 .timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
 .timeline-user { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; color: var(--dark); }
+.timeline-user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
 .timeline-time { font-size: 11px; color: var(--gray); display: flex; align-items: center; gap: 5px; }
+.timeline-action { font-size: 13px; color: var(--dark); margin-bottom: 5px; }
+.timeline-action strong { color: var(--primary); }
+.timeline-details { font-size: 12px; color: var(--gray); padding: 8px 10px; background: #f8fafc; border-radius: 6px; margin-top: 6px; border-left: 3px solid var(--primary); }
+.timeline-entity-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; margin-right: 6px; }
 @media (max-width: 768px) {
 .login-container { grid-template-columns: 1fr; }
 .login-illustration { display: none; }
@@ -340,9 +345,7 @@ Continue with Google
 <input type="password" class="form-input" id="loginPassword" placeholder="Password" required>
 <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
 </form>
-<div class="login-footer">
-<p style="margin-top:10px;"><a onclick="resetPassword()">Forgot password?</a></p>
-</div>
+<div class="login-footer"><p style="margin-top:10px;"><a onclick="resetPassword()">Forgot password?</a></p></div>
 </div>
 </div>
 </div>
@@ -393,27 +396,17 @@ Continue with Google
 <div class="year-selector">
 <label style="font-size:13px;font-weight:600;color:var(--gray);">Year:</label>
 <select id="dashboardYear" onchange="refreshDashboard()">
-<option value="2024">2024</option>
-<option value="2025">2025</option>
-<option value="2026" selected>2026</option>
-<option value="2027">2027</option>
+<option value="2024">2024</option><option value="2025">2025</option>
+<option value="2026" selected>2026</option><option value="2027">2027</option>
 <option value="all">All Years</option>
 </select>
 <label style="font-size:13px;font-weight:600;color:var(--gray);margin-left:15px;">Month:</label>
 <select id="dashboardMonth" onchange="refreshDashboard()">
 <option value="all">All Months</option>
-<option value="01">January</option>
-<option value="02">February</option>
-<option value="03">March</option>
-<option value="04">April</option>
-<option value="05">May</option>
-<option value="06">June</option>
-<option value="07">July</option>
-<option value="08">August</option>
-<option value="09">September</option>
-<option value="10">October</option>
-<option value="11">November</option>
-<option value="12">December</option>
+<option value="01">January</option><option value="02">February</option><option value="03">March</option>
+<option value="04">April</option><option value="05">May</option><option value="06">June</option>
+<option value="07">July</option><option value="08">August</option><option value="09">September</option>
+<option value="10">October</option><option value="11">November</option><option value="12">December</option>
 </select>
 </div>
 </div>
@@ -476,6 +469,16 @@ Continue with Google
 <button class="btn btn-primary" id="btnAddWorker" onclick="openAddWorkerModal()"><i class="fas fa-plus"></i> Add Worker</button>
 </div>
 </div>
+<div class="filter-bar">
+<i class="fas fa-filter" style="color:var(--primary);"></i>
+<label>Department:</label>
+<select id="filterWorkerDept" onchange="renderWorkers()"><option value="">All</option></select>
+<label>Status:</label>
+<select id="filterWorkerStatus" onchange="renderWorkers()">
+<option value="">All</option><option value="Active">Active</option><option value="Inactive">Inactive</option>
+</select>
+<button class="filter-reset" onclick="resetWorkerFilters()"><i class="fas fa-times"></i> Reset</button>
+</div>
 <div class="table-container">
 <table>
 <thead><tr><th>ID</th><th>Name</th><th>Position</th><th>Department</th><th>Salary</th><th>Loans</th><th>Advances</th><th>Actions</th></tr></thead>
@@ -493,9 +496,36 @@ Continue with Google
 </div>
 <div class="loan-info-banner">
 <h4><i class="fas fa-info-circle"></i> About Loans</h4>
-<p>✅ Long-term loans (Personal, Equipment, Emergency) with monthly installments</p>
-<p>✅ Set <strong>First Deduction Month</strong> when issuing</p>
-<p>✅ Installment <strong>auto-appears</strong> in pay slip and reduces balance when paid</p>
+<p>✅ Long-term loans with monthly installments</p>
+<p>✅ Multiple loans for same worker merge (only installment shows in pay slip)</p>
+<p>✅ Admin can view details and delete individual loans</p>
+</div>
+<div class="filter-bar">
+<i class="fas fa-filter" style="color:var(--primary);"></i>
+<label>Year:</label>
+<select id="filterLoanYear" onchange="renderLoans()">
+<option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option>
+<option value="2026">2026</option><option value="2027">2027</option>
+</select>
+<label>Month:</label>
+<select id="filterLoanMonth" onchange="renderLoans()">
+<option value="all">All Months</option>
+<option value="01">January</option><option value="02">February</option><option value="03">March</option>
+<option value="04">April</option><option value="05">May</option><option value="06">June</option>
+<option value="07">July</option><option value="08">August</option><option value="09">September</option>
+<option value="10">October</option><option value="11">November</option><option value="12">December</option>
+</select>
+<label>Status:</label>
+<select id="filterLoanStatus" onchange="renderLoans()">
+<option value="all">All</option><option value="Active">Active</option><option value="Completed">Completed</option>
+</select>
+<label>Type:</label>
+<select id="filterLoanType" onchange="renderLoans()">
+<option value="all">All Types</option>
+<option>Personal Loan</option><option>Equipment Loan</option>
+<option>Emergency Loan</option><option>Vehicle Loan</option><option>Other</option>
+</select>
+<button class="filter-reset" onclick="resetLoanFilters()"><i class="fas fa-times"></i> Reset</button>
 </div>
 <div class="table-container">
 <table>
@@ -513,9 +543,36 @@ Continue with Google
 </div>
 <div class="advance-info-banner">
 <h4><i class="fas fa-info-circle"></i> About Salary Advances</h4>
-<p>✅ Short-term advances (Salary Advance, Festival Advance, Emergency Cash)</p>
-<p>✅ Tracked <strong>separately</strong> from long-term loans</p>
-<p>✅ Auto-deducted from pay slip with separate display</p>
+<p>✅ Short-term advances automatically merge for same worker</p>
+<p>✅ Merged total appears in pay slip as default deduction</p>
+<p>✅ Admin can view details and delete individual advances</p>
+</div>
+<div class="filter-bar">
+<i class="fas fa-filter" style="color:var(--primary);"></i>
+<label>Year:</label>
+<select id="filterAdvYear" onchange="renderAdvances()">
+<option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option>
+<option value="2026">2026</option><option value="2027">2027</option>
+</select>
+<label>Month:</label>
+<select id="filterAdvMonth" onchange="renderAdvances()">
+<option value="all">All Months</option>
+<option value="01">January</option><option value="02">February</option><option value="03">March</option>
+<option value="04">April</option><option value="05">May</option><option value="06">June</option>
+<option value="07">July</option><option value="08">August</option><option value="09">September</option>
+<option value="10">October</option><option value="11">November</option><option value="12">December</option>
+</select>
+<label>Status:</label>
+<select id="filterAdvStatus" onchange="renderAdvances()">
+<option value="all">All</option><option value="Active">Active</option><option value="Completed">Completed</option>
+</select>
+<label>Type:</label>
+<select id="filterAdvType" onchange="renderAdvances()">
+<option value="all">All Types</option>
+<option>Salary Advance</option><option>Festival Advance</option>
+<option>Emergency Cash</option><option>Transport Advance</option><option>Other</option>
+</select>
+<button class="filter-reset" onclick="resetAdvanceFilters()"><i class="fas fa-times"></i> Reset</button>
 </div>
 <div class="table-container">
 <table>
@@ -554,11 +611,8 @@ Continue with Google
 <option value="all">All Months</option>
 </select>
 <select id="historySortYear" onchange="renderHistory()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
-<option value="all">All Years</option>
-<option value="2024">2024</option>
-<option value="2025">2025</option>
-<option value="2026">2026</option>
-<option value="2027">2027</option>
+<option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option>
+<option value="2026">2026</option><option value="2027">2027</option>
 </select>
 </div>
 </div>
@@ -881,10 +935,9 @@ Continue with Google
 <div class="modal-header"><h2><i class="fas fa-money-check-alt"></i> Issue New Salary Advance</h2><button class="close-btn" onclick="closeModal('addAdvanceModal')">&times;</button></div>
 <div class="modal-body">
 <div class="advance-info-banner">
-<h4><i class="fas fa-lightbulb"></i> Salary Advance vs Loan</h4>
-<p>• <strong>Advance</strong>: Short-term (salary advance, festival advance, emergency cash)</p>
-<p>• <strong>Loan</strong>: Long-term (personal, equipment, vehicle loans)</p>
-<p>• Both auto-deduct from pay slip but tracked separately</p>
+<h4><i class="fas fa-lightbulb"></i> Salary Advance Rules</h4>
+<p>• Multiple advances for same worker automatically merge</p>
+<p>• Merged total appears in pay slip as default deduction</p>
 </div>
 <form id="advanceForm" onsubmit="addAdvance(event)">
 <div class="form-grid">
@@ -896,8 +949,7 @@ Continue with Google
 <option>Emergency Cash</option><option>Transport Advance</option><option>Other</option>
 </select>
 </div>
-<div class="form-group"><label>Total Advance Amount (Rs) *</label><input type="number" id="aAmount" step="0.01" required></div>
-<div class="form-group"><label>Monthly Installment (Rs) *</label><input type="number" id="aInstallment" step="0.01" required></div>
+<div class="form-group"><label>New Advance Amount (Rs) *</label><input type="number" id="aAmount" step="0.01" required></div>
 <div class="form-group"><label>Issue Date *</label><input type="date" id="aIssueDate" required></div>
 <div class="form-group"><label>First Deduction Month *</label><input type="month" id="aStartMonth" required></div>
 <div class="form-group full"><label>Reason / Notes</label><textarea id="aReason"></textarea></div>
@@ -929,6 +981,12 @@ Continue with Google
 </div>
 <div class="form-group"><label>Default Value</label><input type="number" id="compValue" step="0.01"></div>
 <div class="form-group full"><label>Description</label><textarea id="compDesc"></textarea></div>
+<div class="form-group full">
+<label>Applicable Workers (Leave empty for all workers)</label>
+<select id="compWorkers" multiple style="height: 120px; padding: 8px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; background: #f8fafc; width: 100%;">
+</select>
+<div style="font-size:11px; color:var(--gray); margin-top:4px;">Hold Ctrl/Cmd to select multiple workers. Leave empty to apply to ALL workers.</div>
+</div>
 </div>
 </div>
 <div class="modal-footer">
@@ -948,57 +1006,11 @@ Continue with Google
 </div>
 </div>
 <div class="modal" id="viewTransactionModal">
-<div class="modal-content" style="max-width:800px;">
-<div class="modal-header"><h2 id="transactionModalTitle"><i class="fas fa-history"></i> Transaction History</h2><button class="close-btn" onclick="closeModal('viewTransactionModal')">&times;</button></div>
+<div class="modal-content" style="max-width:900px;">
+<div class="modal-header"><h2 id="transactionModalTitle"><i class="fas fa-history"></i> Transaction Details</h2><button class="close-btn" onclick="closeModal('viewTransactionModal')">&times;</button></div>
 <div class="modal-body" id="transactionModalBody"></div>
 <div class="modal-footer">
 <button class="btn btn-secondary" onclick="closeModal('viewTransactionModal')">Close</button>
-</div>
-</div>
-</div>
-<div class="modal" id="editLoanModal">
-<div class="modal-content">
-<div class="modal-header"><h2><i class="fas fa-edit"></i> Edit Loan</h2><button class="close-btn" onclick="closeModal('editLoanModal')">&times;</button></div>
-<div class="modal-body">
-<form id="editLoanForm" onsubmit="updateLoan(event)">
-<input type="hidden" id="editLoanId">
-<div class="form-grid">
-<div class="form-group"><label>Worker</label><input type="text" id="editLoanWorker" readonly></div>
-<div class="form-group"><label>Loan Type</label><input type="text" id="editLoanType" readonly></div>
-<div class="form-group"><label>Total Amount (Rs)</label><input type="number" id="editLoanAmount" step="0.01" required></div>
-<div class="form-group"><label>Monthly Installment (Rs)</label><input type="number" id="editLoanInstallment" step="0.01" required></div>
-<div class="form-group"><label>Issue Date</label><input type="date" id="editLoanIssueDate" readonly></div>
-<div class="form-group"><label>First Deduction Month</label><input type="month" id="editLoanStartMonth" readonly></div>
-<div class="form-group full"><label>Reason / Notes</label><textarea id="editLoanReason"></textarea></div>
-</div>
-</form>
-</div>
-<div class="modal-footer">
-<button class="btn btn-secondary" onclick="closeModal('editLoanModal')">Cancel</button>
-<button class="btn btn-primary" onclick="document.getElementById('editLoanForm').requestSubmit()"><i class="fas fa-save"></i> Update Loan</button>
-</div>
-</div>
-</div>
-<div class="modal" id="editAdvanceModal">
-<div class="modal-content">
-<div class="modal-header"><h2><i class="fas fa-edit"></i> Edit Advance</h2><button class="close-btn" onclick="closeModal('editAdvanceModal')">&times;</button></div>
-<div class="modal-body">
-<form id="editAdvanceForm" onsubmit="updateAdvance(event)">
-<input type="hidden" id="editAdvanceId">
-<div class="form-grid">
-<div class="form-group"><label>Worker</label><input type="text" id="editAdvanceWorker" readonly></div>
-<div class="form-group"><label>Advance Type</label><input type="text" id="editAdvanceType" readonly></div>
-<div class="form-group"><label>Total Amount (Rs)</label><input type="number" id="editAdvanceAmount" step="0.01" required></div>
-<div class="form-group"><label>Monthly Installment (Rs)</label><input type="number" id="editAdvanceInstallment" step="0.01" required></div>
-<div class="form-group"><label>Issue Date</label><input type="date" id="editAdvanceIssueDate" readonly></div>
-<div class="form-group"><label>First Deduction Month</label><input type="month" id="editAdvanceStartMonth" readonly></div>
-<div class="form-group full"><label>Reason / Notes</label><textarea id="editAdvanceReason"></textarea></div>
-</div>
-</form>
-</div>
-<div class="modal-footer">
-<button class="btn btn-secondary" onclick="closeModal('editAdvanceModal')">Cancel</button>
-<button class="btn btn-primary" onclick="document.getElementById('editAdvanceForm').requestSubmit()"><i class="fas fa-save"></i> Update Advance</button>
 </div>
 </div>
 </div>
@@ -1016,34 +1028,36 @@ measurementId: "G-64NXH3T93L"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
-const USER_ROLES = {
-ADMIN: 'admin',
-EDITOR: 'editor',
-VIEWER: 'viewer'
-};
+const USER_ROLES = { ADMIN: 'admin', EDITOR: 'editor', VIEWER: 'viewer' };
 const DEFAULT_ADMIN_EMAIL = 'asifabooasif@gmail.com';
 var ROLE_CONFIG = {};
 let currentUserRole = USER_ROLES.VIEWER;
 let currentUserId = null;
 let currentUserEmail = null;
+let currentUserName = null;
 let usersCollection = 'userRoles';
 let activityLogs = [];
 function getUserRole(email) {
-if (typeof ROLE_CONFIG === 'undefined') {
-ROLE_CONFIG = {};
-}
+if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
 return ROLE_CONFIG[email] || USER_ROLES.VIEWER;
 }
 function hasPermission(requiredRole) {
-const roleHierarchy = {
-[USER_ROLES.ADMIN]: 3,
-[USER_ROLES.EDITOR]: 2,
-[USER_ROLES.VIEWER]: 1
-};
+const roleHierarchy = { [USER_ROLES.ADMIN]: 3, [USER_ROLES.EDITOR]: 2, [USER_ROLES.VIEWER]: 1 };
 return roleHierarchy[currentUserRole] >= roleHierarchy[requiredRole];
 }
-function isAuthorizedUser(email) {
-return email === DEFAULT_ADMIN_EMAIL || ROLE_CONFIG[email];
+function isAuthorizedUser(email) { return email === DEFAULT_ADMIN_EMAIL || ROLE_CONFIG[email]; }
+function logActivity(action, entityType, entityName, details = '') {
+const logEntry = {
+action, entityType, entityName, details,
+userEmail: currentUserEmail || 'system',
+userName: currentUserName || currentUserEmail?.split('@')[0] || 'System',
+userRole: currentUserRole || 'unknown',
+timestamp: new Date().toISOString(),
+date: today(),
+month: currentMonth()
+};
+activityLogs.unshift(logEntry);
+if (activityLogs.length > 500) activityLogs = activityLogs.slice(0, 500);
 }
 function applyRoleBasedUI() {
 const menuUsers = document.getElementById('menuUsers');
@@ -1051,21 +1065,11 @@ const menuDesign = document.querySelector('[data-section="design"]');
 const menuSettings = document.querySelector('[data-section="settings"]');
 const menuComponents = document.querySelector('[data-section="components"]');
 const menuTimeline = document.getElementById('menuTimeline');
-if (menuUsers) {
-menuUsers.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
-}
-if (menuDesign) {
-menuDesign.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
-}
-if (menuSettings) {
-menuSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
-}
-if (menuComponents) {
-menuComponents.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
-}
-if (menuTimeline) {
-menuTimeline.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
-}
+if (menuUsers) menuUsers.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+if (menuDesign) menuDesign.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+if (menuSettings) menuSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+if (menuComponents) menuComponents.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+if (menuTimeline) menuTimeline.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
 const btnAddWorker = document.getElementById('btnAddWorker');
 const btnAddLoan = document.getElementById('btnAddLoan');
 const btnAddAdvance = document.getElementById('btnAddAdvance');
@@ -1087,70 +1091,41 @@ if (btnAddDepartment) btnAddDepartment.style.display = 'none';
 if (btnClearAll) btnClearAll.style.display = 'none';
 }
 const roleBadge = document.getElementById('userRoleBadge');
-if (roleBadge) {
-roleBadge.textContent = currentUserRole.toUpperCase();
-roleBadge.className = 'user-role-badge ' + currentUserRole;
-}
+if (roleBadge) { roleBadge.textContent = currentUserRole.toUpperCase(); roleBadge.className = 'user-role-badge ' + currentUserRole; }
 }
 function sanitizeForFirestore(obj) {
 if (obj === null || obj === undefined) return null;
 if (typeof obj === 'number' && isNaN(obj)) return 0;
 if (typeof obj !== 'object') return obj;
-if (Array.isArray(obj)) {
-return obj.map(item => sanitizeForFirestore(item)).filter(item => item !== undefined && item !== null);
-}
+if (Array.isArray(obj)) return obj.map(item => sanitizeForFirestore(item)).filter(item => item !== undefined && item !== null);
 const result = {};
-for (const key in obj) {
-if (obj.hasOwnProperty(key) && obj[key] !== undefined) {
-result[key] = sanitizeForFirestore(obj[key]);
-}
-}
+for (const key in obj) { if (obj.hasOwnProperty(key) && obj[key] !== undefined) result[key] = sanitizeForFirestore(obj[key]); }
 return result;
 }
 function showLoading(msg = 'Loading...') {
-try {
-const overlay = document.getElementById('loadingOverlay');
-const textEl = document.querySelector('.loading-text');
-if (overlay && textEl) { textEl.textContent = msg; overlay.classList.add('show'); }
-} catch (e) { console.error(e); }
+try { const overlay = document.getElementById('loadingOverlay'); const textEl = document.querySelector('.loading-text'); if (overlay && textEl) { textEl.textContent = msg; overlay.classList.add('show'); } } catch (e) { console.error(e); }
 }
-function hideLoading() {
-try { const overlay = document.getElementById('loadingOverlay'); if (overlay) overlay.classList.remove('show'); } catch (e) {}
-}
+function hideLoading() { try { const overlay = document.getElementById('loadingOverlay'); if (overlay) overlay.classList.remove('show'); } catch (e) {} }
 async function loadUserRoles() {
-try {
-const snapshot = await db.collection(usersCollection).get();
-snapshot.forEach(doc => {
-const data = doc.data();
-ROLE_CONFIG[data.email] = data.role;
-});
-} catch (error) {
-console.error('Error loading user roles:', error);
-}
+try { const snapshot = await db.collection(usersCollection).get(); snapshot.forEach(doc => { const data = doc.data(); ROLE_CONFIG[data.email] = data.role; }); }
+catch (error) { console.error('Error loading user roles:', error); }
 }
 auth.onAuthStateChanged(async (user) => {
 if (user) {
 await loadUserRoles();
-if (!isAuthorizedUser(user.email)) {
-toast('Access denied. Your email is not authorized.', 'error');
-await auth.signOut();
-return;
-}
-if (user.email === DEFAULT_ADMIN_EMAIL) {
-currentUserRole = USER_ROLES.ADMIN;
-} else {
-currentUserRole = getUserRole(user.email);
-}
-currentUserId = user.uid;
-currentUserEmail = user.email;
+if (!isAuthorizedUser(user.email)) { toast('Access denied. Your email is not authorized.', 'error'); await auth.signOut(); return; }
+if (user.email === DEFAULT_ADMIN_EMAIL) currentUserRole = USER_ROLES.ADMIN;
+else currentUserRole = getUserRole(user.email);
+currentUserId = user.uid; currentUserEmail = user.email;
+currentUserName = user.displayName || user.email.split('@')[0];
 document.getElementById('loginScreen').style.display = 'none';
 document.getElementById('mainApp').classList.add('show');
-document.getElementById('userDisplayName').textContent = user.displayName || user.email.split('@')[0];
+document.getElementById('userDisplayName').innerHTML = `${currentUserName} <span class="user-role-badge ${currentUserRole}">${currentUserRole.toUpperCase()}</span>`;
 document.getElementById('userDisplayEmail').textContent = user.email;
-document.getElementById('userAvatar').textContent = (user.displayName || user.email).charAt(0).toUpperCase();
+document.getElementById('userAvatar').textContent = currentUserName.charAt(0).toUpperCase();
 applyRoleBasedUI();
 loadData();
-logActivity('login', 'system', 'User Login', `${user.displayName || user.email} logged in as ${currentUserRole}`);
+logActivity('login', 'system', 'User Login', `${currentUserName} logged in as ${currentUserRole}`);
 } else {
 document.getElementById('loginScreen').style.display = 'flex';
 document.getElementById('mainApp').classList.remove('show');
@@ -1159,23 +1134,14 @@ document.getElementById('mainApp').classList.remove('show');
 async function signInWithGoogle() {
 try {
 showLoading('Signing in with Google...');
-if (typeof ROLE_CONFIG === 'undefined') {
-ROLE_CONFIG = {};
-}
+if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
 await loadUserRoles();
 const provider = new firebase.auth.GoogleAuthProvider();
 const result = await auth.signInWithPopup(provider);
-if (!isAuthorizedUser(result.user.email)) {
-toast('Access denied. Your email is not authorized. Contact admin.', 'error');
-await auth.signOut();
-return;
-}
+if (!isAuthorizedUser(result.user.email)) { toast('Access denied. Your email is not authorized. Contact admin.', 'error'); await auth.signOut(); return; }
 let role = USER_ROLES.VIEWER;
-if (result.user.email === DEFAULT_ADMIN_EMAIL) {
-role = USER_ROLES.ADMIN;
-} else {
-role = getUserRole(result.user.email);
-}
+if (result.user.email === DEFAULT_ADMIN_EMAIL) role = USER_ROLES.ADMIN;
+else role = getUserRole(result.user.email);
 toast(`Welcome ${result.user.displayName || result.user.email}! Role: ${role.toUpperCase()}`);
 } catch (error) {
 let msg = 'Google Sign-In failed. ';
@@ -1190,23 +1156,14 @@ async function signInWithEmail(e) {
 e.preventDefault();
 try {
 showLoading('Signing in...');
-if (typeof ROLE_CONFIG === 'undefined') {
-ROLE_CONFIG = {};
-}
+if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
 await loadUserRoles();
 const email = document.getElementById('loginEmail').value;
-if (!isAuthorizedUser(email)) {
-toast('Access denied. Your email is not authorized. Contact admin.', 'error');
-hideLoading();
-return;
-}
+if (!isAuthorizedUser(email)) { toast('Access denied. Your email is not authorized. Contact admin.', 'error'); hideLoading(); return; }
 await auth.signInWithEmailAndPassword(email, document.getElementById('loginPassword').value);
 let role = USER_ROLES.VIEWER;
-if (email === DEFAULT_ADMIN_EMAIL) {
-role = USER_ROLES.ADMIN;
-} else {
-role = getUserRole(email);
-}
+if (email === DEFAULT_ADMIN_EMAIL) role = USER_ROLES.ADMIN;
+else role = getUserRole(email);
 toast(`Welcome back! Role: ${role.toUpperCase()}`);
 } catch (error) { toast('Sign-in failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
@@ -1217,7 +1174,7 @@ catch (error) { toast('Failed: ' + error.message, 'error'); } finally { hideLoad
 }
 async function logout() {
 if (!confirm('Logout?')) return;
-logActivity('logout', 'system', 'User Logout', `${currentUserEmail} logged out`);
+logActivity('logout', 'system', 'User Logout', `${currentUserName} logged out`);
 await auth.signOut();
 toast('Logged out');
 }
@@ -1225,8 +1182,7 @@ const collections = {
 workers: 'workers', additions: 'additions', deductions: 'deductions',
 loans: 'loans', advances: 'advances', salarySlips: 'salarySlips',
 salaryComponents: 'salaryComponents', company: 'company',
-salarySettings: 'salarySettings',
-payslipDesign: 'payslipDesign', departments: 'departments'
+salarySettings: 'salarySettings', payslipDesign: 'payslipDesign', departments: 'departments'
 };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).substr(2,5);
 const fmt = (n) => {
@@ -1263,11 +1219,11 @@ if (snaps[8].exists) data.salarySettings = snaps[8].data();
 if (snaps[9].exists) data.payslipDesign = snaps[9].data();
 if (!data.salaryComponents.length) {
 data.salaryComponents = [
-{ id: 'c1', name: 'Transport Allowance', type: 'earning', calcType: 'fixed', value: 2000, active: true },
-{ id: 'c2', name: 'Meal Allowance', type: 'earning', calcType: 'fixed', value: 3000, active: true },
-{ id: 'c3', name: 'EPF (Employee)', type: 'deduction', calcType: 'percentage', value: 8, active: true },
-{ id: 'c4', name: 'ETF', type: 'deduction', calcType: 'percentage', value: 3, active: true },
-{ id: 'c5', name: 'Tax Deduction', type: 'deduction', calcType: 'percentage', value: 10, active: true }
+{ id: 'c1', name: 'Transport Allowance', type: 'earning', calcType: 'fixed', value: 2000, active: true, applicableWorkers: [] },
+{ id: 'c2', name: 'Meal Allowance', type: 'earning', calcType: 'fixed', value: 3000, active: true, applicableWorkers: [] },
+{ id: 'c3', name: 'EPF (Employee)', type: 'deduction', calcType: 'percentage', value: 8, active: true, applicableWorkers: [] },
+{ id: 'c4', name: 'ETF', type: 'deduction', calcType: 'percentage', value: 3, active: true, applicableWorkers: [] },
+{ id: 'c5', name: 'Tax Deduction', type: 'deduction', calcType: 'percentage', value: 10, active: true, applicableWorkers: [] }
 ];
 }
 if (!data.payslipDesign || Object.keys(data.payslipDesign).length === 0) {
@@ -1283,10 +1239,7 @@ sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature'
 };
 }
 if (!data.salarySettings || Object.keys(data.salarySettings).length === 0) {
-data.salarySettings = {
-taxRate: 10, epfEmp: 8, epfEmpr: 12, etf: 3,
-otMult: 1.5, workDays: 26, workHours: 8, payDay: 30, fyStart: 1, currency: 'Rs'
-};
+data.salarySettings = { taxRate: 10, epfEmp: 8, epfEmpr: 12, etf: 3, otMult: 1.5, workDays: 26, workHours: 8, payDay: 30, fyStart: 1, currency: 'Rs' };
 }
 if (!data.company || Object.keys(data.company).length === 0) {
 data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
@@ -1294,10 +1247,7 @@ data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lank
 if (!data.departments.length) data.departments = ["Production","Design","Quality Control","Sales","Administration","Finance","Warehouse","HR"];
 hideLoading();
 showSection('dashboard');
-} catch (error) {
-console.error('Error:', error); hideLoading();
-toast('Error: ' + error.message, 'error');
-}
+} catch (error) { console.error('Error:', error); hideLoading(); toast('Error: ' + error.message, 'error'); }
 }
 async function saveToFirebase(collection, docId, dataObj) {
 const cleanData = sanitizeForFirestore(dataObj);
@@ -1309,22 +1259,7 @@ async function updateInFirebase(collection, docId, dataObj) {
 const cleanData = sanitizeForFirestore(dataObj);
 await db.collection(collection).doc(docId).update(cleanData);
 }
-function logActivity(action, entityType, entityName, details = '') {
-const logEntry = {
-action, entityType, entityName, details,
-userEmail: currentUserEmail || 'system',
-userName: currentUserEmail?.split('@')[0] || 'System',
-userRole: currentUserRole || 'unknown',
-timestamp: new Date().toISOString(),
-date: today(),
-month: currentMonth()
-};
-activityLogs.unshift(logEntry);
-if (activityLogs.length > 500) activityLogs = activityLogs.slice(0, 500);
-}
-document.querySelectorAll('.menu-item[data-section]').forEach(item => {
-item.addEventListener('click', () => showSection(item.dataset.section));
-});
+document.querySelectorAll('.menu-item[data-section]').forEach(item => { item.addEventListener('click', () => showSection(item.dataset.section)); });
 function showSection(sec, title=null) {
 document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1359,9 +1294,7 @@ setTimeout(() => t.classList.remove('show'), 3000);
 function openModal(id) { document.getElementById(id).classList.add('show'); }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 document.addEventListener('click', (e) => {
-if (!e.target.closest('.action-menu-wrapper')) {
-document.querySelectorAll('.action-dropdown.show').forEach(d => d.classList.remove('show'));
-}
+if (!e.target.closest('.action-menu-wrapper')) { document.querySelectorAll('.action-dropdown.show').forEach(d => d.classList.remove('show')); }
 });
 function toggleActionMenu(btn) {
 const dropdown = btn.nextElementSibling;
@@ -1370,63 +1303,37 @@ document.querySelectorAll('.action-dropdown.show').forEach(d => d.classList.remo
 if (!isOpen) dropdown.classList.add('show');
 }
 function openAddUserModal() {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
 document.getElementById('userEmail').value = '';
 document.getElementById('userRole').value = USER_ROLES.VIEWER;
 openModal('addUserModal');
 }
 async function saveUserRole() {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
 const email = document.getElementById('userEmail').value.trim();
 const role = document.getElementById('userRole').value;
-if (!email) {
-toast('Please enter an email address', 'error');
-return;
-}
+if (!email) { toast('Please enter an email address', 'error'); return; }
 try {
 showLoading('Saving user role...');
-await db.collection(usersCollection).doc(email).set({
-email: email,
-role: role,
-updatedAt: new Date().toISOString(),
-updatedBy: auth.currentUser.email
-});
+await db.collection(usersCollection).doc(email).set({ email: email, role: role, updatedAt: new Date().toISOString(), updatedBy: auth.currentUser.email });
 ROLE_CONFIG[email] = role;
 logActivity('edit', 'user', email, `User role set to ${role.toUpperCase()}`);
 toast(`User ${email} role updated to ${role.toUpperCase()}`);
 closeModal('addUserModal');
 renderUsers();
-} catch (error) {
-toast('Error: ' + error.message, 'error');
-} finally {
-hideLoading();
-}
+} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function renderUsers() {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-document.getElementById('users').innerHTML = '<div class="card"><div class="empty-state"><h3>Access Denied</h3><p>Admin role required to view this page.</p></div></div>';
-return;
-}
+if (!hasPermission(USER_ROLES.ADMIN)) { document.getElementById('users').innerHTML = '<div class="card"><div class="empty-state"><h3>Access Denied</h3><p>Admin role required to view this page.</p></div></div>'; return; }
 try {
 showLoading('Loading users...');
 const snapshot = await db.collection(usersCollection).get();
 const tbody = document.getElementById('usersTable');
-if (snapshot.empty) {
-tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><h3>No users configured</h3><p>Click "Add User" to assign roles to users.</p></div></td></tr>';
-hideLoading();
-return;
-}
+if (snapshot.empty) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><h3>No users configured</h3><p>Click "Add User" to assign roles to users.</p></div></td></tr>'; hideLoading(); return; }
 let usersHtml = '';
 snapshot.forEach(doc => {
 const userData = doc.data();
-usersHtml += `
-<tr>
+usersHtml += `<tr>
 <td><strong>${userData.email}</strong></td>
 <td><span class="badge badge-${userData.role === 'admin' ? 'danger' : userData.role === 'editor' ? 'success' : 'gray'}">${userData.role.toUpperCase()}</span></td>
 <td>${userData.updatedAt ? new Date(userData.updatedAt).toLocaleDateString() : '-'}</td>
@@ -1440,21 +1347,13 @@ usersHtml += `
 </div>
 </div>
 </td>
-</tr>
-`;
+</tr>`;
 });
 tbody.innerHTML = usersHtml;
 hideLoading();
-} catch (error) {
-toast('Error loading users: ' + error.message, 'error');
-hideLoading();
+} catch (error) { toast('Error loading users: ' + error.message, 'error'); hideLoading(); }
 }
-}
-function editUserRole(email, currentRole) {
-document.getElementById('userEmail').value = email;
-document.getElementById('userRole').value = currentRole;
-openModal('addUserModal');
-}
+function editUserRole(email, currentRole) { document.getElementById('userEmail').value = email; document.getElementById('userRole').value = currentRole; openModal('addUserModal'); }
 async function deleteUserRole(email) {
 if (!confirm(`Remove role assignment for ${email}?`)) return;
 try {
@@ -1464,17 +1363,17 @@ delete ROLE_CONFIG[email];
 logActivity('delete', 'user', email, 'User role removed');
 toast(`User ${email} removed`);
 renderUsers();
-} catch (error) {
-toast('Error: ' + error.message, 'error');
-} finally {
-hideLoading();
+} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
+function resetWorkerFilters() { document.getElementById('filterWorkerDept').value = ''; document.getElementById('filterWorkerStatus').value = ''; renderWorkers(); }
+function populateWorkerDeptFilter() {
+const sel = document.getElementById('filterWorkerDept');
+if (!sel) return;
+const current = sel.value;
+sel.innerHTML = '<option value="">All</option>' + data.departments.map(d => `<option ${d===current?'selected':''}>${d}</option>`).join('');
 }
 async function openAddWorkerModal() {
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 document.getElementById('workerModalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Add New Worker';
 document.getElementById('workerSaveBtnText').textContent = 'Save Worker';
 document.getElementById('workerForm').reset();
@@ -1484,10 +1383,7 @@ document.getElementById('wDepartment').innerHTML = '<option value="">Select</opt
 openModal('addWorkerModal');
 }
 async function openEditWorkerModal(id) {
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 const w = data.workers.find(x => x.id === id);
 if (!w) return;
 document.getElementById('workerModalTitle').innerHTML = '<i class="fas fa-user-edit"></i> Edit Worker Details';
@@ -1510,10 +1406,7 @@ openModal('addWorkerModal');
 }
 async function saveWorker(e) {
 e.preventDefault();
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 const editId = document.getElementById('wEditId').value;
 const currentUser = auth.currentUser;
 const workerData = {
@@ -1522,40 +1415,31 @@ email: document.getElementById('wEmail').value, position: document.getElementByI
 department: document.getElementById('wDepartment').value,
 salary: parseFloat(document.getElementById('wSalary').value) || 0, allowances: parseFloat(document.getElementById('wAllowances').value) || 0,
 joinDate: document.getElementById('wJoinDate').value, phone: document.getElementById('wPhone').value || '',
-bank: document.getElementById('wBank').value || '',
-account: document.getElementById('wAccount').value || '', taxId: document.getElementById('wTaxId').value || '',
+bank: document.getElementById('wBank').value || '', account: document.getElementById('wAccount').value || '', taxId: document.getElementById('wTaxId').value || '',
 address: document.getElementById('wAddress').value || '', status: 'Active',
-modifiedAt: today(),
-modifiedBy: currentUser.displayName || currentUser.email,
-modifiedByEmail: currentUser.email
+modifiedAt: today(), modifiedBy: currentUser.displayName || currentUser.email, modifiedByEmail: currentUser.email
 };
-if (!editId) {
-workerData.createdAt = today();
-workerData.createdBy = currentUser.displayName || currentUser.email;
-workerData.createdByEmail = currentUser.email;
-}
+if (!editId) { workerData.createdAt = today(); workerData.createdBy = currentUser.displayName || currentUser.email; workerData.createdByEmail = currentUser.email; }
 try {
 showLoading(editId ? 'Updating worker...' : 'Saving worker...');
-if (editId) {
-await updateInFirebase(collections.workers, editId, workerData);
-logActivity('edit', 'worker', workerData.name, 'Updated worker details');
-} else {
-await saveToFirebase(collections.workers, null, workerData);
-logActivity('create', 'worker', workerData.name, `New worker added - ${workerData.position} in ${workerData.department}`);
-}
+if (editId) { await updateInFirebase(collections.workers, editId, workerData); logActivity('edit', 'worker', workerData.name, 'Updated worker details'); }
+else { await saveToFirebase(collections.workers, null, workerData); logActivity('create', 'worker', workerData.name, `New worker added - ${workerData.position} in ${workerData.department}`); }
 await loadData();
 toast(editId ? 'Worker updated!' : 'Worker added!');
 closeModal('addWorkerModal');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderWorkers() {
+populateWorkerDeptFilter();
 const search = (document.getElementById('searchWorker')?.value || '').toLowerCase();
+const deptFilter = document.getElementById('filterWorkerDept')?.value || '';
+const statusFilter = document.getElementById('filterWorkerStatus')?.value || '';
 let workers = data.workers;
-if (currentUserRole === USER_ROLES.VIEWER) {
-workers = workers.filter(w => w.email === currentUserEmail);
-}
+if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
+if (deptFilter) workers = workers.filter(w => w.department === deptFilter);
+if (statusFilter) workers = workers.filter(w => (w.status || 'Active') === statusFilter);
 const filtered = workers.filter(w => w.name.toLowerCase().includes(search) || w.empId.toLowerCase().includes(search) || w.department.toLowerCase().includes(search));
-document.getElementById('workerCount').textContent = workers.length;
+document.getElementById('workerCount').textContent = filtered.length;
 const tbody = document.getElementById('workersTable');
 if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-users"></i><h3>No workers</h3></div></td></tr>'; return; }
 tbody.innerHTML = filtered.map(w => {
@@ -1583,28 +1467,17 @@ ${hasPermission(USER_ROLES.ADMIN) ? `<div class="action-dropdown-item danger" on
 }).join('');
 }
 async function deleteWorker(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
-if (!confirm('Delete this worker?')) return;
-const currentUser = auth.currentUser;
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
 const w = data.workers.find(x => x.id === id);
-try {
-showLoading('Deleting...');
-await deleteFromFirebase(collections.workers, id);
-logActivity('delete', 'worker', w?.name || 'Unknown', `Worker deleted by ${currentUser.displayName || currentUser.email}`);
-await loadData();
-toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+if (!confirm(`Delete worker ${w?.name || ''}?`)) return;
+const currentUser = auth.currentUser;
+try { showLoading('Deleting...'); await deleteFromFirebase(collections.workers, id); logActivity('delete', 'worker', w?.name || 'Unknown', `Worker deleted by ${currentUser.displayName || currentUser.email}`); await loadData(); toast(`Deleted by ${currentUser.displayName || currentUser.email}`); }
+catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function openWorkerDetail(id) {
 const w = data.workers.find(x => x.id === id);
 if (!w) return;
-if (currentUserRole === USER_ROLES.VIEWER && w.email !== currentUserEmail) {
-toast('Access denied. You can only view your own details.', 'error');
-return;
-}
+if (currentUserRole === USER_ROLES.VIEWER && w.email !== currentUserEmail) { toast('Access denied. You can only view your own details.', 'error'); return; }
 const slips = data.salarySlips.filter(s => s.workerId === id);
 const loans = data.loans.filter(l => l.workerId === id);
 const advances = data.advances.filter(a => a.workerId === id);
@@ -1661,7 +1534,7 @@ ${hasPermission(USER_ROLES.EDITOR) ? `<button class="btn btn-info" onclick="open
 <td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
 <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td>
 <td><strong>${fmt(s.net)}</strong></td>
-<td><span class="badge ${s.status==='Paid'?'badge-success':'badge-gray'}">${s.status}</span></td>
+<td><span class="badge ${s.status==='Paid'?'badge-success':s.status==='Reversed'?'badge-danger':'badge-gray'}">${s.status}</span></td>
 </tr>`).join('') : '<tr><td colspan="7"><div class="empty-state"><h3>No slips</h3></div></td></tr>'}</tbody>
 </table></div>
 </div>
@@ -1679,16 +1552,13 @@ return `<tr>
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></td>
 <td><span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></td>
 <td>
-${hasPermission(USER_ROLES.ADMIN) ? `
 <div class="action-menu-wrapper">
 <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown">
-<div class="action-dropdown-item info" onclick="viewLoanTransactions('${l.id}')"><i class="fas fa-history"></i> View Details</div>
-<div class="action-dropdown-item warning" onclick="openEditLoanModal('${l.id}')"><i class="fas fa-edit"></i> Edit</div>
-<div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>
+${hasPermission(USER_ROLES.ADMIN) ? `<div class="action-dropdown-item info" onclick="viewTransactionHistory('loan', '${l.id}')"><i class="fas fa-history"></i> View Details</div>` : ''}
+${hasPermission(USER_ROLES.ADMIN) ? `<div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div>
 </div>
-` : ''}
 </td>
 </tr>`;
 }).join('') : '<tr><td colspan="9"><div class="empty-state"><h3>No loans</h3></div></td></tr>'}</tbody>
@@ -1696,31 +1566,28 @@ ${hasPermission(USER_ROLES.ADMIN) ? `
 </div>
 <div class="tab-content" id="wt-advances">
 <div class="table-container"><table>
-<thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
+<thead><tr><th>Type</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
 <tbody>${advances.length ? advances.map(a => {
-const pct = (a.paid / a.amount * 100).toFixed(1);
+const pct = a.amount > 0 ? (a.paid / a.amount * 100).toFixed(1) : 0;
 return `<tr>
 <td><span class="badge badge-pink">${a.type}</span></td>
-<td>${fmt(a.amount)}</td><td>${fmt(a.installment)}</td>
+<td>${fmt(a.amount)}</td>
 <td style="color:var(--success);">${fmt(a.paid)}</td>
 <td style="color:var(--danger);"><strong>${fmt(a.remaining)}</strong></td>
 <td>${a.startMonth}</td>
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:linear-gradient(90deg,#db2777,#ec4899);"></div></div></td>
 <td><span class="badge ${a.status==='Active'?'badge-pink':'badge-success'}">${a.status}</span></td>
 <td>
-${hasPermission(USER_ROLES.ADMIN) ? `
 <div class="action-menu-wrapper">
 <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown">
-<div class="action-dropdown-item info" onclick="viewAdvanceTransactions('${a.id}')"><i class="fas fa-history"></i> View Details</div>
-<div class="action-dropdown-item warning" onclick="openEditAdvanceModal('${a.id}')"><i class="fas fa-edit"></i> Edit</div>
-<div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>
+${hasPermission(USER_ROLES.ADMIN) ? `<div class="action-dropdown-item info" onclick="viewTransactionHistory('advance', '${a.id}')"><i class="fas fa-history"></i> View Details</div>` : ''}
+${hasPermission(USER_ROLES.ADMIN) ? `<div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div>
 </div>
-` : ''}
 </td>
 </tr>`;
-}).join('') : '<tr><td colspan="9"><div class="empty-state"><h3>No advances</h3></div></td></tr>'}</tbody>
+}).join('') : '<tr><td colspan="8"><div class="empty-state"><h3>No advances</h3></div></td></tr>'}</tbody>
 </table></div>
 </div>
 <div class="tab-content" id="wt-additions">
@@ -1767,15 +1634,9 @@ document.querySelectorAll('#workerDetailContent .tab-content').forEach(t => t.cl
 el.classList.add('active');
 document.getElementById('wt-' + tab).classList.add('active');
 }
-function goCreateSlip(workerId) {
-showSection('slips');
-setTimeout(() => { document.getElementById('slipWorker').value = workerId; loadSlipDefaults(); }, 100);
-}
+function goCreateSlip(workerId) { showSection('slips'); setTimeout(() => { document.getElementById('slipWorker').value = workerId; loadSlipDefaults(); }, 100); }
 function quickAddLoan(workerId) {
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 populateWorkerSelect('lWorker');
 document.getElementById('loanForm').reset();
 document.getElementById('lWorker').value = workerId;
@@ -1784,10 +1645,7 @@ document.getElementById('lStartMonth').value = currentMonth();
 openModal('addLoanModal');
 }
 function quickAddAdvance(workerId) {
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 populateWorkerSelect('aWorker');
 document.getElementById('advanceForm').reset();
 document.getElementById('aWorker').value = workerId;
@@ -1799,9 +1657,7 @@ function populateWorkerSelect(id) {
 const el = document.getElementById(id);
 if (!el) return;
 let workers = data.workers;
-if (currentUserRole === USER_ROLES.VIEWER) {
-workers = workers.filter(w => w.email === currentUserEmail);
-}
+if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
 el.innerHTML = '<option value="">Select Worker</option>' + workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>`).join('');
 }
 function populateReportFilters() {
@@ -1814,10 +1670,7 @@ const months = [...new Set(data.salarySlips.map(s => s.month))].sort().reverse()
 monthSelect.innerHTML = '<option value="all">All Months</option>' + months.map(m => `<option value="${m}">${m}</option>`).join('');
 }
 function openAddLoanModal() {
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 populateWorkerSelect('lWorker');
 document.getElementById('loanForm').reset();
 document.getElementById('lIssueDate').value = today();
@@ -1826,10 +1679,7 @@ openModal('addLoanModal');
 }
 async function addLoan(e) {
 e.preventDefault();
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 const total = parseFloat(document.getElementById('lAmount').value) || 0;
 const currentUser = auth.currentUser;
 const workerId = document.getElementById('lWorker').value;
@@ -1837,36 +1687,36 @@ const w = data.workers.find(x => x.id === workerId);
 const loanType = document.getElementById('lType').value;
 try {
 showLoading('Issuing loan...');
-const loanData = {
-workerId: workerId, type: loanType,
-amount: total, installment: parseFloat(document.getElementById('lInstallment').value) || 0,
-paid: 0, remaining: total, issueDate: document.getElementById('lIssueDate').value,
-startMonth: document.getElementById('lStartMonth').value, reason: document.getElementById('lReason').value || '',
-status: 'Active', paidMonths: [], createdAt: today(),
-createdBy: currentUser.displayName || currentUser.email, createdByEmail: currentUser.email,
-transactions: [{
-id: uid(),
-date: today(),
-type: 'creation',
-amount: total,
-notes: 'Initial loan creation',
-performedBy: currentUser.displayName || currentUser.email
-}]
-};
-await saveToFirebase(collections.loans, null, loanData);
-logActivity('create', 'loan', `${w?.name || 'Worker'} - ${loanType}`, `New loan issued: ${fmt(total)}`);
-await loadData();
+const existingLoan = data.loans.find(l => l.workerId === workerId && l.type === loanType && l.status === 'Active');
+if (existingLoan) {
+const newTotal = existingLoan.amount + total;
+const updateData = { amount: newTotal, remaining: existingLoan.remaining + total, modifiedAt: today(), modifiedBy: currentUser.displayName || currentUser.email, modifiedByEmail: currentUser.email };
+await updateInFirebase(collections.loans, existingLoan.id, updateData);
+logActivity('addition', 'loan', `${w?.name || 'Worker'} - ${loanType}`, `Added ${fmt(total)} to existing ${loanType}. New Total: ${fmt(newTotal)}`);
+toast(`Added to existing loan! New Total: ${fmt(newTotal)}`);
+} else {
+const loanData = { workerId: workerId, type: loanType, amount: total, installment: parseFloat(document.getElementById('lInstallment').value) || 0, paid: 0, remaining: total, issueDate: document.getElementById('lIssueDate').value, startMonth: document.getElementById('lStartMonth').value, reason: document.getElementById('lReason').value || '', status: 'Active', paidMonths: [], createdAt: today(), createdBy: currentUser.displayName || currentUser.email, createdByEmail: currentUser.email };
+const newId = await saveToFirebase(collections.loans, null, loanData);
+logActivity('creation', 'loan', `${w?.name || 'Worker'} - ${loanType}`, `New ${loanType} issued: ${fmt(total)}`);
 toast('Loan issued!');
+}
+await loadData();
 closeModal('addLoanModal');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
+function resetLoanFilters() { document.getElementById('filterLoanYear').value = 'all'; document.getElementById('filterLoanMonth').value = 'all'; document.getElementById('filterLoanStatus').value = 'all'; document.getElementById('filterLoanType').value = 'all'; renderLoans(); }
 function renderLoans() {
 const tbody = document.getElementById('loansTable');
 let loans = data.loans;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-loans = loans.filter(l => workerIds.includes(l.workerId));
-}
+if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); loans = loans.filter(l => workerIds.includes(l.workerId)); }
+const yearFilter = document.getElementById('filterLoanYear')?.value || 'all';
+const monthFilter = document.getElementById('filterLoanMonth')?.value || 'all';
+const statusFilter = document.getElementById('filterLoanStatus')?.value || 'all';
+const typeFilter = document.getElementById('filterLoanType')?.value || 'all';
+if (yearFilter !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.startsWith(yearFilter));
+if (monthFilter !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.endsWith(`-${monthFilter}`));
+if (statusFilter !== 'all') loans = loans.filter(l => l.status === statusFilter);
+if (typeFilter !== 'all') loans = loans.filter(l => l.type === typeFilter);
 if (!loans.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans</h3></div></td></tr>'; return; }
 const canDelete = hasPermission(USER_ROLES.ADMIN);
 tbody.innerHTML = loans.map(l => {
@@ -1884,10 +1734,7 @@ return `<tr>
 <div class="action-menu-wrapper">
 <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown">
-${hasPermission(USER_ROLES.ADMIN) ? `
-<div class="action-dropdown-item info" onclick="viewLoanTransactions('${l.id}')"><i class="fas fa-history"></i> View Details</div>
-<div class="action-dropdown-item warning" onclick="openEditLoanModal('${l.id}')"><i class="fas fa-edit"></i> Edit</div>
-` : ''}
+${hasPermission(USER_ROLES.ADMIN) ? `<div class="action-dropdown-item info" onclick="viewTransactionHistory('loan', '${l.id}')"><i class="fas fa-history"></i> View Details</div>` : ''}
 ${canDelete ? `<div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div>
 </div>
@@ -1896,125 +1743,15 @@ ${canDelete ? `<div class="action-dropdown-item danger" onclick="deleteLoan('${l
 }).join('');
 }
 async function deleteLoan(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+const loan = data.loans.find(l => l.id === id);
 if (!confirm('Delete this loan?')) return;
 const currentUser = auth.currentUser;
-const l = data.loans.find(x => x.id === id);
-try {
-showLoading('Deleting...');
-await deleteFromFirebase(collections.loans, id);
-logActivity('delete', 'loan', `${l?.type || 'Loan'}`, `Loan deleted by ${currentUser.displayName || currentUser.email}`);
-await loadData();
-toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-function openEditLoanModal(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
-const l = data.loans.find(x => x.id === id);
-if (!l) return;
-const w = data.workers.find(x => x.id === l.workerId);
-document.getElementById('editLoanId').value = l.id;
-document.getElementById('editLoanWorker').value = w?.name || 'Unknown';
-document.getElementById('editLoanType').value = l.type;
-document.getElementById('editLoanAmount').value = l.amount;
-document.getElementById('editLoanInstallment').value = l.installment;
-document.getElementById('editLoanIssueDate').value = l.issueDate;
-document.getElementById('editLoanStartMonth').value = l.startMonth;
-document.getElementById('editLoanReason').value = l.reason || '';
-openModal('editLoanModal');
-}
-async function updateLoan(e) {
-e.preventDefault();
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
-const id = document.getElementById('editLoanId').value;
-const newAmount = parseFloat(document.getElementById('editLoanAmount').value) || 0;
-const newInstallment = parseFloat(document.getElementById('editLoanInstallment').value) || 0;
-const newReason = document.getElementById('editLoanReason').value || '';
-const l = data.loans.find(x => x.id === id);
-if (!l) return;
-const currentUser = auth.currentUser;
-const oldAmount = l.amount;
-const amountDiff = newAmount - oldAmount;
-try {
-showLoading('Updating loan...');
-const updateData = {
-amount: newAmount,
-installment: newInstallment,
-reason: newReason,
-remaining: Math.max(0, (l.remaining || 0) + amountDiff),
-modifiedAt: today(),
-modifiedBy: currentUser.displayName || currentUser.email,
-modifiedByEmail: currentUser.email
-};
-if (!l.transactions) l.transactions = [];
-l.transactions.push({
-id: uid(),
-date: today(),
-type: 'edit',
-amount: amountDiff,
-notes: `Loan amount updated from ${fmt(oldAmount)} to ${fmt(newAmount)}`,
-performedBy: currentUser.displayName || currentUser.email
-});
-updateData.transactions = l.transactions;
-await updateInFirebase(collections.loans, id, updateData);
-logActivity('edit', 'loan', `${w?.name || 'Worker'} - ${l.type}`, `Loan updated: ${fmt(oldAmount)} → ${fmt(newAmount)}`);
-await loadData();
-toast('Loan updated!');
-closeModal('editLoanModal');
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-function viewLoanTransactions(id) {
-const l = data.loans.find(x => x.id === id);
-if (!l) return;
-const w = data.workers.find(x => x.id === l.workerId);
-document.getElementById('transactionModalTitle').innerHTML = `<i class="fas fa-history"></i> Loan Transaction History - ${l.type}`;
-const transactions = l.transactions || [];
-let html = `
-<div style="margin-bottom:20px; padding:15px; background:#f8fafc; border-radius:8px; border-left:4px solid var(--warning);">
-<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:15px;">
-<div><strong>Worker:</strong> ${w?.name || 'Unknown'}</div>
-<div><strong>Type:</strong> ${l.type}</div>
-<div><strong>Total Amount:</strong> ${fmt(l.amount)}</div>
-<div><strong>Paid:</strong> ${fmt(l.paid)}</div>
-<div><strong>Remaining:</strong> ${fmt(l.remaining)}</div>
-<div><strong>Status:</strong> <span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></div>
-</div>
-</div>
-`;
-if (transactions.length === 0) {
-html += '<div class="empty-state"><i class="fas fa-history"></i><h3>No transaction history</h3></div>';
-} else {
-html += '<div class="table-container"><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Notes</th><th>Performed By</th></tr></thead><tbody>';
-transactions.forEach(t => {
-const typeIcon = t.type === 'creation' ? 'fa-plus-circle' : t.type === 'payment' ? 'fa-check-circle' : t.type === 'reversal' ? 'fa-undo' : 'fa-edit';
-const typeColor = t.type === 'creation' ? 'var(--success)' : t.type === 'payment' ? 'var(--primary)' : t.type === 'reversal' ? 'var(--danger)' : 'var(--warning)';
-html += `<tr>
-<td>${t.date || '-'}</td>
-<td><i class="fas ${typeIcon}" style="color:${typeColor};"></i> ${t.type}</td>
-<td><strong>${fmt(Math.abs(t.amount || 0))}</strong></td>
-<td>${t.notes || '-'}</td>
-<td>${t.performedBy || '-'}</td>
-</tr>`;
-});
-html += '</tbody></table></div>';
-}
-document.getElementById('transactionModalBody').innerHTML = html;
-openModal('viewTransactionModal');
+try { showLoading('Deleting...'); await deleteFromFirebase(collections.loans, id); logActivity('delete', 'loan', `${loan?.type || 'Loan'}`, `Loan deleted by ${currentUser.displayName || currentUser.email}`); await loadData(); toast(`Deleted by ${currentUser.displayName || currentUser.email}`); }
+catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function openAddAdvanceModal() {
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 populateWorkerSelect('aWorker');
 document.getElementById('advanceForm').reset();
 document.getElementById('aIssueDate').value = today();
@@ -2023,52 +1760,52 @@ openModal('addAdvanceModal');
 }
 async function addAdvance(e) {
 e.preventDefault();
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
-const total = parseFloat(document.getElementById('aAmount').value) || 0;
-const currentUser = auth.currentUser;
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
+const newAmount = parseFloat(document.getElementById('aAmount').value) || 0;
 const workerId = document.getElementById('aWorker').value;
-const w = data.workers.find(x => x.id === workerId);
 const advType = document.getElementById('aType').value;
+const issueDate = document.getElementById('aIssueDate').value;
+const startMonth = document.getElementById('aStartMonth').value;
+const reason = document.getElementById('aReason').value || '';
+const currentUser = auth.currentUser;
+const w = data.workers.find(x => x.id === workerId);
 try {
-showLoading('Issuing advance...');
-const advanceData = {
-workerId: workerId, type: advType,
-amount: total, installment: parseFloat(document.getElementById('aInstallment').value) || 0,
-paid: 0, remaining: total, issueDate: document.getElementById('aIssueDate').value,
-startMonth: document.getElementById('aStartMonth').value, reason: document.getElementById('aReason').value || '',
-status: 'Active', paidMonths: [], createdAt: today(),
-createdBy: currentUser.displayName || currentUser.email, createdByEmail: currentUser.email,
-transactions: [{
-id: uid(),
-date: today(),
-type: 'creation',
-amount: total,
-notes: 'Initial advance creation',
-performedBy: currentUser.displayName || currentUser.email
-}]
-};
+showLoading('Processing advance...');
+const existingActive = data.advances.find(a => a.workerId === workerId && a.status === 'Active');
+if (existingActive) {
+const updatedData = { amount: (existingActive.amount || 0) + newAmount, remaining: (existingActive.remaining || 0) + newAmount, reason: (existingActive.reason || '') + (reason ? ' | ' + reason : ''), modifiedAt: today(), modifiedBy: currentUser.displayName || currentUser.email, modifiedByEmail: currentUser.email };
+await updateInFirebase(collections.advances, existingActive.id, updatedData);
+logActivity('addition', 'advance', `${w?.name || 'Worker'} - ${advType}`, `Added ${fmt(newAmount)} to existing advance. New total: ${fmt(updatedData.amount)}`);
+await loadData();
+toast(`Advance added! Combined total: ${fmt(updatedData.amount)}`);
+} else {
+const advanceData = { workerId: workerId, type: advType, amount: newAmount, installment: newAmount, paid: 0, remaining: newAmount, issueDate: issueDate, startMonth: startMonth, reason: reason, status: 'Active', paidMonths: [], createdAt: today(), createdBy: currentUser.displayName || currentUser.email, createdByEmail: currentUser.email };
 await saveToFirebase(collections.advances, null, advanceData);
-logActivity('create', 'advance', `${w?.name || 'Worker'} - ${advType}`, `New advance issued: ${fmt(total)}`);
+logActivity('creation', 'advance', `${w?.name || 'Worker'} - ${advType}`, `New advance of ${fmt(newAmount)} issued`);
 await loadData();
 toast('Advance issued!');
+}
 closeModal('addAdvanceModal');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
+function resetAdvanceFilters() { document.getElementById('filterAdvYear').value = 'all'; document.getElementById('filterAdvMonth').value = 'all'; document.getElementById('filterAdvStatus').value = 'all'; document.getElementById('filterAdvType').value = 'all'; renderAdvances(); }
 function renderAdvances() {
 const tbody = document.getElementById('advancesTable');
 let advances = data.advances;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-advances = advances.filter(a => workerIds.includes(a.workerId));
-}
+if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); advances = advances.filter(a => workerIds.includes(a.workerId)); }
+const yearFilter = document.getElementById('filterAdvYear')?.value || 'all';
+const monthFilter = document.getElementById('filterAdvMonth')?.value || 'all';
+const statusFilter = document.getElementById('filterAdvStatus')?.value || 'all';
+const typeFilter = document.getElementById('filterAdvType')?.value || 'all';
+if (yearFilter !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.startsWith(yearFilter));
+if (monthFilter !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.endsWith(`-${monthFilter}`));
+if (statusFilter !== 'all') advances = advances.filter(a => a.status === statusFilter);
+if (typeFilter !== 'all') advances = advances.filter(a => a.type === typeFilter);
 if (!advances.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-money-check-alt"></i><h3>No advances</h3></div></td></tr>'; return; }
 const canDelete = hasPermission(USER_ROLES.ADMIN);
 tbody.innerHTML = advances.map(a => {
 const w = data.workers.find(x => x.id === a.workerId);
-const pct = (a.paid / a.amount * 100).toFixed(1);
+const pct = a.amount > 0 ? (a.paid / a.amount * 100).toFixed(1) : 0;
 return `<tr>
 <td>${w ? w.name : 'Unknown'}</td><td><span class="badge badge-pink">${a.type}</span></td>
 <td>${fmt(a.amount)}</td><td>${fmt(a.installment)}</td>
@@ -2081,10 +1818,7 @@ return `<tr>
 <div class="action-menu-wrapper">
 <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown">
-${hasPermission(USER_ROLES.ADMIN) ? `
-<div class="action-dropdown-item info" onclick="viewAdvanceTransactions('${a.id}')"><i class="fas fa-history"></i> View Details</div>
-<div class="action-dropdown-item warning" onclick="openEditAdvanceModal('${a.id}')"><i class="fas fa-edit"></i> Edit</div>
-` : ''}
+${hasPermission(USER_ROLES.ADMIN) ? `<div class="action-dropdown-item info" onclick="viewTransactionHistory('advance', '${a.id}')"><i class="fas fa-history"></i> View Details</div>` : ''}
 ${canDelete ? `<div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div>
 </div>
@@ -2093,119 +1827,12 @@ ${canDelete ? `<div class="action-dropdown-item danger" onclick="deleteAdvance('
 }).join('');
 }
 async function deleteAdvance(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+const adv = data.advances.find(a => a.id === id);
 if (!confirm('Delete this advance?')) return;
 const currentUser = auth.currentUser;
-const a = data.advances.find(x => x.id === id);
-try {
-showLoading('Deleting...');
-await deleteFromFirebase(collections.advances, id);
-logActivity('delete', 'advance', `${a?.type || 'Advance'}`, `Advance deleted by ${currentUser.displayName || currentUser.email}`);
-await loadData();
-toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-function openEditAdvanceModal(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
-const a = data.advances.find(x => x.id === id);
-if (!a) return;
-const w = data.workers.find(x => x.id === a.workerId);
-document.getElementById('editAdvanceId').value = a.id;
-document.getElementById('editAdvanceWorker').value = w?.name || 'Unknown';
-document.getElementById('editAdvanceType').value = a.type;
-document.getElementById('editAdvanceAmount').value = a.amount;
-document.getElementById('editAdvanceInstallment').value = a.installment;
-document.getElementById('editAdvanceIssueDate').value = a.issueDate;
-document.getElementById('editAdvanceStartMonth').value = a.startMonth;
-document.getElementById('editAdvanceReason').value = a.reason || '';
-openModal('editAdvanceModal');
-}
-async function updateAdvance(e) {
-e.preventDefault();
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
-const id = document.getElementById('editAdvanceId').value;
-const newAmount = parseFloat(document.getElementById('editAdvanceAmount').value) || 0;
-const newInstallment = parseFloat(document.getElementById('editAdvanceInstallment').value) || 0;
-const newReason = document.getElementById('editAdvanceReason').value || '';
-const a = data.advances.find(x => x.id === id);
-if (!a) return;
-const currentUser = auth.currentUser;
-const oldAmount = a.amount;
-const amountDiff = newAmount - oldAmount;
-try {
-showLoading('Updating advance...');
-const updateData = {
-amount: newAmount,
-installment: newInstallment,
-reason: newReason,
-remaining: Math.max(0, (a.remaining || 0) + amountDiff),
-modifiedAt: today(),
-modifiedBy: currentUser.displayName || currentUser.email,
-modifiedByEmail: currentUser.email
-};
-if (!a.transactions) a.transactions = [];
-a.transactions.push({
-id: uid(),
-date: today(),
-type: 'edit',
-amount: amountDiff,
-notes: `Advance amount updated from ${fmt(oldAmount)} to ${fmt(newAmount)}`,
-performedBy: currentUser.displayName || currentUser.email
-});
-updateData.transactions = a.transactions;
-await updateInFirebase(collections.advances, id, updateData);
-logActivity('edit', 'advance', `${w?.name || 'Worker'} - ${a.type}`, `Advance updated: ${fmt(oldAmount)} → ${fmt(newAmount)}`);
-await loadData();
-toast('Advance updated!');
-closeModal('editAdvanceModal');
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-function viewAdvanceTransactions(id) {
-const a = data.advances.find(x => x.id === id);
-if (!a) return;
-const w = data.workers.find(x => x.id === a.workerId);
-document.getElementById('transactionModalTitle').innerHTML = `<i class="fas fa-history"></i> Advance Transaction History - ${a.type}`;
-const transactions = a.transactions || [];
-let html = `
-<div style="margin-bottom:20px; padding:15px; background:#f8fafc; border-radius:8px; border-left:4px solid var(--pink);">
-<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:15px;">
-<div><strong>Worker:</strong> ${w?.name || 'Unknown'}</div>
-<div><strong>Type:</strong> ${a.type}</div>
-<div><strong>Total Amount:</strong> ${fmt(a.amount)}</div>
-<div><strong>Paid:</strong> ${fmt(a.paid)}</div>
-<div><strong>Remaining:</strong> ${fmt(a.remaining)}</div>
-<div><strong>Status:</strong> <span class="badge ${a.status==='Active'?'badge-pink':'badge-success'}">${a.status}</span></div>
-</div>
-</div>
-`;
-if (transactions.length === 0) {
-html += '<div class="empty-state"><i class="fas fa-history"></i><h3>No transaction history</h3></div>';
-} else {
-html += '<div class="table-container"><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Notes</th><th>Performed By</th></tr></thead><tbody>';
-transactions.forEach(t => {
-const typeIcon = t.type === 'creation' ? 'fa-plus-circle' : t.type === 'payment' ? 'fa-check-circle' : t.type === 'reversal' ? 'fa-undo' : 'fa-edit';
-const typeColor = t.type === 'creation' ? 'var(--success)' : t.type === 'payment' ? 'var(--primary)' : t.type === 'reversal' ? 'var(--danger)' : 'var(--warning)';
-html += `<tr>
-<td>${t.date || '-'}</td>
-<td><i class="fas ${typeIcon}" style="color:${typeColor};"></i> ${t.type}</td>
-<td><strong>${fmt(Math.abs(t.amount || 0))}</strong></td>
-<td>${t.notes || '-'}</td>
-<td>${t.performedBy || '-'}</td>
-</tr>`;
-});
-html += '</tbody></table></div>';
-}
-document.getElementById('transactionModalBody').innerHTML = html;
-openModal('viewTransactionModal');
+try { showLoading('Deleting...'); await deleteFromFirebase(collections.advances, id); logActivity('delete', 'advance', `${adv?.type || 'Advance'}`, `Advance deleted by ${currentUser.displayName || currentUser.email}`); await loadData(); toast(`Deleted by ${currentUser.displayName || currentUser.email}`); }
+catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderComponents() {
 const earnings = data.salaryComponents.filter(c => c.type === 'earning');
@@ -2217,9 +1844,10 @@ document.getElementById('deductionsComponentsList').innerHTML = deductions.lengt
 function componentCard(c, canDelete) {
 const calcLabel = { fixed: 'Fixed', percentage: '% of Basic', perHour: 'Per Hour', manual: 'Manual' }[c.calcType];
 const valueLabel = c.calcType === 'percentage' ? `${c.value}%` : c.calcType === 'manual' ? 'No default' : fmt(c.value);
+const workerCount = c.applicableWorkers && c.applicableWorkers.length > 0 ? `${c.applicableWorkers.length} worker(s)` : 'All workers';
 return `<div class="component-card ${c.type}" style="${!c.active ? 'opacity:0.5;' : ''}">
 <div class="comp-icon"><i class="fas ${c.type === 'earning' ? 'fa-plus' : 'fa-minus'}"></i></div>
-<div class="comp-info"><h4>${c.name}</h4><p>${calcLabel} • ${valueLabel}</p></div>
+<div class="comp-info"><h4>${c.name}</h4><p>${calcLabel} • ${valueLabel} • ${workerCount}</p></div>
 <div>
 <div class="action-menu-wrapper">
 <button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
@@ -2230,35 +1858,25 @@ ${canDelete ? `<div class="action-dropdown-item danger" onclick="deleteComponent
 </div>
 </div>`;
 }
-function switchCompTab(tab, el) {
-document.querySelectorAll('#components .tab').forEach(t => t.classList.remove('active'));
-document.querySelectorAll('#components .tab-content').forEach(t => t.classList.remove('active'));
-el.classList.add('active');
-document.getElementById('comp-' + tab).classList.add('active');
-}
+function switchCompTab(tab, el) { document.querySelectorAll('#components .tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('#components .tab-content').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.getElementById('comp-' + tab).classList.add('active'); }
 function openAddComponentModal() {
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 document.getElementById('compName').value = '';
 document.getElementById('compType').value = 'earning';
 document.getElementById('compCalcType').value = 'fixed';
 document.getElementById('compValue').value = '';
 document.getElementById('compDesc').value = '';
+const workerSelect = document.getElementById('compWorkers');
+workerSelect.innerHTML = data.workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>`).join('');
 openModal('addComponentModal');
 }
 async function saveComponent() {
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 const name = document.getElementById('compName').value.trim();
 if (!name) { toast('Enter name', 'error'); return; }
-const componentData = {
-name, type: document.getElementById('compType').value, calcType: document.getElementById('compCalcType').value,
-value: parseFloat(document.getElementById('compValue').value) || 0, desc: document.getElementById('compDesc').value || '', active: true
-};
+const workerSelect = document.getElementById('compWorkers');
+const selectedWorkers = Array.from(workerSelect.selectedOptions).map(opt => opt.value);
+const componentData = { name, type: document.getElementById('compType').value, calcType: document.getElementById('compCalcType').value, value: parseFloat(document.getElementById('compValue').value) || 0, desc: document.getElementById('compDesc').value || '', active: true, applicableWorkers: selectedWorkers };
 try {
 showLoading('Saving...');
 await saveToFirebase(collections.salaryComponents, null, componentData);
@@ -2269,12 +1887,9 @@ closeModal('addComponentModal');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function deleteComponent(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
-if (!confirm('Delete?')) return;
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
 const c = data.salaryComponents.find(x => x.id === id);
+if (!confirm('Delete?')) return;
 try { showLoading('Deleting...'); await deleteFromFirebase(collections.salaryComponents, id); logActivity('delete', 'component', c?.name || 'Component', 'Component deleted'); await loadData(); toast('Deleted!'); }
 catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
@@ -2306,21 +1921,22 @@ if ((a.paidMonths || []).includes(month)) return false;
 return true;
 });
 if (workerLoans.length > 0) {
+const totalInstallment = workerLoans.reduce((s,l) => s + (l.installment || 0), 0);
 loanBanner.innerHTML = `<div class="loan-info-banner">
 <h4><i class="fas fa-hand-holding-usd"></i> ${workerLoans.length} Loan(s) Auto-Deducting</h4>
 ${workerLoans.map(l => `<p>• <strong>${l.type}</strong>: ${fmt(l.installment)}/mo • Remaining: ${fmt(l.remaining)}</p>`).join('')}
+<p style="margin-top:8px;font-weight:600;color:#92400e;"><i class="fas fa-calculator"></i> Total Installment: ${fmt(totalInstallment)}/mo</p>
 </div>`;
-} else {
-loanBanner.innerHTML = '';
-}
+} else { loanBanner.innerHTML = ''; }
 if (workerAdvances.length > 0) {
+const totalRemaining = workerAdvances.reduce((s,a) => s + (a.remaining || 0), 0);
 advanceBanner.innerHTML = `<div class="advance-info-banner">
-<h4><i class="fas fa-money-check-alt"></i> ${workerAdvances.length} Advance(s) Auto-Deducting</h4>
-${workerAdvances.map(a => `<p>• <strong>${a.type}</strong>: ${fmt(a.installment)}/mo • Remaining: ${fmt(a.remaining)}</p>`).join('')}
+<h4><i class="fas fa-money-check-alt"></i> Salary Advance (Combined) - Auto-Deducting</h4>
+<p>• <strong>${workerAdvances.length}</strong> advance record(s) combined</p>
+<p>• <strong>Total Balance:</strong> ${fmt(totalRemaining)}</p>
+<p style="margin-top:8px;font-weight:600;color:#831843;"><i class="fas fa-info-circle"></i> Full combined amount will be deducted from this month's salary</p>
 </div>`;
-} else {
-advanceBanner.innerHTML = '';
-}
+} else { advanceBanner.innerHTML = ''; }
 currentSlipDefaults = {};
 let earningsHtml = `<div class="slip-row" data-type="earning" data-id="basic">
 <div><strong>Basic Salary</strong><div class="calc-info">From profile</div></div>
@@ -2338,7 +1954,11 @@ earningsHtml += `<div class="slip-row" data-type="earning" data-id="allowances">
 </div>`;
 currentSlipDefaults['allowances'] = w.allowances;
 }
-data.salaryComponents.filter(c => c.type === 'earning' && c.active).forEach(c => {
+const applicableComponents = data.salaryComponents.filter(c => {
+if (!c.applicableWorkers || c.applicableWorkers.length === 0) return true;
+return c.applicableWorkers.includes(workerId);
+});
+applicableComponents.filter(c => c.type === 'earning' && c.active).forEach(c => {
 let defaultAmount = c.calcType === 'fixed' ? c.value : (c.calcType === 'percentage' ? w.salary * c.value / 100 : 0);
 const calcInfo = c.calcType === 'percentage' ? `${c.value}% of basic = ${fmt(defaultAmount)}` : `Default: ${fmt(c.value)}`;
 earningsHtml += `<div class="slip-row" data-type="earning" data-id="${c.id}" data-base="${c.value}">
@@ -2350,7 +1970,7 @@ earningsHtml += `<div class="slip-row" data-type="earning" data-id="${c.id}" dat
 currentSlipDefaults[c.id] = defaultAmount;
 });
 let deductionsHtml = '';
-data.salaryComponents.filter(c => c.type === 'deduction' && c.active).forEach(c => {
+applicableComponents.filter(c => c.type === 'deduction' && c.active).forEach(c => {
 let defaultAmount = c.calcType === 'fixed' ? c.value : (c.calcType === 'percentage' ? w.salary * c.value / 100 : 0);
 const calcInfo = c.calcType === 'percentage' ? `${c.value}% of basic = ${fmt(defaultAmount)}` : `Default: ${fmt(c.value)}`;
 deductionsHtml += `<div class="slip-row" data-type="deduction" data-id="${c.id}">
@@ -2370,15 +1990,19 @@ deductionsHtml += `<div class="slip-row loan-row" data-type="deduction" data-id=
 </div>`;
 currentSlipDefaults[`loan_${l.id}`] = l.installment;
 });
-workerAdvances.forEach(a => {
-deductionsHtml += `<div class="slip-row advance-row" data-type="deduction" data-id="advance_${a.id}" data-advance-id="${a.id}" data-kind="advance">
-<div><strong><i class="fas fa-money-check-alt" style="color:var(--pink);"></i> Advance - ${a.type}</strong><div class="calc-info">Auto-deducted • Balance: ${fmt(a.remaining)}</div></div>
-<input type="number" class="row-amount" value="${a.installment || 0}" step="0.01" oninput="updateSlipSummary()">
-<div><span class="default-amount">Default: ${fmt(a.installment)}</span></div>
+if (workerAdvances.length > 0) {
+const totalRemaining = workerAdvances.reduce((s,a) => s + (a.remaining || 0), 0);
+const advanceIds = workerAdvances.map(a => a.id).join(',');
+const typeNames = [...new Set(workerAdvances.map(a => a.type))].join(', ');
+deductionsHtml += `<div class="slip-row advance-row" data-type="deduction" data-id="combined_advance" data-advance-ids="${advanceIds}" data-kind="combined_advance">
+<div><strong><i class="fas fa-money-check-alt" style="color:var(--pink);"></i> Salary Advance (Combined)</strong>
+<div class="calc-info">${workerAdvances.length} advance(s) • Types: ${typeNames} • Total Balance: ${fmt(totalRemaining)}</div></div>
+<input type="number" class="row-amount" value="${totalRemaining}" step="0.01" oninput="updateSlipSummary()">
+<div><span class="default-amount">Default: ${fmt(totalRemaining)} (Full amount)</span></div>
 <div class="row-controls"><input type="checkbox" class="row-toggle" checked onchange="updateSlipSummary()"><span>Include</span></div>
 </div>`;
-currentSlipDefaults[`advance_${a.id}`] = a.installment;
-});
+currentSlipDefaults['combined_advance'] = totalRemaining;
+}
 if (!deductionsHtml) deductionsHtml = '<div style="padding:15px;text-align:center;color:var(--gray);">No deductions configured</div>';
 container.innerHTML = `
 <div class="slip-builder">
@@ -2433,12 +2057,29 @@ const id = row.dataset.id || '';
 const kind = row.dataset.kind || '';
 let name = 'Unknown';
 if (id.startsWith('loan_')) { const l = data.loans.find(x => x.id === id.replace('loan_', '')); name = l ? `Loan - ${l.type}` : 'Loan'; }
-else if (id.startsWith('advance_')) { const a = data.advances.find(x => x.id === id.replace('advance_', '')); name = a ? `Advance - ${a.type}` : 'Advance'; }
+else if (id === 'combined_advance') {
+const advanceIds = (row.dataset.advanceIds || '').split(',').filter(x => x);
+const count = advanceIds.length;
+name = `Salary Advance (Combined - ${count} record${count>1?'s':''})`;
+}
 else { const c = data.salaryComponents.find(x => x.id === id); name = c ? c.name : 'Unknown'; }
 if (included && amount > 0) {
 deductions.push({ name: name || 'Unknown', amount: amount || 0, id: id || '', kind: kind || '' });
 if (kind === 'loan') loansDeducted.push({ loanId: row.dataset.loanId || '', amount: amount || 0 });
-if (kind === 'advance') advancesDeducted.push({ advanceId: row.dataset.advanceId || '', amount: amount || 0 });
+if (kind === 'combined_advance') {
+const advanceIds = (row.dataset.advanceIds || '').split(',').filter(x => x);
+const totalPaid = amount || 0;
+const advancesWithRemaining = advanceIds.map(aid => {
+const adv = data.advances.find(a => a.id === aid);
+return adv ? { id: aid, remaining: adv.remaining || 0 } : null;
+}).filter(x => x);
+const totalRemaining = advancesWithRemaining.reduce((s,a) => s + a.remaining, 0);
+advancesWithRemaining.forEach(adv => {
+const proportion = totalRemaining > 0 ? adv.remaining / totalRemaining : 1/advancesWithRemaining.length;
+const paymentForThis = Math.round(totalPaid * proportion * 100) / 100;
+advancesDeducted.push({ advanceId: adv.id, amount: paymentForThis });
+});
+}
 }
 row.classList.toggle('excluded', !included);
 } catch (err) { console.error('Row error:', err); }
@@ -2452,15 +2093,9 @@ document.getElementById('sumGross').textContent = fmt(totalEarnings);
 document.getElementById('sumDed').textContent = fmt(totalDeductions);
 document.getElementById('sumNet').textContent = fmt(net);
 currentSlipData = { workerId: workerId || '', month: document.getElementById('slipMonth').value || '', notes: document.getElementById('slipNotes').value || '', earnings, deductions, loansDeducted, advancesDeducted, basic: basic || 0, totalAdditions: totalEarnings - basic, totalDeductions: totalDeductions || 0, net: net || 0 };
-} catch (err) {
-console.error('updateSlipSummary error:', err);
+} catch (err) { console.error('updateSlipSummary error:', err); }
 }
-}
-function previewSlip() {
-if (!currentSlipData) { toast('Select worker and month', 'error'); return; }
-viewSlipPreview(currentSlipData);
-openModal('viewSlipModal');
-}
+function previewSlip() { if (!currentSlipData) { toast('Select worker and month', 'error'); return; } viewSlipPreview(currentSlipData); openModal('viewSlipModal'); }
 async function finalizeSlip(status) {
 if (!currentSlipData) { toast('Select worker and month', 'error'); return; }
 const workerId = currentSlipData.workerId;
@@ -2470,28 +2105,12 @@ const currentUser = auth.currentUser;
 const w = data.workers.find(x => x.id === workerId);
 const slipData = {
 slipNo: existingSlip ? (existingSlip.slipNo || '') : 'SL-' + Date.now().toString().slice(-6),
-workerId: workerId || '',
-month: month || '',
+workerId: workerId || '', month: month || '',
 notes: (currentSlipData.notes || '').toString(),
-earnings: (currentSlipData.earnings || []).map(e => ({
-name: e.name || 'Unknown',
-amount: parseFloat(e.amount) || 0,
-id: e.id || ''
-})),
-deductions: (currentSlipData.deductions || []).map(d => ({
-name: d.name || 'Unknown',
-amount: parseFloat(d.amount) || 0,
-id: d.id || '',
-kind: d.kind || ''
-})),
-loansDeducted: (currentSlipData.loansDeducted || []).map(ld => ({
-loanId: ld.loanId || '',
-amount: parseFloat(ld.amount) || 0
-})),
-advancesDeducted: (currentSlipData.advancesDeducted || []).map(ad => ({
-advanceId: ad.advanceId || '',
-amount: parseFloat(ad.amount) || 0
-})),
+earnings: (currentSlipData.earnings || []).map(e => ({ name: e.name || 'Unknown', amount: parseFloat(e.amount) || 0, id: e.id || '' })),
+deductions: (currentSlipData.deductions || []).map(d => ({ name: d.name || 'Unknown', amount: parseFloat(d.amount) || 0, id: d.id || '', kind: d.kind || '' })),
+loansDeducted: (currentSlipData.loansDeducted || []).map(ld => ({ loanId: ld.loanId || '', amount: parseFloat(ld.amount) || 0 })),
+advancesDeducted: (currentSlipData.advancesDeducted || []).map(ad => ({ advanceId: ad.advanceId || '', amount: parseFloat(ad.amount) || 0 })),
 basic: parseFloat(currentSlipData.basic) || 0,
 totalAdditions: parseFloat(currentSlipData.totalAdditions) || 0,
 totalDeductions: parseFloat(currentSlipData.totalDeductions) || 0,
@@ -2507,48 +2126,33 @@ finalizedBy: status === 'Paid' ? (currentUser.displayName || currentUser.email) 
 };
 try {
 showLoading('Finalizing...');
-if (existingSlip) {
-await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
-} else {
-await saveToFirebase(collections.salarySlips, null, slipData);
-}
+if (existingSlip) await updateInFirebase(collections.salarySlips, existingSlip.id, slipData);
+else await saveToFirebase(collections.salarySlips, null, slipData);
 if (status === 'Paid') {
 for (const ld of slipData.loansDeducted) {
 const loan = data.loans.find(l => l.id === ld.loanId);
-if (loan && !loan.paidMonths.includes(month)) {
+if (loan) {
+if (!loan.paidMonths) loan.paidMonths = [];
+if (!loan.paidMonths.includes(month)) {
 loan.paidMonths.push(month);
 loan.paid = (loan.paid || 0) + ld.amount;
 loan.remaining = Math.max(0, (loan.remaining || 0) - ld.amount);
 if (loan.remaining <= 0.01) { loan.remaining = 0; loan.status = 'Completed'; }
-if (!loan.transactions) loan.transactions = [];
-loan.transactions.push({
-id: uid(),
-date: today(),
-type: 'payment',
-amount: ld.amount,
-notes: `Payment via slip #${slipData.slipNo} for ${month}`,
-performedBy: currentUser.displayName || currentUser.email
-});
-await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths, transactions: loan.transactions });
+await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths });
+logActivity('payment', 'loan', `${w?.name || 'Worker'} - ${loan.type}`, `Paid ${fmt(ld.amount)} via slip #${slipData.slipNo} for ${month}`);
+}
 }
 }
 for (const ad of slipData.advancesDeducted) {
 const adv = data.advances.find(a => a.id === ad.advanceId);
-if (adv && !adv.paidMonths.includes(month)) {
-adv.paidMonths.push(month);
+if (adv) {
+if (!adv.paidMonths) adv.paidMonths = [];
+if (!adv.paidMonths.includes(month)) adv.paidMonths.push(month);
 adv.paid = (adv.paid || 0) + ad.amount;
 adv.remaining = Math.max(0, (adv.remaining || 0) - ad.amount);
 if (adv.remaining <= 0.01) { adv.remaining = 0; adv.status = 'Completed'; }
-if (!adv.transactions) adv.transactions = [];
-adv.transactions.push({
-id: uid(),
-date: today(),
-type: 'payment',
-amount: ad.amount,
-notes: `Payment via slip #${slipData.slipNo} for ${month}`,
-performedBy: currentUser.displayName || currentUser.email
-});
-await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining: adv.remaining, status: adv.status, paidMonths: adv.paidMonths, transactions: adv.transactions });
+await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining: adv.remaining, status: adv.status, paidMonths: adv.paidMonths });
+logActivity('payment', 'advance', `${w?.name || 'Worker'} - ${adv.type}`, `Paid ${fmt(ad.amount)} via slip #${slipData.slipNo} for ${month}`);
 }
 }
 logActivity('payroll', 'slip', `${w?.name || 'Worker'} - ${month}`, `Pay slip #${slipData.slipNo} finalized. Net: ${fmt(slipData.net)}`);
@@ -2561,28 +2165,16 @@ await loadData();
 const savedSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
 if (savedSlip) downloadSlipPDF(savedSlip);
 }
-} catch (error) {
-console.error('Finalize error:', error);
-toast('Error: ' + error.message, 'error');
-} finally {
-hideLoading();
-}
+} catch (error) { console.error('Finalize error:', error); toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderHistory() {
 const tbody = document.getElementById('historyTable');
 let slips = data.salarySlips;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-slips = slips.filter(s => workerIds.includes(s.workerId));
-}
+if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); slips = slips.filter(s => workerIds.includes(s.workerId)); }
 const sortMonth = document.getElementById('historySortMonth')?.value || 'all';
 const sortYear = document.getElementById('historySortYear')?.value || 'all';
-if (sortMonth !== 'all') {
-slips = slips.filter(s => s.month === sortMonth);
-}
-if (sortYear !== 'all') {
-slips = slips.filter(s => s.month && s.month.startsWith(sortYear));
-}
+if (sortMonth !== 'all') slips = slips.filter(s => s.month === sortMonth);
+if (sortYear !== 'all') slips = slips.filter(s => s.month && s.month.startsWith(sortYear));
 if (!slips.length) { tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><h3>No slips</h3></div></td></tr>'; return; }
 const canEdit = hasPermission(USER_ROLES.EDITOR);
 const canReverse = hasPermission(USER_ROLES.ADMIN);
@@ -2594,7 +2186,7 @@ return `<tr>
 <td><strong>#${s.slipNo}</strong></td><td>${w ? w.name : 'Unknown'}</td><td>${s.month}</td>
 <td>${fmt(s.basic)}</td><td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
 <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td><td><strong>${fmt(s.net)}</strong></td>
-<td><span class="badge ${s.status==='Paid'?'badge-success':'badge-gray'}">${s.status}</span></td>
+<td><span class="badge ${s.status==='Paid'?'badge-success':s.status==='Reversed'?'badge-danger':'badge-gray'}">${s.status}</span></td>
 <td style="font-size:11px;">${createdInfo}</td>
 <td style="font-size:11px;">${s.finalizedAt ? new Date(s.finalizedAt).toLocaleString() : '-'}</td>
 <td>
@@ -2604,7 +2196,7 @@ return `<tr>
 <div class="action-dropdown-item info" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i> View</div>
 <div class="action-dropdown-item info" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i> Download PDF</div>
 ${finalizedInfo ? `<div class="action-dropdown-item disabled" title="${finalizedInfo}"><i class="fas fa-clock"></i> ${new Date(s.finalizedAt).toLocaleDateString()}</div>` : ''}
-${canEdit ? `<div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
+${canEdit && s.status !== 'Reversed' ? `<div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
 ${canReverse ? `<div class="action-dropdown-item danger" onclick="reverseSlip('${s.id}')"><i class="fas fa-undo"></i> Reverse</div>` : ''}
 </div>
 </div>
@@ -2612,18 +2204,9 @@ ${canReverse ? `<div class="action-dropdown-item danger" onclick="reverseSlip('$
 </tr>`;
 }).join('');
 }
-function viewSlip(id) {
-const slip = data.salarySlips.find(s => s.id === id);
-if (!slip) return;
-viewSlipPreview(slip);
-document.getElementById('viewSlipDownloadBtn').onclick = () => downloadSlipPDF(slip);
-openModal('viewSlipModal');
-}
+function viewSlip(id) { const slip = data.salarySlips.find(s => s.id === id); if (!slip) return; viewSlipPreview(slip); document.getElementById('viewSlipDownloadBtn').onclick = () => downloadSlipPDF(slip); openModal('viewSlipModal'); }
 async function editSlip(id) {
-if (!hasPermission(USER_ROLES.EDITOR)) {
-toast('Permission denied. Editor role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Permission denied. Editor role required.', 'error'); return; }
 const slip = data.salarySlips.find(s => s.id === id);
 if (!slip) return;
 showSection('slips');
@@ -2633,61 +2216,25 @@ document.getElementById('slipMonth').value = slip.month;
 document.getElementById('slipNotes').value = slip.notes || '';
 loadSlipDefaults();
 await new Promise(r => setTimeout(r, 300));
-slip.earnings.forEach(e => {
-const row = document.querySelector(`#earningsContainer .slip-row[data-id="${e.id}"]`);
-if (row) {
-const input = row.querySelector('.row-amount');
-if (input) input.value = e.amount;
-const toggle = row.querySelector('.row-toggle');
-if (toggle) toggle.checked = true;
-}
-});
-slip.deductions.forEach(d => {
-const row = document.querySelector(`#deductionsContainer .slip-row[data-id="${d.id}"]`);
-if (row) {
-const input = row.querySelector('.row-amount');
-if (input) input.value = d.amount;
-const toggle = row.querySelector('.row-toggle');
-if (toggle) toggle.checked = true;
-}
-});
-document.querySelectorAll('#earningsContainer .slip-row, #deductionsContainer .slip-row').forEach(row => {
-const id = row.dataset.id;
-const inEarnings = slip.earnings.find(e => e.id === id);
-const inDeductions = slip.deductions.find(d => d.id === id);
-if (!inEarnings && !inDeductions) {
-const toggle = row.querySelector('.row-toggle');
-if (toggle) toggle.checked = false;
-}
-});
+slip.earnings.forEach(e => { const row = document.querySelector(`#earningsContainer .slip-row[data-id="${e.id}"]`); if (row) { const input = row.querySelector('.row-amount'); if (input) input.value = e.amount; const toggle = row.querySelector('.row-toggle'); if (toggle) toggle.checked = true; } });
+slip.deductions.forEach(d => { const row = document.querySelector(`#deductionsContainer .slip-row[data-id="${d.id}"]`); if (row) { const input = row.querySelector('.row-amount'); if (input) input.value = d.amount; const toggle = row.querySelector('.row-toggle'); if (toggle) toggle.checked = true; } });
+document.querySelectorAll('#earningsContainer .slip-row, #deductionsContainer .slip-row').forEach(row => { const id = row.dataset.id; const inEarnings = slip.earnings.find(e => e.id === id); const inDeductions = slip.deductions.find(d => d.id === id); if (!inEarnings && !inDeductions) { const toggle = row.querySelector('.row-toggle'); if (toggle) toggle.checked = false; } });
 updateSlipSummary();
 toast('Slip loaded for editing. Make changes and finalize.');
 }
 async function reverseSlip(id) {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
 const slip = data.salarySlips.find(s => s.id === id);
 if (!slip) return;
 const currentUser = auth.currentUser;
 if (slip.status !== 'Paid') {
 if (!confirm('Delete this draft slip?')) return;
-try {
-showLoading('Deleting...');
-await deleteFromFirebase(collections.salarySlips, id);
-logActivity('delete', 'slip', `#${slip.slipNo}`, 'Draft slip deleted');
-await loadData();
-toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+try { showLoading('Deleting...'); await deleteFromFirebase(collections.salarySlips, id); logActivity('delete', 'slip', `#${slip.slipNo}`, 'Draft slip deleted'); await loadData(); toast(`Deleted by ${currentUser.displayName || currentUser.email}`); }
+catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 return;
 }
 const w = data.workers.find(x => x.id === slip.workerId);
-if (!confirm(`Reverse pay slip #${slip.slipNo} for ${w?.name || 'worker'}?
-This will:
-• Restore loan/advance balances
-• Mark slip as Reversed
-Continue?`)) return;
+if (!confirm(`Reverse pay slip #${slip.slipNo} for ${w?.name || 'worker'}?\n\nThis will:\n• Restore loan balances\n• Restore advance balances\n• Mark slip as Reversed\n\nContinue?`)) return;
 try {
 showLoading('Reversing slip...');
 for (const ld of (slip.loansDeducted || [])) {
@@ -2697,16 +2244,8 @@ loan.paidMonths = (loan.paidMonths || []).filter(m => m !== slip.month);
 loan.paid = Math.max(0, (loan.paid || 0) - ld.amount);
 loan.remaining = (loan.remaining || 0) + ld.amount;
 loan.status = 'Active';
-if (!loan.transactions) loan.transactions = [];
-loan.transactions.push({
-id: uid(),
-date: today(),
-type: 'reversal',
-amount: ld.amount,
-notes: `Reversal from slip #${slip.slipNo}`,
-performedBy: currentUser.displayName || currentUser.email
-});
-await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths, transactions: loan.transactions });
+await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths });
+logActivity('reversal', 'loan', `${w?.name || 'Worker'} - ${loan.type}`, `Reversed ${fmt(ld.amount)} from slip #${slip.slipNo}`);
 }
 }
 for (const ad of (slip.advancesDeducted || [])) {
@@ -2716,22 +2255,14 @@ adv.paidMonths = (adv.paidMonths || []).filter(m => m !== slip.month);
 adv.paid = Math.max(0, (adv.paid || 0) - ad.amount);
 adv.remaining = (adv.remaining || 0) + ad.amount;
 adv.status = 'Active';
-if (!adv.transactions) adv.transactions = [];
-adv.transactions.push({
-id: uid(),
-date: today(),
-type: 'reversal',
-amount: ad.amount,
-notes: `Reversal from slip #${slip.slipNo}`,
-performedBy: currentUser.displayName || currentUser.email
-});
-await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining: adv.remaining, status: adv.status, paidMonths: adv.paidMonths, transactions: adv.transactions });
+await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining: adv.remaining, status: adv.status, paidMonths: adv.paidMonths });
+logActivity('reversal', 'advance', `${w?.name || 'Worker'} - ${adv.type}`, `Reversed ${fmt(ad.amount)} from slip #${slip.slipNo}`);
 }
 }
 await updateInFirebase(collections.salarySlips, id, { status: 'Reversed', reversedAt: today(), reversedBy: currentUser.displayName || currentUser.email, reversedByEmail: currentUser.email });
 logActivity('reverse', 'slip', `${w?.name || 'Worker'} - #${slip.slipNo}`, `Pay slip reversed. Loan/advance balances restored.`);
 await loadData();
-toast(`Slip reversed by ${currentUser.displayName || currentUser.email}! Loan/advance balances restored.`);
+toast(`Slip reversed by ${currentUser.displayName || currentUser.email}! All balances restored.`);
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function viewSlipPreview(slip) {
@@ -2741,7 +2272,7 @@ const c = data.company;
 const earningsHtml = slip.earnings.map(e => `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${e.name}</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${fmt(e.amount)}</td></tr>`).join('');
 const deductionsHtml = slip.deductions.length ? slip.deductions.map(x => {
 const isLoan = x.kind === 'loan';
-const isAdvance = x.kind === 'advance';
+const isAdvance = x.kind === 'combined_advance' || x.kind === 'advance';
 const bg = isLoan ? '#fef3c7' : isAdvance ? '#fce7f3' : '';
 return `<tr style="background:${bg};"><td style="padding:8px;border-bottom:1px solid #eee;">${x.name}</td><td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${fmt(x.amount)}</td></tr>`;
 }).join('') : '<tr><td colspan="2" style="padding:8px;text-align:center;color:#999;">No deductions</td></tr>';
@@ -2806,274 +2337,72 @@ const pageHeight = doc.internal.pageSize.getHeight();
 const fontSize = d.fontSize === 'small' ? 9 : d.fontSize === 'large' ? 12 : 10;
 const marginX = 14;
 const contentWidth = pageWidth - (marginX * 2);
-if (d.border !== 'none') {
-doc.setDrawColor(r, g, b);
-doc.setLineWidth(d.border === 'thick' ? 2 : 0.5);
-doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
-if (d.border === 'double') doc.rect(7, 7, pageWidth - 14, pageHeight - 14);
-}
+if (d.border !== 'none') { doc.setDrawColor(r, g, b); doc.setLineWidth(d.border === 'thick' ? 2 : 0.5); doc.rect(5, 5, pageWidth - 10, pageHeight - 10); if (d.border === 'double') doc.rect(7, 7, pageWidth - 14, pageHeight - 14); }
 let y = 15;
-if (d.headerStyle === 'full') {
-doc.setFillColor(r, g, b);
-doc.rect(0, 0, pageWidth, 40, 'F');
-doc.setTextColor(255, 255, 255);
-doc.setFontSize(22);
-doc.setFont('helvetica', 'bold');
-doc.text(c.name || 'LANKA SHOE', pageWidth/2, 18, { align: 'center' });
-doc.setFontSize(9);
-doc.setFont('helvetica', 'normal');
-doc.text(c.address || '', pageWidth/2, 26, { align: 'center' });
-doc.text(`Phone: ${c.phone || '-'} | Email: ${c.email || '-'}`, pageWidth/2, 32, { align: 'center' });
-y = 48;
-} else if (d.headerStyle === 'centered') {
-doc.setTextColor(r, g, b);
-doc.setFontSize(22);
-doc.setFont('helvetica', 'bold');
-doc.text(c.name || 'LANKA SHOE', pageWidth/2, y, { align: 'center' });
-y += 7;
-doc.setFontSize(9);
-doc.setFont('helvetica', 'normal');
-doc.setTextColor(100, 100, 100);
-doc.text(c.address || '', pageWidth/2, y, { align: 'center' });
-y += 5;
-doc.text(`Phone: ${c.phone || '-'} | Email: ${c.email || '-'}`, pageWidth/2, y, { align: 'center' });
-y += 8;
-} else {
-doc.setTextColor(r, g, b);
-doc.setFontSize(16);
-doc.setFont('helvetica', 'bold');
-doc.text(c.name || 'LANKA SHOE', marginX, y);
-y += 10;
-}
-doc.setTextColor(r, g, b);
-doc.setFontSize(16);
-doc.setFont('helvetica', 'bold');
-doc.text(d.slipTitle, pageWidth/2, y, { align: 'center' });
-y += 6;
-doc.setFontSize(10);
-doc.setFont('helvetica', 'normal');
-doc.setTextColor(100, 100, 100);
-doc.text(`Slip #${slip.slipNo} • Month: ${slip.month}`, pageWidth/2, y, { align: 'center' });
-y += 8;
-doc.setDrawColor(r, g, b);
-doc.setLineWidth(0.5);
-doc.line(marginX, y, pageWidth - marginX, y);
-y += 8;
-doc.setFontSize(fontSize);
-doc.setFont('helvetica', 'bold');
-doc.setTextColor(30, 41, 59);
-doc.text('Employee Details', marginX, y);
-y += 6;
-doc.setFont('helvetica', 'normal');
-doc.setFontSize(fontSize - 1);
-const col1X = marginX;
-const col2X = pageWidth / 2 + 5;
-const labelWidth = 30;
+if (d.headerStyle === 'full') { doc.setFillColor(r, g, b); doc.rect(0, 0, pageWidth, 40, 'F'); doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.setFont('helvetica', 'bold'); doc.text(c.name || 'LANKA SHOE', pageWidth/2, 18, { align: 'center' }); doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.text(c.address || '', pageWidth/2, 26, { align: 'center' }); doc.text(`Phone: ${c.phone || '-'} | Email: ${c.email || '-'}`, pageWidth/2, 32, { align: 'center' }); y = 48; }
+else if (d.headerStyle === 'centered') { doc.setTextColor(r, g, b); doc.setFontSize(22); doc.setFont('helvetica', 'bold'); doc.text(c.name || 'LANKA SHOE', pageWidth/2, y, { align: 'center' }); y += 7; doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100); doc.text(c.address || '', pageWidth/2, y, { align: 'center' }); y += 5; doc.text(`Phone: ${c.phone || '-'} | Email: ${c.email || '-'}`, pageWidth/2, y, { align: 'center' }); y += 8; }
+else { doc.setTextColor(r, g, b); doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.text(c.name || 'LANKA SHOE', marginX, y); y += 10; }
+doc.setTextColor(r, g, b); doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.text(d.slipTitle, pageWidth/2, y, { align: 'center' }); y += 6; doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100); doc.text(`Slip #${slip.slipNo} • Month: ${slip.month}`, pageWidth/2, y, { align: 'center' }); y += 8; doc.setDrawColor(r, g, b); doc.setLineWidth(0.5); doc.line(marginX, y, pageWidth - marginX, y); y += 8; doc.setFontSize(fontSize); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 41, 59); doc.text('Employee Details', marginX, y); y += 6; doc.setFont('helvetica', 'normal'); doc.setFontSize(fontSize - 1);
+const col1X = marginX; const col2X = pageWidth / 2 + 5; const labelWidth = 30;
 doc.text('Name:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.name, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
 doc.text('Join Date:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.joinDate || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal');
-y += 5;
-doc.text('Emp ID:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.empId, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+y += 5; doc.text('Emp ID:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.empId, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
 if (d.showBank) { doc.text('Bank:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.bank || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
-y += 5;
-doc.text('Position:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.position, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+y += 5; doc.text('Position:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.position, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
 if (d.showBank) { doc.text('Account:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.account || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
-y += 5;
-doc.text('Dept:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.department, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+y += 5; doc.text('Dept:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.department, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
 if (d.showTax) { doc.text('Tax ID:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.taxId || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
 y += 8;
 const grossTotal = slip.basic + slip.totalAdditions;
-doc.setFont('helvetica', 'bold');
-doc.setTextColor(er, eg, eb);
-doc.setFontSize(fontSize);
-doc.text('EARNINGS', marginX, y);
-y += 3;
+doc.setFont('helvetica', 'bold'); doc.setTextColor(er, eg, eb); doc.setFontSize(fontSize); doc.text('EARNINGS', marginX, y); y += 3;
 const earningsBody = slip.earnings.map(e => [e.name, fmt(e.amount)]);
 earningsBody.push([{ content: 'TOTAL EARNINGS', styles: { fontStyle: 'bold', fillColor: [209, 250, 229] } }, { content: fmt(grossTotal), styles: { fontStyle: 'bold', fillColor: [209, 250, 229], halign: 'right' } }]);
-doc.autoTable({
-startY: y,
-head: [['Description', 'Amount']],
-body: earningsBody,
-theme: 'grid',
-headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
-styles: { fontSize: fontSize - 1, cellPadding: 3 },
-columnStyles: {
-0: { cellWidth: contentWidth - 45 },
-1: { halign: 'right', cellWidth: 40 }
-},
-margin: { left: marginX, right: marginX }
-});
+doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: earningsBody, theme: 'grid', headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
 y = doc.lastAutoTable.finalY + 8;
-doc.setFont('helvetica', 'bold');
-doc.setTextColor(dr, dg, db);
-doc.setFontSize(fontSize);
-doc.text('DEDUCTIONS', marginX, y);
-y += 3;
+doc.setFont('helvetica', 'bold'); doc.setTextColor(dr, dg, db); doc.setFontSize(fontSize); doc.text('DEDUCTIONS', marginX, y); y += 3;
 const deductionsBody = slip.deductions.length ? slip.deductions.map(x => [x.name, fmt(x.amount)]) : [['No deductions', '-']];
 deductionsBody.push([{ content: 'TOTAL DEDUCTIONS', styles: { fontStyle: 'bold', fillColor: [254, 226, 226] } }, { content: fmt(slip.totalDeductions), styles: { fontStyle: 'bold', fillColor: [254, 226, 226], halign: 'right' } }]);
-doc.autoTable({
-startY: y,
-head: [['Description', 'Amount']],
-body: deductionsBody,
-theme: 'grid',
-headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' },
-styles: { fontSize: fontSize - 1, cellPadding: 3 },
-columnStyles: {
-0: { cellWidth: contentWidth - 45 },
-1: { halign: 'right', cellWidth: 40 }
-},
-margin: { left: marginX, right: marginX }
-});
+doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: deductionsBody, theme: 'grid', headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
 y = doc.lastAutoTable.finalY + 8;
-doc.setFillColor(r, g, b);
-doc.roundedRect(marginX, y, contentWidth, 22, 3, 3, 'F');
-doc.setTextColor(255, 255, 255);
-doc.setFontSize(11);
-doc.setFont('helvetica', 'bold');
+doc.setFillColor(r, g, b); doc.roundedRect(marginX, y, contentWidth, 22, 3, 3, 'F'); doc.setTextColor(255, 255, 255); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
 doc.text(`Gross Salary: ${fmt(grossTotal)}`, marginX + 5, y + 9);
 doc.text(`Total Deductions: ${fmt(slip.totalDeductions)}`, marginX + 5, y + 16);
-doc.setFontSize(16);
-doc.text(`NET PAY: ${fmt(slip.net)}`, pageWidth - marginX - 5, y + 13, { align: 'right' });
+doc.setFontSize(16); doc.text(`NET PAY: ${fmt(slip.net)}`, pageWidth - marginX - 5, y + 13, { align: 'right' });
 y += 30;
-if (d.showSignatures) {
-doc.setTextColor(30, 41, 59);
-doc.setDrawColor(30, 41, 59);
-doc.setLineWidth(0.5);
-doc.line(marginX + 5, 265, marginX + 55, 265);
-doc.line(pageWidth - marginX - 55, 265, pageWidth - marginX - 5, 265);
-doc.setFontSize(9);
-doc.text(d.sign1Label, marginX + 30, 270, { align: 'center' });
-doc.text(d.sign2Label, pageWidth - marginX - 30, 270, { align: 'center' });
-}
-if (d.showFooter && d.footerText) {
-doc.setFontSize(8);
-doc.setTextColor(100, 116, 139);
-doc.text(d.footerText, pageWidth/2, 282, { align: 'center' });
-}
-doc.setFontSize(8);
-doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
-if (slip.finalizedBy) {
-doc.text(`Finalized by: ${slip.finalizedBy} on ${new Date(slip.finalizedAt).toLocaleString()}`, pageWidth/2, 295, { align: 'center' });
-}
+if (d.showSignatures) { doc.setTextColor(30, 41, 59); doc.setDrawColor(30, 41, 59); doc.setLineWidth(0.5); doc.line(marginX + 5, 265, marginX + 55, 265); doc.line(pageWidth - marginX - 55, 265, pageWidth - marginX - 5, 265); doc.setFontSize(9); doc.text(d.sign1Label, marginX + 30, 270, { align: 'center' }); doc.text(d.sign2Label, pageWidth - marginX - 30, 270, { align: 'center' }); }
+if (d.showFooter && d.footerText) { doc.setFontSize(8); doc.setTextColor(100, 116, 139); doc.text(d.footerText, pageWidth/2, 282, { align: 'center' }); }
+doc.setFontSize(8); doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
+if (slip.finalizedBy) { doc.text(`Finalized by: ${slip.finalizedBy} on ${new Date(slip.finalizedAt).toLocaleString()}`, pageWidth/2, 295, { align: 'center' }); }
 doc.save(`PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf`);
 toast('PDF downloaded!');
 }
 let currentReport = 'payroll';
-function selectReport(type, el) {
-currentReport = type;
-document.querySelectorAll('#reports .toggle-btn').forEach(b => b.classList.remove('active'));
-el.classList.add('active');
-}
+function selectReport(type, el) { currentReport = type; document.querySelectorAll('#reports .toggle-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
 function generateReport() {
 const month = document.getElementById('rMonth').value;
 const dept = document.getElementById('rDept').value;
 const workerId = document.getElementById('rWorker').value;
 let reportData = [], title = '', columns = [];
 switch(currentReport) {
-case 'payroll':
-title = 'Payroll Report'; columns = ['Slip #','Month','Employee','Basic','Additions','Deductions','Net','Status'];
-let slips = data.salarySlips;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-slips = slips.filter(s => workerIds.includes(s.workerId));
-}
-if (month) slips = slips.filter(s => s.month === month);
-if (workerId) slips = slips.filter(s => s.workerId === workerId);
-if (dept) slips = slips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dept; });
-reportData = slips.map(s => { const w = data.workers.find(x => x.id === s.workerId); return [s.slipNo, s.month, w?.name||'-', fmt(s.basic), fmt(s.totalAdditions), fmt(s.totalDeductions), fmt(s.net), s.status]; });
-break;
-case 'worker':
-title = 'Worker Report'; columns = ['Emp ID','Name','Position','Department','Basic','Total Paid','Loans','Advances'];
-let workers = data.workers;
-if (currentUserRole === USER_ROLES.VIEWER) {
-workers = workers.filter(w => w.email === currentUserEmail);
-}
-if (dept) workers = workers.filter(w => w.department === dept);
-reportData = workers.map(w => {
-const paid = data.salarySlips.filter(s => s.workerId === w.id).reduce((s,p) => s + p.net, 0);
-const loan = data.loans.filter(l => l.workerId === w.id && l.status === 'Active').reduce((s,l) => s + l.remaining, 0);
-const adv = data.advances.filter(a => a.workerId === w.id && a.status === 'Active').reduce((s,a) => s + a.remaining, 0);
-return [w.empId, w.name, w.position, w.department, fmt(w.salary), fmt(paid), fmt(loan), fmt(adv)];
-});
-break;
-case 'department':
-title = 'Department Report'; columns = ['Department','Workers','Total Basic','Total Paid'];
-const depts = dept ? [dept] : data.departments;
-reportData = depts.map(d => {
-const ws = data.workers.filter(w => w.department === d);
-const totalBasic = ws.reduce((s,w) => s + w.salary, 0);
-const paid = data.salarySlips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === d && (!month || s.month === month); }).reduce((s,p) => s + p.net, 0);
-return [d, ws.length, fmt(totalBasic), fmt(paid)];
-});
-break;
-case 'loan':
-title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status'];
-let loans = data.loans;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-loans = loans.filter(l => workerIds.includes(l.workerId));
-}
-if (workerId) loans = loans.filter(l => l.workerId === workerId);
-reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid), fmt(l.remaining), l.startMonth, l.status]; });
-break;
-case 'advance':
-title = 'Advance Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status'];
-let advs = data.advances;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-advs = advs.filter(a => workerIds.includes(a.workerId));
-}
-if (workerId) advs = advs.filter(a => a.workerId === workerId);
-reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.installment), fmt(a.paid), fmt(a.remaining), a.startMonth, a.status]; });
-break;
-case 'addition':
-title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount'];
-let adds = data.additions;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-adds = adds.filter(a => workerIds.includes(a.workerId));
-}
-if (workerId) adds = adds.filter(a => a.workerId === workerId);
-if (month) adds = adds.filter(a => a.month === month);
-reportData = adds.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount)]; });
-break;
-case 'deduction':
-title = 'Deductions Report'; columns = ['Date','Employee','Type','Month','Amount'];
-let deds = data.deductions;
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-deds = deds.filter(d => workerIds.includes(d.workerId));
-}
-if (workerId) deds = deds.filter(d => d.workerId === workerId);
-if (month) deds = deds.filter(d => d.month === month);
-reportData = deds.map(d => { const w = data.workers.find(x => x.id === d.workerId); return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount)]; });
-break;
+case 'payroll': title = 'Payroll Report'; columns = ['Slip #','Month','Employee','Basic','Additions','Deductions','Net','Status']; let slips = data.salarySlips; if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); slips = slips.filter(s => workerIds.includes(s.workerId)); } if (month) slips = slips.filter(s => s.month === month); if (workerId) slips = slips.filter(s => s.workerId === workerId); if (dept) slips = slips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dept; }); reportData = slips.map(s => { const w = data.workers.find(x => x.id === s.workerId); return [s.slipNo, s.month, w?.name||'-', fmt(s.basic), fmt(s.totalAdditions), fmt(s.totalDeductions), fmt(s.net), s.status]; }); break;
+case 'worker': title = 'Worker Report'; columns = ['Emp ID','Name','Position','Department','Basic','Total Paid','Loans','Advances']; let workers = data.workers; if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail); if (dept) workers = workers.filter(w => w.department === dept); reportData = workers.map(w => { const paid = data.salarySlips.filter(s => s.workerId === w.id).reduce((s,p) => s + p.net, 0); const loan = data.loans.filter(l => l.workerId === w.id && l.status === 'Active').reduce((s,l) => s + l.remaining, 0); const adv = data.advances.filter(a => a.workerId === w.id && a.status === 'Active').reduce((s,a) => s + a.remaining, 0); return [w.empId, w.name, w.position, w.department, fmt(w.salary), fmt(paid), fmt(loan), fmt(adv)]; }); break;
+case 'department': title = 'Department Report'; columns = ['Department','Workers','Total Basic','Total Paid']; const depts = dept ? [dept] : data.departments; reportData = depts.map(d => { const ws = data.workers.filter(w => w.department === d); const totalBasic = ws.reduce((s,w) => s + w.salary, 0); const paid = data.salarySlips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === d && (!month || s.month === month); }).reduce((s,p) => s + p.net, 0); return [d, ws.length, fmt(totalBasic), fmt(paid)]; }); break;
+case 'loan': title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status']; let loans = data.loans; if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); loans = loans.filter(l => workerIds.includes(l.workerId)); } if (workerId) loans = loans.filter(l => l.workerId === workerId); reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid), fmt(l.remaining), l.startMonth, l.status]; }); break;
+case 'advance': title = 'Advance Report'; columns = ['Employee','Type','Total','Paid','Remaining','Start','Status']; let advs = data.advances; if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); advs = advs.filter(a => workerIds.includes(a.workerId)); } if (workerId) advs = advs.filter(a => a.workerId === workerId); reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.paid), fmt(a.remaining), a.startMonth, a.status]; }); break;
+case 'addition': title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount']; let adds = data.additions; if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); adds = adds.filter(a => workerIds.includes(a.workerId)); } if (workerId) adds = adds.filter(a => a.workerId === workerId); if (month) adds = adds.filter(a => a.month === month); reportData = adds.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount)]; }); break;
+case 'deduction': title = 'Deductions Report'; columns = ['Date','Employee','Type','Month','Amount']; let deds = data.deductions; if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); deds = deds.filter(d => workerIds.includes(d.workerId)); } if (workerId) deds = deds.filter(d => d.workerId === workerId); if (month) deds = deds.filter(d => d.month === month); reportData = deds.map(d => { const w = data.workers.find(x => x.id === d.workerId); return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount)]; }); break;
 }
 const output = document.getElementById('reportOutput');
 if (!reportData.length) { output.innerHTML = '<div class="card"><div class="empty-state"><h3>No data</h3></div></div>'; return; }
-output.innerHTML = `<div class="card">
-<div class="card-header"><h2><i class="fas fa-file-alt"></i> ${title}</h2><span class="badge badge-primary">${reportData.length} records</span></div>
-<div class="table-container"><table><thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>
-<tbody>${reportData.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+output.innerHTML = `<div class="card"><div class="card-header"><h2><i class="fas fa-file-alt"></i> ${title}</h2><span class="badge badge-primary">${reportData.length} records</span></div><div class="table-container"><table><thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${reportData.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
 }
 function exportReport(format) {
 const table = document.querySelector('#reportOutput table');
 if (!table) { toast('Generate report first', 'error'); return; }
 const rows = Array.from(table.querySelectorAll('tr'));
 const rData = rows.map(r => Array.from(r.querySelectorAll('th,td')).map(c => c.textContent));
-if (format === 'csv') {
-const csv = rData.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-const blob = new Blob([csv], { type: 'text/csv' });
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a'); a.href = url; a.download = `${currentReport}_${today()}.csv`; a.click();
-toast('CSV exported!');
-} else {
-const { jsPDF } = window.jspdf;
-const doc = new jsPDF();
-doc.setFontSize(16); doc.text(currentReport.toUpperCase() + ' REPORT', 14, 20);
-doc.autoTable({ startY: 35, head: [rData[0]], body: rData.slice(1), theme: 'grid', headStyles: { fillColor: [30, 64, 175] }, styles: { fontSize: 8 } });
-doc.save(`${currentReport}_${today()}.pdf`);
-toast('PDF exported!');
-}
+if (format === 'csv') { const csv = rData.map(r => r.map(c => `"${c}"`).join(',')).join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${currentReport}_${today()}.csv`; a.click(); toast('CSV exported!'); }
+else { const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.setFontSize(16); doc.text(currentReport.toUpperCase() + ' REPORT', 14, 20); doc.autoTable({ startY: 35, head: [rData[0]], body: rData.slice(1), theme: 'grid', headStyles: { fillColor: [30, 64, 175] }, styles: { fontSize: 8 } }); doc.save(`${currentReport}_${today()}.pdf`); toast('PDF exported!'); }
 }
 function loadDesignSettings() {
 const d = data.payslipDesign;
@@ -3101,233 +2430,40 @@ document.getElementById('designFooterText').value = d.footerText || '';
 document.getElementById('designSign1Label').value = d.sign1Label || 'Employee Signature';
 document.getElementById('designSign2Label').value = d.sign2Label || 'Authorized Signature';
 }
-function setActiveSwatch(pickerId, color) {
-document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => s.classList.toggle('active', s.dataset.color === color));
-}
-document.addEventListener('click', (e) => {
-if (e.target.classList.contains('color-swatch')) {
-const picker = e.target.closest('.color-picker-row');
-picker.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-e.target.classList.add('active');
-const color = e.target.dataset.color;
-const input = picker.querySelector('input[type="color"]');
-if (input) input.value = color;
-}
-});
+function setActiveSwatch(pickerId, color) { document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => s.classList.toggle('active', s.dataset.color === color)); }
+document.addEventListener('click', (e) => { if (e.target.classList.contains('color-swatch')) { const picker = e.target.closest('.color-picker-row'); picker.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active')); e.target.classList.add('active'); const color = e.target.dataset.color; const input = picker.querySelector('input[type="color"]'); if (input) input.value = color; } });
 async function saveDesign() {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+const designData = { primaryColor: document.getElementById('customPrimaryColor').value, earningsColor: document.getElementById('customEarningsColor').value, deductionsColor: document.getElementById('customDeductionsColor').value, paperSize: document.getElementById('designPaperSize').value, fontSize: document.getElementById('designFontSize').value, headerStyle: document.getElementById('designHeaderStyle').value, border: document.getElementById('designBorder').value, showLogo: document.getElementById('designShowLogo').checked, showBank: document.getElementById('designShowBank').checked, showTax: document.getElementById('designShowTax').checked, showAnalysis: document.getElementById('designShowAnalysis').checked, showSignatures: document.getElementById('designShowSignatures').checked, showFooter: document.getElementById('designShowFooter').checked, showWatermark: document.getElementById('designShowWatermark').checked, currency: document.getElementById('designCurrency').value, currencyPosition: document.getElementById('designCurrencyPosition').value, slipTitle: document.getElementById('designSlipTitle').value, footerText: document.getElementById('designFooterText').value, sign1Label: document.getElementById('designSign1Label').value, sign2Label: document.getElementById('designSign2Label').value };
+try { showLoading('Saving design...'); await saveToFirebase(collections.payslipDesign, 'config', designData); data.payslipDesign = designData; logActivity('settings', 'design', 'Pay Slip Design', 'Design settings updated'); toast('Design saved!'); } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
-const designData = {
-primaryColor: document.getElementById('customPrimaryColor').value,
-earningsColor: document.getElementById('customEarningsColor').value,
-deductionsColor: document.getElementById('customDeductionsColor').value,
-paperSize: document.getElementById('designPaperSize').value,
-fontSize: document.getElementById('designFontSize').value,
-headerStyle: document.getElementById('designHeaderStyle').value,
-border: document.getElementById('designBorder').value,
-showLogo: document.getElementById('designShowLogo').checked,
-showBank: document.getElementById('designShowBank').checked,
-showTax: document.getElementById('designShowTax').checked,
-showAnalysis: document.getElementById('designShowAnalysis').checked,
-showSignatures: document.getElementById('designShowSignatures').checked,
-showFooter: document.getElementById('designShowFooter').checked,
-showWatermark: document.getElementById('designShowWatermark').checked,
-currency: document.getElementById('designCurrency').value,
-currencyPosition: document.getElementById('designCurrencyPosition').value,
-slipTitle: document.getElementById('designSlipTitle').value,
-footerText: document.getElementById('designFooterText').value,
-sign1Label: document.getElementById('designSign1Label').value,
-sign2Label: document.getElementById('designSign2Label').value
-};
-try {
-showLoading('Saving design...');
-await saveToFirebase(collections.payslipDesign, 'config', designData);
-data.payslipDesign = designData;
-logActivity('settings', 'design', 'Pay Slip Design', 'Design settings updated');
-toast('Design saved!');
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-function previewDesign() {
-if (!data.salarySlips.length) { toast('Create a pay slip first', 'error'); return; }
-viewSlipPreview(data.salarySlips[data.salarySlips.length - 1]);
-openModal('viewSlipModal');
-}
-function loadCompanySettings() {
-const c = data.company;
-document.getElementById('cName').value = c.name || 'LANKA SHOE';
-document.getElementById('cReg').value = c.reg || '';
-document.getElementById('cTax').value = c.tax || '';
-document.getElementById('cPhone').value = c.phone || '';
-document.getElementById('cEmail').value = c.email || '';
-document.getElementById('cWeb').value = c.web || '';
-document.getElementById('cLogo').value = c.logo || '';
-document.getElementById('cBank').value = c.bank || '';
-document.getElementById('cBankAccount').value = c.bankAccount || '';
-document.getElementById('cAddress').value = c.address || '';
-renderDepartments();
-}
-async function saveCompany(e) {
-e.preventDefault();
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
-const companyData = {
-name: document.getElementById('cName').value,
-reg: document.getElementById('cReg').value || '',
-tax: document.getElementById('cTax').value || '',
-phone: document.getElementById('cPhone').value || '',
-email: document.getElementById('cEmail').value || '',
-web: document.getElementById('cWeb').value || '',
-logo: document.getElementById('cLogo').value || '',
-bank: document.getElementById('cBank').value || '',
-bankAccount: document.getElementById('cBankAccount').value || '',
-address: document.getElementById('cAddress').value || ''
-};
-try {
-showLoading('Saving...');
-await saveToFirebase(collections.company, 'config', companyData);
-data.company = companyData;
-logActivity('settings', 'company', companyData.name, 'Company information updated');
-toast('Company info saved!');
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-async function addDepartment() {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
-const name = document.getElementById('newDept').value.trim();
-if (!name) return;
-if (data.departments.includes(name)) { toast('Department exists', 'error'); return; }
-try {
-showLoading('Adding...');
-await saveToFirebase(collections.departments, null, { name });
-data.departments.push(name);
-document.getElementById('newDept').value = '';
-logActivity('create', 'department', name, 'New department added');
-renderDepartments();
-toast('Department added!');
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-async function removeDepartment(name) {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
-if (!confirm(`Delete "${name}"?`)) return;
-try {
-showLoading('Removing...');
-const deptDoc = await db.collection(collections.departments).where('name', '==', name).get();
-deptDoc.forEach(async doc => { await deleteFromFirebase(collections.departments, doc.id); });
-data.departments = data.departments.filter(d => d !== name);
-logActivity('delete', 'department', name, 'Department removed');
-renderDepartments();
-toast('Department removed!');
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-function renderDepartments() {
-const list = document.getElementById('departmentsList');
-if (!list) return;
-if (!data.departments.length) { list.innerHTML = '<div class="empty-state"><h3>No departments</h3></div>'; return; }
-const canDelete = hasPermission(USER_ROLES.ADMIN);
-list.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">' +
-data.departments.map(d => {
-const count = data.workers.filter(w => w.department === d).length;
-return `<div style="padding:12px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
-<div><strong>${d}</strong><div style="font-size:11px;color:var(--gray);">${count} workers</div></div>
-${canDelete ? `<button class="btn btn-danger btn-sm" onclick="removeDepartment('${d}')"><i class="fas fa-trash"></i></button>` : ''}
-</div>`;
-}).join('') + '</div>';
-}
-function exportData() {
-const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a'); a.href = url; a.download = `lankashoe_backup_${today()}.json`; a.click();
-toast('Exported!');
-}
-function importData(e) {
-const file = e.target.files[0];
-if (!file) return;
-const reader = new FileReader();
-reader.onload = (ev) => {
-try {
-const imported = JSON.parse(ev.target.result);
-if (confirm('Replace all data with imported data?')) {
-toast('Import feature - contact admin', 'error');
-}
-} catch (err) { toast('Invalid file', 'error'); }
-};
-reader.readAsText(file);
-}
-async function clearAllData() {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
-if (!confirm('️ DELETE ALL DATA?')) return;
-if (!confirm('Last warning!')) return;
-try {
-showLoading('Clearing...');
-for (const col of Object.values(collections)) {
-const snapshot = await db.collection(col).get();
-const batch = db.batch();
-snapshot.docs.forEach(doc => batch.delete(doc.ref));
-await batch.commit();
-}
-activityLogs = [];
-logActivity('delete', 'system', 'All Data', 'All data cleared by admin');
-toast('All data cleared!');
-setTimeout(() => location.reload(), 1000);
-} catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
+function previewDesign() { if (!data.salarySlips.length) { toast('Create a pay slip first', 'error'); return; } viewSlipPreview(data.salarySlips[data.salarySlips.length - 1]); openModal('viewSlipModal'); }
+function loadCompanySettings() { const c = data.company; document.getElementById('cName').value = c.name || 'LANKA SHOE'; document.getElementById('cReg').value = c.reg || ''; document.getElementById('cTax').value = c.tax || ''; document.getElementById('cPhone').value = c.phone || ''; document.getElementById('cEmail').value = c.email || ''; document.getElementById('cWeb').value = c.web || ''; document.getElementById('cLogo').value = c.logo || ''; document.getElementById('cBank').value = c.bank || ''; document.getElementById('cBankAccount').value = c.bankAccount || ''; document.getElementById('cAddress').value = c.address || ''; renderDepartments(); }
+async function saveCompany(e) { e.preventDefault(); if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; } const companyData = { name: document.getElementById('cName').value, reg: document.getElementById('cReg').value || '', tax: document.getElementById('cTax').value || '', phone: document.getElementById('cPhone').value || '', email: document.getElementById('cEmail').value || '', web: document.getElementById('cWeb').value || '', logo: document.getElementById('cLogo').value || '', bank: document.getElementById('cBank').value || '', bankAccount: document.getElementById('cBankAccount').value || '', address: document.getElementById('cAddress').value || '' }; try { showLoading('Saving...'); await saveToFirebase(collections.company, 'config', companyData); data.company = companyData; logActivity('settings', 'company', companyData.name, 'Company information updated'); toast('Company info saved!'); } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); } }
+async function addDepartment() { if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; } const name = document.getElementById('newDept').value.trim(); if (!name) return; if (data.departments.includes(name)) { toast('Department exists', 'error'); return; } try { showLoading('Adding...'); await saveToFirebase(collections.departments, null, { name }); data.departments.push(name); document.getElementById('newDept').value = ''; logActivity('create', 'department', name, 'New department added'); renderDepartments(); toast('Department added!'); } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); } }
+async function removeDepartment(name) { if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; } if (!confirm(`Delete "${name}"?`)) return; try { showLoading('Removing...'); const deptDoc = await db.collection(collections.departments).where('name', '==', name).get(); deptDoc.forEach(async doc => { await deleteFromFirebase(collections.departments, doc.id); }); data.departments = data.departments.filter(d => d !== name); logActivity('delete', 'department', name, 'Department removed'); renderDepartments(); toast('Department removed!'); } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); } }
+function renderDepartments() { const list = document.getElementById('departmentsList'); if (!list) return; if (!data.departments.length) { list.innerHTML = '<div class="empty-state"><h3>No departments</h3></div>'; return; } const canDelete = hasPermission(USER_ROLES.ADMIN); list.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">' + data.departments.map(d => { const count = data.workers.filter(w => w.department === d).length; return `<div style="padding:12px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;display:flex;justify-content:space-between;align-items:center;"><div><strong>${d}</strong><div style="font-size:11px;color:var(--gray);">${count} workers</div></div>${canDelete ? `<button class="btn btn-danger btn-sm" onclick="removeDepartment('${d}')"><i class="fas fa-trash"></i></button>` : ''}</div>`; }).join('') + '</div>'; }
+function exportData() { const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `lankashoe_backup_${today()}.json`; a.click(); toast('Exported!'); }
+function importData(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (ev) => { try { const imported = JSON.parse(ev.target.result); if (confirm('Replace all data with imported data?')) { toast('Import feature - contact admin', 'error'); } } catch (err) { toast('Invalid file', 'error'); } }; reader.readAsText(file); }
+async function clearAllData() { if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; } if (!confirm('️ DELETE ALL DATA?')) return; if (!confirm('Last warning!')) return; try { showLoading('Clearing...'); for (const col of Object.values(collections)) { const snapshot = await db.collection(col).get(); const batch = db.batch(); snapshot.docs.forEach(doc => batch.delete(doc.ref)); await batch.commit(); } activityLogs = []; logActivity('delete', 'system', 'All Data', 'All data cleared by admin'); toast('All data cleared!'); setTimeout(() => location.reload(), 1000); } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); } }
 let charts = {};
 function refreshDashboard() {
 const selectedYear = document.getElementById('dashboardYear')?.value || new Date().getFullYear().toString();
 const selectedMonth = document.getElementById('dashboardMonth')?.value || 'all';
 let slipsForStats = data.salarySlips.filter(s => s.status === 'Paid');
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-slipsForStats = slipsForStats.filter(s => workerIds.includes(s.workerId));
-}
-if (selectedYear !== 'all') {
-slipsForStats = slipsForStats.filter(s => s.month && s.month.startsWith(selectedYear));
-}
-if (selectedMonth !== 'all') {
-slipsForStats = slipsForStats.filter(s => s.month && s.month.endsWith(`-${selectedMonth}`));
-}
+if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); slipsForStats = slipsForStats.filter(s => workerIds.includes(s.workerId)); }
+if (selectedYear !== 'all') slipsForStats = slipsForStats.filter(s => s.month && s.month.startsWith(selectedYear));
+if (selectedMonth !== 'all') slipsForStats = slipsForStats.filter(s => s.month && s.month.endsWith(`-${selectedMonth}`));
 const monthPayroll = slipsForStats.reduce((s,p) => s + (p.net || 0), 0);
-let monthlyAdditions = 0;
-let monthlyDeductions = 0;
-slipsForStats.forEach(s => {
-if (s.earnings && Array.isArray(s.earnings)) {
-s.earnings.forEach(e => {
-if (e.id !== 'basic' && e.id !== 'allowances') {
-monthlyAdditions += (e.amount || 0);
-}
-});
-}
-if (s.deductions && Array.isArray(s.deductions)) {
-s.deductions.forEach(d => {
-monthlyDeductions += (d.amount || 0);
-});
-}
-});
+let monthlyAdditions = 0, monthlyDeductions = 0;
+slipsForStats.forEach(s => { if (s.earnings && Array.isArray(s.earnings)) s.earnings.forEach(e => { if (e.id !== 'basic' && e.id !== 'allowances') monthlyAdditions += (e.amount || 0); }); if (s.deductions && Array.isArray(s.deductions)) s.deductions.forEach(d => { monthlyDeductions += (d.amount || 0); }); });
 let activeLoans = data.loans.filter(l => l.status === 'Active');
 let activeAdvances = data.advances.filter(a => a.status === 'Active');
-if (currentUserRole === USER_ROLES.VIEWER) {
-const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-activeLoans = activeLoans.filter(l => workerIds.includes(l.workerId));
-activeAdvances = activeAdvances.filter(a => workerIds.includes(a.workerId));
-}
+if (currentUserRole === USER_ROLES.VIEWER) { const workerIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); activeLoans = activeLoans.filter(l => workerIds.includes(l.workerId)); activeAdvances = activeAdvances.filter(a => workerIds.includes(a.workerId)); }
 const loansTotal = activeLoans.reduce((s,l) => s + (l.remaining || 0), 0);
 const advancesTotal = activeAdvances.reduce((s,a) => s + (a.remaining || 0), 0);
 let workers = data.workers;
-if (currentUserRole === USER_ROLES.VIEWER) {
-workers = workers.filter(w => w.email === currentUserEmail);
-}
+if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
 document.getElementById('statWorkers').textContent = workers.length;
 document.getElementById('statPayroll').textContent = fmt(monthPayroll);
 document.getElementById('statLoans').textContent = fmt(loansTotal);
@@ -3336,52 +2472,22 @@ document.getElementById('statDeductions').textContent = fmt(monthlyDeductions);
 document.getElementById('statAdditions').textContent = fmt(monthlyAdditions);
 document.getElementById('statSlips').textContent = slipsForStats.length;
 Object.values(charts).forEach(c => c && c.destroy && c.destroy());
-const months = [];
-const payrollData = [];
-if (selectedYear === 'all') {
-for (let i = 11; i >= 0; i--) {
-const d = new Date(); d.setMonth(d.getMonth() - i);
-const m = d.toISOString().slice(0,7);
-months.push(m);
-payrollData.push(slipsForStats.filter(p => p.month === m).reduce((s,p) => s + (p.net || 0), 0));
-}
-} else {
-for (let m = 1; m <= 12; m++) {
-const monthStr = `${selectedYear}-${String(m).padStart(2, '0')}`;
-months.push(monthStr);
-const monthSlips = slipsForStats.filter(p => p.month === monthStr);
-payrollData.push(monthSlips.reduce((s,p) => s + (p.net || 0), 0));
-}
-}
-charts.payroll = new Chart(document.getElementById('payrollChart'), {
-type: 'bar', data: { labels: months, datasets: [{ label: 'Net Payroll', data: payrollData, backgroundColor: 'rgba(30, 64, 175, 0.8)', borderRadius: 8 }] },
-options: { responsive: true, plugins: { legend: { display: false } } }
-});
+const months = [], payrollData = [];
+if (selectedYear === 'all') { for (let i = 11; i >= 0; i--) { const d = new Date(); d.setMonth(d.getMonth() - i); const m = d.toISOString().slice(0,7); months.push(m); payrollData.push(slipsForStats.filter(p => p.month === m).reduce((s,p) => s + (p.net || 0), 0)); } }
+else { for (let m = 1; m <= 12; m++) { const monthStr = `${selectedYear}-${String(m).padStart(2, '0')}`; months.push(monthStr); const monthSlips = slipsForStats.filter(p => p.month === monthStr); payrollData.push(monthSlips.reduce((s,p) => s + (p.net || 0), 0)); } }
+charts.payroll = new Chart(document.getElementById('payrollChart'), { type: 'bar', data: { labels: months, datasets: [{ label: 'Net Payroll', data: payrollData, backgroundColor: 'rgba(30, 64, 175, 0.8)', borderRadius: 8 }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
 const deptData = {};
 workers.forEach(w => { deptData[w.department] = (deptData[w.department] || 0) + 1; });
-charts.distribution = new Chart(document.getElementById('distributionChart'), {
-type: 'doughnut', data: { labels: Object.keys(deptData), datasets: [{ data: Object.values(deptData), backgroundColor: ['#1e40af','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#ec4899','#db2777'] }] },
-options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-});
+charts.distribution = new Chart(document.getElementById('distributionChart'), { type: 'doughnut', data: { labels: Object.keys(deptData), datasets: [{ data: Object.values(deptData), backgroundColor: ['#1e40af','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#ec4899','#db2777'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
 const activities = [];
-slipsForStats.slice(-5).reverse().forEach(s => {
-const w = data.workers.find(x => x.id === s.workerId);
-activities.push({ icon: 'fa-file-invoice', color: 'var(--success)', text: `Pay slip #${s.slipNo} for ${w?.name||'worker'} - ${fmt(s.net)}`, date: s.modifiedAt || s.createdAt });
-});
+slipsForStats.slice(-5).reverse().forEach(s => { const w = data.workers.find(x => x.id === s.workerId); activities.push({ icon: 'fa-file-invoice', color: 'var(--success)', text: `Pay slip #${s.slipNo} for ${w?.name||'worker'} - ${fmt(s.net)}`, date: s.modifiedAt || s.createdAt }); });
 const actDiv = document.getElementById('recentActivities');
 if (!activities.length) actDiv.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><h3>No activities</h3></div>';
-else actDiv.innerHTML = activities.map(a => `
-<div style="display:flex;align-items:center;gap:15px;padding:12px;border-bottom:1px solid var(--border);">
-<div style="width:40px;height:40px;border-radius:50%;background:${a.color}22;color:${a.color};display:flex;align-items:center;justify-content:center;"><i class="fas ${a.icon}"></i></div>
-<div style="flex:1;"><div style="font-size:14px;">${a.text}</div><div style="font-size:12px;color:var(--gray);">${a.date}</div></div>
-</div>
-`).join('');
+else actDiv.innerHTML = activities.map(a => `<div style="display:flex;align-items:center;gap:15px;padding:12px;border-bottom:1px solid var(--border);"><div style="width:40px;height:40px;border-radius:50%;background:${a.color}22;color:${a.color};display:flex;align-items:center;justify-content:center;"><i class="fas ${a.icon}"></i></div><div style="flex:1;"><div style="font-size:14px;">${a.text}</div><div style="font-size:12px;color:var(--gray);">${a.date}</div></div></div>`).join('');
 }
-window.onload = async () => {
-if (!data.company.name) {
-data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
-}
-};
+window.onload = async () => { if (!data.company.name) { data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' }; } };
+
+// ============ MY LOANS & ADVANCES (All Roles) ============
 function renderMyLoansAdvances() {
 const yearFilter = document.getElementById('myLAYear')?.value || 'all';
 const monthFilter = document.getElementById('myLAMonth')?.value || 'all';
@@ -3395,18 +2501,9 @@ tabLoansLabel.textContent = 'All Loans';
 tabAdvancesLabel.textContent = 'All Advances';
 let allLoans = data.loans;
 let allAdvances = data.advances;
-if (yearFilter !== 'all') {
-allLoans = allLoans.filter(l => l.issueDate && l.issueDate.startsWith(yearFilter));
-allAdvances = allAdvances.filter(a => a.issueDate && a.issueDate.startsWith(yearFilter));
-}
-if (monthFilter !== 'all') {
-allLoans = allLoans.filter(l => l.startMonth && l.startMonth.endsWith(`-${monthFilter}`));
-allAdvances = allAdvances.filter(a => a.startMonth && a.startMonth.endsWith(`-${monthFilter}`));
-}
-infoDiv.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-left:4px solid var(--primary);">
-<h4 style="color:#1e40af;margin-bottom:8px;"><i class="fas fa-shield-alt"></i> Admin View - All Workers</h4>
-<p style="color:#1e3a8a;font-size:13px;">Viewing all loans and advances across the organization.</p>
-</div>`;
+if (yearFilter !== 'all') { allLoans = allLoans.filter(l => l.issueDate && l.issueDate.startsWith(yearFilter)); allAdvances = allAdvances.filter(a => a.issueDate && a.issueDate.startsWith(yearFilter)); }
+if (monthFilter !== 'all') { allLoans = allLoans.filter(l => l.startMonth && l.startMonth.endsWith(`-${monthFilter}`)); allAdvances = allAdvances.filter(a => a.startMonth && a.startMonth.endsWith(`-${monthFilter}`)); }
+infoDiv.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-left:4px solid var(--primary);"><h4 style="color:#1e40af;margin-bottom:8px;"><i class="fas fa-shield-alt"></i> Admin View - All Workers</h4><p style="color:#1e3a8a;font-size:13px;">Viewing all loans and advances across the organization.</p></div>`;
 renderMyLoansContent(allLoans, yearFilter, monthFilter);
 renderMyAdvancesContent(allAdvances, yearFilter, monthFilter);
 renderMyPaymentHistory(null, yearFilter, monthFilter);
@@ -3415,27 +2512,8 @@ titleSpan.textContent = 'My Loans & Salary Advances';
 tabLoansLabel.textContent = 'My Loans';
 tabAdvancesLabel.textContent = 'My Advances';
 const myWorker = data.workers.find(w => w.email === currentUserEmail);
-if (!myWorker) {
-infoDiv.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-left:4px solid var(--warning);">
-<h4 style="color:#92400e;margin-bottom:8px;"><i class="fas fa-info-circle"></i> No Worker Profile Found</h4>
-<p style="color:#78350f;font-size:13px;">Your email (${currentUserEmail}) is not linked to any worker profile. Please contact admin to link your account.</p>
-</div>`;
-document.getElementById('myLoansContent').innerHTML = '';
-document.getElementById('myAdvancesContent').innerHTML = '';
-document.getElementById('myPaymentHistoryContent').innerHTML = '';
-return;
-}
-infoDiv.innerHTML = `<div class="worker-profile-header" style="margin-bottom:20px;">
-<div class="worker-avatar">${myWorker.name.charAt(0).toUpperCase()}</div>
-<div class="worker-info">
-<h2>${myWorker.name}</h2>
-<p><i class="fas fa-id-badge"></i> ${myWorker.empId} | <i class="fas fa-briefcase"></i> ${myWorker.position}</p>
-<p><i class="fas fa-building"></i> ${myWorker.department} | <i class="fas fa-envelope"></i> ${myWorker.email}</p>
-</div>
-<div class="worker-quick-stats">
-<div class="qs"><div class="qs-label">Basic Salary</div><div class="qs-value">${fmt(myWorker.salary)}</div></div>
-</div>
-</div>`;
+if (!myWorker) { infoDiv.innerHTML = `<div class="card" style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-left:4px solid var(--warning);"><h4 style="color:#92400e;margin-bottom:8px;"><i class="fas fa-info-circle"></i> No Worker Profile Found</h4><p style="color:#78350f;font-size:13px;">Your email (${currentUserEmail}) is not linked to any worker profile. Please contact admin to link your account.</p></div>`; document.getElementById('myLoansContent').innerHTML = ''; document.getElementById('myAdvancesContent').innerHTML = ''; document.getElementById('myPaymentHistoryContent').innerHTML = ''; return; }
+infoDiv.innerHTML = `<div class="worker-profile-header" style="margin-bottom:20px;"><div class="worker-avatar">${myWorker.name.charAt(0).toUpperCase()}</div><div class="worker-info"><h2>${myWorker.name}</h2><p><i class="fas fa-id-badge"></i> ${myWorker.empId} | <i class="fas fa-briefcase"></i> ${myWorker.position}</p><p><i class="fas fa-building"></i> ${myWorker.department} | <i class="fas fa-envelope"></i> ${myWorker.email}</p></div><div class="worker-quick-stats"><div class="qs"><div class="qs-label">Basic Salary</div><div class="qs-value">${fmt(myWorker.salary)}</div></div></div></div>`;
 renderMyLoans(myWorker.id, yearFilter, monthFilter);
 renderMyAdvances(myWorker.id, yearFilter, monthFilter);
 renderMyPaymentHistory(myWorker.id, yearFilter, monthFilter);
@@ -3443,86 +2521,22 @@ renderMyPaymentHistory(myWorker.id, yearFilter, monthFilter);
 }
 function renderMyLoansContent(loans, yearFilter, monthFilter) {
 const container = document.getElementById('myLoansContent');
-if (!loans.length) {
-container.innerHTML = '<div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans found</h3><p>No loan records match the selected filters.</p></div>';
-return;
-}
+if (!loans.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans found</h3><p>No loan records match the selected filters.</p></div>'; return; }
 const totalLoan = loans.reduce((s,l) => s + (l.amount || 0), 0);
 const totalPaid = loans.reduce((s,l) => s + (l.paid || 0), 0);
 const totalRemaining = loans.reduce((s,l) => s + (l.remaining || 0), 0);
-container.innerHTML = `
-<div class="stats-grid" style="margin-bottom:20px;">
-<div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Total Loans</h3><div class="value">${fmt(totalLoan)}</div></div>
-<div class="stat-card green"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>Total Paid</h3><div class="value">${fmt(totalPaid)}</div></div>
-<div class="stat-card red"><div class="icon"><i class="fas fa-exclamation-circle"></i></div><h3>Remaining</h3><div class="value">${fmt(totalRemaining)}</div></div>
-<div class="stat-card blue"><div class="icon"><i class="fas fa-list"></i></div><h3>Loan Count</h3><div class="value">${loans.length}</div></div>
-</div>
-<div class="table-container"><table>
-<thead><tr><th>Worker</th><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Issue Date</th><th>Start Month</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
-<tbody>${loans.map(l => {
-const w = data.workers.find(x => x.id === l.workerId);
-const pct = (l.paid / l.amount * 100).toFixed(1);
-return `<tr>
-<td>${w ? w.name : 'Unknown'}</td>
-<td><span class="badge badge-warning">${l.type}</span></td>
-<td>${fmt(l.amount)}</td><td>${fmt(l.installment)}</td>
-<td style="color:var(--success);">${fmt(l.paid)}</td>
-<td style="color:var(--danger);"><strong>${fmt(l.remaining)}</strong></td>
-<td>${l.issueDate || '-'}</td><td>${l.startMonth || '-'}</td>
-<td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></td>
-<td><span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></td>
-<td><button class="btn btn-info btn-sm" onclick="viewLoanTransactions('${l.id}')"><i class="fas fa-history"></i> Details</button></td>
-</tr>`;
-}).join('')}</tbody>
-</table></div>`;
+container.innerHTML = `<div class="stats-grid" style="margin-bottom:20px;"><div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Total Loans</h3><div class="value">${fmt(totalLoan)}</div></div><div class="stat-card green"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>Total Paid</h3><div class="value">${fmt(totalPaid)}</div></div><div class="stat-card red"><div class="icon"><i class="fas fa-exclamation-circle"></i></div><h3>Remaining</h3><div class="value">${fmt(totalRemaining)}</div></div><div class="stat-card blue"><div class="icon"><i class="fas fa-list"></i></div><h3>Loan Count</h3><div class="value">${loans.length}</div></div></div><div class="table-container"><table><thead><tr><th>Worker</th><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Issue Date</th><th>Start Month</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead><tbody>${loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); const pct = (l.paid / l.amount * 100).toFixed(1); return `<tr><td>${w ? w.name : 'Unknown'}</td><td><span class="badge badge-warning">${l.type}</span></td><td>${fmt(l.amount)}</td><td>${fmt(l.installment)}</td><td style="color:var(--success);">${fmt(l.paid)}</td><td style="color:var(--danger);"><strong>${fmt(l.remaining)}</strong></td><td>${l.issueDate || '-'}</td><td>${l.startMonth || '-'}</td><td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></td><td><span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></td><td><button class="btn btn-info btn-sm" onclick="viewTransactionHistory('loan', '${l.id}')"><i class="fas fa-history"></i> Details</button></td></tr>`; }).join('')}</tbody></table></div>`;
 }
 function renderMyAdvancesContent(advances, yearFilter, monthFilter) {
 const container = document.getElementById('myAdvancesContent');
-if (!advances.length) {
-container.innerHTML = '<div class="empty-state"><i class="fas fa-money-check-alt"></i><h3>No advances found</h3><p>No advance records match the selected filters.</p></div>';
-return;
-}
+if (!advances.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-money-check-alt"></i><h3>No advances found</h3><p>No advance records match the selected filters.</p></div>'; return; }
 const totalAdv = advances.reduce((s,a) => s + (a.amount || 0), 0);
 const totalPaid = advances.reduce((s,a) => s + (a.paid || 0), 0);
 const totalRemaining = advances.reduce((s,a) => s + (a.remaining || 0), 0);
-container.innerHTML = `
-<div class="stats-grid" style="margin-bottom:20px;">
-<div class="stat-card pink"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Total Advances</h3><div class="value">${fmt(totalAdv)}</div></div>
-<div class="stat-card green"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>Total Paid</h3><div class="value">${fmt(totalPaid)}</div></div>
-<div class="stat-card red"><div class="icon"><i class="fas fa-exclamation-circle"></i></div><h3>Remaining</h3><div class="value">${fmt(totalRemaining)}</div></div>
-<div class="stat-card blue"><div class="icon"><i class="fas fa-list"></i></div><h3>Advance Count</h3><div class="value">${advances.length}</div></div>
-</div>
-<div class="table-container"><table>
-<thead><tr><th>Worker</th><th>Type</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Issue Date</th><th>Start Month</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
-<tbody>${advances.map(a => {
-const w = data.workers.find(x => x.id === a.workerId);
-const pct = a.amount > 0 ? (a.paid / a.amount * 100).toFixed(1) : 0;
-return `<tr>
-<td>${w ? w.name : 'Unknown'}</td>
-<td><span class="badge badge-pink">${a.type}</span></td>
-<td>${fmt(a.amount)}</td>
-<td style="color:var(--success);">${fmt(a.paid)}</td>
-<td style="color:var(--danger);"><strong>${fmt(a.remaining)}</strong></td>
-<td>${a.issueDate || '-'}</td><td>${a.startMonth || '-'}</td>
-<td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:linear-gradient(90deg,#db2777,#ec4899);"></div></div></td>
-<td><span class="badge ${a.status==='Active'?'badge-pink':'badge-success'}">${a.status}</span></td>
-<td><button class="btn btn-info btn-sm" onclick="viewAdvanceTransactions('${a.id}')"><i class="fas fa-history"></i> Details</button></td>
-</tr>`;
-}).join('')}</tbody>
-</table></div>`;
+container.innerHTML = `<div class="stats-grid" style="margin-bottom:20px;"><div class="stat-card pink"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Total Advances</h3><div class="value">${fmt(totalAdv)}</div></div><div class="stat-card green"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>Total Paid</h3><div class="value">${fmt(totalPaid)}</div></div><div class="stat-card red"><div class="icon"><i class="fas fa-exclamation-circle"></i></div><h3>Remaining</h3><div class="value">${fmt(totalRemaining)}</div></div><div class="stat-card blue"><div class="icon"><i class="fas fa-list"></i></div><h3>Advance Count</h3><div class="value">${advances.length}</div></div></div><div class="table-container"><table><thead><tr><th>Worker</th><th>Type</th><th>Total</th><th>Paid</th><th>Remaining</th><th>Issue Date</th><th>Start Month</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead><tbody>${advances.map(a => { const w = data.workers.find(x => x.id === a.workerId); const pct = a.amount > 0 ? (a.paid / a.amount * 100).toFixed(1) : 0; return `<tr><td>${w ? w.name : 'Unknown'}</td><td><span class="badge badge-pink">${a.type}</span></td><td>${fmt(a.amount)}</td><td style="color:var(--success);">${fmt(a.paid)}</td><td style="color:var(--danger);"><strong>${fmt(a.remaining)}</strong></td><td>${a.issueDate || '-'}</td><td>${a.startMonth || '-'}</td><td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:linear-gradient(90deg,#db2777,#ec4899);"></div></div></td><td><span class="badge ${a.status==='Active'?'badge-pink':'badge-success'}">${a.status}</span></td><td><button class="btn btn-info btn-sm" onclick="viewTransactionHistory('advance', '${a.id}')"><i class="fas fa-history"></i> Details</button></td></tr>`; }).join('')}</tbody></table></div>`;
 }
-function renderMyLoans(workerId, yearFilter, monthFilter) {
-let loans = data.loans.filter(l => l.workerId === workerId);
-if (yearFilter !== 'all') loans = loans.filter(l => l.issueDate && l.issueDate.startsWith(yearFilter));
-if (monthFilter !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.endsWith(`-${monthFilter}`));
-renderMyLoansContent(loans, yearFilter, monthFilter);
-}
-function renderMyAdvances(workerId, yearFilter, monthFilter) {
-let advances = data.advances.filter(a => a.workerId === workerId);
-if (yearFilter !== 'all') advances = advances.filter(a => a.issueDate && a.issueDate.startsWith(yearFilter));
-if (monthFilter !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.endsWith(`-${monthFilter}`));
-renderMyAdvancesContent(advances, yearFilter, monthFilter);
-}
+function renderMyLoans(workerId, yearFilter, monthFilter) { let loans = data.loans.filter(l => l.workerId === workerId); if (yearFilter !== 'all') loans = loans.filter(l => l.issueDate && l.issueDate.startsWith(yearFilter)); if (monthFilter !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.endsWith(`-${monthFilter}`)); renderMyLoansContent(loans, yearFilter, monthFilter); }
+function renderMyAdvances(workerId, yearFilter, monthFilter) { let advances = data.advances.filter(a => a.workerId === workerId); if (yearFilter !== 'all') advances = advances.filter(a => a.issueDate && a.issueDate.startsWith(yearFilter)); if (monthFilter !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.endsWith(`-${monthFilter}`)); renderMyAdvancesContent(advances, yearFilter, monthFilter); }
 function renderMyPaymentHistory(workerId, yearFilter, monthFilter) {
 let slips = data.salarySlips.filter(s => s.status === 'Paid');
 if (workerId) slips = slips.filter(s => s.workerId === workerId);
@@ -3530,239 +2544,94 @@ if (yearFilter !== 'all') slips = slips.filter(s => s.month && s.month.startsWit
 if (monthFilter !== 'all') slips = slips.filter(s => s.month && s.month.endsWith(`-${monthFilter}`));
 slips.sort((a,b) => (b.month || '').localeCompare(a.month || ''));
 const container = document.getElementById('myPaymentHistoryContent');
-if (!slips.length) {
-container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><h3>No payment history</h3><p>No finalized pay slips found.</p></div>';
-return;
-}
+if (!slips.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><h3>No payment history</h3><p>No finalized pay slips found.</p></div>'; return; }
 const totalPaid = slips.reduce((s,p) => s + (p.net || 0), 0);
 const totalLoanPaid = slips.reduce((s,p) => s + (p.loansDeducted || []).reduce((x,l) => x + (l.amount || 0), 0), 0);
 const totalAdvPaid = slips.reduce((s,p) => s + (p.advancesDeducted || []).reduce((x,a) => x + (a.amount || 0), 0), 0);
-container.innerHTML = `
-<div class="stats-grid" style="margin-bottom:20px;">
-<div class="stat-card green"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><h3>Total Salary Paid</h3><div class="value">${fmt(totalPaid)}</div></div>
-<div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Loan Payments</h3><div class="value">${fmt(totalLoanPaid)}</div></div>
-<div class="stat-card pink"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Advance Payments</h3><div class="value">${fmt(totalAdvPaid)}</div></div>
-<div class="stat-card blue"><div class="icon"><i class="fas fa-file-invoice"></i></div><h3>Pay Slips</h3><div class="value">${slips.length}</div></div>
-</div>
-<div class="table-container"><table>
-<thead><tr><th>Month</th><th>Slip #</th><th>Worker</th><th>Basic</th><th>Additions</th><th>Deductions</th><th>Loan Paid</th><th>Advance Paid</th><th>Net Salary</th><th>Actions</th></tr></thead>
-<tbody>${slips.map(s => {
-const w = data.workers.find(x => x.id === s.workerId);
-const loanPaid = (s.loansDeducted || []).reduce((x,l) => x + (l.amount || 0), 0);
-const advPaid = (s.advancesDeducted || []).reduce((x,a) => x + (a.amount || 0), 0);
-return `<tr>
-<td><strong>${s.month}</strong></td><td>#${s.slipNo}</td>
-<td>${w ? w.name : 'Unknown'}</td>
-<td>${fmt(s.basic)}</td>
-<td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
-<td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td>
-<td style="color:var(--warning);">${fmt(loanPaid)}</td>
-<td style="color:var(--pink);">${fmt(advPaid)}</td>
-<td><strong>${fmt(s.net)}</strong></td>
-<td><button class="btn btn-info btn-sm" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i> View</button></td>
-</tr>`;
-}).join('')}</tbody>
-</table></div>`;
+container.innerHTML = `<div class="stats-grid" style="margin-bottom:20px;"><div class="stat-card green"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><h3>Total Salary Paid</h3><div class="value">${fmt(totalPaid)}</div></div><div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Loan Payments</h3><div class="value">${fmt(totalLoanPaid)}</div></div><div class="stat-card pink"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Advance Payments</h3><div class="value">${fmt(totalAdvPaid)}</div></div><div class="stat-card blue"><div class="icon"><i class="fas fa-file-invoice"></i></div><h3>Pay Slips</h3><div class="value">${slips.length}</div></div></div><div class="table-container"><table><thead><tr><th>Month</th><th>Slip #</th><th>Worker</th><th>Basic</th><th>Additions</th><th>Deductions</th><th>Loan Paid</th><th>Advance Paid</th><th>Net Salary</th><th>Actions</th></tr></thead><tbody>${slips.map(s => { const w = data.workers.find(x => x.id === s.workerId); const loanPaid = (s.loansDeducted || []).reduce((x,l) => x + (l.amount || 0), 0); const advPaid = (s.advancesDeducted || []).reduce((x,a) => x + (a.amount || 0), 0); return `<tr><td><strong>${s.month}</strong></td><td>#${s.slipNo}</td><td>${w ? w.name : 'Unknown'}</td><td>${fmt(s.basic)}</td><td style="color:var(--success);">+${fmt(s.totalAdditions)}</td><td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td><td style="color:var(--warning);">${fmt(loanPaid)}</td><td style="color:var(--pink);">${fmt(advPaid)}</td><td><strong>${fmt(s.net)}</strong></td><td><button class="btn btn-info btn-sm" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i> View</button></td></tr>`; }).join('')}</tbody></table></div>`;
 }
-function switchMyLATab(tab, el) {
-document.querySelectorAll('#myloans .tab').forEach(t => t.classList.remove('active'));
-document.querySelectorAll('#myloans .tab-content').forEach(t => t.classList.remove('active'));
-el.classList.add('active');
-document.getElementById('myla-' + tab).classList.add('active');
+function switchMyLATab(tab, el) { document.querySelectorAll('#myloans .tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('#myloans .tab-content').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.getElementById('myla-' + tab).classList.add('active'); }
+
+// ============ TRANSACTION HISTORY VIEWER (Admin Only) ============
+function viewTransactionHistory(entityType, entityId) {
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; }
+const entity = entityType === 'loan' ? data.loans.find(l => l.id === entityId) : data.advances.find(a => a.id === entityId);
+if (!entity) { toast('Entity not found', 'error'); return; }
+const w = data.workers.find(x => x.id === entity.workerId);
+document.getElementById('transactionModalTitle').innerHTML = `<i class="fas fa-history"></i> ${entityType === 'loan' ? 'Loan' : 'Advance'} Details - ${w?.name || 'Unknown'}`;
+const relatedLogs = activityLogs.filter(log => log.entityType === entityType && (log.entityName.includes(entity.type) || log.details.includes(fmt(entity.amount)) || log.details.includes('issued') || log.details.includes('Added')));
+const typeIcons = { 'creation': { icon: 'fa-plus-circle', color: 'var(--success)', label: 'Created' }, 'addition': { icon: 'fa-arrow-up', color: 'var(--warning)', label: 'Added' }, 'payment': { icon: 'fa-check-circle', color: 'var(--primary)', label: 'Paid' }, 'reversal': { icon: 'fa-undo', color: 'var(--danger)', label: 'Reversed' } };
+let html = `<div style="margin-bottom:20px; padding:15px; background:#f8fafc; border-radius:8px; border-left:4px solid var(--primary);"><div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:15px;"><div><strong>Type:</strong> ${entity.type}</div><div><strong>Total Amount:</strong> ${fmt(entity.amount)}</div><div><strong>Remaining:</strong> ${fmt(entity.remaining)}</div><div><strong>Status:</strong> <span class="badge ${entity.status==='Active'?'badge-warning':'badge-success'}">${entity.status}</span></div></div></div>`;
+if (relatedLogs.length === 0) { html += '<div class="empty-state"><i class="fas fa-history"></i><h3>No transaction history found</h3><p>History is tracked locally during this session.</p></div>'; }
+else { html += '<div class="table-container"><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Performed By</th></tr></thead><tbody>'; relatedLogs.forEach(t => { const typeInfo = typeIcons[t.action] || { icon: 'fa-circle', color: 'var(--gray)', label: t.action }; html += `<tr><td>${t.date || '-'}</td><td><span style="color:${typeInfo.color};"><i class="fas ${typeInfo.icon}"></i> ${typeInfo.label}</span></td><td>${t.details || '-'}</td><td>${t.userName || '-'}</td></tr>`; }); html += '</tbody></table></div>'; }
+document.getElementById('transactionModalBody').innerHTML = html;
+openModal('viewTransactionModal');
 }
+
+// ============ ACTIVITY TIMELINE (Admin Only) ============
 function renderTimeline() {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-document.getElementById('timelineContent').innerHTML = '<div class="card"><div class="empty-state"><h3>Access Denied</h3><p>Admin role required.</p></div></div>';
-return;
-}
+if (!hasPermission(USER_ROLES.ADMIN)) { document.getElementById('timelineContent').innerHTML = '<div class="card"><div class="empty-state"><h3>Access Denied</h3><p>Admin role required.</p></div></div>'; return; }
 const yearFilter = document.getElementById('timelineYear')?.value || 'all';
 const monthFilter = document.getElementById('timelineMonth')?.value || 'all';
 const userFilter = document.getElementById('timelineUser')?.value || 'all';
 const actionFilter = document.getElementById('timelineAction')?.value || 'all';
 let filteredLogs = [...activityLogs];
-if (yearFilter !== 'all') {
-filteredLogs = filteredLogs.filter(l => l.date && l.date.startsWith(yearFilter));
-}
-if (monthFilter !== 'all') {
-filteredLogs = filteredLogs.filter(l => l.month && l.month.endsWith(`-${monthFilter}`));
-}
-if (userFilter !== 'all') {
-filteredLogs = filteredLogs.filter(l => l.userEmail === userFilter);
-}
-if (actionFilter !== 'all') {
-filteredLogs = filteredLogs.filter(l => l.action === actionFilter);
-}
+if (yearFilter !== 'all') filteredLogs = filteredLogs.filter(l => l.date && l.date.startsWith(yearFilter));
+if (monthFilter !== 'all') filteredLogs = filteredLogs.filter(l => l.month && l.month.endsWith(`-${monthFilter}`));
+if (userFilter !== 'all') filteredLogs = filteredLogs.filter(l => l.userEmail === userFilter);
+if (actionFilter !== 'all') filteredLogs = filteredLogs.filter(l => l.action === actionFilter);
 document.getElementById('tlStatTotal').textContent = filteredLogs.length;
-document.getElementById('tlStatCreate').textContent = filteredLogs.filter(l => l.action === 'create').length;
+document.getElementById('tlStatCreate').textContent = filteredLogs.filter(l => l.action === 'create' || l.action === 'creation').length;
 document.getElementById('tlStatEdit').textContent = filteredLogs.filter(l => l.action === 'edit').length;
 document.getElementById('tlStatDelete').textContent = filteredLogs.filter(l => l.action === 'delete').length;
 document.getElementById('tlStatPayroll').textContent = filteredLogs.filter(l => l.action === 'payroll').length;
-document.getElementById('tlStatReverse').textContent = filteredLogs.filter(l => l.action === 'reverse').length;
+document.getElementById('tlStatReverse').textContent = filteredLogs.filter(l => l.action === 'reverse' || l.action === 'reversal').length;
 const container = document.getElementById('timelineContent');
-if (!filteredLogs.length) {
-container.innerHTML = '<div class="empty-state"><i class="fas fa-stream"></i><h3>No activities found</h3><p>No activities match the selected filters.</p></div>';
-return;
+if (!filteredLogs.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-stream"></i><h3>No activities found</h3><p>No activities match the selected filters. Activities are tracked during this session.</p></div>'; return; }
+const actionLabels = { create: { label: 'Created', icon: 'fa-plus', class: 'creation' }, creation: { label: 'Created', icon: 'fa-plus', class: 'creation' }, edit: { label: 'Edited', icon: 'fa-edit', class: 'addition' }, delete: { label: 'Deleted', icon: 'fa-trash', class: 'reversal' }, payroll: { label: 'Payroll', icon: 'fa-file-invoice', class: 'payment' }, reverse: { label: 'Reversed', icon: 'fa-undo', class: 'reversal' }, reversal: { label: 'Reversed', icon: 'fa-undo', class: 'reversal' }, login: { label: 'Login', icon: 'fa-sign-in-alt', class: 'login' }, logout: { label: 'Logout', icon: 'fa-sign-out-alt', class: 'login' }, settings: { label: 'Settings', icon: 'fa-cog', class: 'settings' }, addition: { label: 'Added', icon: 'fa-arrow-up', class: 'addition' }, payment: { label: 'Paid', icon: 'fa-check-circle', class: 'payment' } };
+container.innerHTML = `<div class="timeline">${filteredLogs.map(log => { const action = actionLabels[log.action] || { label: log.action, icon: 'fa-circle', class: 'creation' }; const timeAgo = getTimeAgo(log.timestamp); return `<div class="timeline-item"><div class="timeline-dot ${action.class}"><i class="fas ${action.icon}"></i></div><div class="timeline-card"><div class="timeline-header"><div class="timeline-user"><div class="timeline-user-avatar">${(log.userName || 'U').charAt(0).toUpperCase()}</div><strong>${log.userName || 'Unknown'}</strong><span class="badge badge-${action.class === 'creation' ? 'success' : action.class === 'addition' ? 'warning' : action.class === 'reversal' ? 'danger' : 'info'}" style="margin-left:5px;">${action.label}</span><span class="timeline-entity-badge" style="background:var(--primary)22;color:var(--primary);"><i class="fas fa-tag"></i> ${log.entityType}</span></div><div class="timeline-time" title="${log.timestamp}"><i class="fas fa-clock"></i> ${timeAgo}</div></div><div class="timeline-action">${action.label} <strong>${log.entityName || 'item'}</strong></div>${log.details ? `<div class="timeline-details">${log.details}</div>` : ''}<div style="font-size:10px;color:var(--gray);margin-top:6px;"><i class="fas fa-user-tag"></i> Role: ${log.userRole || '-'} • ${log.date}</div></div></div>`; }).join('')}</div>`;
 }
-const actionLabels = {
-create: { label: 'Created', icon: 'fa-plus', class: 'create' },
-edit: { label: 'Edited', icon: 'fa-edit', class: 'edit' },
-delete: { label: 'Deleted', icon: 'fa-trash', class: 'delete' },
-payroll: { label: 'Payroll', icon: 'fa-file-invoice', class: 'payroll' },
-reverse: { label: 'Reversed', icon: 'fa-undo', class: 'reverse' },
-login: { label: 'Login', icon: 'fa-sign-in-alt', class: 'login' },
-logout: { label: 'Logout', icon: 'fa-sign-out-alt', class: 'login' },
-settings: { label: 'Settings', icon: 'fa-cog', class: 'settings' }
-};
-container.innerHTML = `<div class="timeline">${filteredLogs.map(log => {
-const action = actionLabels[log.action] || { label: log.action, icon: 'fa-circle', class: 'create' };
-const timeAgo = getTimeAgo(log.timestamp);
-return `<div class="timeline-item">
-<div class="timeline-dot ${action.class}"><i class="fas ${action.icon}"></i></div>
-<div class="timeline-card">
-<div class="timeline-header">
-<div class="timeline-user">
-<div class="timeline-user-avatar">${(log.userName || 'U').charAt(0).toUpperCase()}</div>
-<strong>${log.userName || 'Unknown'}</strong>
-<span class="badge badge-${action.class === 'create' ? 'success' : action.class === 'edit' ? 'warning' : action.class === 'delete' ? 'danger' : 'info'}" style="margin-left:5px;">${action.label}</span>
-<span class="timeline-entity-badge" style="background:var(--primary)22;color:var(--primary);"><i class="fas fa-tag"></i> ${log.entityType}</span>
-</div>
-<div class="timeline-time" title="${log.timestamp}"><i class="fas fa-clock"></i> ${timeAgo}</div>
-</div>
-<div class="timeline-action">
-${action.label} <strong>${log.entityName || 'item'}</strong>
-</div>
-${log.details ? `<div class="timeline-details">${log.details}</div>` : ''}
-<div style="font-size:10px;color:var(--gray);margin-top:6px;"><i class="fas fa-user-tag"></i> Role: ${log.userRole || '-'} • ${log.date}</div>
-</div>
-</div>`;
-}).join('')}</div>`;
-}
-function getTimeAgo(timestamp) {
-if (!timestamp) return '-';
-const now = new Date();
-const then = new Date(timestamp);
-const diffMs = now - then;
-const diffMins = Math.floor(diffMs / 60000);
-const diffHours = Math.floor(diffMs / 3600000);
-const diffDays = Math.floor(diffMs / 86400000);
-if (diffMins < 1) return 'Just now';
-if (diffMins < 60) return `${diffMins}m ago`;
-if (diffHours < 24) return `${diffHours}h ago`;
-if (diffDays < 7) return `${diffDays}d ago`;
-return then.toLocaleDateString();
-}
-function resetTimelineFilters() {
-document.getElementById('timelineYear').value = 'all';
-document.getElementById('timelineMonth').value = 'all';
-document.getElementById('timelineUser').value = 'all';
-document.getElementById('timelineAction').value = 'all';
-renderTimeline();
-}
-function clearActivityLogs() {
-if (!hasPermission(USER_ROLES.ADMIN)) {
-toast('Permission denied. Admin role required.', 'error');
-return;
-}
-if (!confirm('Clear all activity logs? This cannot be undone.')) return;
-activityLogs = [];
-toast('Activity logs cleared!');
-renderTimeline();
-}
+function getTimeAgo(timestamp) { if (!timestamp) return '-'; const now = new Date(); const then = new Date(timestamp); const diffMs = now - then; const diffMins = Math.floor(diffMs / 60000); const diffHours = Math.floor(diffMs / 3600000); const diffDays = Math.floor(diffMs / 86400000); if (diffMins < 1) return 'Just now'; if (diffMins < 60) return `${diffMins}m ago`; if (diffHours < 24) return `${diffHours}h ago`; if (diffDays < 7) return `${diffDays}d ago`; return then.toLocaleDateString(); }
+function resetTimelineFilters() { document.getElementById('timelineYear').value = 'all'; document.getElementById('timelineMonth').value = 'all'; document.getElementById('timelineUser').value = 'all'; document.getElementById('timelineAction').value = 'all'; renderTimeline(); }
+function clearActivityLogs() { if (!hasPermission(USER_ROLES.ADMIN)) { toast('Permission denied. Admin role required.', 'error'); return; } if (!confirm('Clear all activity logs? This cannot be undone.')) return; activityLogs = []; toast('Activity logs cleared!'); renderTimeline(); }
+
+// ============ ENHANCED SECURITY MEASURES (Windows + Mac + Brave) ============
 (function() {
-document.addEventListener('contextmenu', function(e) {
-e.preventDefault();
-return false;
-}, true);
-document.addEventListener('keydown', function(e) {
-if (e.key === 'F12' || e.keyCode === 123) {
-e.preventDefault();
-e.stopImmediatePropagation();
-return false;
-}
-if ((e.ctrlKey || e.metaKey) && e.shiftKey &&
-(e.key === 'I' || e.key === 'J' || e.key === 'C' ||
-e.key === 'i' || e.key === 'j' || e.key === 'c' ||
-e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
-e.preventDefault();
-e.stopImmediatePropagation();
-return false;
-}
-if (e.metaKey && e.altKey &&
-(e.key === 'I' || e.key === 'J' || e.key === 'i' || e.key === 'j' ||
-e.keyCode === 73 || e.keyCode === 74)) {
-e.preventDefault();
-e.stopImmediatePropagation();
-return false;
-}
-if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u' || e.keyCode === 85)) {
-e.preventDefault();
-e.stopImmediatePropagation();
-return false;
-}
-if ((e.ctrlKey || e.metaKey) && (e.key === 'S' || e.key === 's' || e.keyCode === 83)) {
-e.preventDefault();
-e.stopImmediatePropagation();
-return false;
-}
-if ((e.ctrlKey || e.metaKey) && (e.key === 'P' || e.key === 'p' || e.keyCode === 80)) {
-e.preventDefault();
-e.stopImmediatePropagation();
-return false;
-}
-}, true);
-const noop = function() {};
-try {
-Object.defineProperty(window, 'console', {
-get: function() {
-return {
-log: noop, warn: noop, error: noop, info: noop,
-debug: noop, dir: noop, table: noop, trace: noop, clear: noop,
-assert: noop, count: noop, time: noop, timeEnd: noop,
-group: noop, groupCollapsed: noop, groupEnd: noop
-};
-},
-set: function() {},
-configurable: false,
-enumerable: false
-});
-} catch(e) {
-console.log = console.warn = console.error = console.info = console.debug = noop;
-}
-document.addEventListener('selectstart', function(e) { e.preventDefault(); }, true);
-document.addEventListener('dragstart', function(e) { e.preventDefault(); }, true);
-let devtoolsOpen = false;
-function detectDevTools() {
-const threshold = 160;
-const widthDiff = window.outerWidth - window.innerWidth;
-const heightDiff = window.outerHeight - window.innerHeight;
-if (widthDiff > threshold || heightDiff > threshold) {
-if (!devtoolsOpen) {
-devtoolsOpen = true;
-if(window.console && typeof window.console.clear === 'function') {
-try { window.console.clear(); } catch(e) {}
-}
-}
-return true;
-}
-const start = performance.now();
-debugger;
-const end = performance.now();
-if (end - start > 100) {
-if (!devtoolsOpen) {
-devtoolsOpen = true;
-if(window.console && typeof window.console.clear === 'function') {
-try { window.console.clear(); } catch(e) {}
-}
-}
-return true;
-}
-devtoolsOpen = false;
-return false;
-}
-setInterval(detectDevTools, 200);
-window.addEventListener('resize', function() {
-setTimeout(detectDevTools, 100);
-});
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; }, true);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C' || e.key === 'i' || e.key === 'j' || e.key === 'c' || e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    if (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'J' || e.key === 'i' || e.key === 'j' || e.keyCode === 73 || e.keyCode === 74)) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u' || e.keyCode === 85)) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'S' || e.key === 's' || e.keyCode === 83)) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'P' || e.key === 'p' || e.keyCode === 80)) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+  }, true);
+  const noop = function() {};
+  try {
+    Object.defineProperty(window, 'console', {
+      get: function() { return { log: noop, warn: noop, error: noop, info: noop, debug: noop, dir: noop, table: noop, trace: noop, clear: noop, assert: noop, count: noop, time: noop, timeEnd: noop, group: noop, groupCollapsed: noop, groupEnd: noop }; },
+      set: function() {},
+      configurable: false,
+      enumerable: false
+    });
+  } catch(e) { console.log = console.warn = console.error = console.info = console.debug = noop; }
+  document.addEventListener('selectstart', function(e) { e.preventDefault(); }, true);
+  document.addEventListener('dragstart', function(e) { e.preventDefault(); }, true);
+  let devtoolsOpen = false;
+  function detectDevTools() {
+    const threshold = 160;
+    const widthDiff = window.outerWidth - window.innerWidth;
+    const heightDiff = window.outerHeight - window.innerHeight;
+    if (widthDiff > threshold || heightDiff > threshold) { if (!devtoolsOpen) { devtoolsOpen = true; if(window.console && typeof window.console.clear === 'function') { try { window.console.clear(); } catch(e) {} } } return true; }
+    const start = performance.now();
+    debugger;
+    const end = performance.now();
+    if (end - start > 100) { if (!devtoolsOpen) { devtoolsOpen = true; if(window.console && typeof window.console.clear === 'function') { try { window.console.clear(); } catch(e) {} } } return true; }
+    devtoolsOpen = false;
+    return false;
+  }
+  setInterval(detectDevTools, 200);
+  window.addEventListener('resize', function() { setTimeout(detectDevTools, 100); });
 })();
 </script>
 </body>
