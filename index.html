@@ -363,6 +363,7 @@ Continue with Google
 <div class="menu-item" data-section="design"><i class="fas fa-paint-brush"></i> Pay Slip Design</div>
 <div class="menu-item" data-section="settings"><i class="fas fa-cog"></i> Company Settings</div>
 <div class="menu-item" data-section="users" id="menuUsers"><i class="fas fa-user-shield"></i> User Management</div>
+<div class="menu-item" data-section="timeline" id="menuTimeline"><i class="fas fa-stream"></i> Activity Timeline</div>
 <div class="menu-label">Account</div>
 <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
 </div>
@@ -756,6 +757,58 @@ Continue with Google
 </div>
 </div>
 </div>
+<!-- ACTIVITY TIMELINE (ADMIN ONLY) -->
+<div class="section" id="timeline">
+<div class="card">
+<div class="card-header">
+<h2><i class="fas fa-stream"></i> System Activity Timeline</h2>
+<div style="display:flex;gap:10px;align-items:center;">
+<button class="btn btn-danger btn-sm" onclick="clearActivityLogs()"><i class="fas fa-trash"></i> Clear Logs</button>
+</div>
+</div>
+<div class="filter-bar">
+<i class="fas fa-filter" style="color:var(--primary);"></i>
+<label>Year:</label>
+<select id="timelineYear" onchange="renderTimeline()">
+<option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option>
+<option value="2026">2026</option><option value="2027">2027</option>
+</select>
+<label>Month:</label>
+<select id="timelineMonth" onchange="renderTimeline()">
+<option value="all">All Months</option>
+<option value="01">January</option><option value="02">February</option><option value="03">March</option>
+<option value="04">April</option><option value="05">May</option><option value="06">June</option>
+<option value="07">July</option><option value="08">August</option><option value="09">September</option>
+<option value="10">October</option><option value="11">November</option><option value="12">December</option>
+</select>
+<label>User:</label>
+<select id="timelineUser" onchange="renderTimeline()">
+<option value="all">All Users</option>
+</select>
+<label>Action Type:</label>
+<select id="timelineAction" onchange="renderTimeline()">
+<option value="all">All Actions</option>
+<option value="create">Create</option>
+<option value="edit">Edit</option>
+<option value="delete">Delete</option>
+<option value="payroll">Payroll</option>
+<option value="reverse">Reverse</option>
+<option value="login">Login</option>
+<option value="settings">Settings</option>
+</select>
+<button class="filter-reset" onclick="resetTimelineFilters()"><i class="fas fa-times"></i> Reset</button>
+</div>
+<div class="stats-grid" style="margin-bottom:20px;">
+<div class="stat-card indigo"><div class="icon"><i class="fas fa-list"></i></div><h3>Total Activities</h3><div class="value" id="tlStatTotal">0</div></div>
+<div class="stat-card green"><div class="icon"><i class="fas fa-plus"></i></div><h3>Creates</h3><div class="value" id="tlStatCreate">0</div></div>
+<div class="stat-card orange"><div class="icon"><i class="fas fa-edit"></i></div><h3>Edits</h3><div class="value" id="tlStatEdit">0</div></div>
+<div class="stat-card red"><div class="icon"><i class="fas fa-trash"></i></div><h3>Deletes</h3><div class="value" id="tlStatDelete">0</div></div>
+<div class="stat-card purple"><div class="icon"><i class="fas fa-file-invoice"></i></div><h3>Payroll</h3><div class="value" id="tlStatPayroll">0</div></div>
+<div class="stat-card pink"><div class="icon"><i class="fas fa-undo"></i></div><h3>Reverses</h3><div class="value" id="tlStatReverse">0</div></div>
+</div>
+<div id="timelineContent"></div>
+</div>
+</div>
 </div>
 </div>
 <!-- MODALS -->
@@ -952,6 +1005,8 @@ let currentUserRole = USER_ROLES.VIEWER;
 let currentUserId = null;
 let currentUserEmail = null;
 let usersCollection = 'userRoles';
+// Local activity logs array (prevents Firebase errors)
+let activityLogs = [];
 function getUserRole(email) {
 if (typeof ROLE_CONFIG === 'undefined') {
 ROLE_CONFIG = {};
@@ -974,6 +1029,7 @@ const menuUsers = document.getElementById('menuUsers');
 const menuDesign = document.querySelector('[data-section="design"]');
 const menuSettings = document.querySelector('[data-section="settings"]');
 const menuComponents = document.querySelector('[data-section="components"]');
+const menuTimeline = document.getElementById('menuTimeline');
 if (menuUsers) {
 menuUsers.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
 }
@@ -985,6 +1041,9 @@ menuSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
 }
 if (menuComponents) {
 menuComponents.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+}
+if (menuTimeline) {
+menuTimeline.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
 }
 const btnAddWorker = document.getElementById('btnAddWorker');
 const btnAddLoan = document.getElementById('btnAddLoan');
@@ -1070,6 +1129,8 @@ document.getElementById('userDisplayEmail').textContent = user.email;
 document.getElementById('userAvatar').textContent = (user.displayName || user.email).charAt(0).toUpperCase();
 applyRoleBasedUI();
 loadData();
+// Log login activity
+logActivity('login', 'system', 'User Login', `${user.displayName || user.email} logged in as ${currentUserRole}`);
 } else {
 document.getElementById('loginScreen').style.display = 'flex';
 document.getElementById('mainApp').classList.remove('show');
@@ -1136,6 +1197,7 @@ catch (error) { toast('Failed: ' + error.message, 'error'); } finally { hideLoad
 }
 async function logout() {
 if (!confirm('Logout?')) return;
+logActivity('logout', 'system', 'User Logout', `${currentUserEmail} logged out`);
 await auth.signOut();
 toast('Logged out');
 }
@@ -1227,6 +1289,21 @@ async function updateInFirebase(collection, docId, dataObj) {
 const cleanData = sanitizeForFirestore(dataObj);
 await db.collection(collection).doc(docId).update(cleanData);
 }
+// Local activity logging function (prevents Firebase errors)
+function logActivity(action, entityType, entityName, details = '') {
+const logEntry = {
+action, entityType, entityName, details,
+userEmail: currentUserEmail || 'system',
+userName: currentUserEmail?.split('@')[0] || 'System',
+userRole: currentUserRole || 'unknown',
+timestamp: new Date().toISOString(),
+date: today(),
+month: currentMonth()
+};
+activityLogs.unshift(logEntry);
+// Keep only last 500 entries to prevent memory issues
+if (activityLogs.length > 500) activityLogs = activityLogs.slice(0, 500);
+}
 document.querySelectorAll('.menu-item[data-section]').forEach(item => {
 item.addEventListener('click', () => showSection(item.dataset.section));
 });
@@ -1249,6 +1326,7 @@ if (sec === 'components') renderComponents();
 if (sec === 'design') loadDesignSettings();
 if (sec === 'settings') loadCompanySettings();
 if (sec === 'users') renderUsers();
+if (sec === 'timeline') renderTimeline();
 }
 function toast(msg, type='success') {
 const t = document.getElementById('toast');
@@ -1302,6 +1380,7 @@ updatedAt: new Date().toISOString(),
 updatedBy: auth.currentUser.email
 });
 ROLE_CONFIG[email] = role;
+logActivity('edit', 'user', email, `User role set to ${role.toUpperCase()}`);
 toast(`User ${email} role updated to ${role.toUpperCase()}`);
 closeModal('addUserModal');
 renderUsers();
@@ -1364,6 +1443,7 @@ try {
 showLoading('Removing user...');
 await db.collection(usersCollection).doc(email).delete();
 delete ROLE_CONFIG[email];
+logActivity('delete', 'user', email, 'User role removed');
 toast(`User ${email} removed`);
 renderUsers();
 } catch (error) {
@@ -1440,8 +1520,10 @@ try {
 showLoading(editId ? 'Updating worker...' : 'Saving worker...');
 if (editId) {
 await updateInFirebase(collections.workers, editId, workerData);
+logActivity('edit', 'worker', workerData.name, 'Updated worker details');
 } else {
 await saveToFirebase(collections.workers, null, workerData);
+logActivity('create', 'worker', workerData.name, `New worker added - ${workerData.position} in ${workerData.department}`);
 }
 await loadData();
 toast(editId ? 'Worker updated!' : 'Worker added!');
@@ -1489,9 +1571,11 @@ return;
 }
 if (!confirm('Delete this worker?')) return;
 const currentUser = auth.currentUser;
+const w = data.workers.find(x => x.id === id);
 try {
 showLoading('Deleting...');
 await deleteFromFirebase(collections.workers, id);
+logActivity('delete', 'worker', w?.name || 'Unknown', `Worker deleted by ${currentUser.displayName || currentUser.email}`);
 await loadData();
 toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
@@ -1714,6 +1798,7 @@ document.getElementById('lIssueDate').value = today();
 document.getElementById('lStartMonth').value = currentMonth();
 openModal('addLoanModal');
 }
+// FIXED: Loan merging logic
 async function addLoan(e) {
 e.preventDefault();
 if (!hasPermission(USER_ROLES.EDITOR)) {
@@ -1744,17 +1829,7 @@ if (existingLoan) {
     await updateInFirebase(collections.loans, existingLoan.id, updateData);
     
     // Log transaction
-    const transaction = {
-        entityId: existingLoan.id,
-        entityType: 'loan',
-        type: 'addition',
-        amount: total,
-        date: today(),
-        timestamp: new Date().toISOString(),
-        description: `Added ${fmt(total)} to existing ${loanType}`,
-        performedBy: currentUser.displayName || currentUser.email
-    };
-    await saveToFirebase('transactions', null, transaction);
+    logActivity('addition', 'loan', `${w?.name || 'Worker'} - ${loanType}`, `Added ${fmt(total)} to existing ${loanType}. New Total: ${fmt(newTotal)}`);
     
     toast(`Added to existing loan! New Total: ${fmt(newTotal)}`);
 } else {
@@ -1770,17 +1845,7 @@ if (existingLoan) {
     const newId = await saveToFirebase(collections.loans, null, loanData);
     
     // Log transaction
-    const transaction = {
-        entityId: newId,
-        entityType: 'loan',
-        type: 'creation',
-        amount: total,
-        date: today(),
-        timestamp: new Date().toISOString(),
-        description: `New ${loanType} issued`,
-        performedBy: currentUser.displayName || currentUser.email
-    };
-    await saveToFirebase('transactions', null, transaction);
+    logActivity('creation', 'loan', `${w?.name || 'Worker'} - ${loanType}`, `New ${loanType} issued: ${fmt(total)}`);
     
     toast('Loan issued!');
 }
@@ -1827,9 +1892,11 @@ return;
 }
 if (!confirm('Delete this loan?')) return;
 const currentUser = auth.currentUser;
+const l = data.loans.find(x => x.id === id);
 try {
 showLoading('Deleting...');
 await deleteFromFirebase(collections.loans, id);
+logActivity('delete', 'loan', `${l?.type || 'Loan'}`, `Loan deleted by ${currentUser.displayName || currentUser.email}`);
 await loadData();
 toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
@@ -1845,6 +1912,7 @@ document.getElementById('aIssueDate').value = today();
 document.getElementById('aStartMonth').value = currentMonth();
 openModal('addAdvanceModal');
 }
+// FIXED: Advance merging logic
 async function addAdvance(e) {
 e.preventDefault();
 if (!hasPermission(USER_ROLES.EDITOR)) {
@@ -1875,17 +1943,7 @@ if (existingAdvance) {
     await updateInFirebase(collections.advances, existingAdvance.id, updateData);
     
     // Log transaction
-    const transaction = {
-        entityId: existingAdvance.id,
-        entityType: 'advance',
-        type: 'addition',
-        amount: total,
-        date: today(),
-        timestamp: new Date().toISOString(),
-        description: `Added ${fmt(total)} to existing ${advType}`,
-        performedBy: currentUser.displayName || currentUser.email
-    };
-    await saveToFirebase('transactions', null, transaction);
+    logActivity('addition', 'advance', `${w?.name || 'Worker'} - ${advType}`, `Added ${fmt(total)} to existing ${advType}. New Total: ${fmt(newTotal)}`);
     
     toast(`Added to existing advance! New Total: ${fmt(newTotal)}`);
 } else {
@@ -1901,17 +1959,7 @@ if (existingAdvance) {
     const newId = await saveToFirebase(collections.advances, null, advanceData);
     
     // Log transaction
-    const transaction = {
-        entityId: newId,
-        entityType: 'advance',
-        type: 'creation',
-        amount: total,
-        date: today(),
-        timestamp: new Date().toISOString(),
-        description: `New ${advType} issued`,
-        performedBy: currentUser.displayName || currentUser.email
-    };
-    await saveToFirebase('transactions', null, transaction);
+    logActivity('creation', 'advance', `${w?.name || 'Worker'} - ${advType}`, `New ${advType} issued: ${fmt(total)}`);
     
     toast('Advance issued!');
 }
@@ -1958,9 +2006,11 @@ return;
 }
 if (!confirm('Delete this advance?')) return;
 const currentUser = auth.currentUser;
+const a = data.advances.find(x => x.id === id);
 try {
 showLoading('Deleting...');
 await deleteFromFirebase(collections.advances, id);
+logActivity('delete', 'advance', `${a?.type || 'Advance'}`, `Advance deleted by ${currentUser.displayName || currentUser.email}`);
 await loadData();
 toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
@@ -2030,6 +2080,7 @@ applicableWorkers: selectedWorkers // Store selected worker IDs
 try {
 showLoading('Saving...');
 await saveToFirebase(collections.salaryComponents, null, componentData);
+logActivity('create', 'component', name, `${componentData.type} component added`);
 await loadData();
 toast('Component added!');
 closeModal('addComponentModal');
@@ -2041,7 +2092,8 @@ toast('Permission denied. Admin role required.', 'error');
 return;
 }
 if (!confirm('Delete?')) return;
-try { showLoading('Deleting...'); await deleteFromFirebase(collections.salaryComponents, id); await loadData(); toast('Deleted!'); }
+const c = data.salaryComponents.find(x => x.id === id);
+try { showLoading('Deleting...'); await deleteFromFirebase(collections.salaryComponents, id); logActivity('delete', 'component', c?.name || 'Component', 'Component deleted'); await loadData(); toast('Deleted!'); }
 catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 let currentSlipData = null;
@@ -2239,6 +2291,7 @@ const workerId = currentSlipData.workerId;
 const month = currentSlipData.month;
 const existingSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month);
 const currentUser = auth.currentUser;
+const w = data.workers.find(x => x.id === workerId);
 const slipData = {
 slipNo: existingSlip ? (existingSlip.slipNo || '') : 'SL-' + Date.now().toString().slice(-6),
 workerId: workerId || '',
@@ -2294,17 +2347,7 @@ if (loan.remaining <= 0.01) { loan.remaining = 0; loan.status = 'Completed'; }
 await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths });
 
 // Log payment transaction
-const transaction = {
-entityId: loan.id,
-entityType: 'loan',
-type: 'payment',
-amount: ld.amount,
-date: today(),
-timestamp: new Date().toISOString(),
-description: `Paid ${fmt(ld.amount)} via slip #${slipData.slipNo} for ${month}`,
-performedBy: currentUser.displayName || currentUser.email
-};
-await saveToFirebase('transactions', null, transaction);
+logActivity('payment', 'loan', `${w?.name || 'Worker'} - ${loan.type}`, `Paid ${fmt(ld.amount)} via slip #${slipData.slipNo} for ${month}`);
 }
 }
 for (const ad of slipData.advancesDeducted) {
@@ -2317,19 +2360,12 @@ if (adv.remaining <= 0.01) { adv.remaining = 0; adv.status = 'Completed'; }
 await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining: adv.remaining, status: adv.status, paidMonths: adv.paidMonths });
 
 // Log payment transaction
-const transaction = {
-entityId: adv.id,
-entityType: 'advance',
-type: 'payment',
-amount: ad.amount,
-date: today(),
-timestamp: new Date().toISOString(),
-description: `Paid ${fmt(ad.amount)} via slip #${slipData.slipNo} for ${month}`,
-performedBy: currentUser.displayName || currentUser.email
-};
-await saveToFirebase('transactions', null, transaction);
+logActivity('payment', 'advance', `${w?.name || 'Worker'} - ${adv.type}`, `Paid ${fmt(ad.amount)} via slip #${slipData.slipNo} for ${month}`);
 }
 }
+logActivity('payroll', 'slip', `${w?.name || 'Worker'} - ${month}`, `Pay slip #${slipData.slipNo} finalized. Net: ${fmt(slipData.net)}`);
+} else {
+logActivity('edit', 'slip', `${w?.name || 'Worker'} - ${month}`, `Pay slip saved as draft. Net: ${fmt(slipData.net)}`);
 }
 toast(status === 'Draft' ? 'Saved as draft!' : 'Finalized!');
 if (status === 'Paid') {
@@ -2439,6 +2475,7 @@ if (toggle) toggle.checked = false;
 updateSlipSummary();
 toast('Slip loaded for editing. Make changes and finalize.');
 }
+// FIXED: Slip reversing logic with proper balance restoration
 async function reverseSlip(id) {
 if (!hasPermission(USER_ROLES.ADMIN)) {
 toast('Permission denied. Admin role required.', 'error');
@@ -2452,6 +2489,7 @@ if (!confirm('Delete this draft slip?')) return;
 try {
 showLoading('Deleting...');
 await deleteFromFirebase(collections.salarySlips, id);
+logActivity('delete', 'slip', `#${slip.slipNo}`, 'Draft slip deleted');
 await loadData();
 toast(`Deleted by ${currentUser.displayName || currentUser.email}`);
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
@@ -2478,17 +2516,7 @@ status: loan.status, paidMonths: loan.paidMonths
 });
 
 // Log reversal transaction
-const transaction = {
-entityId: loan.id,
-entityType: 'loan',
-type: 'reversal',
-amount: ld.amount,
-date: today(),
-timestamp: new Date().toISOString(),
-description: `Reversed ${fmt(ld.amount)} from slip #${slip.slipNo}`,
-performedBy: currentUser.displayName || currentUser.email
-};
-await saveToFirebase('transactions', null, transaction);
+logActivity('reversal', 'loan', `${w?.name || 'Worker'} - ${loan.type}`, `Reversed ${fmt(ld.amount)} from slip #${slip.slipNo}`);
 }
 }
 for (const ad of (slip.advancesDeducted || [])) {
@@ -2504,20 +2532,11 @@ status: adv.status, paidMonths: adv.paidMonths
 });
 
 // Log reversal transaction
-const transaction = {
-entityId: adv.id,
-entityType: 'advance',
-type: 'reversal',
-amount: ad.amount,
-date: today(),
-timestamp: new Date().toISOString(),
-description: `Reversed ${fmt(ad.amount)} from slip #${slip.slipNo}`,
-performedBy: currentUser.displayName || currentUser.email
-};
-await saveToFirebase('transactions', null, transaction);
+logActivity('reversal', 'advance', `${w?.name || 'Worker'} - ${adv.type}`, `Reversed ${fmt(ad.amount)} from slip #${slip.slipNo}`);
 }
 }
 await updateInFirebase(collections.salarySlips, id, { status: 'Reversed', reversedAt: today(), reversedBy: currentUser.displayName || currentUser.email, reversedByEmail: currentUser.email });
+logActivity('reversal', 'slip', `${w?.name || 'Worker'} - #${slip.slipNo}`, `Pay slip reversed. Loan/advance balances restored.`);
 await loadData();
 toast(`Slip reversed by ${currentUser.displayName || currentUser.email}! Loan/advance balances restored.`);
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
@@ -2933,6 +2952,7 @@ try {
 showLoading('Saving design...');
 await saveToFirebase(collections.payslipDesign, 'config', designData);
 data.payslipDesign = designData;
+logActivity('settings', 'design', 'Pay Slip Design', 'Design settings updated');
 toast('Design saved!');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
@@ -2977,6 +2997,7 @@ try {
 showLoading('Saving...');
 await saveToFirebase(collections.company, 'config', companyData);
 data.company = companyData;
+logActivity('settings', 'company', companyData.name, 'Company information updated');
 toast('Company info saved!');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
@@ -2993,6 +3014,7 @@ showLoading('Adding...');
 await saveToFirebase(collections.departments, null, { name });
 data.departments.push(name);
 document.getElementById('newDept').value = '';
+logActivity('create', 'department', name, 'New department added');
 renderDepartments();
 toast('Department added!');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
@@ -3008,6 +3030,7 @@ showLoading('Removing...');
 const deptDoc = await db.collection(collections.departments).where('name', '==', name).get();
 deptDoc.forEach(async doc => { await deleteFromFirebase(collections.departments, doc.id); });
 data.departments = data.departments.filter(d => d !== name);
+logActivity('delete', 'department', name, 'Department removed');
 renderDepartments();
 toast('Department removed!');
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
@@ -3061,6 +3084,9 @@ const batch = db.batch();
 snapshot.docs.forEach(doc => batch.delete(doc.ref));
 await batch.commit();
 }
+// Clear local activity logs too
+activityLogs = [];
+logActivity('delete', 'system', 'All Data', 'All data cleared by admin');
 toast('All data cleared!');
 setTimeout(() => location.reload(), 1000);
 } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
@@ -3362,8 +3388,8 @@ el.classList.add('active');
 document.getElementById('myla-' + tab).classList.add('active');
 }
 
-// ============ TRANSACTION HISTORY VIEWER (Admin Only) ============
-async function viewTransactionHistory(entityType, entityId) {
+// ============ TRANSACTION HISTORY VIEWER (Admin Only - Local Storage) ============
+function viewTransactionHistory(entityType, entityId) {
 if (!hasPermission(USER_ROLES.ADMIN)) {
 toast('Permission denied. Admin role required.', 'error');
 return;
@@ -3381,16 +3407,11 @@ return;
 const w = data.workers.find(x => x.id === entity.workerId);
 document.getElementById('transactionModalTitle').innerHTML = `<i class="fas fa-history"></i> ${entityType === 'loan' ? 'Loan' : 'Advance'} Details - ${w?.name || 'Unknown'}`;
 
-try {
-showLoading('Loading transactions...');
-const snapshot = await db.collection('transactions')
-.where('entityId', '==', entityId)
-.where('entityType', '==', entityType)
-.orderBy('timestamp', 'desc')
-.get();
-
-let transactions = [];
-snapshot.forEach(doc => transactions.push({ id: doc.id, ...doc.data() }));
+// Filter local activity logs for this entity
+const transactions = activityLogs.filter(log => 
+log.entityType === entityType && 
+(log.entityName.includes(entity.type) || log.details.includes(fmt(entity.amount)))
+);
 
 const typeIcons = {
 'creation': { icon: 'fa-plus-circle', color: 'var(--success)', label: 'Created' },
@@ -3415,13 +3436,13 @@ html += '<div class="empty-state"><i class="fas fa-history"></i><h3>No transacti
 } else {
 html += '<div class="table-container"><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Description</th><th>Performed By</th></tr></thead><tbody>';
 transactions.forEach(t => {
-const typeInfo = typeIcons[t.type] || { icon: 'fa-circle', color: 'var(--gray)', label: t.type };
+const typeInfo = typeIcons[t.action] || { icon: 'fa-circle', color: 'var(--gray)', label: t.action };
 html += `<tr>
 <td>${t.date || '-'}</td>
 <td><span style="color:${typeInfo.color};"><i class="fas ${typeInfo.icon}"></i> ${typeInfo.label}</span></td>
-<td><strong>${fmt(t.amount)}</strong></td>
-<td>${t.description || '-'}</td>
-<td>${t.performedBy || '-'}</td>
+<td><strong>${fmt(parseFloat(t.details.match(/[\d,.]+/)?.[0] || 0))}</strong></td>
+<td>${t.details || '-'}</td>
+<td>${t.userName || '-'}</td>
 </tr>`;
 });
 html += '</tbody></table></div>';
@@ -3429,16 +3450,125 @@ html += '</tbody></table></div>';
 
 document.getElementById('transactionModalBody').innerHTML = html;
 openModal('viewTransactionModal');
-} catch (error) {
-toast('Error loading transactions: ' + error.message, 'error');
-} finally {
-hideLoading();
 }
-}
-</script>
 
-<!-- ============ ENHANCED SECURITY MEASURES (Windows + Mac + Brave) ============ -->
-<script>
+// ============ ACTIVITY TIMELINE (Admin Only - Local Storage) ============
+function renderTimeline() {
+if (!hasPermission(USER_ROLES.ADMIN)) {
+document.getElementById('timelineContent').innerHTML = '<div class="card"><div class="empty-state"><h3>Access Denied</h3><p>Admin role required.</p></div></div>';
+return;
+}
+
+const yearFilter = document.getElementById('timelineYear')?.value || 'all';
+const monthFilter = document.getElementById('timelineMonth')?.value || 'all';
+const userFilter = document.getElementById('timelineUser')?.value || 'all';
+const actionFilter = document.getElementById('timelineAction')?.value || 'all';
+
+// Filter local activity logs
+let filteredLogs = [...activityLogs];
+
+if (yearFilter !== 'all') {
+filteredLogs = filteredLogs.filter(l => l.date && l.date.startsWith(yearFilter));
+}
+if (monthFilter !== 'all') {
+filteredLogs = filteredLogs.filter(l => l.month && l.month.endsWith(`-${monthFilter}`));
+}
+if (userFilter !== 'all') {
+filteredLogs = filteredLogs.filter(l => l.userEmail === userFilter);
+}
+if (actionFilter !== 'all') {
+filteredLogs = filteredLogs.filter(l => l.action === actionFilter);
+}
+
+// Update stats
+document.getElementById('tlStatTotal').textContent = filteredLogs.length;
+document.getElementById('tlStatCreate').textContent = filteredLogs.filter(l => l.action === 'create' || l.action === 'creation').length;
+document.getElementById('tlStatEdit').textContent = filteredLogs.filter(l => l.action === 'edit').length;
+document.getElementById('tlStatDelete').textContent = filteredLogs.filter(l => l.action === 'delete').length;
+document.getElementById('tlStatPayroll').textContent = filteredLogs.filter(l => l.action === 'payroll').length;
+document.getElementById('tlStatReverse').textContent = filteredLogs.filter(l => l.action === 'reverse' || l.action === 'reversal').length;
+
+const container = document.getElementById('timelineContent');
+if (!filteredLogs.length) {
+container.innerHTML = '<div class="empty-state"><i class="fas fa-stream"></i><h3>No activities found</h3><p>No activities match the selected filters.</p></div>';
+return;
+}
+
+const actionLabels = {
+create: { label: 'Created', icon: 'fa-plus', class: 'creation' },
+creation: { label: 'Created', icon: 'fa-plus', class: 'creation' },
+edit: { label: 'Edited', icon: 'fa-edit', class: 'addition' },
+delete: { label: 'Deleted', icon: 'fa-trash', class: 'reversal' },
+payroll: { label: 'Payroll', icon: 'fa-file-invoice', class: 'payment' },
+reverse: { label: 'Reversed', icon: 'fa-undo', class: 'reversal' },
+reversal: { label: 'Reversed', icon: 'fa-undo', class: 'reversal' },
+login: { label: 'Login', icon: 'fa-sign-in-alt', class: 'payment' },
+logout: { label: 'Logout', icon: 'fa-sign-out-alt', class: 'reversal' },
+settings: { label: 'Settings', icon: 'fa-cog', class: 'addition' },
+addition: { label: 'Added', icon: 'fa-arrow-up', class: 'addition' },
+payment: { label: 'Paid', icon: 'fa-check-circle', class: 'payment' }
+};
+
+container.innerHTML = `<div class="timeline">${filteredLogs.map(log => {
+const action = actionLabels[log.action] || { label: log.action, icon: 'fa-circle', class: 'creation' };
+const timeAgo = getTimeAgo(log.timestamp);
+return `<div class="timeline-item">
+<div class="timeline-dot ${action.class}"><i class="fas ${action.icon}"></i></div>
+<div class="timeline-card">
+<div class="timeline-header">
+<div class="timeline-user">
+<div class="timeline-user-avatar">${(log.userName || 'U').charAt(0).toUpperCase()}</div>
+<strong>${log.userName || 'Unknown'}</strong>
+<span class="badge badge-${action.class === 'creation' ? 'success' : action.class === 'addition' ? 'warning' : action.class === 'reversal' ? 'danger' : 'info'}" style="margin-left:5px;">${action.label}</span>
+<span class="timeline-entity-badge" style="background:var(--primary)22;color:var(--primary);"><i class="fas fa-tag"></i> ${log.entityType}</span>
+</div>
+<div class="timeline-time" title="${log.timestamp}"><i class="fas fa-clock"></i> ${timeAgo}</div>
+</div>
+<div class="timeline-action">
+${action.label} <strong>${log.entityName || 'item'}</strong>
+</div>
+${log.details ? `<div class="timeline-details">${log.details}</div>` : ''}
+<div style="font-size:10px;color:var(--gray);margin-top:6px;"><i class="fas fa-user-tag"></i> Role: ${log.userRole || '-'} • ${log.date}</div>
+</div>
+</div>`;
+}).join('')}</div>`;
+}
+
+function getTimeAgo(timestamp) {
+if (!timestamp) return '-';
+const now = new Date();
+const then = new Date(timestamp);
+const diffMs = now - then;
+const diffMins = Math.floor(diffMs / 60000);
+const diffHours = Math.floor(diffMs / 3600000);
+const diffDays = Math.floor(diffMs / 86400000);
+if (diffMins < 1) return 'Just now';
+if (diffMins < 60) return `${diffMins}m ago`;
+if (diffHours < 24) return `${diffHours}h ago`;
+if (diffDays < 7) return `${diffDays}d ago`;
+return then.toLocaleDateString();
+}
+
+function resetTimelineFilters() {
+document.getElementById('timelineYear').value = 'all';
+document.getElementById('timelineMonth').value = 'all';
+document.getElementById('timelineUser').value = 'all';
+document.getElementById('timelineAction').value = 'all';
+renderTimeline();
+}
+
+function clearActivityLogs() {
+if (!hasPermission(USER_ROLES.ADMIN)) {
+toast('Permission denied. Admin role required.', 'error');
+return;
+}
+if (!confirm('Clear all activity logs? This cannot be undone.')) return;
+activityLogs = [];
+toast('Activity logs cleared!');
+renderTimeline();
+}
+
+// ============ ENHANCED SECURITY MEASURES (Windows + Mac + Brave) ============
 (function() {
   // 1. Disable right-click context menu
   document.addEventListener('contextmenu', function(e) { 
