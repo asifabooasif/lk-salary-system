@@ -14,7 +14,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 
-<!-- ============ ULTRA CONSOLE BLOCKER (Mac Brave + All Browsers) ============ -->
+<!-- ============ ULTRA CONSOLE BLOCKER - FIXED FOR MAC BRAVE ============ -->
 <script>
 (function(){
 'use strict';
@@ -30,49 +30,19 @@ try {
         try { Object.defineProperty(console, m, { value: noop, writable: false, configurable: false }); }
         catch(e) { try { console[m] = noop; } catch(err){} }
     });
-    try { Object.defineProperty(console, 'clear', { value: noop, writable: false, configurable: false }); } catch(e) {}
     try { Object.freeze(console); } catch(e) {}
-    try { Object.seal(console); } catch(e) {}
-} catch(e) { blockedMethods.forEach(m => { try { console[m] = noop; } catch(err){} }); }
+} catch(e) {}
 
-// 2. Block window.onerror & unhandledrejection from showing
+// 2. Block errors from showing
 window.addEventListener('error', function(e){ try { e.preventDefault(); } catch(err){} return true; }, true);
 window.addEventListener('unhandledrejection', function(e){ try { e.preventDefault(); } catch(err){} return true; }, true);
 
-// 3. Detect Brave browser specifically
-const isBrave = (async () => {
-    try {
-        if (navigator.brave && await navigator.brave.isBrave()) return true;
-    } catch(e) {}
-    return false;
-})();
-
-// 4. Override navigator.brave.isBrave to prevent detection
-try {
-    if (navigator.brave && navigator.brave.isBrave) {
-        Object.defineProperty(navigator.brave, 'isBrave', {
-            value: async function(){ return false; },
-            writable: false, configurable: false
-        });
-    }
-} catch(e) {}
-
-// 5. Override Function.prototype.toString to hide our overrides
-const origToString = Function.prototype.toString;
-Function.prototype.toString = function(){
-    if (this === Function.prototype.toString) return 'function toString() { [native code] }';
-    if (this === noop) return 'function () { [native code] }';
-    if (this === window.open) return 'function open() { [native code] }';
-    try { return origToString.call(this); } catch(e) { return ''; }
-};
-
-// 6. DevTools detection via multiple methods
+// 3. DevTools detection
 let devtoolsDetected = false;
 let warningShown = false;
-let detectionPaused = false;
 
 function showDevToolsWarning() {
-    if (warningShown || detectionPaused) return;
+    if (warningShown) return;
     warningShown = true;
     devtoolsDetected = true;
     const existing = document.getElementById('devtoolsWarningOverlay');
@@ -82,25 +52,20 @@ function showDevToolsWarning() {
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 50%,#7c3aed 100%);z-index:9999999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:Inter,sans-serif;';
     overlay.innerHTML = `
         <div style="text-align:center;max-width:650px;padding:40px;">
-            <div style="font-size:100px;margin-bottom:20px;animation:pulse 2s infinite;">🔒</div>
-            <h1 style="font-size:36px;margin-bottom:15px;font-weight:800;letter-spacing:-1px;">Access Restricted</h1>
-            <p style="font-size:17px;opacity:0.95;margin-bottom:25px;">Developer tools have been detected on your browser.</p>
-            <div style="background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);padding:25px;border-radius:16px;margin-bottom:25px;text-align:left;border:1px solid rgba(255,255,255,0.2);">
-                <p style="margin-bottom:12px;font-weight:600;font-size:15px;">Please close DevTools using:</p>
-                <p style="margin-bottom:8px;"><strong>Windows/Linux:</strong> Press <kbd style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:4px;">F12</kbd> or <kbd style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:4px;">Ctrl+Shift+I</kbd></p>
-                <p style="margin-bottom:8px;"><strong>Mac:</strong> Press <kbd style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:4px;">Cmd+Option+I</kbd></p>
-                <p style="margin-bottom:8px;"><strong>Brave/Chrome:</strong> Menu → More Tools → Developer Tools (uncheck)</p>
-                <p><strong>Safari:</strong> Develop → Show Web Inspector (uncheck)</p>
+            <div style="font-size:100px;margin-bottom:20px;">🔒</div>
+            <h1 style="font-size:36px;margin-bottom:15px;font-weight:800;">Access Restricted</h1>
+            <p style="font-size:17px;opacity:0.95;margin-bottom:25px;">Developer tools detected. Please close and reload.</p>
+            <div style="background:rgba(255,255,255,0.1);padding:25px;border-radius:16px;margin-bottom:25px;text-align:left;">
+                <p style="margin-bottom:12px;font-weight:600;"><strong>Close DevTools:</strong></p>
+                <p style="margin-bottom:8px;"><strong>Windows:</strong> Press F12 or Ctrl+Shift+I</p>
+                <p style="margin-bottom:8px;"><strong>Mac:</strong> Press Cmd+Option+I</p>
+                <p><strong>Brave/Chrome:</strong> Menu → More Tools → Developer Tools</p>
             </div>
-            <p style="font-size:13px;opacity:0.7;margin-bottom:20px;">Then click the button below to continue.</p>
-            <button onclick="location.reload()" style="padding:14px 40px;background:white;color:#1e40af;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,0.3);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">🔄 Reload Page</button>
+            <button onclick="location.reload()" style="padding:14px 40px;background:white;color:#1e40af;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;">🔄 Reload Page</button>
         </div>
     `;
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
-    // Disable all interactions
-    document.body.style.pointerEvents = 'none';
-    overlay.style.pointerEvents = 'auto';
 }
 
 function hideDevToolsWarning() {
@@ -110,188 +75,131 @@ function hideDevToolsWarning() {
     const ov = document.getElementById('devtoolsWarningOverlay');
     if (ov) ov.remove();
     document.body.style.overflow = '';
-    document.body.style.pointerEvents = '';
 }
 
-// Method A: Debugger timing trap (most reliable)
+// Debugger trap
 (function debuggerTrap(){
-    if (detectionPaused) { setTimeout(debuggerTrap, 2000); return; }
     const start = performance.now();
-    try {
-        (function(){ return false; })['constructor']('debugger')['call']();
-    } catch(e) {}
+    try { (function(){ return false; })['constructor']('debugger')['call'](); } catch(e) {}
     const end = performance.now();
-    if (end - start > 150) {
-        showDevToolsWarning();
-    } else if (devtoolsDetected && end - start < 50) {
-        hideDevToolsWarning();
-    }
+    if (end - start > 150) showDevToolsWarning();
+    else if (devtoolsDetected && end - start < 50) hideDevToolsWarning();
     setTimeout(debuggerTrap, 800);
 })();
 
-// Method B: Window size detection
+// Window size detection
 setInterval(function(){
-    if (detectionPaused) return;
     const widthDiff = window.outerWidth - window.innerWidth;
     const heightDiff = window.outerHeight - window.innerHeight;
-    if (widthDiff > 160 || heightDiff > 160) {
-        showDevToolsWarning();
-    }
+    if (widthDiff > 160 || heightDiff > 160) showDevToolsWarning();
 }, 600);
 
-// Method C: Element toString trap
-(function elementTrap(){
-    const el = document.createElement('div');
-    let accessed = false;
-    Object.defineProperty(el, 'toString', {
-        get: function(){
-            accessed = true;
-            showDevToolsWarning();
-            return function(){ return ''; };
-        }
-    });
-    setInterval(function(){
-        accessed = false;
-        try { console.log('%c', el); } catch(e) {}
-        setTimeout(function(){
-            if (!accessed && devtoolsDetected) {
-                // console.log didn't trigger toString - devtools may be closed
-            }
-        }, 100);
-    }, 1200);
-})();
-
-// Method D: Timing-based detection (setInterval drift)
-(function timingTrap(){
-    let lastTime = Date.now();
-    let lastPerf = performance.now();
-    setInterval(function(){
-        if (detectionPaused) return;
-        const nowTime = Date.now();
-        const nowPerf = performance.now();
-        const timeDiff = nowTime - lastTime;
-        const perfDiff = nowPerf - lastPerf;
-        lastTime = nowTime;
-        lastPerf = nowPerf;
-        // If interval was significantly delayed, debugger may be pausing
-        if (timeDiff > 2000 || perfDiff > 2000) {
-            showDevToolsWarning();
-        }
-    }, 500);
-})();
-
-// Method E: requestAnimationFrame loop
-(function rafTrap(){
-    let lastFrame = performance.now();
-    function check(){
-        if (!detectionPaused) {
-            const now = performance.now();
-            const diff = now - lastFrame;
-            lastFrame = now;
-            // If frame took too long, devtools might be open
-            if (diff > 500 && devtoolsDetected === false) {
-                // Only flag if multiple consecutive slow frames
-            }
-        }
-        requestAnimationFrame(check);
-    }
-    requestAnimationFrame(check);
-})();
-
-// 7. BLOCK ALL KEYBOARD SHORTCUTS (Mac + Windows + Brave-specific)
-document.addEventListener('keydown', function(e){
-    const key = e.key ? e.key.toLowerCase() : '';
+// 4. 🔥 FIXED: Block ALL keyboard shortcuts with CAPTURE phase
+function blockShortcuts(e) {
+    const key = (e.key || '').toLowerCase();
     const code = e.code || '';
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
     const tag = (e.target.tagName || '').toUpperCase();
-    const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable;
+    const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable;
 
-    // F12 (all browsers)
+    // F12
     if (e.key === 'F12' || e.keyCode === 123 || code === 'F12') {
         e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
     }
     // PrintScreen
     if (e.key === 'PrintScreen' || e.keyCode === 44 || code === 'PrintScreen') {
-        e.preventDefault(); e.stopPropagation(); return false;
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
     }
-    // Ctrl/Cmd + Shift + I/J/C/K (DevTools - Windows & Mac)
-    if (ctrlOrCmd && e.shiftKey) {
-        if (['i','j','c','k'].includes(key)) {
-            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-        }
-    }
-    // Ctrl/Cmd + Alt/Option + I/J/C/K/U/S/P/E/R (Mac DevTools + Brave)
+    // 🔥 MAC BRAVE FIX: Cmd+Option+I/J/C/K (DevTools on Mac)
     if (ctrlOrCmd && e.altKey) {
         if (['i','j','c','k','u','s','p','e','r'].includes(key)) {
             e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
         }
     }
-    // Ctrl/Cmd + U (View Source)
-    if (ctrlOrCmd && key === 'u') {
-        e.preventDefault(); e.stopPropagation(); return false;
-    }
-    // Ctrl/Cmd + S (Save Page) - block outside inputs
-    if (ctrlOrCmd && key === 's') {
-        if (!isInput) { e.preventDefault(); e.stopPropagation(); return false; }
-    }
-    // Ctrl/Cmd + P (Print)
-    if (ctrlOrCmd && key === 'p') {
-        e.preventDefault(); e.stopPropagation(); return false;
-    }
-    // Ctrl/Cmd + F (Find) - block outside inputs
-    if (ctrlOrCmd && key === 'f') {
-        if (!isInput) { e.preventDefault(); e.stopPropagation(); return false; }
-    }
-    // Ctrl/Cmd + G (Find Next)
-    if (ctrlOrCmd && key === 'g') {
-        e.preventDefault(); e.stopPropagation(); return false;
-    }
-    // Ctrl/Cmd + H (History)
-    if (ctrlOrCmd && key === 'h') {
-        e.preventDefault(); e.stopPropagation(); return false;
-    }
-    // Ctrl/Cmd + D (Bookmark)
-    if (ctrlOrCmd && key === 'd') {
-        e.preventDefault(); e.stopPropagation(); return false;
-    }
-    // Ctrl/Cmd + , (Preferences)
-    if (ctrlOrCmd && key === ',') {
-        e.preventDefault(); e.stopPropagation(); return false;
-    }
-    // Ctrl/Cmd + Shift + Delete (Clear Data)
-    if (ctrlOrCmd && e.shiftKey && (key === 'delete' || e.keyCode === 46)) {
-        e.preventDefault(); e.stopPropagation(); return false;
-    }
-    // Ctrl/Cmd + Shift + R (Hard Reload)
-    if (ctrlOrCmd && e.shiftKey && key === 'r') {
-        e.preventDefault(); e.stopPropagation(); return false;
-    }
-    // Ctrl/Cmd + A (Select All) - block outside inputs
-    if (ctrlOrCmd && key === 'a') {
-        if (!isInput) { e.preventDefault(); e.stopPropagation(); return false; }
-    }
-    // Escape when devtools detected
-    if (key === 'escape' && devtoolsDetected) {
-        e.preventDefault(); e.stopPropagation(); return false;
-    }
-}, true);
-
-// Also block keyup and keypress for safety
-['keyup','keypress'].forEach(evt => {
-    document.addEventListener(evt, function(e){
-        if (e.key === 'F12' || e.keyCode === 123) {
-            e.preventDefault(); e.stopPropagation(); return false;
+    // 🔥 Cmd+Shift+I/J/C/K (DevTools on both Mac & Windows)
+    if (ctrlOrCmd && e.shiftKey) {
+        if (['i','j','c','k'].includes(key)) {
+            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
         }
-    }, true);
-});
+    }
+    // 🔥 Cmd+I alone (Mac Inspect)
+    if (ctrlOrCmd && key === 'i' && !e.shiftKey && !e.altKey) {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+J alone (Mac Downloads/Console)
+    if (ctrlOrCmd && key === 'j' && !e.shiftKey && !e.altKey) {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+K alone (Mac Console)
+    if (ctrlOrCmd && key === 'k' && !e.shiftKey && !e.altKey) {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+C alone - allow only in inputs
+    if (ctrlOrCmd && key === 'c' && !e.shiftKey && !e.altKey) {
+        if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    }
+    // 🔥 Cmd+U (View Source)
+    if (ctrlOrCmd && key === 'u') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+S (Save Page) - block outside inputs
+    if (ctrlOrCmd && key === 's') {
+        if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    }
+    // 🔥 Cmd+P (Print)
+    if (ctrlOrCmd && key === 'p') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+F (Find) - block outside inputs
+    if (ctrlOrCmd && key === 'f') {
+        if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    }
+    // 🔥 Cmd+G (Find Next)
+    if (ctrlOrCmd && key === 'g') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+H (History)
+    if (ctrlOrCmd && key === 'h') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+D (Bookmark)
+    if (ctrlOrCmd && key === 'd') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+, (Preferences)
+    if (ctrlOrCmd && key === ',') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+Shift+Delete (Clear Data)
+    if (ctrlOrCmd && e.shiftKey && (key === 'delete' || e.keyCode === 46)) {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+Shift+R (Hard Reload)
+    if (ctrlOrCmd && e.shiftKey && key === 'r') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+A (Select All) - block outside inputs
+    if (ctrlOrCmd && key === 'a') {
+        if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    }
+    // 🔥 Escape when devtools detected
+    if (key === 'escape' && devtoolsDetected) {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+}
 
-// 8. BLOCK RIGHT-CLICK CONTEXT MENU
+// 🔥 CRITICAL: Use CAPTURE phase (third parameter = true)
+document.addEventListener('keydown', blockShortcuts, true);
+document.addEventListener('keyup', blockShortcuts, true);
+document.addEventListener('keypress', blockShortcuts, true);
+
+// 5. Block right-click
 document.addEventListener('contextmenu', function(e){
     e.preventDefault(); e.stopPropagation(); return false;
 }, true);
 
-// 9. BLOCK TEXT SELECTION (except inputs)
+// 6. Block text selection outside inputs
 document.addEventListener('selectstart', function(e){
     const tag = (e.target.tagName || '').toUpperCase();
     if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) {
@@ -299,7 +207,7 @@ document.addEventListener('selectstart', function(e){
     }
 }, true);
 
-// 10. BLOCK COPY/CUT (except inputs)
+// 7. Block copy/cut outside inputs
 ['copy','cut'].forEach(function(evt){
     document.addEventListener(evt, function(e){
         const tag = (e.target.tagName || '').toUpperCase();
@@ -309,38 +217,25 @@ document.addEventListener('selectstart', function(e){
     }, true);
 });
 
-// 11. BLOCK DRAG
+// 8. Block drag
 document.addEventListener('dragstart', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, true);
-document.addEventListener('drop', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, true);
 
-// 12. BLOCK IFRAME INJECTION
+// 9. Block iframe
 if (window.top !== window.self) {
     try { window.top.location = window.self.location; }
     catch(e) { document.body.innerHTML = '<div style="padding:50px;text-align:center;"><h1>Access Denied</h1></div>'; }
 }
 
-// 13. BLOCK window.open for devtools URLs
-const origOpen = window.open;
-window.open = function(){
-    const url = arguments[0] || '';
-    if (url && (url.includes('devtools') || url.includes('inspect') || url === 'about:blank' || url === 'chrome://')) {
-        return null;
-    }
-    try { return origOpen.apply(window, arguments); } catch(e) { return null; }
-};
-
-// 14. PERIODIC CONSOLE RE-FREEZE
+// 10. Re-freeze console periodically
 setInterval(function(){
     try {
         blockedMethods.forEach(m => {
-            if (console[m] !== noop) {
-                try { console[m] = noop; } catch(e){}
-            }
+            if (console[m] !== noop) { try { console[m] = noop; } catch(e){} }
         });
     } catch(e){}
 }, 1000);
 
-// 15. MutationObserver - re-show warning if removed
+// 11. MutationObserver - re-show warning if removed
 const observer = new MutationObserver(function(mutations){
     mutations.forEach(function(m){
         if (m.type === 'childList') {
@@ -355,90 +250,11 @@ const observer = new MutationObserver(function(mutations){
 if (document.body) observer.observe(document.body, { childList: true, subtree: true });
 else document.addEventListener('DOMContentLoaded', function(){ observer.observe(document.body, { childList: true, subtree: true }); });
 
-// 16. Detect focus loss (user switching to devtools window)
-let lastFocus = Date.now();
-window.addEventListener('blur', function(){
-    lastFocus = Date.now();
-}, true);
-window.addEventListener('focus', function(){
-    const gap = Date.now() - lastFocus;
-    // If focus was lost for a long time and came back, might be devtools
-    if (gap > 3000 && !devtoolsDetected) {
-        // Don't auto-flag, but check size
-        const widthDiff = window.outerWidth - window.innerWidth;
-        const heightDiff = window.outerHeight - window.innerHeight;
-        if (widthDiff > 160 || heightDiff > 160) {
-            showDevToolsWarning();
-        }
-    }
-}, true);
-
-// 17. Visibility change detection
-document.addEventListener('visibilitychange', function(){
-    if (document.hidden && devtoolsDetected) {
-        // DevTools was open and user hid the tab
-    }
-});
-
-// 18. Block PrintScreen via clipboard
-document.addEventListener('keyup', function(e){
-    if (e.key === 'PrintScreen' || e.keyCode === 44) {
-        try {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText('').catch(function(){});
-            }
-        } catch(err){}
-        const warn = document.createElement('div');
-        warn.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#dc2626;color:white;padding:15px 25px;border-radius:10px;z-index:9999999;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,0.3);';
-        warn.textContent = '⚠️ Screenshots are not allowed';
-        document.body.appendChild(warn);
-        setTimeout(function(){ warn.remove(); }, 3000);
-    }
-}, true);
-
-// 19. Block browser back/forward with devtools
-window.addEventListener('beforeunload', function(e){
-    if (devtoolsDetected) {
-        e.preventDefault();
-        e.returnValue = '';
-        return '';
-    }
-});
-
-// 20. Anti-tamper: Detect attempts to bypass via Proxy/Reflect
-try {
-    const origFunc = Function;
-    const handler = {
-        construct: function(target, args) {
-            const code = args[0] || '';
-            if (code.includes('debugger') || code.includes('console')) {
-                throw new Error('Blocked');
-            }
-            return new target(...args);
-        },
-        apply: function(target, thisArg, args) {
-            const code = args[0] || '';
-            if (typeof code === 'string' && (code.includes('debugger') || code.includes('console'))) {
-                return noop;
-            }
-            return target.apply(thisArg, args);
-        }
-    };
-    window.Function = new Proxy(origFunc, handler);
-} catch(e) {}
-
-// Initial console message
-try {
-    console.log('%c⚠️ ACCESS RESTRICTED', 'color:red;font-size:40px;font-weight:bold;');
-    console.log('%cThis system is protected. Console access is disabled.', 'color:orange;font-size:16px;');
-} catch(e) {}
-
 })();
 </script>
 
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
-/* ANTI-SELECTION CSS */
 html, body, div, span, p, a, h1, h2, h3, h4, h5, h6, img, table, tr, td, li, ul, ol {
     -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
     -webkit-touch-callout: none;
@@ -447,7 +263,6 @@ input, textarea, select, [contenteditable="true"] {
     -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text;
 }
 img { -webkit-user-drag: none; pointer-events: none; }
-@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
 :root {
 --primary: #1e40af; --primary-dark: #1e3a8a; --primary-light: #3b82f6;
@@ -720,7 +535,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .myla-card-amounts .amt-value.remaining { color: var(--danger); }
 .myla-card-progress { margin-top: 10px; }
 .myla-card-progress .progress-info { display: flex; justify-content: space-between; font-size: 11px; color: var(--gray); margin-bottom: 4px; }
-.myla-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+.myla-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); flex-wrap: wrap; gap: 8px; }
 .myla-card-footer .status-badge { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
 .myla-card-footer .status-badge.active { background: #fef3c7; color: #92400e; }
 .myla-card-footer .status-badge.completed { background: #d1fae5; color: #065f46; }
@@ -906,17 +721,34 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 </div>
 </div>
 
-<!-- MY LOANS & ADVANCES -->
+<!-- 🔥 MY LOANS & ADVANCES - FIXED FILTERS -->
 <div class="section" id="myloans">
 <div class="card" style="margin-bottom:20px;">
 <div class="card-header">
 <h2><i class="fas fa-wallet"></i> <span id="myloansTitle">My Loans & Advances</span></h2>
-<div class="filter-bar" style="padding:0;">
-<select id="mylaFilterYear" onchange="renderMyLoansAdvances()"><option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select>
-<select id="mylaFilterMonth" onchange="renderMyLoansAdvances()"><option value="all">All Months</option><option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select>
-<select id="mylaFilterStatus" onchange="renderMyLoansAdvances()"><option value="all">All Status</option><option value="Active">Active</option><option value="Completed">Completed</option></select>
-<select id="mylaSortBy" onchange="renderMyLoansAdvances()"><option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option><option value="amountDesc">Highest Amount</option><option value="amountAsc">Lowest Amount</option><option value="remainingDesc">Highest Remaining</option></select>
 </div>
+<!-- 🔥 FIXED: Filter bar with proper onchange handlers -->
+<div class="filter-bar" style="padding:12px;background:#f8fafc;border-radius:8px;margin-bottom:15px;border:1px solid var(--border);">
+<label style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;">Year:</label>
+<select id="mylaFilterYear" onchange="applyMyLoansFilters()" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:white;">
+<option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+</select>
+<label style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;">Month:</label>
+<select id="mylaFilterMonth" onchange="applyMyLoansFilters()" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:white;">
+<option value="all">All Months</option>
+<option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+</select>
+<label style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;">Status:</label>
+<select id="mylaFilterStatus" onchange="applyMyLoansFilters()" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:white;">
+<option value="all">All Status</option><option value="Active">Active</option><option value="Completed">Completed</option>
+</select>
+<label style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;">Sort:</label>
+<select id="mylaSortBy" onchange="applyMyLoansFilters()" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:white;">
+<option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option>
+<option value="amountDesc">Highest Amount</option><option value="amountAsc">Lowest Amount</option>
+<option value="remainingDesc">Highest Remaining</option>
+</select>
+<button class="btn btn-sm btn-secondary" onclick="resetMyLoansFilters()"><i class="fas fa-redo"></i> Reset</button>
 </div>
 <div id="mylaWorkerSelector" style="margin-bottom:15px;"></div>
 <div id="mylaSummaryStats" class="stats-grid" style="margin-bottom:20px;"></div>
@@ -1389,7 +1221,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 </div>
 </div>
 
-<!-- NEW: History Entry Edit Modal -->
+<!-- 🔥 NEW: History Entry Edit Modal -->
 <div class="modal" id="editHistoryEntryModal">
 <div class="modal-content" style="max-width:600px;">
 <div class="modal-header"><h2 id="historyEntryModalTitle"><i class="fas fa-edit"></i> Edit History Entry</h2><button class="close-btn" onclick="closeModal('editHistoryEntryModal')">&times;</button></div>
@@ -1751,7 +1583,7 @@ async function loadData() {
         if (snaps[7].exists) data.company = snaps[7].data();
         if (snaps[8].exists) data.salarySettings = snaps[8].data();
         if (snaps[9].exists) data.payslipDesign = snaps[9].data();
-        // Ensure all loans/advances have history array
+        // 🔥 Ensure all loans/advances have history array
         data.loans.forEach(l => { if (!l.history) l.history = []; });
         data.advances.forEach(a => { if (!a.history) a.history = []; });
         if (!data.salaryComponents.length) {
@@ -2197,13 +2029,14 @@ function renderWorkerLoansTab() {
     container.innerHTML = `<div class="table-container"><table>
 <thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
 <tbody>${loans.map(l => { const pct = l.amount > 0 ? ((l.paid||0) / l.amount * 100).toFixed(1) : 0;
+const historyCount = (l.history || []).length;
 return `<tr><td><span class="badge badge-warning">${l.type}</span></td><td>${fmt(l.amount)}</td><td>${fmt(l.installment)}</td>
 <td style="color:var(--success);">${fmt(l.paid||0)}</td><td style="color:var(--danger);"><strong>${fmt(l.remaining||0)}</strong></td><td>${l.startMonth}</td>
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></td>
 <td><span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></td>
 <td>${canAdmin ? `<div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown">
-<div class="action-dropdown-item info" onclick="viewLoanHistory('${l.id}')"><i class="fas fa-history"></i> History</div>
+<div class="action-dropdown-item info" onclick="showLoanHistoryPanel('${l.id}')"><i class="fas fa-history"></i> History (${historyCount})</div>
 <div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>
 </div></div>` : ''}</td>
 </tr>`;
@@ -2225,13 +2058,14 @@ function renderWorkerAdvancesTab() {
     container.innerHTML = `<div class="table-container"><table>
 <thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
 <tbody>${advances.map(a => { const pct = a.amount > 0 ? ((a.paid||0) / a.amount * 100).toFixed(1) : 0;
+const historyCount = (a.history || []).length;
 return `<tr><td><span class="badge badge-pink">${a.type}</span></td><td>${fmt(a.amount)}</td><td>${fmt(a.installment)}</td>
 <td style="color:var(--success);">${fmt(a.paid||0)}</td><td style="color:var(--danger);"><strong>${fmt(a.remaining||0)}</strong></td><td>${a.startMonth}</td>
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:linear-gradient(90deg,#db2777,#ec4899);"></div></div></td>
 <td><span class="badge ${a.status==='Active'?'badge-pink':'badge-success'}">${a.status}</span></td>
 <td>${canAdmin ? `<div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown">
-<div class="action-dropdown-item info" onclick="viewAdvanceHistory('${a.id}')"><i class="fas fa-history"></i> History</div>
+<div class="action-dropdown-item info" onclick="showAdvanceHistoryPanel('${a.id}')"><i class="fas fa-history"></i> History (${historyCount})</div>
 <div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>
 </div></div>` : ''}</td>
 </tr>`;
@@ -2415,8 +2249,25 @@ async function deleteTransaction(id, type) {
 }
 
 // ============================================
-// MY LOANS & ADVANCES (with history support)
+// 🔥 MY LOANS & ADVANCES - FIXED FILTERS
 // ============================================
+
+// 🔥 NEW: Separate function to apply filters (called by onchange)
+function applyMyLoansFilters() {
+    renderMyLoansAdvances();
+}
+
+// 🔥 NEW: Reset all filters
+function resetMyLoansFilters() {
+    document.getElementById('mylaFilterYear').value = 'all';
+    document.getElementById('mylaFilterMonth').value = 'all';
+    document.getElementById('mylaFilterStatus').value = 'all';
+    document.getElementById('mylaSortBy').value = 'dateDesc';
+    const workerSel = document.getElementById('mylaFilterWorker');
+    if (workerSel) workerSel.value = 'all';
+    renderMyLoansAdvances();
+}
+
 function renderMyLoansAdvances() {
     const titleEl = document.getElementById('myloansTitle');
     const selectorEl = document.getElementById('mylaWorkerSelector');
@@ -2427,23 +2278,30 @@ function renderMyLoansAdvances() {
         selectorEl.innerHTML = '';
     } else {
         titleEl.textContent = 'All Workers Loans & Advances';
+        // 🔥 FIXED: Properly render worker selector with current selection preserved
+        const currentWorkerFilter = document.getElementById('mylaFilterWorker')?.value || 'all';
         selectorEl.innerHTML = `
 <div class="form-group">
 <label>Filter by Worker</label>
-<select id="mylaFilterWorker" onchange="renderMyLoansAdvances()" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;">
+<select id="mylaFilterWorker" onchange="applyMyLoansFilters()" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;">
 <option value="all">All Workers</option>
-${data.workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>`).join('')}
+${data.workers.map(w => `<option value="${w.id}" ${w.id === currentWorkerFilter ? 'selected' : ''}>${w.name} (${w.empId})</option>`).join('')}
 </select>
 </div>`;
         const fw = document.getElementById('mylaFilterWorker')?.value || 'all';
         if (fw !== 'all') visibleWorkers = visibleWorkers.filter(w => w.id === fw);
     }
+
+    // 🔥 FIXED: Read filter values correctly
     const fy = document.getElementById('mylaFilterYear')?.value || 'all';
     const fm = document.getElementById('mylaFilterMonth')?.value || 'all';
     const fs = document.getElementById('mylaFilterStatus')?.value || 'all';
     const sb = document.getElementById('mylaSortBy')?.value || 'dateDesc';
+
     let loans = data.loans.filter(l => visibleWorkers.some(w => w.id === l.workerId));
     let advances = data.advances.filter(a => visibleWorkers.some(w => w.id === a.workerId));
+
+    // 🔥 FIXED: Apply filters correctly
     if (fy !== 'all') {
         loans = loans.filter(l => l.startMonth && l.startMonth.startsWith(fy));
         advances = advances.filter(a => a.startMonth && a.startMonth.startsWith(fy));
@@ -2456,17 +2314,32 @@ ${data.workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>
         loans = loans.filter(l => l.status === fs);
         advances = advances.filter(a => a.status === fs);
     }
-    if (sb === 'dateDesc') { loans.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||'')); advances.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||'')); }
-    else if (sb === 'dateAsc') { loans.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||'')); advances.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||'')); }
-    else if (sb === 'amountDesc') { loans.sort((a,b) => (b.amount||0) - (a.amount||0)); advances.sort((a,b) => (b.amount||0) - (a.amount||0)); }
-    else if (sb === 'amountAsc') { loans.sort((a,b) => (a.amount||0) - (b.amount||0)); advances.sort((a,b) => (a.amount||0) - (b.amount||0)); }
-    else if (sb === 'remainingDesc') { loans.sort((a,b) => (b.remaining||0) - (a.remaining||0)); advances.sort((a,b) => (b.remaining||0) - (a.remaining||0)); }
+
+    // 🔥 FIXED: Apply sorting correctly
+    if (sb === 'dateDesc') {
+        loans.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
+        advances.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
+    } else if (sb === 'dateAsc') {
+        loans.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
+        advances.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
+    } else if (sb === 'amountDesc') {
+        loans.sort((a,b) => (b.amount||0) - (a.amount||0));
+        advances.sort((a,b) => (b.amount||0) - (a.amount||0));
+    } else if (sb === 'amountAsc') {
+        loans.sort((a,b) => (a.amount||0) - (b.amount||0));
+        advances.sort((a,b) => (a.amount||0) - (b.amount||0));
+    } else if (sb === 'remainingDesc') {
+        loans.sort((a,b) => (b.remaining||0) - (a.remaining||0));
+        advances.sort((a,b) => (b.remaining||0) - (a.remaining||0));
+    }
+
     const totalLoanAmount = loans.reduce((s,l) => s + (l.amount||0), 0);
     const totalLoanPaid = loans.reduce((s,l) => s + (l.paid||0), 0);
     const totalLoanRemaining = loans.reduce((s,l) => s + (l.remaining||0), 0);
     const totalAdvAmount = advances.reduce((s,a) => s + (a.amount||0), 0);
     const totalAdvPaid = advances.reduce((s,a) => s + (a.paid||0), 0);
     const totalAdvRemaining = advances.reduce((s,a) => s + (a.remaining||0), 0);
+
     document.getElementById('mylaSummaryStats').innerHTML = `
 <div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Loans Total</h3><div class="value">${fmt(totalLoanAmount)}</div></div>
 <div class="stat-card green"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>Loans Paid</h3><div class="value">${fmt(totalLoanPaid)}</div></div>
@@ -2477,11 +2350,14 @@ ${data.workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>
 <div class="stat-card blue"><div class="icon"><i class="fas fa-coins"></i></div><h3>Grand Total</h3><div class="value">${fmt(totalLoanAmount + totalAdvAmount)}</div></div>
 <div class="stat-card purple"><div class="icon"><i class="fas fa-bolt"></i></div><h3>Active Items</h3><div class="value">${loans.filter(l=>l.status==='Active').length + advances.filter(a=>a.status==='Active').length}</div></div>
 `;
+
     document.getElementById('loansCountBadge').textContent = loans.length;
     document.getElementById('advancesCountBadge').textContent = advances.length;
+
     const canAdmin = hasPermission(USER_ROLES.ADMIN);
     const loansContainer = document.getElementById('mylaLoansContainer');
     const advancesContainer = document.getElementById('mylaAdvancesContainer');
+
     if (!loans.length) {
         loansContainer.innerHTML = `<div class="myla-empty"><i class="fas fa-hand-holding-usd"></i><h4>No loans</h4><p>No loans found for the selected filters</p></div>`;
     } else {
@@ -2494,6 +2370,7 @@ ${data.workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>
     }
 }
 
+// 🔥 FIXED: renderMylaCard with properly working history panel
 function renderMylaCard(item, kind, canAdmin) {
     const w = data.workers.find(x => x.id === item.workerId);
     const pct = item.amount > 0 ? ((item.paid||0) / item.amount * 100).toFixed(1) : 0;
@@ -2502,6 +2379,8 @@ function renderMylaCard(item, kind, canAdmin) {
     const progressColor = isLoan ? 'linear-gradient(90deg,#d97706,#f59e0b)' : 'linear-gradient(90deg,#db2777,#ec4899)';
     const statusClass = item.status === 'Active' ? 'active' : item.status === 'Reversed' ? 'reversed' : 'completed';
     const historyCount = (item.history || []).length;
+    // 🔥 FIXED: Use unique panel ID with kind prefix to avoid conflicts
+    const panelId = `historyPanel_${kind}_${item.id}`;
     return `
 <div class="myla-card">
 <div class="myla-card-header">
@@ -2538,17 +2417,22 @@ ${canAdmin ? `<button class="history-btn" onclick="toggleHistoryPanel('${kind}',
 ${canAdmin ? `<button class="danger" onclick="${isLoan?`deleteLoan('${item.id}')`:`deleteAdvance('${item.id}')`}" title="Delete"><i class="fas fa-trash"></i></button>` : ''}
 </div>
 </div>
-<div id="historyPanel_${kind}_${item.id}" class="history-panel" style="display:none;"></div>
+<div id="${panelId}" class="history-panel" style="display:none;"></div>
 </div>`;
 }
 
 // ============================================
-// HISTORY PANEL - Show full adding history
+// 🔥 FIXED: History Panel Functions
 // ============================================
+
 function toggleHistoryPanel(kind, entityId) {
-    const panel = document.getElementById(`historyPanel_${kind}_${entityId}`);
-    if (!panel) return;
-    if (panel.style.display === 'none') {
+    const panelId = `historyPanel_${kind}_${entityId}`;
+    const panel = document.getElementById(panelId);
+    if (!panel) {
+        toast('History panel not found', 'error');
+        return;
+    }
+    if (panel.style.display === 'none' || panel.style.display === '') {
         panel.style.display = 'block';
         renderHistoryPanel(kind, entityId);
     } else {
@@ -2557,13 +2441,21 @@ function toggleHistoryPanel(kind, entityId) {
 }
 
 function renderHistoryPanel(kind, entityId) {
-    const panel = document.getElementById(`historyPanel_${kind}_${entityId}`);
+    const panelId = `historyPanel_${kind}_${entityId}`;
+    const panel = document.getElementById(panelId);
     if (!panel) return;
+
     const entity = kind === 'loan' ? data.loans.find(l => l.id === entityId) : data.advances.find(a => a.id === entityId);
-    if (!entity) return;
+    if (!entity) {
+        panel.innerHTML = '<p style="color:var(--danger);">Entity not found</p>';
+        return;
+    }
+
     const history = entity.history || [];
     const canAdmin = hasPermission(USER_ROLES.ADMIN);
+
     let html = `<h5><i class="fas fa-history" style="color:var(--purple);"></i> Full Adding History (${history.length} entries)</h5>`;
+
     if (history.length === 0) {
         html += `<p style="color:var(--gray);font-size:12px;text-align:center;padding:10px;">No history entries found. This may be an older record created before history tracking was enabled.</p>`;
     } else {
@@ -2573,8 +2465,9 @@ function renderHistoryPanel(kind, entityId) {
 <div class="history-entry-info">
 <div class="he-type">${entry.type || 'Unknown Type'}</div>
 <div class="he-meta">
-<i class="fas fa-calendar"></i> ${entry.date || '-'} 
+<i class="fas fa-calendar"></i> ${entry.date || '-'}
 ${entry.addedByName ? `• <i class="fas fa-user"></i> ${entry.addedByName}` : ''}
+${entry.editedAt ? `• <i class="fas fa-edit"></i> Edited: ${new Date(entry.editedAt).toLocaleDateString()}` : ''}
 </div>
 </div>
 ${canAdmin ? `<div class="history-entry-actions">
@@ -2590,18 +2483,50 @@ ${entry.reason ? `<span><span class="lbl">Reason</span><span class="val" style="
 </div>`;
         }).join('');
     }
+
     panel.innerHTML = html;
 }
 
+// 🔥 Helper functions for worker detail history panels
+function showLoanHistoryPanel(loanId) {
+    // Navigate to My Loans tab and open history panel
+    showSection('myloans');
+    setTimeout(() => {
+        const panel = document.getElementById(`historyPanel_loan_${loanId}`);
+        if (panel) {
+            panel.style.display = 'block';
+            renderHistoryPanel('loan', loanId);
+            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            toast('Loan not found in current view', 'error');
+        }
+    }, 300);
+}
+
+function showAdvanceHistoryPanel(advanceId) {
+    showSection('myloans');
+    setTimeout(() => {
+        const panel = document.getElementById(`historyPanel_advance_${advanceId}`);
+        if (panel) {
+            panel.style.display = 'block';
+            renderHistoryPanel('advance', advanceId);
+            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            toast('Advance not found in current view', 'error');
+        }
+    }, 300);
+}
+
 // ============================================
-// EDIT HISTORY ENTRY - Recalculate everything
+// 🔥 FIXED: Edit History Entry
 // ============================================
 function openEditHistoryEntry(kind, entityId, entryId) {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
     const entity = kind === 'loan' ? data.loans.find(l => l.id === entityId) : data.advances.find(a => a.id === entityId);
-    if (!entity) return;
+    if (!entity) { toast('Entity not found', 'error'); return; }
     const entry = (entity.history || []).find(h => h.id === entryId);
-    if (!entry) return;
+    if (!entry) { toast('History entry not found', 'error'); return; }
+
     document.getElementById('heEntityType').value = kind;
     document.getElementById('heEntityId').value = entityId;
     document.getElementById('heEntryId').value = entryId;
@@ -2622,18 +2547,23 @@ async function saveHistoryEntryEdit() {
     const newInstallment = parseFloat(document.getElementById('heInstallment').value) || 0;
     const newType = document.getElementById('heType').value;
     const newReason = document.getElementById('heReason').value;
+
     if (newAmount <= 0) { toast('Amount must be > 0', 'error'); return; }
     if (newInstallment < 0) { toast('Installment cannot be negative', 'error'); return; }
+
     const entity = kind === 'loan' ? data.loans.find(l => l.id === entityId) : data.advances.find(a => a.id === entityId);
-    if (!entity) return;
+    if (!entity) { toast('Entity not found', 'error'); return; }
     const entryIdx = (entity.history || []).findIndex(h => h.id === entryId);
-    if (entryIdx < 0) return;
+    if (entryIdx < 0) { toast('History entry not found', 'error'); return; }
+
     const oldEntry = entity.history[entryIdx];
     const amountDiff = newAmount - (oldEntry.amountAdded || 0);
     const installmentDiff = newInstallment - (oldEntry.installmentAdded || 0);
     const paidMonthsCount = (entity.paidMonths || []).length;
+
     try {
         showLoading('Recalculating...');
+
         // Update entity totals
         const newTotalAmount = Math.max(0, (entity.amount || 0) + amountDiff);
         const newTotalInstallment = Math.max(0, (entity.installment || 0) + installmentDiff);
@@ -2642,6 +2572,7 @@ async function saveHistoryEntryEdit() {
         const paidDiff = newPaidFromThisEntry - paidAmountFromThisEntry;
         const newPaid = Math.max(0, (entity.paid || 0) + paidDiff);
         const newRemaining = Math.max(0, newTotalAmount - newPaid);
+
         // Update history entry
         entity.history[entryIdx] = {
             ...oldEntry,
@@ -2652,15 +2583,15 @@ async function saveHistoryEntryEdit() {
             editedAt: new Date().toISOString(),
             editedBy: auth.currentUser.displayName || auth.currentUser.email
         };
+
         // Update status
         let newStatus = entity.status;
-        if (newRemaining <= 0.01) {
-            newStatus = 'Completed';
-        } else {
-            newStatus = 'Active';
-        }
-        // Update paid slips that deducted from this entity
+        if (newRemaining <= 0.01) newStatus = 'Completed';
+        else newStatus = 'Active';
+
+        // 🔥 FIXED: Adjust paid slips for entity edit
         await adjustPaidSlipsForEntityEdit(kind, entity, amountDiff, installmentDiff, oldEntry);
+
         // Save to Firebase
         const collection = kind === 'loan' ? collections.loans : collections.advances;
         await updateInFirebase(collection, entityId, {
@@ -2673,12 +2604,15 @@ async function saveHistoryEntryEdit() {
             modifiedAt: today(),
             modifiedBy: auth.currentUser.displayName || auth.currentUser.email
         });
+
         const w = data.workers.find(x => x.id === entity.workerId);
         await logTimeline(`Edited ${kind} history entry`, kind, `${w?.name||'Worker'}: ${fmt(amountDiff)} amount change, ${fmt(installmentDiff)} installment change`, entity.workerId);
+
         await loadData();
         toast('History entry updated! All calculations recalculated.');
         closeModal('editHistoryEntryModal');
-        // Refresh the current view
+
+        // Refresh current view
         if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
         if (document.getElementById('loans')?.classList.contains('active')) renderLoans();
         if (document.getElementById('advances')?.classList.contains('active')) renderAdvances();
@@ -2686,34 +2620,33 @@ async function saveHistoryEntryEdit() {
     } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// Adjust paid slips when a history entry is edited
+// 🔥 FIXED: Adjust paid slips when a history entry is edited
 async function adjustPaidSlipsForEntityEdit(kind, entity, amountDiff, installmentDiff, oldEntry) {
     if (!entity.paidMonths || entity.paidMonths.length === 0) return;
     const entityPrefix = kind === 'loan' ? 'loan_' : 'advance_';
     const entityIdKey = kind === 'loan' ? 'loanId' : 'advanceId';
     const deductedKey = kind === 'loan' ? 'loansDeducted' : 'advancesDeducted';
+
     for (const month of entity.paidMonths) {
         const slip = data.salarySlips.find(s => s.workerId === entity.workerId && s.month === month && s.status === 'Paid');
         if (!slip) continue;
-        // Find the deduction row for this entity in this slip
+
         const deductionId = entityPrefix + entity.id;
         const deductionRow = (slip.deductions || []).find(d => d.id === deductionId);
         if (deductionRow) {
-            // Adjust the deduction amount by the installment difference
             const newDeductionAmount = Math.max(0, (deductionRow.amount || 0) + installmentDiff);
             deductionRow.amount = newDeductionAmount;
-            // Update the loansDeducted/advancesDeducted array
+
             const deductedArr = slip[deductedKey] || [];
             const deductedItem = deductedArr.find(x => x[entityIdKey] === entity.id);
-            if (deductedItem) {
-                deductedItem.amount = newDeductionAmount;
-            }
-            // Recalculate slip totals
+            if (deductedItem) deductedItem.amount = newDeductionAmount;
+
             const newTotalDeductions = (slip.deductions || []).reduce((s,d) => s + (d.amount||0), 0);
             const totalEarnings = (slip.earnings || []).reduce((s,e) => s + (e.amount||0), 0);
             const newNet = totalEarnings - newTotalDeductions;
             slip.totalDeductions = newTotalDeductions;
             slip.net = newNet;
+
             await updateInFirebase(collections.salarySlips, slip.id, {
                 deductions: slip.deductions,
                 [deductedKey]: deductedArr,
@@ -2727,16 +2660,18 @@ async function adjustPaidSlipsForEntityEdit(kind, entity, amountDiff, installmen
 }
 
 // ============================================
-// DELETE HISTORY ENTRY - Reverse accurately
+// 🔥 FIXED: Delete History Entry
 // ============================================
 async function deleteHistoryEntry(kind, entityId, entryId) {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
     const entity = kind === 'loan' ? data.loans.find(l => l.id === entityId) : data.advances.find(a => a.id === entityId);
-    if (!entity) return;
+    if (!entity) { toast('Entity not found', 'error'); return; }
     const entry = (entity.history || []).find(h => h.id === entryId);
-    if (!entry) return;
+    if (!entry) { toast('History entry not found', 'error'); return; }
+
     const w = data.workers.find(x => x.id === entity.workerId);
     if (!confirm(`Delete this history entry?\n\nType: ${entry.type}\nAmount: ${fmt(entry.amountAdded)}\nInstallment: ${fmt(entry.installmentAdded)}/mo\nDate: ${entry.date}\n\nThis will:\n• Subtract from total amount & installment\n• Reverse any paid slip deductions\n• Update all calculations\n\nContinue?`)) return;
+
     requestSecurityVerification(`Delete ${kind} history entry for ${w?.name||'worker'}`, async () => {
         try {
             showLoading('Reversing & recalculating...');
@@ -2744,25 +2679,21 @@ async function deleteHistoryEntry(kind, entityId, entryId) {
             const installmentToRemove = entry.installmentAdded || 0;
             const paidMonthsCount = (entity.paidMonths || []).length;
             const paidAmountFromThisEntry = installmentToRemove * paidMonthsCount;
-            // Reverse from paid slips first
+
+            // 🔥 FIXED: Reverse from paid slips first
             await reverseHistoryEntryFromPaidSlips(kind, entity, entry);
-            // Calculate new totals
+
             const newTotalAmount = Math.max(0, (entity.amount || 0) - amountToRemove);
             const newTotalInstallment = Math.max(0, (entity.installment || 0) - installmentToRemove);
             const newPaid = Math.max(0, (entity.paid || 0) - paidAmountFromThisEntry);
             const newRemaining = Math.max(0, newTotalAmount - newPaid);
-            // Remove entry from history
+
             entity.history = (entity.history || []).filter(h => h.id !== entryId);
-            // Determine new status
+
             let newStatus = entity.status;
-            if (newTotalAmount <= 0.01) {
-                newStatus = 'Completed';
-            } else if (newRemaining <= 0.01) {
-                newStatus = 'Completed';
-            } else {
-                newStatus = 'Active';
-            }
-            // If total becomes 0, delete the entire entity
+            if (newTotalAmount <= 0.01 || newRemaining <= 0.01) newStatus = 'Completed';
+            else newStatus = 'Active';
+
             if (newTotalAmount <= 0.01) {
                 const collection = kind === 'loan' ? collections.loans : collections.advances;
                 await deleteFromFirebase(collection, entityId);
@@ -2780,9 +2711,11 @@ async function deleteHistoryEntry(kind, entityId, entryId) {
                     modifiedBy: auth.currentUser.displayName || auth.currentUser.email
                 });
             }
+
             await logTimeline(`Deleted ${kind} history entry`, kind, `${w?.name||'Worker'}: ${entry.type} - ${fmt(amountToRemove)}`, entity.workerId);
             await loadData();
             toast('History entry deleted! All calculations recalculated.');
+
             if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
             if (document.getElementById('loans')?.classList.contains('active')) renderLoans();
             if (document.getElementById('advances')?.classList.contains('active')) renderAdvances();
@@ -2791,38 +2724,38 @@ async function deleteHistoryEntry(kind, entityId, entryId) {
     });
 }
 
-// Reverse a history entry from all paid slips that deducted from this entity
+// 🔥 FIXED: Reverse a history entry from all paid slips
 async function reverseHistoryEntryFromPaidSlips(kind, entity, entry) {
     if (!entity.paidMonths || entity.paidMonths.length === 0) return;
     const installmentToRemove = entry.installmentAdded || 0;
     const entityPrefix = kind === 'loan' ? 'loan_' : 'advance_';
     const entityIdKey = kind === 'loan' ? 'loanId' : 'advanceId';
     const deductedKey = kind === 'loan' ? 'loansDeducted' : 'advancesDeducted';
+
     for (const month of entity.paidMonths) {
         const slip = data.salarySlips.find(s => s.workerId === entity.workerId && s.month === month && s.status === 'Paid');
         if (!slip) continue;
+
         const deductionId = entityPrefix + entity.id;
         const deductionRow = (slip.deductions || []).find(d => d.id === deductionId);
         if (deductionRow) {
             const newDeductionAmount = Math.max(0, (deductionRow.amount || 0) - installmentToRemove);
             if (newDeductionAmount <= 0.01) {
-                // Remove deduction row entirely
                 slip.deductions = (slip.deductions || []).filter(d => d.id !== deductionId);
                 slip[deductedKey] = (slip[deductedKey] || []).filter(x => x[entityIdKey] !== entity.id);
             } else {
                 deductionRow.amount = newDeductionAmount;
                 const deductedArr = slip[deductedKey] || [];
                 const deductedItem = deductedArr.find(x => x[entityIdKey] === entity.id);
-                if (deductedItem) {
-                    deductedItem.amount = newDeductionAmount;
-                }
+                if (deductedItem) deductedItem.amount = newDeductionAmount;
             }
-            // Recalculate slip totals
+
             const newTotalDeductions = (slip.deductions || []).reduce((s,d) => s + (d.amount||0), 0);
             const totalEarnings = (slip.earnings || []).reduce((s,e) => s + (e.amount||0), 0);
             const newNet = totalEarnings - newTotalDeductions;
             slip.totalDeductions = newTotalDeductions;
             slip.net = newNet;
+
             await updateInFirebase(collections.salarySlips, slip.id, {
                 deductions: slip.deductions,
                 [deductedKey]: slip[deductedKey],
@@ -2833,35 +2766,6 @@ async function reverseHistoryEntryFromPaidSlips(kind, entity, entry) {
             });
         }
     }
-}
-
-// ============================================
-// VIEW HISTORY (from worker detail tables)
-// ============================================
-function viewLoanHistory(loanId) {
-    if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
-    currentWorkerDetailId && openWorkerDetail(currentWorkerDetailId);
-    setTimeout(() => {
-        const panel = document.getElementById(`historyPanel_loan_${loanId}`);
-        if (panel) {
-            panel.style.display = 'block';
-            renderHistoryPanel('loan', loanId);
-            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }, 300);
-}
-
-function viewAdvanceHistory(advanceId) {
-    if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
-    currentWorkerDetailId && openWorkerDetail(currentWorkerDetailId);
-    setTimeout(() => {
-        const panel = document.getElementById(`historyPanel_advance_${advanceId}`);
-        if (panel) {
-            panel.style.display = 'block';
-            renderHistoryPanel('advance', advanceId);
-            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }, 300);
 }
 
 // ============================================
@@ -2883,6 +2787,7 @@ async function addLoan(e) {
     const w = data.workers.find(x => x.id === wId);
     const loanType = document.getElementById('lType').value;
     const reason = document.getElementById('lReason').value || '';
+
     const historyEntry = {
         id: genId(),
         date: today(),
@@ -2893,6 +2798,7 @@ async function addLoan(e) {
         addedBy: cu.email,
         addedByName: cu.displayName || cu.email
     };
+
     const loanData = {
         workerId: wId, type: loanType,
         amount: total, installment: installment,
@@ -2943,7 +2849,7 @@ function renderLoans() {
 <td><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown">
 ${w ? `<div class="action-dropdown-item info" onclick="openWorkerDetail('${w.id}')"><i class="fas fa-user"></i> View Worker</div>` : ''}
-${canDel ? `<div class="action-dropdown-item info" onclick="viewLoanHistory('${l.id}')"><i class="fas fa-history"></i> History (${historyCount})</div>` : ''}
+${canDel ? `<div class="action-dropdown-item info" onclick="showLoanHistoryPanel('${l.id}')"><i class="fas fa-history"></i> History (${historyCount})</div>` : ''}
 ${canDel ? `<div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div></div></td></tr>`;
     }).join('');
@@ -3002,6 +2908,7 @@ async function addAdvance(e) {
     const w = data.workers.find(x => x.id === wId);
     const advType = document.getElementById('aType').value;
     const reason = document.getElementById('aReason').value || '';
+
     const newHistoryEntry = {
         id: genId(),
         date: today(),
@@ -3012,23 +2919,22 @@ async function addAdvance(e) {
         addedBy: cu.email,
         addedByName: cu.displayName || cu.email
     };
+
     try {
         showLoading('Processing advance...');
         const existingAdvance = data.advances.find(a => a.workerId === wId && a.status === 'Active');
         if (existingAdvance) {
-            // MERGE: Add new amount and add to history
             const newTotal = (existingAdvance.amount || 0) + addAmount;
             const newInstallment = (existingAdvance.installment || 0) + addInstallment;
             const newRemaining = (existingAdvance.remaining || 0) + addAmount;
             const updatedType = existingAdvance.type + ' + ' + advType;
             const existingHistory = existingAdvance.history || [];
-            // If no history yet (old record), create initial entry from original data
             if (existingHistory.length === 0) {
                 existingHistory.push({
                     id: genId(),
                     date: existingAdvance.createdAt || today(),
                     type: existingAdvance.type.split(' + ')[0],
-                    amountAdded: existingAdvance.amount - addAmount, // original amount
+                    amountAdded: existingAdvance.amount - addAmount,
                     installmentAdded: existingAdvance.installment - addInstallment,
                     reason: existingAdvance.reason || 'Initial advance (before history tracking)',
                     addedBy: existingAdvance.createdByEmail || 'system',
@@ -3047,7 +2953,6 @@ async function addAdvance(e) {
             await logTimeline('Added to advance', 'advance', `${w?.name||'Worker'}: +${fmt(addAmount)} (Total: ${fmt(newTotal)})`, wId);
             toast(`Advance merged! New total: ${fmt(newTotal)}. History entry added.`);
         } else {
-            // CREATE NEW with history
             const advData = {
                 workerId: wId, type: advType,
                 amount: addAmount, installment: addInstallment,
@@ -3098,7 +3003,7 @@ function renderAdvances() {
 <td><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown">
 ${w ? `<div class="action-dropdown-item info" onclick="openWorkerDetail('${w.id}')"><i class="fas fa-user"></i> View Worker</div>` : ''}
-${canDel ? `<div class="action-dropdown-item info" onclick="viewAdvanceHistory('${a.id}')"><i class="fas fa-history"></i> History (${historyCount})</div>` : ''}
+${canDel ? `<div class="action-dropdown-item info" onclick="showAdvanceHistoryPanel('${a.id}')"><i class="fas fa-history"></i> History (${historyCount})</div>` : ''}
 ${canDel ? `<div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div></div></td></tr>`;
     }).join('');
@@ -3871,13 +3776,13 @@ function generateReport() {
                 return [dp, ws.length, fmt(totalBasic), fmt(paid)];
             }); break;
         case 'loan':
-            title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History Entries'];
+            title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History'];
             let loans = data.loans;
             if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); loans = loans.filter(l => wIds.includes(l.workerId)); }
             if (workerId) loans = loans.filter(l => l.workerId === workerId);
             reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid||0), fmt(l.remaining||0), l.startMonth, l.status, (l.history||[]).length]; }); break;
         case 'advance':
-            title = 'Advance Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History Entries'];
+            title = 'Advance Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History'];
             let advs = data.advances;
             if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); advs = advs.filter(a => wIds.includes(a.workerId)); }
             if (workerId) advs = advs.filter(a => a.workerId === workerId);
