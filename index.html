@@ -12,6 +12,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
 :root {
@@ -28,20 +29,9 @@ html, body { width: 100%; min-height: 100vh; overflow-x: hidden; }
 .spinner { width: 50px; height: 50px; border: 5px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { margin-top: 15px; color: var(--gray); font-size: 14px; font-weight: 500; }
-.login-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 10000; overflow: hidden; animation: gradientShift 15s ease infinite; background-size: 400% 400%; }
-@keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+.login-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 10000; overflow: hidden; }
 .login-container { display: grid; grid-template-columns: 1fr 1fr; max-width: 1100px; width: 90%; background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); min-height: 650px; }
-.login-illustration { background: linear-gradient(135deg, #1e40af 0%, #0891b2 100%); padding: 50px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden; color: white; }
-.login-illustration::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation: pulse 4s ease-in-out infinite; }
-@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } }
-.illustration-scene { position: relative; width: 100%; max-width: 400px; height: 400px; z-index: 2; }
-.human-illustration { width: 100%; height: 100%; }
-.floating-element { position: absolute; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 12px 18px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; animation: float 3s ease-in-out infinite; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-.floating-element:nth-child(1) { top: 10%; left: 5%; }
-.floating-element:nth-child(2) { top: 20%; right: 5%; animation-delay: 0.5s; }
-.floating-element:nth-child(3) { bottom: 25%; left: 0%; animation-delay: 1s; }
-.floating-element:nth-child(4) { bottom: 15%; right: 5%; animation-delay: 1.5s; }
-@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
+.login-illustration { background: linear-gradient(135deg, #1e40af 0%, #0891b2 100%); padding: 50px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; }
 .illustration-text { text-align: center; z-index: 2; margin-top: 30px; }
 .illustration-text h1 { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
 .illustration-text p { font-size: 16px; opacity: 0.9; }
@@ -54,7 +44,7 @@ html, body { width: 100%; min-height: 100vh; overflow-x: hidden; }
 .login-welcome h3 { font-size: 28px; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
 .login-welcome p { color: var(--gray); font-size: 14px; }
 .google-btn { width: 100%; padding: 14px; background: white; border: 2px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; font-size: 15px; font-weight: 600; color: var(--dark); transition: all 0.3s; margin-bottom: 20px; }
-.google-btn:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 8px 16px rgba(30,64,175,0.15); }
+.google-btn:hover { border-color: var(--primary); transform: translateY(-2px); }
 .divider { display: flex; align-items: center; margin: 20px 0; color: var(--gray); font-size: 13px; }
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 .divider span { padding: 0 15px; }
@@ -78,7 +68,6 @@ body { background: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
 .menu-item:hover { background: rgba(255,255,255,0.05); color: white; }
 .menu-item.active { background: rgba(30,64,175,0.3); color: white; border-left-color: var(--primary-light); }
 .menu-item i { width: 20px; font-size: 15px; }
-.menu-item.disabled { opacity: 0.5; cursor: not-allowed; }
 .main { margin-left: 260px; flex: 1; padding: 25px; width: calc(100vw - 260px); min-width: 0; }
 .topbar { background: white; padding: 16px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; box-shadow: var(--shadow); }
 .topbar h1 { font-size: 20px; color: var(--dark); }
@@ -144,7 +133,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .action-menu-wrapper { position: relative; display: inline-block; }
 .action-dots-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--gray); padding: 4px 8px; border-radius: 4px; }
 .action-dots-btn:hover { background: var(--border); color: var(--dark); }
-.action-dropdown { display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-lg); min-width: 160px; z-index: 100; overflow: hidden; }
+.action-dropdown { display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-lg); min-width: 180px; z-index: 100; overflow: hidden; }
 .action-dropdown.show { display: block; }
 .action-dropdown-item { padding: 10px 15px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
 .action-dropdown-item:hover { background: #f1f5f9; }
@@ -152,7 +141,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .action-dropdown-item.danger:hover { background: #fee2e2; }
 .action-dropdown-item.info { color: var(--primary); }
 .action-dropdown-item.warning { color: var(--warning); }
-.action-dropdown-item.disabled { opacity: 0.5; cursor: not-allowed; }
+.action-dropdown-item.success { color: var(--success); }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
 .modal.show { display: flex; animation: fadeIn 0.3s; }
 .modal-content { background: white; border-radius: 15px; max-width: 1000px; width: 100%; max-height: 90vh; overflow-y: auto; }
@@ -254,9 +243,22 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .timeline-item.danger::before { background: var(--danger); box-shadow: 0 0 0 2px var(--danger); }
 .timeline-item.warning::before { background: var(--warning); box-shadow: 0 0 0 2px var(--warning); }
 .timeline-item.pink::before { background: var(--pink); box-shadow: 0 0 0 2px var(--pink); }
+.timeline-item.purple::before { background: var(--purple); box-shadow: 0 0 0 2px var(--purple); }
 .timeline-item .tl-time { font-size: 11px; color: var(--gray); margin-bottom: 4px; }
 .timeline-item .tl-text { font-size: 13px; color: var(--dark); }
 .timeline-item .tl-user { font-size: 11px; color: var(--primary); margin-top: 4px; }
+.timeline-item .tl-actions { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+.worker-checkbox-list { max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: #f8fafc; }
+.worker-checkbox-item { display: flex; align-items: center; gap: 8px; padding: 5px; border-bottom: 1px dashed var(--border); }
+.worker-checkbox-item:last-child { border-bottom: none; }
+.worker-checkbox-item input { accent-color: var(--primary); }
+.security-modal-content { max-width: 500px; }
+.security-warning { background: linear-gradient(135deg, #fee2e2, #fecaca); padding: 15px; border-radius: 10px; border-left: 4px solid var(--danger); margin-bottom: 15px; }
+.security-warning h4 { color: #991b1b; display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.security-warning p { font-size: 13px; color: #7f1d1d; }
+.email-config-banner { background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 15px; border-radius: 10px; border-left: 4px solid var(--primary); margin-bottom: 15px; }
+.email-config-banner h4 { color: #1e40af; margin-bottom: 5px; }
+.email-config-banner p { font-size: 13px; color: #1e3a8a; }
 @media (max-width: 768px) {
 .login-container { grid-template-columns: 1fr; }
 .login-illustration { display: none; }
@@ -278,42 +280,11 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 </head>
 <body>
 <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div class="loading-text">Loading...</div></div>
+
 <!-- LOGIN SCREEN -->
 <div class="login-wrapper" id="loginScreen">
 <div class="login-container">
 <div class="login-illustration">
-<div class="illustration-scene">
-<div class="floating-element"><i class="fas fa-file-invoice-dollar" style="color:#fbbf24;"></i><span>Pay Slip</span></div>
-<div class="floating-element"><i class="fas fa-chart-line" style="color:#34d399;"></i><span>+24.5%</span></div>
-<div class="floating-element"><i class="fas fa-coins" style="color:#fbbf24;"></i><span>Rs 50,000</span></div>
-<div class="floating-element"><i class="fas fa-check-circle" style="color:#34d399;"></i><span>Approved</span></div>
-<svg class="human-illustration" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-<circle cx="200" cy="200" r="180" fill="rgba(255,255,255,0.1)"/>
-<rect x="80" y="280" width="240" height="15" rx="7" fill="rgba(255,255,255,0.3)"/>
-<rect x="100" y="295" width="15" height="60" fill="rgba(255,255,255,0.2)"/>
-<rect x="285" y="295" width="15" height="60" fill="rgba(255,255,255,0.2)"/>
-<rect x="140" y="240" width="120" height="8" rx="2" fill="rgba(255,255,255,0.4)"/>
-<rect x="150" y="200" width="100" height="45" rx="4" fill="rgba(255,255,255,0.5)"/>
-<rect x="155" y="205" width="90" height="35" rx="2" fill="#1e40af"/>
-<rect x="160" y="210" width="30" height="4" fill="#34d399"/>
-<rect x="160" y="218" width="50" height="3" fill="rgba(255,255,255,0.5)"/>
-<rect x="160" y="225" width="40" height="3" fill="rgba(255,255,255,0.5)"/>
-<rect x="160" y="232" width="60" height="3" fill="rgba(255,255,255,0.5)"/>
-<ellipse cx="200" cy="260" rx="35" ry="25" fill="rgba(255,255,255,0.4)"/>
-<rect x="175" y="220" width="50" height="50" rx="10" fill="rgba(255,255,255,0.5)"/>
-<rect x="155" y="230" width="25" height="12" rx="6" fill="rgba(255,255,255,0.5)"/>
-<rect x="220" y="230" width="25" height="12" rx="6" fill="rgba(255,255,255,0.5)"/>
-<circle cx="200" cy="195" r="28" fill="rgba(255,255,255,0.6)"/>
-<path d="M 175 190 Q 175 170 200 170 Q 225 170 225 190 L 225 185 Q 225 175 200 175 Q 175 175 175 185 Z" fill="rgba(255,255,255,0.8)"/>
-<circle cx="192" cy="195" r="2" fill="#1e40af"/>
-<circle cx="208" cy="195" r="2" fill="#1e40af"/>
-<path d="M 195 205 Q 200 208 205 205" stroke="#1e40af" stroke-width="2" fill="none" stroke-linecap="round"/>
-<g transform="translate(60, 150)"><rect width="50" height="60" rx="4" fill="rgba(255,255,255,0.3)" transform="rotate(-15)"/><rect x="8" y="10" width="34" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(-15)"/></g>
-<g transform="translate(290, 130)"><rect width="50" height="60" rx="4" fill="rgba(255,255,255,0.3)" transform="rotate(15)"/><rect x="8" y="10" width="34" height="3" fill="rgba(255,255,255,0.6)" transform="rotate(15)"/></g>
-<g transform="translate(310, 220)"><rect width="40" height="40" rx="8" fill="rgba(255,255,255,0.3)"/><rect x="8" y="25" width="6" height="10" fill="#34d399"/><rect x="17" y="18" width="6" height="17" fill="#34d399"/><rect x="26" y="12" width="6" height="23" fill="#34d399"/></g>
-<circle cx="90" cy="240" r="15" fill="rgba(251,191,36,0.6)"/>
-</svg>
-</div>
 <div class="illustration-text"><h1>LANKA SHOE</h1><p>Professional Salary Management System</p></div>
 </div>
 <div class="login-form-side">
@@ -332,12 +303,11 @@ Continue with Google
 <input type="password" class="form-input" id="loginPassword" placeholder="Password" required>
 <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
 </form>
-<div class="login-footer">
-<p style="margin-top:10px;"><a onclick="resetPassword()">Forgot password?</a></p>
+<div class="login-footer"><p style="margin-top:10px;"><a onclick="resetPassword()">Forgot password?</a></p></div>
 </div>
 </div>
 </div>
-</div>
+
 <!-- MAIN APP -->
 <div class="main-app" id="mainApp">
 <div class="sidebar" id="sidebar">
@@ -346,16 +316,18 @@ Continue with Google
 <div class="menu-label">Main</div>
 <div class="menu-item active" data-section="dashboard"><i class="fas fa-chart-line"></i> Dashboard</div>
 <div class="menu-item" data-section="workers"><i class="fas fa-users"></i> Workers</div>
+<div class="menu-item" data-section="myloans"><i class="fas fa-wallet"></i> My Loans & Advances</div>
 <div class="menu-item" data-section="loans"><i class="fas fa-hand-holding-usd"></i> Loans</div>
 <div class="menu-item" data-section="advances"><i class="fas fa-money-check-alt"></i> Salary Advances</div>
 <div class="menu-item" data-section="slips"><i class="fas fa-file-invoice-dollar"></i> Create Pay Slip</div>
 <div class="menu-item" data-section="history"><i class="fas fa-history"></i> Slip History</div>
 <div class="menu-item" data-section="reports"><i class="fas fa-file-alt"></i> Reports</div>
-<div class="menu-item" data-section="timeline"><i class="fas fa-stream"></i> Timeline</div>
+<div class="menu-item" data-section="timeline" id="menuTimeline"><i class="fas fa-stream"></i> Timeline</div>
 <div class="menu-label">Configuration</div>
 <div class="menu-item" data-section="components"><i class="fas fa-puzzle-piece"></i> Salary Components</div>
 <div class="menu-item" data-section="design"><i class="fas fa-paint-brush"></i> Pay Slip Design</div>
 <div class="menu-item" data-section="settings"><i class="fas fa-cog"></i> Company Settings</div>
+<div class="menu-item" data-section="emailsettings" id="menuEmailSettings"><i class="fas fa-envelope"></i> Email Settings</div>
 <div class="menu-item" data-section="users" id="menuUsers"><i class="fas fa-user-shield"></i> User Management</div>
 <div class="menu-label">Account</div>
 <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
@@ -378,6 +350,7 @@ Continue with Google
 </div>
 </div>
 </div>
+
 <!-- DASHBOARD -->
 <div class="section active" id="dashboard">
 <div class="card" style="margin-bottom:20px;">
@@ -386,27 +359,12 @@ Continue with Google
 <div class="year-selector">
 <label style="font-size:13px;font-weight:600;color:var(--gray);">Year:</label>
 <select id="dashboardYear" onchange="refreshDashboard()">
-<option value="2024">2024</option>
-<option value="2025">2025</option>
-<option value="2026" selected>2026</option>
-<option value="2027">2027</option>
-<option value="all">All Years</option>
+<option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option><option value="all">All Years</option>
 </select>
 <label style="font-size:13px;font-weight:600;color:var(--gray);margin-left:15px;">Month:</label>
 <select id="dashboardMonth" onchange="refreshDashboard()">
 <option value="all">All Months</option>
-<option value="01">January</option>
-<option value="02">February</option>
-<option value="03">March</option>
-<option value="04">April</option>
-<option value="05">May</option>
-<option value="06">June</option>
-<option value="07">July</option>
-<option value="08">August</option>
-<option value="09">September</option>
-<option value="10">October</option>
-<option value="11">November</option>
-<option value="12">December</option>
+<option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
 </select>
 </div>
 </div>
@@ -429,13 +387,14 @@ Continue with Google
 <div id="recentActivities"></div>
 </div>
 </div>
+
 <!-- WORKERS -->
 <div class="section" id="workers">
 <div class="card">
 <div class="card-header">
 <h2><i class="fas fa-list"></i> Workers List <span class="badge badge-primary" id="workerCount">0</span></h2>
 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-<input type="text" id="searchWorker" placeholder=" Search..." onkeyup="renderWorkers()" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;">
+<input type="text" id="searchWorker" placeholder="Search..." onkeyup="renderWorkers()" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;">
 <select id="filterWorkerDept" onchange="renderWorkers()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;"><option value="">All Depts</option></select>
 <button class="btn btn-primary" id="btnAddWorker" onclick="openAddWorkerModal()"><i class="fas fa-plus"></i> Add Worker</button>
 </div>
@@ -448,8 +407,49 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- WORKER DETAIL -->
-<div class="section" id="workerDetail"><div id="workerDetailContent"></div></div>
+
+<!-- MY LOANS & ADVANCES (NEW) -->
+<div class="section" id="myloans">
+<div class="card">
+<div class="card-header">
+<h2><i class="fas fa-wallet"></i> <span id="myloansTitle">My Loans & Advances</span></h2>
+<div class="filter-bar" style="padding:0;">
+<select id="mylaFilterType" onchange="renderMyLoansAdvances()">
+<option value="all">All Types</option>
+<option value="loan">Loans Only</option>
+<option value="advance">Advances Only</option>
+</select>
+<select id="mylaFilterYear" onchange="renderMyLoansAdvances()">
+<option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+</select>
+<select id="mylaFilterMonth" onchange="renderMyLoansAdvances()">
+<option value="all">All Months</option>
+<option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+</select>
+<select id="mylaFilterStatus" onchange="renderMyLoansAdvances()">
+<option value="all">All Status</option>
+<option value="Active">Active</option><option value="Completed">Completed</option>
+</select>
+<select id="mylaSortBy" onchange="renderMyLoansAdvances()">
+<option value="dateDesc">Newest First</option>
+<option value="dateAsc">Oldest First</option>
+<option value="amountDesc">Highest Amount</option>
+<option value="amountAsc">Lowest Amount</option>
+<option value="remainingDesc">Highest Remaining</option>
+</select>
+</div>
+</div>
+<div id="mylaSummaryStats" class="stats-grid" style="margin-bottom:20px;"></div>
+<div id="mylaWorkerSelector" style="margin-bottom:15px;"></div>
+<div class="table-container">
+<table>
+<thead><tr><th>Type</th><th>Worker</th><th>Category</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody id="mylaTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+
 <!-- LOANS -->
 <div class="section" id="loans">
 <div class="card">
@@ -462,12 +462,14 @@ Continue with Google
 <select id="loanFilterYear" onchange="renderLoans()"><option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select>
 <select id="loanFilterMonth" onchange="renderLoans()"><option value="all">All Months</option><option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select>
 <select id="loanFilterStatus" onchange="renderLoans()"><option value="all">All Status</option><option value="Active">Active</option><option value="Completed">Completed</option></select>
+<select id="loanSortBy" onchange="renderLoans()">
+<option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option><option value="amountDesc">Highest Amount</option><option value="remainingDesc">Highest Remaining</option>
+</select>
 </div>
 <div class="loan-info-banner">
 <h4><i class="fas fa-info-circle"></i> About Loans</h4>
-<p>✅ Long-term loans (Personal, Equipment, Emergency) with monthly installments</p>
-<p>✅ Set <strong>First Deduction Month</strong> when issuing</p>
-<p>✅ Installment <strong>auto-appears</strong> in pay slip and reduces balance when paid</p>
+<p>✅ Long-term loans with monthly installments</p>
+<p>✅ Installment auto-appears in pay slip and reduces balance when paid</p>
 </div>
 <div class="table-container">
 <table>
@@ -477,7 +479,8 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- SALARY ADVANCES -->
+
+<!-- ADVANCES -->
 <div class="section" id="advances">
 <div class="card">
 <div class="card-header">
@@ -489,12 +492,14 @@ Continue with Google
 <select id="advFilterYear" onchange="renderAdvances()"><option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select>
 <select id="advFilterMonth" onchange="renderAdvances()"><option value="all">All Months</option><option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select>
 <select id="advFilterStatus" onchange="renderAdvances()"><option value="all">All Status</option><option value="Active">Active</option><option value="Completed">Completed</option></select>
+<select id="advSortBy" onchange="renderAdvances()">
+<option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option><option value="amountDesc">Highest Amount</option><option value="remainingDesc">Highest Remaining</option>
+</select>
 </div>
 <div class="advance-info-banner">
 <h4><i class="fas fa-info-circle"></i> About Salary Advances</h4>
-<p>✅ Short-term advances (Salary Advance, Festival Advance, Emergency Cash)</p>
-<p>✅ New advances <strong>merge</strong> with existing active advances for the same worker</p>
-<p>✅ Auto-deducted from pay slip with separate display</p>
+<p>✅ Short-term advances merged with existing active advances</p>
+<p>✅ Auto-deducted from pay slip</p>
 </div>
 <div class="table-container">
 <table>
@@ -504,6 +509,7 @@ Continue with Google
 </div>
 </div>
 </div>
+
 <!-- CREATE PAY SLIP -->
 <div class="section" id="slips">
 <div class="card">
@@ -525,28 +531,17 @@ Continue with Google
 <div id="slipBuilderContent"></div>
 </div>
 </div>
+
 <!-- HISTORY -->
 <div class="section" id="history">
 <div class="card">
 <div class="card-header">
 <h2><i class="fas fa-history"></i> Pay Slip History</h2>
 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-<select id="historySortMonth" onchange="renderHistory()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
-<option value="all">All Months</option>
-</select>
-<select id="historySortYear" onchange="renderHistory()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
-<option value="all">All Years</option>
-<option value="2024">2024</option>
-<option value="2025">2025</option>
-<option value="2026">2026</option>
-<option value="2027">2027</option>
-</select>
-<select id="historySortStatus" onchange="renderHistory()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
-<option value="all">All Status</option>
-<option value="Paid">Paid</option>
-<option value="Draft">Draft</option>
-<option value="Reversed">Reversed</option>
-</select>
+<select id="historySortMonth" onchange="renderHistory()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;"><option value="all">All Months</option></select>
+<select id="historySortYear" onchange="renderHistory()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;"><option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select>
+<select id="historySortStatus" onchange="renderHistory()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;"><option value="all">All Status</option><option value="Paid">Paid</option><option value="Draft">Draft</option><option value="Reversed">Reversed</option></select>
+<select id="historySortBy" onchange="renderHistory()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;"><option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option><option value="amountDesc">Highest Net</option><option value="amountAsc">Lowest Net</option></select>
 </div>
 </div>
 <div class="table-container">
@@ -557,6 +552,7 @@ Continue with Google
 </div>
 </div>
 </div>
+
 <!-- REPORTS -->
 <div class="section" id="reports">
 <div class="card">
@@ -586,19 +582,24 @@ Continue with Google
 </div>
 <div id="reportOutput"></div>
 </div>
-<!-- TIMELINE -->
+
+<!-- TIMELINE (ENHANCED) -->
 <div class="section" id="timeline">
 <div class="card">
 <div class="card-header">
 <h2><i class="fas fa-stream"></i> Activity Timeline</h2>
 <div class="filter-bar" style="padding:0;">
-<select id="timelineFilterType" onchange="renderTimeline()"><option value="all">All Types</option><option value="slip">Pay Slips</option><option value="loan">Loans</option><option value="advance">Advances</option><option value="worker">Workers</option><option value="system">System</option></select>
+<select id="timelineFilterType" onchange="renderTimeline()"><option value="all">All Types</option><option value="slip">Pay Slips</option><option value="loan">Loans</option><option value="advance">Advances</option><option value="worker">Workers</option><option value="component">Components</option><option value="addition">Additions</option><option value="deduction">Deductions</option><option value="auth">Auth</option><option value="system">System</option></select>
+<select id="timelineFilterAction" onchange="renderTimeline()"><option value="all">All Actions</option><option value="created">Created</option><option value="updated">Updated</option><option value="deleted">Deleted</option><option value="reversed">Reversed</option><option value="restored">Restored</option><option value="login">Login</option><option value="logout">Logout</option></select>
 <select id="timelineFilterMonth" onchange="renderTimeline()"><option value="all">All Months</option></select>
+<select id="timelineSortBy" onchange="renderTimeline()"><option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option></select>
 </div>
 </div>
+<div id="timelineSummaryStats" class="stats-grid" style="margin-bottom:20px;"></div>
 <div id="timelineContent" class="timeline-container"></div>
 </div>
 </div>
+
 <!-- SALARY COMPONENTS -->
 <div class="section" id="components">
 <div class="card">
@@ -614,11 +615,12 @@ Continue with Google
 <div class="tab-content" id="comp-deductions"><div id="deductionsComponentsList"></div></div>
 </div>
 </div>
+
 <!-- PAY SLIP DESIGN -->
 <div class="section" id="design">
 <div class="card">
 <div class="card-header">
-<h2><i class="fas fa-paint-brush"></i> Pay Slip Design - Full Customization</h2>
+<h2><i class="fas fa-paint-brush"></i> Pay Slip Design</h2>
 <div style="display:flex;gap:8px;">
 <button class="btn btn-secondary" onclick="previewDesign()"><i class="fas fa-eye"></i> Preview</button>
 <button class="btn btn-primary" id="btnSaveDesign" onclick="saveDesign()"><i class="fas fa-save"></i> Save Design</button>
@@ -627,7 +629,7 @@ Continue with Google
 <div class="settings-section">
 <h3><i class="fas fa-palette" style="color:var(--primary);"></i> Color Scheme</h3>
 <div class="setting-row">
-<div><label>Primary Color (Header/Net Box)</label><div class="setting-desc">Used for header banner and net salary box</div></div>
+<div><label>Primary Color</label><div class="setting-desc">Header & net box</div></div>
 <div class="color-picker-row" id="primaryColorPicker">
 <div class="color-swatch active" style="background:#1e40af;" data-color="#1e40af"></div>
 <div class="color-swatch" style="background:#059669;" data-color="#059669"></div>
@@ -639,64 +641,48 @@ Continue with Google
 </div>
 </div>
 <div class="setting-row">
-<div><label>Earnings Section Color</label><div class="setting-desc">Header color for earnings table</div></div>
+<div><label>Earnings Color</label></div>
 <div class="color-picker-row" id="earningsColorPicker">
 <div class="color-swatch active" style="background:#059669;" data-color="#059669"></div>
 <div class="color-swatch" style="background:#1e40af;" data-color="#1e40af"></div>
-<div class="color-swatch" style="background:#0891b2;" data-color="#0891b2"></div>
 <input type="color" id="customEarningsColor" value="#059669" style="width:40px;height:35px;border:none;cursor:pointer;">
 </div>
 </div>
 <div class="setting-row">
-<div><label>Deductions Section Color</label><div class="setting-desc">Header color for deductions table</div></div>
+<div><label>Deductions Color</label></div>
 <div class="color-picker-row" id="deductionsColorPicker">
 <div class="color-swatch active" style="background:#dc2626;" data-color="#dc2626"></div>
 <div class="color-swatch" style="background:#d97706;" data-color="#d97706"></div>
-<div class="color-swatch" style="background:#7c3aed;" data-color="#7c3aed"></div>
 <input type="color" id="customDeductionsColor" value="#dc2626" style="width:40px;height:35px;border:none;cursor:pointer;">
 </div>
 </div>
 </div>
 <div class="settings-section">
 <h3><i class="fas fa-th-large" style="color:var(--primary);"></i> Layout & Format</h3>
-<div class="setting-row">
-<div><label>Paper Size</label><div class="setting-desc">Output PDF page size</div></div>
-<select id="designPaperSize"><option value="a4">A4 (210 × 297 mm)</option><option value="letter">Letter (216 × 279 mm)</option><option value="a5">A5 (148 × 210 mm)</option></select>
-</div>
-<div class="setting-row">
-<div><label>Font Size</label><div class="setting-desc">Text size on pay slip</div></div>
-<select id="designFontSize"><option value="small">Small (9pt)</option><option value="medium" selected>Medium (10pt)</option><option value="large">Large (12pt)</option></select>
-</div>
-<div class="setting-row">
-<div><label>Header Style</label><div class="setting-desc">Company header design</div></div>
-<select id="designHeaderStyle"><option value="full">Full Width Banner</option><option value="centered">Centered Logo + Text</option><option value="minimal">Minimal (Text Only)</option></select>
-</div>
-<div class="setting-row">
-<div><label>Border Style</label><div class="setting-desc">Page border design</div></div>
-<select id="designBorder"><option value="none">No Border</option><option value="thin">Thin Border</option><option value="thick">Thick Border</option><option value="double">Double Border</option></select>
-</div>
+<div class="setting-row"><div><label>Paper Size</label></div><select id="designPaperSize"><option value="a4">A4</option><option value="letter">Letter</option><option value="a5">A5</option></select></div>
+<div class="setting-row"><div><label>Font Size</label></div><select id="designFontSize"><option value="small">Small</option><option value="medium" selected>Medium</option><option value="large">Large</option></select></div>
+<div class="setting-row"><div><label>Header Style</label></div><select id="designHeaderStyle"><option value="full">Full Banner</option><option value="centered">Centered</option><option value="minimal">Minimal</option></select></div>
+<div class="setting-row"><div><label>Border Style</label></div><select id="designBorder"><option value="none">None</option><option value="thin">Thin</option><option value="thick">Thick</option><option value="double">Double</option></select></div>
 </div>
 <div class="settings-section">
-<h3><i class="fas fa-eye" style="color:var(--primary);"></i> Show / Hide Sections</h3>
-<div class="setting-row"><div><label>Show Company Logo</label><div class="setting-desc">Display logo in header</div></div><label><input type="checkbox" id="designShowLogo" checked> Enable</label></div>
-<div class="setting-row"><div><label>Show Bank Details</label><div class="setting-desc">Bank name & account number</div></div><label><input type="checkbox" id="designShowBank" checked> Enable</label></div>
-<div class="setting-row"><div><label>Show Tax ID</label><div class="setting-desc">Employee tax ID / NIC</div></div><label><input type="checkbox" id="designShowTax" checked> Enable</label></div>
-<div class="setting-row"><div><label>Show Salary Analysis</label><div class="setting-desc">Percentage breakdown</div></div><label><input type="checkbox" id="designShowAnalysis" checked> Enable</label></div>
-<div class="setting-row"><div><label>Show Signatures</label><div class="setting-desc">Employee & authorized signatures</div></div><label><input type="checkbox" id="designShowSignatures" checked> Enable</label></div>
-<div class="setting-row"><div><label>Show Footer</label><div class="setting-desc">Footer text at bottom</div></div><label><input type="checkbox" id="designShowFooter" checked> Enable</label></div>
-<div class="setting-row"><div><label>Show Watermark</label><div class="setting-desc">Company name as watermark</div></div><label><input type="checkbox" id="designShowWatermark"> Enable</label></div>
+<h3><i class="fas fa-eye" style="color:var(--primary);"></i> Show / Hide</h3>
+<div class="setting-row"><div><label>Show Bank Details</label></div><label><input type="checkbox" id="designShowBank" checked> Enable</label></div>
+<div class="setting-row"><div><label>Show Tax ID</label></div><label><input type="checkbox" id="designShowTax" checked> Enable</label></div>
+<div class="setting-row"><div><label>Show Signatures</label></div><label><input type="checkbox" id="designShowSignatures" checked> Enable</label></div>
+<div class="setting-row"><div><label>Show Footer</label></div><label><input type="checkbox" id="designShowFooter" checked> Enable</label></div>
 </div>
 <div class="settings-section">
 <h3><i class="fas fa-font" style="color:var(--primary);"></i> Custom Text</h3>
-<div class="setting-row"><div><label>Currency Symbol</label><div class="setting-desc">Currency symbol used in amounts</div></div><input type="text" id="designCurrency" value="Rs" maxlength="5" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-<div class="setting-row"><div><label>Currency Position</label><div class="setting-desc">Where to place currency symbol</div></div><select id="designCurrencyPosition"><option value="before">Before (Rs 1,000)</option><option value="after">After (1,000 Rs)</option></select></div>
-<div class="setting-row"><div><label>Slip Title</label><div class="setting-desc">Main title of the pay slip</div></div><input type="text" id="designSlipTitle" value="SALARY PAY SLIP" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-<div class="setting-row"><div><label>Footer Text</label><div class="setting-desc">Appears at bottom of slip</div></div><textarea id="designFooterText" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;min-height:60px;">This is a computer-generated document. Thank you for your valuable contribution to LANKA SHOE.</textarea></div>
-<div class="setting-row"><div><label>Signature 1 Label</label><div class="setting-desc">Left signature label</div></div><input type="text" id="designSign1Label" value="Employee Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-<div class="setting-row"><div><label>Signature 2 Label</label><div class="setting-desc">Right signature label</div></div><input type="text" id="designSign2Label" value="Authorized Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Currency Symbol</label></div><input type="text" id="designCurrency" value="Rs" maxlength="5" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Currency Position</label></div><select id="designCurrencyPosition"><option value="before">Before</option><option value="after">After</option></select></div>
+<div class="setting-row"><div><label>Slip Title</label></div><input type="text" id="designSlipTitle" value="SALARY PAY SLIP" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Footer Text</label></div><textarea id="designFooterText" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;min-height:60px;">This is a computer-generated document.</textarea></div>
+<div class="setting-row"><div><label>Signature 1 Label</label></div><input type="text" id="designSign1Label" value="Employee Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Signature 2 Label</label></div><input type="text" id="designSign2Label" value="Authorized Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
 </div>
 </div>
 </div>
+
 <!-- COMPANY SETTINGS -->
 <div class="section" id="settings">
 <div class="card">
@@ -709,7 +695,6 @@ Continue with Google
 <div class="form-group"><label>Phone</label><input type="tel" id="cPhone"></div>
 <div class="form-group"><label>Email</label><input type="email" id="cEmail"></div>
 <div class="form-group"><label>Website</label><input type="text" id="cWeb"></div>
-<div class="form-group"><label>Company Logo URL</label><input type="text" id="cLogo" placeholder="https://..."></div>
 <div class="form-group"><label>Bank Name</label><input type="text" id="cBank"></div>
 <div class="form-group"><label>Bank Account No.</label><input type="text" id="cBankAccount"></div>
 <div class="form-group full"><label>Address</label><textarea id="cAddress"></textarea></div>
@@ -735,7 +720,39 @@ Continue with Google
 </div>
 </div>
 </div>
-<!-- USER MANAGEMENT (ADMIN ONLY) -->
+
+<!-- EMAIL SETTINGS (NEW) -->
+<div class="section" id="emailsettings">
+<div class="card">
+<div class="card-header"><h2><i class="fas fa-envelope"></i> Email Configuration</h2></div>
+<div class="email-config-banner">
+<h4><i class="fas fa-info-circle"></i> About Email Integration</h4>
+<p>This system uses <strong>EmailJS</strong> to send pay slips via Gmail. Setup is required:</p>
+<p>1. Create account at <a href="https://www.emailjs.com" target="_blank" style="color:var(--primary);">emailjs.com</a></p>
+<p>2. Connect your Gmail account</p>
+<p>3. Create a service and email template</p>
+<p>4. Enter your IDs below</p>
+</div>
+<form onsubmit="saveEmailSettings(event)">
+<div class="form-grid">
+<div class="form-group"><label>EmailJS Public Key *</label><input type="text" id="emailjsPublicKey" placeholder="Your public key"></div>
+<div class="form-group"><label>EmailJS Service ID *</label><input type="text" id="emailjsServiceId" placeholder="service_xxxxxxx"></div>
+<div class="form-group"><label>EmailJS Template ID *</label><input type="text" id="emailjsTemplateId" placeholder="template_xxxxxxx"></div>
+<div class="form-group"><label>Sender Name</label><input type="text" id="emailSenderName" value="LANKA SHOE HR"></div>
+<div class="form-group"><label>Reply-To Email</label><input type="email" id="emailReplyTo" placeholder="hr@lankashoe.lk"></div>
+<div class="form-group full"><label>
+<input type="checkbox" id="emailAutoSend" checked> Auto-send pay slip email when finalized
+</label></div>
+<div class="form-group full"><button type="submit" class="btn btn-primary" id="btnSaveEmail"><i class="fas fa-save"></i> Save Email Settings</button></div>
+</div>
+</form>
+<div style="margin-top:20px;">
+<button class="btn btn-info" onclick="testEmail()"><i class="fas fa-paper-plane"></i> Send Test Email</button>
+</div>
+</div>
+</div>
+
+<!-- USER MANAGEMENT -->
 <div class="section" id="users">
 <div class="card">
 <div class="card-header">
@@ -750,8 +767,12 @@ Continue with Google
 </div>
 </div>
 </div>
+
+<!-- WORKER DETAIL -->
+<div class="section" id="workerDetail"><div id="workerDetailContent"></div></div>
 </div>
 </div>
+
 <!-- MODALS -->
 <div class="modal" id="addUserModal">
 <div class="modal-content">
@@ -774,6 +795,29 @@ Continue with Google
 </div>
 </div>
 </div>
+
+<!-- SECURITY MODAL -->
+<div class="modal" id="securityModal">
+<div class="modal-content security-modal-content">
+<div class="modal-header"><h2><i class="fas fa-shield-alt" style="color:var(--danger);"></i> Security Verification</h2><button class="close-btn" onclick="closeModal('securityModal')">&times;</button></div>
+<div class="modal-body">
+<div class="security-warning">
+<h4><i class="fas fa-exclamation-triangle"></i> Admin Security Check</h4>
+<p>This action requires admin verification. Enter the reference code to proceed.</p>
+</div>
+<div class="form-group">
+<label>Reference Code *</label>
+<input type="password" id="securityCode" placeholder="Enter ref code" style="padding:14px;font-size:16px;letter-spacing:4px;text-align:center;">
+</div>
+<p id="securityActionDesc" style="margin-top:15px;color:var(--gray);font-size:13px;"></p>
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" onclick="closeModal('securityModal')">Cancel</button>
+<button class="btn btn-danger" onclick="verifySecurityCode()"><i class="fas fa-check"></i> Verify</button>
+</div>
+</div>
+</div>
+
 <div class="modal" id="addWorkerModal">
 <div class="modal-content">
 <div class="modal-header"><h2 id="workerModalTitle"><i class="fas fa-user-plus"></i> Add New Worker</h2><button class="close-btn" onclick="closeModal('addWorkerModal')">&times;</button></div>
@@ -803,6 +847,7 @@ Continue with Google
 </div>
 </div>
 </div>
+
 <div class="modal" id="addLoanModal">
 <div class="modal-content">
 <div class="modal-header"><h2><i class="fas fa-hand-holding-usd"></i> Issue New Loan</h2><button class="close-btn" onclick="closeModal('addLoanModal')">&times;</button></div>
@@ -831,15 +876,15 @@ Continue with Google
 </div>
 </div>
 </div>
+
 <div class="modal" id="addAdvanceModal">
 <div class="modal-content">
 <div class="modal-header"><h2><i class="fas fa-money-check-alt"></i> Issue New Salary Advance</h2><button class="close-btn" onclick="closeModal('addAdvanceModal')">&times;</button></div>
 <div class="modal-body">
 <div class="advance-info-banner">
-<h4><i class="fas fa-lightbulb"></i> Salary Advance Merging</h4>
-<p>• If the worker already has an <strong>active advance</strong>, the new amount will be <strong>added</strong> to it</p>
-<p>• The installment will be recalculated automatically</p>
-<p>• If no active advance exists, a new one will be created</p>
+<h4><i class="fas fa-lightbulb"></i> Advance Merging</h4>
+<p>• If worker has active advance, new amount will be <strong>added</strong> to it</p>
+<p>• Installment recalculated automatically</p>
 </div>
 <form id="advanceForm" onsubmit="addAdvance(event)">
 <div class="form-grid">
@@ -851,7 +896,7 @@ Continue with Google
 <option>Emergency Cash</option><option>Transport Advance</option><option>Other</option>
 </select>
 </div>
-<div class="form-group"><label>Advance Amount to Add (Rs) *</label><input type="number" id="aAmount" step="0.01" required></div>
+<div class="form-group"><label>Advance Amount (Rs) *</label><input type="number" id="aAmount" step="0.01" required></div>
 <div class="form-group"><label>Monthly Installment (Rs) *</label><input type="number" id="aInstallment" step="0.01" required></div>
 <div class="form-group"><label>Issue Date *</label><input type="date" id="aIssueDate" required></div>
 <div class="form-group"><label>First Deduction Month *</label><input type="month" id="aStartMonth" required></div>
@@ -865,10 +910,12 @@ Continue with Google
 </div>
 </div>
 </div>
+
 <div class="modal" id="addComponentModal">
 <div class="modal-content">
-<div class="modal-header"><h2><i class="fas fa-puzzle-piece"></i> Add Salary Component</h2><button class="close-btn" onclick="closeModal('addComponentModal')">&times;</button></div>
+<div class="modal-header"><h2 id="componentModalTitle"><i class="fas fa-puzzle-piece"></i> Add Salary Component</h2><button class="close-btn" onclick="closeModal('addComponentModal')">&times;</button></div>
 <div class="modal-body">
+<input type="hidden" id="compEditId">
 <div class="form-grid">
 <div class="form-group"><label>Component Name *</label><input type="text" id="compName" placeholder="e.g., Transport Allowance"></div>
 <div class="form-group"><label>Type *</label>
@@ -884,6 +931,14 @@ Continue with Google
 </div>
 <div class="form-group"><label>Default Value</label><input type="number" id="compValue" step="0.01"></div>
 <div class="form-group full"><label>Description</label><textarea id="compDesc"></textarea></div>
+<div class="form-group full">
+<label>Applicable Workers <span style="font-size:11px;color:var(--gray);text-transform:none;">(Leave all unchecked = applies to ALL workers)</span></label>
+<div style="margin-bottom:8px;display:flex;gap:8px;">
+<button type="button" class="btn btn-sm btn-secondary" onclick="selectAllCompWorkers(true)"><i class="fas fa-check-double"></i> Select All</button>
+<button type="button" class="btn btn-sm btn-secondary" onclick="selectAllCompWorkers(false)"><i class="fas fa-times"></i> Clear All</button>
+</div>
+<div class="worker-checkbox-list" id="compWorkerList"></div>
+</div>
 </div>
 </div>
 <div class="modal-footer">
@@ -892,17 +947,48 @@ Continue with Google
 </div>
 </div>
 </div>
+
+<!-- ADDITION/DEDUCTION MODAL FOR WORKER -->
+<div class="modal" id="addTransactionModal">
+<div class="modal-content">
+<div class="modal-header"><h2 id="transactionModalTitle"><i class="fas fa-plus-circle"></i> Add Transaction</h2><button class="close-btn" onclick="closeModal('addTransactionModal')">&times;</button></div>
+<div class="modal-body">
+<input type="hidden" id="trEditId">
+<input type="hidden" id="trWorkerId">
+<input type="hidden" id="trType">
+<div class="form-grid">
+<div class="form-group"><label>Transaction Type *</label>
+<select id="trTransactionType" required>
+<option value="">Select Type</option>
+</select>
+</div>
+<div class="form-group"><label>Amount (Rs) *</label><input type="number" id="trAmount" step="0.01" required></div>
+<div class="form-group"><label>For Month *</label><input type="month" id="trMonth" required></div>
+<div class="form-group"><label>Date *</label><input type="date" id="trDate" required></div>
+<div class="form-group full"><label>Reason / Notes</label><textarea id="trReason"></textarea></div>
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" onclick="closeModal('addTransactionModal')">Cancel</button>
+<button class="btn btn-primary" onclick="saveTransaction()"><i class="fas fa-save"></i> Save</button>
+</div>
+</div>
+</div>
+
 <div class="modal" id="viewSlipModal">
 <div class="modal-content" style="max-width:900px;">
 <div class="modal-header"><h2><i class="fas fa-file-invoice"></i> Salary Slip Preview</h2><button class="close-btn" onclick="closeModal('viewSlipModal')">&times;</button></div>
 <div class="modal-body" id="viewSlipBody"></div>
 <div class="modal-footer">
 <button class="btn btn-secondary" onclick="closeModal('viewSlipModal')">Close</button>
+<button class="btn btn-success" id="viewSlipEmailBtn" onclick="emailCurrentSlip()"><i class="fas fa-envelope"></i> Email to Worker</button>
 <button class="btn btn-primary" id="viewSlipDownloadBtn"><i class="fas fa-file-pdf"></i> Download PDF</button>
 </div>
 </div>
 </div>
+
 <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg">Success</span></div>
+
 <script>
 // ============ FIREBASE CONFIG ============
 const firebaseConfig = {
@@ -917,6 +1003,10 @@ measurementId: "G-64NXH3T93L"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+
+// ============ SECURITY REF CODE ============
+const ADMIN_REF_CODE = '7860';
+let pendingSecurityAction = null;
 
 // ============ ROLE-BASED ACCESS CONTROL ============
 const USER_ROLES = { ADMIN: 'admin', EDITOR: 'editor', VIEWER: 'viewer' };
@@ -943,13 +1033,17 @@ const menuUsers = document.getElementById('menuUsers');
 const menuDesign = document.querySelector('[data-section="design"]');
 const menuSettings = document.querySelector('[data-section="settings"]');
 const menuComponents = document.querySelector('[data-section="components"]');
+const menuTimeline = document.getElementById('menuTimeline');
+const menuEmailSettings = document.getElementById('menuEmailSettings');
 if (menuUsers) menuUsers.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
 if (menuDesign) menuDesign.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
 if (menuSettings) menuSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
 if (menuComponents) menuComponents.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+if (menuTimeline) menuTimeline.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+if (menuEmailSettings) menuEmailSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
 const ids = ['btnAddWorker','btnAddLoan','btnAddAdvance','btnAddComponent'];
 ids.forEach(id => { const el = document.getElementById(id); if (el && !hasPermission(USER_ROLES.EDITOR)) el.style.display = 'none'; });
-const adminIds = ['btnSaveDesign','btnSaveCompany','btnAddDepartment','btnClearAll'];
+const adminIds = ['btnSaveDesign','btnSaveCompany','btnAddDepartment','btnClearAll','btnSaveEmail'];
 adminIds.forEach(id => { const el = document.getElementById(id); if (el && !hasPermission(USER_ROLES.ADMIN)) el.style.display = 'none'; });
 const roleBadge = document.getElementById('userRoleBadge');
 if (roleBadge) { roleBadge.textContent = currentUserRole.toUpperCase(); roleBadge.className = 'user-role-badge ' + currentUserRole; }
@@ -969,7 +1063,7 @@ try { const o = document.getElementById('loadingOverlay'); const t = document.qu
 function hideLoading() { try { const o = document.getElementById('loadingOverlay'); if (o) o.classList.remove('show'); } catch(e) {} }
 
 // ============ TIMELINE LOGGING ============
-async function logTimeline(action, type, details, workerId = null) {
+async function logTimeline(action, type, details, workerId = null, extraData = {}) {
 try {
 const entry = {
 action: action,
@@ -980,7 +1074,8 @@ userId: currentUserId,
 userEmail: currentUserEmail,
 userName: auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email) : 'System',
 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-dateStr: new Date().toISOString()
+dateStr: new Date().toISOString(),
+...extraData
 };
 await db.collection('timeline').add(sanitizeForFirestore(entry));
 } catch(e) { console.error('Timeline log error:', e); }
@@ -1006,6 +1101,7 @@ document.getElementById('userDisplayName').textContent = user.displayName || use
 document.getElementById('userDisplayEmail').textContent = user.email;
 document.getElementById('userAvatar').textContent = (user.displayName || user.email).charAt(0).toUpperCase();
 applyRoleBasedUI();
+await logTimeline('User logged in', 'auth', `${user.displayName || user.email} logged in`);
 loadData();
 } else {
 document.getElementById('loginScreen').style.display = 'flex';
@@ -1025,7 +1121,7 @@ let role = result.user.email === DEFAULT_ADMIN_EMAIL ? USER_ROLES.ADMIN : getUse
 toast(`Welcome ${result.user.displayName || result.user.email}! Role: ${role.toUpperCase()}`);
 } catch(error) {
 let msg = 'Google Sign-In failed. ';
-if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Allow popups.';
+if (error.code === 'auth/popup-blocked') msg = 'Popup blocked.';
 else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized.';
 else msg += error.message;
 toast(msg, 'error');
@@ -1047,14 +1143,19 @@ const email = prompt('Enter your email:'); if (!email) return;
 try { showLoading('Sending email...'); await auth.sendPasswordResetEmail(email); toast('Reset email sent!'); }
 catch(error) { toast('Failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
-async function logout() { if (!confirm('Logout?')) return; await auth.signOut(); toast('Logged out'); }
+async function logout() {
+if (!confirm('Logout?')) return;
+await logTimeline('User logged out', 'auth', `${auth.currentUser?.email} logged out`);
+await auth.signOut();
+toast('Logged out');
+}
 
 const collections = {
 workers: 'workers', additions: 'additions', deductions: 'deductions',
 loans: 'loans', advances: 'advances', salarySlips: 'salarySlips',
 salaryComponents: 'salaryComponents', company: 'company',
 salarySettings: 'salarySettings', payslipDesign: 'payslipDesign',
-departments: 'departments', timeline: 'timeline'
+departments: 'departments', timeline: 'timeline', emailSettings: 'emailSettings'
 };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).substr(2,5);
 const fmt = (n) => {
@@ -1066,7 +1167,7 @@ return pos === 'after' ? `${num} ${cur}` : `${cur} ${num}`;
 };
 const today = () => new Date().toISOString().split('T')[0];
 const currentMonth = () => new Date().toISOString().slice(0,7);
-let data = { workers: [], additions: [], deductions: [], loans: [], advances: [], salarySlips: [], salaryComponents: [], company: {}, salarySettings: {}, payslipDesign: {}, departments: [], timeline: [] };
+let data = { workers: [], additions: [], deductions: [], loans: [], advances: [], salarySlips: [], salaryComponents: [], company: {}, salarySettings: {}, payslipDesign: {}, departments: [], timeline: [], emailSettings: {} };
 
 async function loadData() {
 showLoading('Loading data...');
@@ -1080,7 +1181,8 @@ db.collection(collections.company).doc('config').get(),
 db.collection(collections.salarySettings).doc('config').get(),
 db.collection(collections.payslipDesign).doc('config').get(),
 db.collection(collections.departments).get(),
-db.collection(collections.timeline).orderBy('dateStr','desc').limit(200).get()
+db.collection(collections.timeline).orderBy('dateStr','desc').limit(500).get(),
+db.collection(collections.emailSettings).doc('config').get()
 ]);
 data.workers = snaps[0].docs.map(doc => ({ id: doc.id, ...doc.data() }));
 data.additions = snaps[1].docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -1091,38 +1193,34 @@ data.salarySlips = snaps[5].docs.map(doc => ({ id: doc.id, ...doc.data() }));
 data.salaryComponents = snaps[6].docs.map(doc => ({ id: doc.id, ...doc.data() }));
 data.departments = snaps[10].docs.map(doc => doc.data().name);
 data.timeline = snaps[11].docs.map(doc => ({ id: doc.id, ...doc.data() }));
+if (snaps[12].exists) data.emailSettings = snaps[12].data();
 if (snaps[7].exists) data.company = snaps[7].data();
 if (snaps[8].exists) data.salarySettings = snaps[8].data();
 if (snaps[9].exists) data.payslipDesign = snaps[9].data();
 if (!data.salaryComponents.length) {
 data.salaryComponents = [
-{ id: 'c1', name: 'Transport Allowance', type: 'earning', calcType: 'fixed', value: 2000, active: true },
-{ id: 'c2', name: 'Meal Allowance', type: 'earning', calcType: 'fixed', value: 3000, active: true },
-{ id: 'c3', name: 'EPF (Employee)', type: 'deduction', calcType: 'percentage', value: 8, active: true },
-{ id: 'c4', name: 'ETF', type: 'deduction', calcType: 'percentage', value: 3, active: true },
-{ id: 'c5', name: 'Tax Deduction', type: 'deduction', calcType: 'percentage', value: 10, active: true }
+{ id: 'c1', name: 'Transport Allowance', type: 'earning', calcType: 'fixed', value: 2000, active: true, applicableWorkers: [] },
+{ id: 'c2', name: 'Meal Allowance', type: 'earning', calcType: 'fixed', value: 3000, active: true, applicableWorkers: [] },
+{ id: 'c3', name: 'EPF (Employee)', type: 'deduction', calcType: 'percentage', value: 8, active: true, applicableWorkers: [] },
+{ id: 'c4', name: 'ETF', type: 'deduction', calcType: 'percentage', value: 3, active: true, applicableWorkers: [] },
+{ id: 'c5', name: 'Tax Deduction', type: 'deduction', calcType: 'percentage', value: 10, active: true, applicableWorkers: [] }
 ];
 }
 if (!data.payslipDesign || Object.keys(data.payslipDesign).length === 0) {
 data.payslipDesign = {
 primaryColor: '#1e40af', earningsColor: '#059669', deductionsColor: '#dc2626',
-loanColor: '#d97706', advanceColor: '#db2777',
 paperSize: 'a4', fontSize: 'medium', headerStyle: 'full', border: 'none',
 showLogo: true, showBank: true, showTax: true, showAnalysis: true,
-showSignatures: true, showFooter: true, showModifications: false, showWatermark: false,
+showSignatures: true, showFooter: true, showWatermark: false,
 currency: 'Rs', currencyPosition: 'before', slipTitle: 'SALARY PAY SLIP',
-footerText: 'This is a computer-generated document. Thank you for your valuable contribution to LANKA SHOE.',
+footerText: 'This is a computer-generated document.',
 sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature'
 };
-}
-if (!data.salarySettings || Object.keys(data.salarySettings).length === 0) {
-data.salarySettings = { taxRate: 10, epfEmp: 8, epfEmpr: 12, etf: 3, otMult: 1.5, workDays: 26, workHours: 8, payDay: 30, fyStart: 1, currency: 'Rs' };
 }
 if (!data.company || Object.keys(data.company).length === 0) {
 data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
 }
 if (!data.departments.length) data.departments = ["Production","Design","Quality Control","Sales","Administration","Finance","Warehouse","HR"];
-// Populate department filter
 const deptFilter = document.getElementById('filterWorkerDept');
 if (deptFilter) deptFilter.innerHTML = '<option value="">All Depts</option>' + data.departments.map(d => `<option>${d}</option>`).join('');
 hideLoading();
@@ -1146,6 +1244,11 @@ item.addEventListener('click', () => showSection(item.dataset.section));
 });
 
 function showSection(sec, title=null) {
+// Timeline security check
+if (sec === 'timeline' && !hasPermission(USER_ROLES.ADMIN)) {
+toast('Admin access required for Timeline', 'error');
+return;
+}
 document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
 const menuItem = document.querySelector(`.menu-item[data-section="${sec}"]`);
@@ -1155,6 +1258,7 @@ if (secEl) secEl.classList.add('active');
 document.getElementById('pageTitle').textContent = title || (menuItem ? menuItem.textContent.trim() : sec);
 if (sec === 'dashboard') refreshDashboard();
 if (sec === 'workers') renderWorkers();
+if (sec === 'myloans') renderMyLoansAdvances();
 if (sec === 'loans') renderLoans();
 if (sec === 'advances') renderAdvances();
 if (sec === 'slips') { populateWorkerSelect('slipWorker'); document.getElementById('slipMonth').value = currentMonth(); }
@@ -1163,6 +1267,7 @@ if (sec === 'reports') populateReportFilters();
 if (sec === 'components') renderComponents();
 if (sec === 'design') loadDesignSettings();
 if (sec === 'settings') loadCompanySettings();
+if (sec === 'emailsettings') loadEmailSettings();
 if (sec === 'users') renderUsers();
 if (sec === 'timeline') renderTimeline();
 }
@@ -1188,6 +1293,28 @@ document.querySelectorAll('.action-dropdown.show').forEach(d => d.classList.remo
 if (!isOpen) dropdown.classList.add('show');
 }
 
+// ============ SECURITY VERIFICATION ============
+function requestSecurityVerification(actionDesc, callback) {
+pendingSecurityAction = callback;
+document.getElementById('securityActionDesc').textContent = actionDesc;
+document.getElementById('securityCode').value = '';
+openModal('securityModal');
+}
+function verifySecurityCode() {
+const code = document.getElementById('securityCode').value.trim();
+if (code === ADMIN_REF_CODE) {
+closeModal('securityModal');
+if (pendingSecurityAction) {
+const cb = pendingSecurityAction;
+pendingSecurityAction = null;
+cb();
+}
+} else {
+toast('Invalid reference code!', 'error');
+document.getElementById('securityCode').value = '';
+}
+}
+
 // ============ USER MANAGEMENT ============
 function openAddUserModal() {
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin role required.', 'error'); return; }
@@ -1204,6 +1331,7 @@ try {
 showLoading('Saving...');
 await db.collection(usersCollection).doc(email).set({ email, role, updatedAt: new Date().toISOString(), updatedBy: auth.currentUser.email });
 ROLE_CONFIG[email] = role;
+await logTimeline('Updated user role', 'system', `${email} → ${role.toUpperCase()}`);
 toast(`User ${email} role: ${role.toUpperCase()}`);
 closeModal('addUserModal');
 renderUsers();
@@ -1236,7 +1364,7 @@ hideLoading();
 function editUserRole(email, role) { document.getElementById('userEmail').value = email; document.getElementById('userRole').value = role; openModal('addUserModal'); }
 async function deleteUserRole(email) {
 if (!confirm(`Remove ${email}?`)) return;
-try { showLoading('Removing...'); await db.collection(usersCollection).doc(email).delete(); delete ROLE_CONFIG[email]; toast('Removed'); renderUsers(); }
+try { showLoading('Removing...'); await db.collection(usersCollection).doc(email).delete(); delete ROLE_CONFIG[email]; await logTimeline('Removed user role', 'system', email); toast('Removed'); renderUsers(); }
 catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
@@ -1339,16 +1467,22 @@ await loadData(); toast('Deleted!');
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ WORKER DETAIL ============
+// ============ WORKER DETAIL (WITH ADDITIONS/DEDUCTIONS) ============
 function openWorkerDetail(id) {
 const w = data.workers.find(x => x.id === id); if (!w) return;
 if (currentUserRole === USER_ROLES.VIEWER && w.email !== currentUserEmail) { toast('Access denied.', 'error'); return; }
 const slips = data.salarySlips.filter(s => s.workerId === id && s.status !== 'Reversed');
 const loans = data.loans.filter(l => l.workerId === id);
 const advances = data.advances.filter(a => a.workerId === id);
+const additions = data.additions.filter(a => a.workerId === id);
+const deductions = data.deductions.filter(d => d.workerId === id);
 const totalPaid = slips.reduce((s,p) => s + (p.net||0), 0);
 const totalLoan = loans.filter(l => l.status === 'Active').reduce((s,l) => s + (l.remaining||0), 0);
 const totalAdvance = advances.filter(a => a.status === 'Active').reduce((s,a) => s + (a.remaining||0), 0);
+const totalAdditions = additions.reduce((s,a) => s + (a.amount||0), 0);
+const totalDeductions = deductions.reduce((s,d) => s + (d.amount||0), 0);
+const canEdit = hasPermission(USER_ROLES.EDITOR);
+const canAdmin = hasPermission(USER_ROLES.ADMIN);
 document.getElementById('workerDetailContent').innerHTML = `
 <div class="worker-profile-header">
 <div class="worker-avatar">${w.name.charAt(0).toUpperCase()}</div>
@@ -1363,9 +1497,11 @@ document.getElementById('workerDetailContent').innerHTML = `
 </div></div>
 <div class="card"><div style="display:flex;gap:10px;flex-wrap:wrap;">
 <button class="btn btn-success btn-lg" onclick="goCreateSlip('${w.id}')"><i class="fas fa-file-invoice-dollar"></i> Create Pay Slip</button>
-${hasPermission(USER_ROLES.EDITOR) ? `<button class="btn btn-warning" onclick="quickAddLoan('${w.id}')"><i class="fas fa-hand-holding-usd"></i> Issue Loan</button>` : ''}
-${hasPermission(USER_ROLES.EDITOR) ? `<button class="btn btn-pink" onclick="quickAddAdvance('${w.id}')"><i class="fas fa-money-check-alt"></i> Issue Advance</button>` : ''}
-${hasPermission(USER_ROLES.EDITOR) ? `<button class="btn btn-info" onclick="openEditWorkerModal('${w.id}')"><i class="fas fa-edit"></i> Edit Details</button>` : ''}
+${canEdit ? `<button class="btn btn-info" onclick="openAddTransaction('${w.id}','addition')"><i class="fas fa-plus-circle"></i> Add Addition</button>` : ''}
+${canEdit ? `<button class="btn btn-warning" onclick="openAddTransaction('${w.id}','deduction')"><i class="fas fa-minus-circle"></i> Add Deduction</button>` : ''}
+${canEdit ? `<button class="btn btn-warning" onclick="quickAddLoan('${w.id}')"><i class="fas fa-hand-holding-usd"></i> Issue Loan</button>` : ''}
+${canEdit ? `<button class="btn btn-pink" onclick="quickAddAdvance('${w.id}')"><i class="fas fa-money-check-alt"></i> Issue Advance</button>` : ''}
+${canEdit ? `<button class="btn btn-info" onclick="openEditWorkerModal('${w.id}')"><i class="fas fa-edit"></i> Edit Details</button>` : ''}
 <button class="btn btn-secondary" onclick="showSection('workers')"><i class="fas fa-arrow-left"></i> Back</button>
 </div></div>
 <div class="card"><div class="tabs">
@@ -1373,39 +1509,86 @@ ${hasPermission(USER_ROLES.EDITOR) ? `<button class="btn btn-info" onclick="open
 <div class="tab" onclick="switchWorkerTab('slips',this)"><i class="fas fa-file-invoice"></i> Pay Slips</div>
 <div class="tab" onclick="switchWorkerTab('loans',this)"><i class="fas fa-hand-holding-usd"></i> Loans</div>
 <div class="tab" onclick="switchWorkerTab('advances',this)"><i class="fas fa-money-check-alt"></i> Advances</div>
+<div class="tab" onclick="switchWorkerTab('additions',this)"><i class="fas fa-plus-circle"></i> Additions</div>
+<div class="tab" onclick="switchWorkerTab('deductions',this)"><i class="fas fa-minus-circle"></i> Deductions</div>
 <div class="tab" onclick="switchWorkerTab('personal',this)"><i class="fas fa-user"></i> Personal</div>
 </div>
 <div class="tab-content active" id="wt-overview"><div class="stats-grid">
 <div class="stat-card green"><div class="icon"><i class="fas fa-file-invoice"></i></div><h3>Slips</h3><div class="value">${slips.length}</div></div>
 <div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Active Loans</h3><div class="value">${fmt(totalLoan)}</div></div>
 <div class="stat-card pink"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Active Advances</h3><div class="value">${fmt(totalAdvance)}</div></div>
+<div class="stat-card cyan"><div class="icon"><i class="fas fa-plus-circle"></i></div><h3>Total Additions</h3><div class="value">${fmt(totalAdditions)}</div></div>
+<div class="stat-card red"><div class="icon"><i class="fas fa-minus-circle"></i></div><h3>Total Deductions</h3><div class="value">${fmt(totalDeductions)}</div></div>
 <div class="stat-card blue"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><h3>Total Paid</h3><div class="value">${fmt(totalPaid)}</div></div>
 </div></div>
 <div class="tab-content" id="wt-slips"><div class="table-container"><table>
-<thead><tr><th>Slip #</th><th>Month</th><th>Basic</th><th>Additions</th><th>Deductions</th><th>Net</th><th>Status</th></tr></thead>
+<thead><tr><th>Slip #</th><th>Month</th><th>Basic</th><th>Additions</th><th>Deductions</th><th>Net</th><th>Status</th><th>Actions</th></tr></thead>
 <tbody>${slips.length ? slips.slice().reverse().map(s => `<tr>
 <td><strong>#${s.slipNo}</strong></td><td>${s.month}</td><td>${fmt(s.basic)}</td>
 <td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
 <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td>
 <td><strong>${fmt(s.net)}</strong></td>
 <td><span class="badge ${s.status==='Paid'?'badge-success':s.status==='Reversed'?'badge-danger':'badge-gray'}">${s.status}</span></td>
-</tr>`).join('') : '<tr><td colspan="7"><div class="empty-state"><h3>No slips</h3></div></td></tr>'}</tbody></table></div></div>
+<td><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+<div class="action-dropdown">
+<div class="action-dropdown-item info" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i> View</div>
+<div class="action-dropdown-item info" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i> PDF</div>
+${canEdit && s.status !== 'Reversed' ? `<div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
+${canAdmin && s.status === 'Paid' ? `<div class="action-dropdown-item danger" onclick="reverseSlip('${s.id}')"><i class="fas fa-undo"></i> Reverse</div>` : ''}
+</div></div></td>
+</tr>`).join('') : '<tr><td colspan="8"><div class="empty-state"><h3>No slips</h3></div></td></tr>'}</tbody></table></div></div>
 <div class="tab-content" id="wt-loans"><div class="table-container"><table>
-<thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th></tr></thead>
+<thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
 <tbody>${loans.length ? loans.map(l => { const pct = l.amount > 0 ? ((l.paid||0) / l.amount * 100).toFixed(1) : 0;
 return `<tr><td><span class="badge badge-warning">${l.type}</span></td><td>${fmt(l.amount)}</td><td>${fmt(l.installment)}</td>
 <td style="color:var(--success);">${fmt(l.paid||0)}</td><td style="color:var(--danger);"><strong>${fmt(l.remaining||0)}</strong></td><td>${l.startMonth}</td>
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></td>
-<td><span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></td></tr>`;
-}).join('') : '<tr><td colspan="8"><div class="empty-state"><h3>No loans</h3></div></td></tr>'}</tbody></table></div></div>
+<td><span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></td>
+<td>${canAdmin ? `<div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+<div class="action-dropdown"><div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div></div></div>` : ''}</td>
+</tr>`;
+}).join('') : '<tr><td colspan="9"><div class="empty-state"><h3>No loans</h3></div></td></tr>'}</tbody></table></div></div>
 <div class="tab-content" id="wt-advances"><div class="table-container"><table>
-<thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th></tr></thead>
+<thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
 <tbody>${advances.length ? advances.map(a => { const pct = a.amount > 0 ? ((a.paid||0) / a.amount * 100).toFixed(1) : 0;
 return `<tr><td><span class="badge badge-pink">${a.type}</span></td><td>${fmt(a.amount)}</td><td>${fmt(a.installment)}</td>
 <td style="color:var(--success);">${fmt(a.paid||0)}</td><td style="color:var(--danger);"><strong>${fmt(a.remaining||0)}</strong></td><td>${a.startMonth}</td>
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:linear-gradient(90deg,#db2777,#ec4899);"></div></div></td>
-<td><span class="badge ${a.status==='Active'?'badge-pink':'badge-success'}">${a.status}</span></td></tr>`;
-}).join('') : '<tr><td colspan="8"><div class="empty-state"><h3>No advances</h3></div></td></tr>'}</tbody></table></div></div>
+<td><span class="badge ${a.status==='Active'?'badge-pink':'badge-success'}">${a.status}</span></td>
+<td>${canAdmin ? `<div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+<div class="action-dropdown"><div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div></div></div>` : ''}</td>
+</tr>`;
+}).join('') : '<tr><td colspan="9"><div class="empty-state"><h3>No advances</h3></div></td></tr>'}</tbody></table></div></div>
+<div class="tab-content" id="wt-additions">
+${canEdit ? `<div style="margin-bottom:15px;"><button class="btn btn-success" onclick="openAddTransaction('${w.id}','addition')"><i class="fas fa-plus"></i> Add New Addition</button></div>` : ''}
+<div class="table-container"><table>
+<thead><tr><th>Date</th><th>Type</th><th>Month</th><th>Amount</th><th>Reason</th><th>Actions</th></tr></thead>
+<tbody>${additions.length ? additions.slice().reverse().map(a => `<tr>
+<td>${a.date}</td><td><span class="badge badge-info">${a.type}</span></td><td>${a.month}</td>
+<td><strong style="color:var(--success);">+${fmt(a.amount)}</strong></td>
+<td style="font-size:12px;">${a.reason || '-'}</td>
+<td><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+<div class="action-dropdown">
+${canEdit ? `<div class="action-dropdown-item warning" onclick="editTransaction('${a.id}','addition')"><i class="fas fa-edit"></i> Edit</div>` : ''}
+${canAdmin ? `<div class="action-dropdown-item danger" onclick="deleteTransaction('${a.id}','addition')"><i class="fas fa-trash"></i> Delete</div>` : ''}
+</div></div></td>
+</tr>`).join('') : '<tr><td colspan="6"><div class="empty-state"><h3>No additions</h3></div></td></tr>'}</tbody>
+</table></div></div>
+<div class="tab-content" id="wt-deductions">
+${canEdit ? `<div style="margin-bottom:15px;"><button class="btn btn-warning" onclick="openAddTransaction('${w.id}','deduction')"><i class="fas fa-plus"></i> Add New Deduction</button></div>` : ''}
+<div class="table-container"><table>
+<thead><tr><th>Date</th><th>Type</th><th>Month</th><th>Amount</th><th>Reason</th><th>Actions</th></tr></thead>
+<tbody>${deductions.length ? deductions.slice().reverse().map(d => `<tr>
+<td>${d.date}</td><td><span class="badge badge-warning">${d.type}</span></td><td>${d.month}</td>
+<td><strong style="color:var(--danger);">-${fmt(d.amount)}</strong></td>
+<td style="font-size:12px;">${d.reason || '-'}</td>
+<td><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+<div class="action-dropdown">
+${canEdit ? `<div class="action-dropdown-item warning" onclick="editTransaction('${d.id}','deduction')"><i class="fas fa-edit"></i> Edit</div>` : ''}
+${canAdmin ? `<div class="action-dropdown-item danger" onclick="deleteTransaction('${d.id}','deduction')"><i class="fas fa-trash"></i> Delete</div>` : ''}
+</div></div></td>
+</tr>`).join('') : '<tr><td colspan="6"><div class="empty-state"><h3>No deductions</h3></div></td></tr>'}</tbody>
+</table></div></div>
 <div class="tab-content" id="wt-personal"><div class="form-grid">
 <div><strong>Name:</strong> ${w.name}</div><div><strong>Emp ID:</strong> ${w.empId}</div>
 <div><strong>Email:</strong> ${w.email||'-'}</div><div><strong>Position:</strong> ${w.position}</div>
@@ -1452,6 +1635,196 @@ const months = [...new Set(data.salarySlips.map(s => s.month))].sort().reverse()
 ms.innerHTML = '<option value="all">All Months</option>' + months.map(m => `<option value="${m}">${m}</option>`).join('');
 }
 
+// ============ ADDITIONS / DEDUCTIONS FOR WORKER ============
+function openAddTransaction(workerId, type) {
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
+document.getElementById('transactionModalTitle').innerHTML = `<i class="fas fa-${type==='addition'?'plus':'minus'}-circle"></i> Add ${type.charAt(0).toUpperCase()+type.slice(1)}`;
+document.getElementById('trEditId').value = '';
+document.getElementById('trWorkerId').value = workerId;
+document.getElementById('trType').value = type;
+const typeSelect = document.getElementById('trTransactionType');
+if (type === 'addition') {
+typeSelect.innerHTML = '<option value="">Select Type</option><option>Bonus</option><option>Overtime</option><option>Commission</option><option>Allowance</option><option>Arrears</option><option>Other</option>';
+} else {
+typeSelect.innerHTML = '<option value="">Select Type</option><option>Late Penalty</option><option>Absence</option><option>Damage</option><option>Tax</option><option>Other</option>';
+}
+document.getElementById('trAmount').value = '';
+document.getElementById('trMonth').value = currentMonth();
+document.getElementById('trDate').value = today();
+document.getElementById('trReason').value = '';
+openModal('addTransactionModal');
+}
+function editTransaction(id, type) {
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
+const collection = type === 'addition' ? data.additions : data.deductions;
+const tr = collection.find(x => x.id === id);
+if (!tr) return;
+document.getElementById('transactionModalTitle').innerHTML = `<i class="fas fa-edit"></i> Edit ${type.charAt(0).toUpperCase()+type.slice(1)}`;
+document.getElementById('trEditId').value = tr.id;
+document.getElementById('trWorkerId').value = tr.workerId;
+document.getElementById('trType').value = type;
+const typeSelect = document.getElementById('trTransactionType');
+if (type === 'addition') {
+typeSelect.innerHTML = '<option value="">Select Type</option><option>Bonus</option><option>Overtime</option><option>Commission</option><option>Allowance</option><option>Arrears</option><option>Other</option>';
+} else {
+typeSelect.innerHTML = '<option value="">Select Type</option><option>Late Penalty</option><option>Absence</option><option>Damage</option><option>Tax</option><option>Other</option>';
+}
+typeSelect.value = tr.type;
+document.getElementById('trAmount').value = tr.amount;
+document.getElementById('trMonth').value = tr.month;
+document.getElementById('trDate').value = tr.date;
+document.getElementById('trReason').value = tr.reason || '';
+openModal('addTransactionModal');
+}
+async function saveTransaction() {
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
+const editId = document.getElementById('trEditId').value;
+const workerId = document.getElementById('trWorkerId').value;
+const type = document.getElementById('trType').value;
+const collection = type === 'addition' ? collections.additions : collections.deductions;
+const w = data.workers.find(x => x.id === workerId);
+const trData = {
+workerId,
+type: document.getElementById('trTransactionType').value,
+amount: parseFloat(document.getElementById('trAmount').value) || 0,
+month: document.getElementById('trMonth').value,
+date: document.getElementById('trDate').value,
+reason: document.getElementById('trReason').value || '',
+modifiedAt: today(),
+modifiedBy: auth.currentUser.displayName || auth.currentUser.email
+};
+if (!trData.type) { toast('Select type', 'error'); return; }
+if (trData.amount <= 0) { toast('Amount must be > 0', 'error'); return; }
+try {
+showLoading('Saving...');
+if (editId) {
+await updateInFirebase(collection, editId, trData);
+await logTimeline(`Updated ${type}`, type, `${w?.name||'Worker'}: ${fmt(trData.amount)} (${trData.type})`, workerId);
+} else {
+trData.createdAt = today();
+trData.createdBy = auth.currentUser.displayName || auth.currentUser.email;
+await saveToFirebase(collection, null, trData);
+await logTimeline(`Added ${type}`, type, `${w?.name||'Worker'}: ${fmt(trData.amount)} (${trData.type})`, workerId);
+}
+await loadData();
+toast(editId ? 'Updated!' : 'Added!');
+closeModal('addTransactionModal');
+openWorkerDetail(workerId);
+} catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+}
+async function deleteTransaction(id, type) {
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
+if (!confirm('Delete this transaction?')) return;
+const collection = type === 'addition' ? collections.additions : collections.deductions;
+const dataList = type === 'addition' ? data.additions : data.deductions;
+const tr = dataList.find(x => x.id === id);
+try {
+showLoading('Deleting...');
+await deleteFromFirebase(collection, id);
+const w = data.workers.find(x => x.id === tr?.workerId);
+await logTimeline(`Deleted ${type}`, type, `${w?.name||'Worker'}: ${tr?.type||''} - ${fmt(tr?.amount||0)}`, tr?.workerId);
+await loadData();
+toast('Deleted!');
+if (tr) openWorkerDetail(tr.workerId);
+} catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+}
+
+// ============ MY LOANS & ADVANCES ============
+function renderMyLoansAdvances() {
+const titleEl = document.getElementById('myloansTitle');
+const selectorEl = document.getElementById('mylaWorkerSelector');
+let items = [];
+let visibleWorkers = data.workers;
+
+if (currentUserRole === USER_ROLES.VIEWER) {
+visibleWorkers = visibleWorkers.filter(w => w.email === currentUserEmail);
+titleEl.textContent = 'My Loans & Advances';
+selectorEl.innerHTML = '';
+// Only own data
+items = [
+...data.loans.filter(l => visibleWorkers.some(w => w.id === l.workerId)).map(l => ({...l, _kind: 'loan'})),
+...data.advances.filter(a => visibleWorkers.some(w => w.id === a.workerId)).map(a => ({...a, _kind: 'advance'}))
+];
+} else {
+titleEl.textContent = 'All Workers Loans & Advances';
+// Worker selector for admin/editor
+selectorEl.innerHTML = `
+<div class="form-group">
+<label>Filter by Worker</label>
+<select id="mylaFilterWorker" onchange="renderMyLoansAdvances()" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;">
+<option value="all">All Workers</option>
+${data.workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>`).join('')}
+</select>
+</div>`;
+const fw = document.getElementById('mylaFilterWorker')?.value || 'all';
+if (fw !== 'all') visibleWorkers = visibleWorkers.filter(w => w.id === fw);
+items = [
+...data.loans.filter(l => visibleWorkers.some(w => w.id === l.workerId)).map(l => ({...l, _kind: 'loan'})),
+...data.advances.filter(a => visibleWorkers.some(w => w.id === a.workerId)).map(a => ({...a, _kind: 'advance'}))
+];
+}
+
+// Apply filters
+const ft = document.getElementById('mylaFilterType')?.value || 'all';
+const fy = document.getElementById('mylaFilterYear')?.value || 'all';
+const fm = document.getElementById('mylaFilterMonth')?.value || 'all';
+const fs = document.getElementById('mylaFilterStatus')?.value || 'all';
+const sb = document.getElementById('mylaSortBy')?.value || 'dateDesc';
+
+if (ft !== 'all') items = items.filter(i => i._kind === ft);
+if (fy !== 'all') items = items.filter(i => i.startMonth && i.startMonth.startsWith(fy));
+if (fm !== 'all') items = items.filter(i => i.startMonth && i.startMonth.endsWith('-' + fm));
+if (fs !== 'all') items = items.filter(i => i.status === fs);
+
+// Sort
+if (sb === 'dateDesc') items.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
+else if (sb === 'dateAsc') items.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
+else if (sb === 'amountDesc') items.sort((a,b) => (b.amount||0) - (a.amount||0));
+else if (sb === 'amountAsc') items.sort((a,b) => (a.amount||0) - (b.amount||0));
+else if (sb === 'remainingDesc') items.sort((a,b) => (b.remaining||0) - (a.remaining||0));
+
+// Stats
+const totalAmount = items.reduce((s,i) => s + (i.amount||0), 0);
+const totalPaid = items.reduce((s,i) => s + (i.paid||0), 0);
+const totalRemaining = items.reduce((s,i) => s + (i.remaining||0), 0);
+const activeCount = items.filter(i => i.status === 'Active').length;
+document.getElementById('mylaSummaryStats').innerHTML = `
+<div class="stat-card blue"><div class="icon"><i class="fas fa-list"></i></div><h3>Total Items</h3><div class="value">${items.length}</div></div>
+<div class="stat-card orange"><div class="icon"><i class="fas fa-coins"></i></div><h3>Total Amount</h3><div class="value">${fmt(totalAmount)}</div></div>
+<div class="stat-card green"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>Total Paid</h3><div class="value">${fmt(totalPaid)}</div></div>
+<div class="stat-card red"><div class="icon"><i class="fas fa-exclamation-circle"></i></div><h3>Total Remaining</h3><div class="value">${fmt(totalRemaining)}</div></div>
+<div class="stat-card purple"><div class="icon"><i class="fas fa-bolt"></i></div><h3>Active</h3><div class="value">${activeCount}</div></div>
+`;
+
+const tbody = document.getElementById('mylaTable');
+if (!items.length) { tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><i class="fas fa-wallet"></i><h3>No loans or advances</h3></div></td></tr>'; return; }
+const canAdmin = hasPermission(USER_ROLES.ADMIN);
+tbody.innerHTML = items.map(i => {
+const w = data.workers.find(x => x.id === i.workerId);
+const pct = i.amount > 0 ? ((i.paid||0) / i.amount * 100).toFixed(1) : 0;
+const isLoan = i._kind === 'loan';
+const progressColor = isLoan ? 'linear-gradient(90deg,#d97706,#f59e0b)' : 'linear-gradient(90deg,#db2777,#ec4899)';
+const statusBadge = i.status === 'Active' ? (isLoan ? 'badge-warning' : 'badge-pink') : 'badge-success';
+return `<tr>
+<td><span class="badge ${isLoan?'badge-warning':'badge-pink'}"><i class="fas ${isLoan?'fa-hand-holding-usd':'fa-money-check-alt'}"></i> ${isLoan?'LOAN':'ADVANCE'}</span></td>
+<td>${w?w.name:'Unknown'}</td>
+<td><span class="badge badge-info">${i.type}</span></td>
+<td>${fmt(i.amount)}</td>
+<td>${fmt(i.installment)}</td>
+<td style="color:var(--success);">${fmt(i.paid||0)}</td>
+<td style="color:var(--danger);"><strong>${fmt(i.remaining||0)}</strong></td>
+<td>${i.startMonth}</td>
+<td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:${progressColor};"></div></div></td>
+<td><span class="badge ${statusBadge}">${i.status}</span></td>
+<td><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+<div class="action-dropdown">
+${w ? `<div class="action-dropdown-item info" onclick="openWorkerDetail('${w.id}')"><i class="fas fa-user"></i> View Worker</div>` : ''}
+${canAdmin ? `<div class="action-dropdown-item danger" onclick="${isLoan?`deleteLoan('${i.id}')`:`deleteAdvance('${i.id}')`}"><i class="fas fa-trash"></i> Delete</div>` : ''}
+</div></div></td>
+</tr>`;
+}).join('');
+}
+
 // ============ LOANS ============
 function openAddLoanModal() {
 if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
@@ -1491,9 +1864,14 @@ loans = loans.filter(l => wIds.includes(l.workerId));
 const fy = document.getElementById('loanFilterYear')?.value || 'all';
 const fm = document.getElementById('loanFilterMonth')?.value || 'all';
 const fs = document.getElementById('loanFilterStatus')?.value || 'all';
+const sb = document.getElementById('loanSortBy')?.value || 'dateDesc';
 if (fy !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.startsWith(fy));
 if (fm !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.endsWith('-' + fm));
 if (fs !== 'all') loans = loans.filter(l => l.status === fs);
+if (sb === 'dateDesc') loans.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
+else if (sb === 'dateAsc') loans.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
+else if (sb === 'amountDesc') loans.sort((a,b) => (b.amount||0) - (a.amount||0));
+else if (sb === 'remainingDesc') loans.sort((a,b) => (b.remaining||0) - (a.remaining||0));
 if (!loans.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>No loans</h3></div></td></tr>'; return; }
 const canDel = hasPermission(USER_ROLES.ADMIN);
 tbody.innerHTML = loans.map(l => {
@@ -1506,7 +1884,10 @@ return `<tr><td>${w?w.name:'Unknown'}</td><td><span class="badge badge-warning">
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></td>
 <td><span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></td>
 <td><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
-<div class="action-dropdown">${canDel ? `<div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}</div></div></td></tr>`;
+<div class="action-dropdown">
+${w ? `<div class="action-dropdown-item info" onclick="openWorkerDetail('${w.id}')"><i class="fas fa-user"></i> View Worker</div>` : ''}
+${canDel ? `<div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
+</div></div></td></tr>`;
 }).join('');
 }
 async function deleteLoan(id) {
@@ -1515,7 +1896,6 @@ if (!confirm('Delete this loan? This will also reverse any deductions from paid 
 try {
 showLoading('Deleting loan...');
 const loan = data.loans.find(l => l.id === id);
-// Restore balances from paid slips
 if (loan && loan.paidMonths && loan.paidMonths.length > 0) {
 for (const month of loan.paidMonths) {
 const slip = data.salarySlips.find(s => s.workerId === loan.workerId && s.month === month && s.status === 'Paid');
@@ -1543,7 +1923,7 @@ await loadData(); toast('Loan deleted & slips recalculated!');
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ ADVANCES (WITH AGGREGATION) ============
+// ============ ADVANCES ============
 function openAddAdvanceModal() {
 if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
 populateWorkerSelect('aWorker'); document.getElementById('advanceForm').reset();
@@ -1558,36 +1938,29 @@ const addInstallment = parseFloat(document.getElementById('aInstallment').value)
 const cu = auth.currentUser;
 const wId = document.getElementById('aWorker').value;
 const w = data.workers.find(x => x.id === wId);
-const startMonth = document.getElementById('aStartMonth').value;
 const advType = document.getElementById('aType').value;
 try {
 showLoading('Processing advance...');
-// Check for existing active advance for this worker
 const existingAdvance = data.advances.find(a => a.workerId === wId && a.status === 'Active');
 if (existingAdvance) {
-// MERGE: Add new amount to existing advance
 const newTotal = (existingAdvance.amount || 0) + addAmount;
 const newInstallment = (existingAdvance.installment || 0) + addInstallment;
 const newRemaining = (existingAdvance.remaining || 0) + addAmount;
 const updatedType = existingAdvance.type + ' + ' + advType;
 await updateInFirebase(collections.advances, existingAdvance.id, {
-amount: newTotal,
-installment: newInstallment,
-remaining: newRemaining,
+amount: newTotal, installment: newInstallment, remaining: newRemaining,
 type: updatedType,
 reason: (existingAdvance.reason || '') + ' | ' + (document.getElementById('aReason').value || advType + ' added ' + today()),
-modifiedAt: today(),
-modifiedBy: cu.displayName || cu.email
+modifiedAt: today(), modifiedBy: cu.displayName || cu.email
 });
 await logTimeline('Added to advance', 'advance', `${w?.name||'Worker'}: +${fmt(addAmount)} (Total: ${fmt(newTotal)})`, wId);
 toast(`Advance merged! New total: ${fmt(newTotal)}`);
 } else {
-// CREATE NEW
 const advData = {
 workerId: wId, type: advType,
 amount: addAmount, installment: addInstallment,
 paid: 0, remaining: addAmount, issueDate: document.getElementById('aIssueDate').value,
-startMonth: startMonth, reason: document.getElementById('aReason').value || '',
+startMonth: document.getElementById('aStartMonth').value, reason: document.getElementById('aReason').value || '',
 status: 'Active', paidMonths: [], createdAt: today(),
 createdBy: cu.displayName || cu.email, createdByEmail: cu.email
 };
@@ -1608,9 +1981,14 @@ advances = advances.filter(a => wIds.includes(a.workerId));
 const fy = document.getElementById('advFilterYear')?.value || 'all';
 const fm = document.getElementById('advFilterMonth')?.value || 'all';
 const fs = document.getElementById('advFilterStatus')?.value || 'all';
+const sb = document.getElementById('advSortBy')?.value || 'dateDesc';
 if (fy !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.startsWith(fy));
 if (fm !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.endsWith('-' + fm));
 if (fs !== 'all') advances = advances.filter(a => a.status === fs);
+if (sb === 'dateDesc') advances.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
+else if (sb === 'dateAsc') advances.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
+else if (sb === 'amountDesc') advances.sort((a,b) => (b.amount||0) - (a.amount||0));
+else if (sb === 'remainingDesc') advances.sort((a,b) => (b.remaining||0) - (a.remaining||0));
 if (!advances.length) { tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-money-check-alt"></i><h3>No advances</h3></div></td></tr>'; return; }
 const canDel = hasPermission(USER_ROLES.ADMIN);
 tbody.innerHTML = advances.map(a => {
@@ -1623,7 +2001,10 @@ return `<tr><td>${w?w.name:'Unknown'}</td><td><span class="badge badge-pink">${a
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:linear-gradient(90deg,#db2777,#ec4899);"></div></div></td>
 <td><span class="badge ${a.status==='Active'?'badge-pink':'badge-success'}">${a.status}</span></td>
 <td><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
-<div class="action-dropdown">${canDel ? `<div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}</div></div></td></tr>`;
+<div class="action-dropdown">
+${w ? `<div class="action-dropdown-item info" onclick="openWorkerDetail('${w.id}')"><i class="fas fa-user"></i> View Worker</div>` : ''}
+${canDel ? `<div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
+</div></div></td></tr>`;
 }).join('');
 }
 async function deleteAdvance(id) {
@@ -1659,22 +2040,27 @@ await loadData(); toast('Advance deleted & slips recalculated!');
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ SALARY COMPONENTS ============
+// ============ SALARY COMPONENTS (WITH WORKER SELECTION) ============
 function renderComponents() {
 const earnings = data.salaryComponents.filter(c => c.type === 'earning');
 const deductions = data.salaryComponents.filter(c => c.type === 'deduction');
 const canDel = hasPermission(USER_ROLES.ADMIN);
-document.getElementById('earningsComponentsList').innerHTML = earnings.length ? earnings.map(c => componentCard(c, canDel)).join('') : '<div class="empty-state"><h3>No earnings</h3></div>';
-document.getElementById('deductionsComponentsList').innerHTML = deductions.length ? deductions.map(c => componentCard(c, canDel)).join('') : '<div class="empty-state"><h3>No deductions</h3></div>';
+const canEdit = hasPermission(USER_ROLES.EDITOR);
+document.getElementById('earningsComponentsList').innerHTML = earnings.length ? earnings.map(c => componentCard(c, canDel, canEdit)).join('') : '<div class="empty-state"><h3>No earnings</h3></div>';
+document.getElementById('deductionsComponentsList').innerHTML = deductions.length ? deductions.map(c => componentCard(c, canDel, canEdit)).join('') : '<div class="empty-state"><h3>No deductions</h3></div>';
 }
-function componentCard(c, canDel) {
+function componentCard(c, canDel, canEdit) {
 const calcLabel = { fixed: 'Fixed', percentage: '% of Basic', perHour: 'Per Hour', manual: 'Manual' }[c.calcType];
 const valueLabel = c.calcType === 'percentage' ? `${c.value}%` : c.calcType === 'manual' ? 'No default' : fmt(c.value);
+const workerCount = (c.applicableWorkers && c.applicableWorkers.length > 0) ? c.applicableWorkers.length : 'All';
 return `<div class="component-card ${c.type}" style="${!c.active?'opacity:0.5;':''}">
 <div class="comp-icon"><i class="fas ${c.type==='earning'?'fa-plus':'fa-minus'}"></i></div>
-<div class="comp-info"><h4>${c.name}</h4><p>${calcLabel} • ${valueLabel}</p></div>
+<div class="comp-info"><h4>${c.name}</h4><p>${calcLabel} • ${valueLabel} • <span class="badge badge-info">${workerCount} workers</span></p></div>
 <div><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
-<div class="action-dropdown">${canDel ? `<div class="action-dropdown-item danger" onclick="deleteComponent('${c.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}</div></div></div></div>`;
+<div class="action-dropdown">
+${canEdit ? `<div class="action-dropdown-item warning" onclick="editComponent('${c.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
+${canDel ? `<div class="action-dropdown-item danger" onclick="deleteComponent('${c.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
+</div></div></div></div>`;
 }
 function switchCompTab(tab, el) {
 document.querySelectorAll('#components .tab').forEach(t => t.classList.remove('active'));
@@ -1683,32 +2069,88 @@ el.classList.add('active'); document.getElementById('comp-' + tab).classList.add
 }
 function openAddComponentModal() {
 if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
-document.getElementById('compName').value = ''; document.getElementById('compType').value = 'earning';
-document.getElementById('compCalcType').value = 'fixed'; document.getElementById('compValue').value = ''; document.getElementById('compDesc').value = '';
+document.getElementById('componentModalTitle').innerHTML = '<i class="fas fa-puzzle-piece"></i> Add Salary Component';
+document.getElementById('compEditId').value = '';
+document.getElementById('compName').value = '';
+document.getElementById('compType').value = 'earning';
+document.getElementById('compCalcType').value = 'fixed';
+document.getElementById('compValue').value = '';
+document.getElementById('compDesc').value = '';
+populateComponentWorkerList([]);
 openModal('addComponentModal');
+}
+function editComponent(id) {
+if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
+const c = data.salaryComponents.find(x => x.id === id);
+if (!c) return;
+document.getElementById('componentModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Component';
+document.getElementById('compEditId').value = c.id;
+document.getElementById('compName').value = c.name;
+document.getElementById('compType').value = c.type;
+document.getElementById('compCalcType').value = c.calcType;
+document.getElementById('compValue').value = c.value;
+document.getElementById('compDesc').value = c.desc || '';
+populateComponentWorkerList(c.applicableWorkers || []);
+openModal('addComponentModal');
+}
+function populateComponentWorkerList(selectedIds) {
+const list = document.getElementById('compWorkerList');
+list.innerHTML = data.workers.map(w => `
+<div class="worker-checkbox-item">
+<input type="checkbox" id="compW_${w.id}" value="${w.id}" ${selectedIds.includes(w.id)?'checked':''}>
+<label for="compW_${w.id}" style="flex:1;cursor:pointer;"><strong>${w.name}</strong> <span style="color:var(--gray);font-size:11px;">(${w.empId} - ${w.department})</span></label>
+</div>
+`).join('') || '<p style="color:var(--gray);text-align:center;padding:10px;">No workers available</p>';
+}
+function selectAllCompWorkers(selectAll) {
+document.querySelectorAll('#compWorkerList input[type="checkbox"]').forEach(cb => cb.checked = selectAll);
 }
 async function saveComponent() {
 if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
-const name = document.getElementById('compName').value.trim(); if (!name) { toast('Enter name', 'error'); return; }
+const editId = document.getElementById('compEditId').value;
+const name = document.getElementById('compName').value.trim();
+if (!name) { toast('Enter name', 'error'); return; }
+const selectedWorkers = Array.from(document.querySelectorAll('#compWorkerList input[type="checkbox"]:checked')).map(cb => cb.value);
+const compData = {
+name,
+type: document.getElementById('compType').value,
+calcType: document.getElementById('compCalcType').value,
+value: parseFloat(document.getElementById('compValue').value) || 0,
+desc: document.getElementById('compDesc').value || '',
+applicableWorkers: selectedWorkers,
+active: true,
+modifiedAt: today(),
+modifiedBy: auth.currentUser.displayName || auth.currentUser.email
+};
 try {
 showLoading('Saving...');
-await saveToFirebase(collections.salaryComponents, null, {
-name, type: document.getElementById('compType').value, calcType: document.getElementById('compCalcType').value,
-value: parseFloat(document.getElementById('compValue').value) || 0, desc: document.getElementById('compDesc').value || '', active: true
-});
-await loadData(); toast('Component added!'); closeModal('addComponentModal');
+if (editId) {
+await updateInFirebase(collections.salaryComponents, editId, compData);
+await logTimeline('Updated component', 'component', `${name} (${compData.type})`);
+} else {
+compData.createdAt = today();
+compData.createdBy = auth.currentUser.displayName || auth.currentUser.email;
+await saveToFirebase(collections.salaryComponents, null, compData);
+await logTimeline('Added component', 'component', `${name} (${compData.type})`);
+}
+await loadData(); toast(editId ? 'Updated!' : 'Added!'); closeModal('addComponentModal');
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function deleteComponent(id) {
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
 if (!confirm('Delete?')) return;
-try { showLoading('Deleting...'); await deleteFromFirebase(collections.salaryComponents, id); await loadData(); toast('Deleted!'); }
-catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+try {
+showLoading('Deleting...');
+const c = data.salaryComponents.find(x => x.id === id);
+await deleteFromFirebase(collections.salaryComponents, id);
+await logTimeline('Deleted component', 'component', c?.name || id);
+await loadData(); toast('Deleted!');
+} catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // ============ PAY SLIP CREATION ============
 let currentSlipData = null;
-let currentSlipDefaults = {};
+let currentSlipViewSlip = null;
 function loadSlipDefaults() {
 const workerId = document.getElementById('slipWorker').value;
 const month = document.getElementById('slipMonth').value;
@@ -1753,6 +2195,8 @@ earningsHtml += `<div class="slip-row" data-type="earning" data-id="allowances">
 currentSlipDefaults['allowances'] = w.allowances;
 }
 data.salaryComponents.filter(c => c.type === 'earning' && c.active).forEach(c => {
+// Check worker applicability
+if (c.applicableWorkers && c.applicableWorkers.length > 0 && !c.applicableWorkers.includes(workerId)) return;
 let def = c.calcType === 'fixed' ? c.value : (c.calcType === 'percentage' ? w.salary * c.value / 100 : 0);
 earningsHtml += `<div class="slip-row" data-type="earning" data-id="${c.id}" data-base="${c.value}">
 <div><strong>${c.name}</strong><div class="calc-info">${c.calcType==='percentage'?c.value+'% of basic = '+fmt(def):'Default: '+fmt(c.value)}</div></div>
@@ -1763,6 +2207,7 @@ currentSlipDefaults[c.id] = def;
 });
 let deductionsHtml = '';
 data.salaryComponents.filter(c => c.type === 'deduction' && c.active).forEach(c => {
+if (c.applicableWorkers && c.applicableWorkers.length > 0 && !c.applicableWorkers.includes(workerId)) return;
 let def = c.calcType === 'fixed' ? c.value : (c.calcType === 'percentage' ? w.salary * c.value / 100 : 0);
 deductionsHtml += `<div class="slip-row" data-type="deduction" data-id="${c.id}">
 <div><strong>${c.name}</strong><div class="calc-info">${c.calcType==='percentage'?c.value+'% of basic = '+fmt(def):'Default: '+fmt(c.value)}</div></div>
@@ -1854,7 +2299,6 @@ const month = currentSlipData.month;
 const existingSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month && s.status !== 'Reversed');
 const cu = auth.currentUser;
 const w = data.workers.find(x => x.id === workerId);
-// If editing existing paid slip, first reverse old loan/advance deductions
 if (existingSlip && existingSlip.status === 'Paid') {
 await reverseSlipDeductions(existingSlip);
 }
@@ -1905,6 +2349,13 @@ await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining
 }
 }
 await logTimeline('Finalized pay slip', 'slip', `${w?.name||'Worker'} #${slipData.slipNo}: Net ${fmt(slipData.net)} (${month})`, workerId);
+// Auto-send email
+const es = data.emailSettings || {};
+if (es.autoSend !== false && es.emailjsServiceId && es.emailjsTemplateId && w?.email) {
+try {
+await sendSlipEmail(slipData, w);
+} catch(emailErr) { console.error('Email send failed:', emailErr); }
+}
 } else {
 await logTimeline('Saved draft slip', 'slip', `${w?.name||'Worker'} #${slipData.slipNo} (${month})`, workerId);
 }
@@ -1917,7 +2368,6 @@ if (savedSlip) downloadSlipPDF(savedSlip);
 } catch(error) { console.error('Finalize error:', error); toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// Helper: Reverse loan/advance deductions from a slip (used before re-finalizing or reversing)
 async function reverseSlipDeductions(slip) {
 if (!slip || slip.status !== 'Paid') return;
 for (const ld of (slip.loansDeducted || [])) {
@@ -1953,13 +2403,18 @@ slips = slips.filter(s => wIds.includes(s.workerId));
 const sm = document.getElementById('historySortMonth')?.value || 'all';
 const sy = document.getElementById('historySortYear')?.value || 'all';
 const ss = document.getElementById('historySortStatus')?.value || 'all';
+const sb = document.getElementById('historySortBy')?.value || 'dateDesc';
 if (sm !== 'all') slips = slips.filter(s => s.month === sm);
 if (sy !== 'all') slips = slips.filter(s => s.month && s.month.startsWith(sy));
 if (ss !== 'all') slips = slips.filter(s => s.status === ss);
+if (sb === 'dateDesc') slips.sort((a,b) => (b.createdTime||b.createdAt||'').localeCompare(a.createdTime||a.createdAt||''));
+else if (sb === 'dateAsc') slips.sort((a,b) => (a.createdTime||a.createdAt||'').localeCompare(b.createdTime||b.createdAt||''));
+else if (sb === 'amountDesc') slips.sort((a,b) => (b.net||0) - (a.net||0));
+else if (sb === 'amountAsc') slips.sort((a,b) => (a.net||0) - (b.net||0));
 if (!slips.length) { tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><h3>No slips</h3></div></td></tr>'; return; }
 const canEdit = hasPermission(USER_ROLES.EDITOR);
 const canReverse = hasPermission(USER_ROLES.ADMIN);
-tbody.innerHTML = slips.slice().reverse().map(s => {
+tbody.innerHTML = slips.map(s => {
 const w = data.workers.find(x => x.id === s.workerId);
 const createdInfo = s.createdTime ? new Date(s.createdTime).toLocaleString() : (s.createdAt || '-');
 return `<tr>
@@ -1973,6 +2428,7 @@ return `<tr>
 <div class="action-dropdown">
 <div class="action-dropdown-item info" onclick="viewSlip('${s.id}')"><i class="fas fa-eye"></i> View</div>
 <div class="action-dropdown-item info" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i> PDF</div>
+${w?.email ? `<div class="action-dropdown-item success" onclick="emailSlipById('${s.id}')"><i class="fas fa-envelope"></i> Email</div>` : ''}
 ${canEdit && s.status !== 'Reversed' ? `<div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
 ${canReverse && s.status === 'Paid' ? `<div class="action-dropdown-item danger" onclick="reverseSlip('${s.id}')"><i class="fas fa-undo"></i> Reverse</div>` : ''}
 ${canReverse && s.status === 'Draft' ? `<div class="action-dropdown-item danger" onclick="deleteDraftSlip('${s.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
@@ -1981,6 +2437,7 @@ ${canReverse && s.status === 'Draft' ? `<div class="action-dropdown-item danger"
 }
 function viewSlip(id) {
 const slip = data.salarySlips.find(s => s.id === id); if (!slip) return;
+currentSlipViewSlip = slip;
 viewSlipPreview(slip);
 document.getElementById('viewSlipDownloadBtn').onclick = () => downloadSlipPDF(slip);
 openModal('viewSlipModal');
@@ -2011,14 +2468,15 @@ const tog = row.querySelector('.row-toggle'); if (tog) tog.checked = false;
 }
 });
 updateSlipSummary();
-toast('Slip loaded for editing. Make changes and finalize.');
+toast('Slip loaded for editing.');
 }
 async function reverseSlip(id) {
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
 const slip = data.salarySlips.find(s => s.id === id); if (!slip) return;
 const w = data.workers.find(x => x.id === slip.workerId);
 if (slip.status !== 'Paid') { toast('Only paid slips can be reversed.', 'error'); return; }
-if (!confirm(`Reverse pay slip #${slip.slipNo} for ${w?.name||'worker'}?\n\nThis will:\n• Restore all loan/advance balances\n• Recalculate all amounts\n• Mark slip as Reversed\n\nContinue?`)) return;
+requestSecurityVerification(`Reverse pay slip #${slip.slipNo} for ${w?.name||'worker'}`, async () => {
+if (!confirm(`Reverse pay slip #${slip.slipNo}?\n\nThis will:\n• Restore all loan/advance balances\n• Recalculate all amounts\n• Mark slip as Reversed\n\nContinue?`)) return;
 try {
 showLoading('Reversing slip & restoring balances...');
 await reverseSlipDeductions(slip);
@@ -2029,8 +2487,9 @@ reversedByEmail: auth.currentUser.email
 });
 await logTimeline('Reversed pay slip', 'slip', `#${slip.slipNo} for ${w?.name||'Worker'} (${slip.month}) - All balances restored`, slip.workerId);
 await loadData();
-toast(`Slip reversed! All loan/advance balances restored.`);
+toast(`Slip reversed! All balances restored.`);
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+});
 }
 async function deleteDraftSlip(id) {
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
@@ -2076,8 +2535,6 @@ ${d.showSignatures!==false ? `<div style="display:flex;justify-content:space-bet
 <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign1Label||'Employee Signature'}</div></div>
 <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign2Label||'Authorized Signature'}</div></div></div>` : ''}
 ${d.showFooter!==false ? `<p style="text-align:center;margin-top:20px;font-size:11px;color:#64748b;font-style:italic;">${d.footerText||''}</p>` : ''}
-${slip.finalizedBy ? `<p style="text-align:center;margin-top:8px;font-size:10px;color:#94a3b8;">Finalized by: ${slip.finalizedBy} on ${new Date(slip.finalizedAt).toLocaleString()}</p>` : ''}
-${slip.reversedBy ? `<p style="text-align:center;margin-top:8px;font-size:10px;color:#dc2626;">Reversed by: ${slip.reversedBy} on ${new Date(slip.reversedAt).toLocaleString()}</p>` : ''}
 </div>`;
 }
 function downloadSlipPDF(slip) {
@@ -2170,9 +2627,138 @@ doc.text(d.sign2Label || 'Authorized Signature', pageWidth - marginX - 30, 270, 
 }
 if (d.showFooter !== false && d.footerText) { doc.setFontSize(8); doc.setTextColor(100, 116, 139); doc.text(d.footerText, pageWidth/2, 282, { align: 'center' }); }
 doc.setFontSize(8); doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
-if (slip.finalizedBy) doc.text(`Finalized by: ${slip.finalizedBy}`, pageWidth/2, 295, { align: 'center' });
 doc.save(`PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf`);
 toast('PDF downloaded!');
+}
+
+// ============ EMAIL INTEGRATION ============
+function loadEmailSettings() {
+const es = data.emailSettings || {};
+document.getElementById('emailjsPublicKey').value = es.emailjsPublicKey || '';
+document.getElementById('emailjsServiceId').value = es.emailjsServiceId || '';
+document.getElementById('emailjsTemplateId').value = es.emailjsTemplateId || '';
+document.getElementById('emailSenderName').value = es.senderName || 'LANKA SHOE HR';
+document.getElementById('emailReplyTo').value = es.replyTo || '';
+document.getElementById('emailAutoSend').checked = es.autoSend !== false;
+}
+async function saveEmailSettings(e) {
+e.preventDefault();
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
+const es = {
+emailjsPublicKey: document.getElementById('emailjsPublicKey').value.trim(),
+emailjsServiceId: document.getElementById('emailjsServiceId').value.trim(),
+emailjsTemplateId: document.getElementById('emailjsTemplateId').value.trim(),
+senderName: document.getElementById('emailSenderName').value.trim(),
+replyTo: document.getElementById('emailReplyTo').value.trim(),
+autoSend: document.getElementById('emailAutoSend').checked,
+modifiedAt: today(),
+modifiedBy: auth.currentUser.displayName || auth.currentUser.email
+};
+try {
+showLoading('Saving...');
+await saveToFirebase(collections.emailSettings, 'config', es);
+data.emailSettings = es;
+// Initialize EmailJS
+if (es.emailjsPublicKey) {
+try { emailjs.init(es.emailjsPublicKey); } catch(e) { console.error('EmailJS init error:', e); }
+}
+await logTimeline('Updated email settings', 'system', 'Email configuration updated');
+toast('Email settings saved!');
+} catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+}
+async function sendSlipEmail(slip, worker) {
+const es = data.emailSettings || {};
+if (!es.emailjsServiceId || !es.emailjsTemplateId) {
+console.warn('Email settings not configured');
+return false;
+}
+if (!worker?.email) {
+console.warn('Worker has no email');
+return false;
+}
+try {
+if (es.emailjsPublicKey) {
+try { emailjs.init(es.emailjsPublicKey); } catch(e) {}
+}
+const c = data.company || {};
+const templateParams = {
+to_email: worker.email,
+to_name: worker.name,
+from_name: es.senderName || c.name || 'LANKA SHOE',
+reply_to: es.replyTo || c.email || '',
+slip_number: slip.slipNo,
+month: slip.month,
+basic_salary: fmt(slip.basic || 0),
+total_additions: fmt(slip.totalAdditions || 0),
+total_deductions: fmt(slip.totalDeductions || 0),
+net_salary: fmt(slip.net || 0),
+company_name: c.name || 'LANKA SHOE',
+employee_id: worker.empId,
+position: worker.position,
+department: worker.department,
+issue_date: today()
+};
+await emailjs.send(es.emailjsServiceId, es.emailjsTemplateId, templateParams);
+await logTimeline('Sent slip email', 'slip', `Email sent to ${worker.email} for slip #${slip.slipNo}`, worker.id);
+return true;
+} catch(error) {
+console.error('Email send error:', error);
+toast('Email send failed: ' + (error.text || error.message || 'Unknown error'), 'error');
+return false;
+}
+}
+async function emailSlipById(id) {
+const slip = data.salarySlips.find(s => s.id === id);
+if (!slip) return;
+const w = data.workers.find(x => x.id === slip.workerId);
+if (!w?.email) { toast('Worker has no email address', 'error'); return; }
+const es = data.emailSettings || {};
+if (!es.emailjsServiceId || !es.emailjsTemplateId) {
+toast('Email not configured. Go to Email Settings first.', 'error');
+return;
+}
+if (!confirm(`Send pay slip #${slip.slipNo} to ${w.email}?`)) return;
+try {
+showLoading('Sending email...');
+const success = await sendSlipEmail(slip, w);
+if (success) toast('Email sent successfully!');
+} catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+}
+async function emailCurrentSlip() {
+if (!currentSlipViewSlip) { toast('No slip to email', 'error'); return; }
+await emailSlipById(currentSlipViewSlip.id);
+}
+async function testEmail() {
+const es = data.emailSettings || {};
+if (!es.emailjsServiceId || !es.emailjsTemplateId) {
+toast('Please save settings first', 'error'); return;
+}
+const testEmail = prompt('Send test email to:', currentUserEmail);
+if (!testEmail) return;
+try {
+showLoading('Sending test email...');
+if (es.emailjsPublicKey) {
+try { emailjs.init(es.emailjsPublicKey); } catch(e) {}
+}
+await emailjs.send(es.emailjsServiceId, es.emailjsTemplateId, {
+to_email: testEmail,
+to_name: 'Test User',
+from_name: es.senderName || 'LANKA SHOE',
+slip_number: 'TEST-001',
+month: currentMonth(),
+basic_salary: fmt(10000),
+total_additions: fmt(2000),
+total_deductions: fmt(1500),
+net_salary: fmt(10500),
+company_name: data.company?.name || 'LANKA SHOE',
+employee_id: 'TEST',
+position: 'Test',
+department: 'Test',
+issue_date: today()
+});
+await logTimeline('Sent test email', 'system', `Test email to ${testEmail}`);
+toast('Test email sent!');
+} catch(error) { toast('Email failed: ' + (error.text || error.message), 'error'); } finally { hideLoading(); }
 }
 
 // ============ REPORTS ============
@@ -2263,31 +2849,108 @@ doc.save(`${currentReport}_${today()}.pdf`); toast('PDF exported!');
 }
 }
 
-// ============ TIMELINE ============
+// ============ TIMELINE (ENHANCED WITH RESTORE) ============
 function renderTimeline() {
+if (!hasPermission(USER_ROLES.ADMIN)) {
+document.getElementById('timelineContent').innerHTML = '<div class="empty-state"><h3>Admin access required</h3></div>';
+return;
+}
 const container = document.getElementById('timelineContent');
 let entries = data.timeline || [];
 const ft = document.getElementById('timelineFilterType')?.value || 'all';
+const fa = document.getElementById('timelineFilterAction')?.value || 'all';
 const fm = document.getElementById('timelineFilterMonth')?.value || 'all';
+const sb = document.getElementById('timelineSortBy')?.value || 'dateDesc';
 if (ft !== 'all') entries = entries.filter(e => e.type === ft);
+if (fa !== 'all') {
+entries = entries.filter(e => {
+const action = (e.action || '').toLowerCase();
+return action.includes(fa);
+});
+}
 if (fm !== 'all') entries = entries.filter(e => e.dateStr && e.dateStr.startsWith(fm));
+if (sb === 'dateDesc') entries.sort((a,b) => (b.dateStr||'').localeCompare(a.dateStr||''));
+else if (sb === 'dateAsc') entries.sort((a,b) => (a.dateStr||'').localeCompare(b.dateStr||''));
+
 // Populate month filter
 const tfm = document.getElementById('timelineFilterMonth');
 if (tfm && tfm.options.length <= 1) {
-const months = [...new Set(entries.map(e => e.dateStr ? e.dateStr.slice(0,7) : ''))].filter(Boolean).sort().reverse();
+const months = [...new Set((data.timeline||[]).map(e => e.dateStr ? e.dateStr.slice(0,7) : ''))].filter(Boolean).sort().reverse();
 tfm.innerHTML = '<option value="all">All Months</option>' + months.map(m => `<option value="${m}">${m}</option>`).join('');
 }
+
+// Stats
+const counts = {
+total: entries.length,
+created: entries.filter(e => (e.action||'').toLowerCase().includes('created') || (e.action||'').toLowerCase().includes('added') || (e.action||'').toLowerCase().includes('issued')).length,
+updated: entries.filter(e => (e.action||'').toLowerCase().includes('updated') || (e.action||'').toLowerCase().includes('edited')).length,
+deleted: entries.filter(e => (e.action||'').toLowerCase().includes('deleted') || (e.action||'').toLowerCase().includes('removed')).length,
+reversed: entries.filter(e => (e.action||'').toLowerCase().includes('reversed')).length,
+logins: entries.filter(e => e.type === 'auth' && (e.action||'').toLowerCase().includes('logged in')).length
+};
+document.getElementById('timelineSummaryStats').innerHTML = `
+<div class="stat-card blue"><div class="icon"><i class="fas fa-list"></i></div><h3>Total Events</h3><div class="value">${counts.total}</div></div>
+<div class="stat-card green"><div class="icon"><i class="fas fa-plus-circle"></i></div><h3>Created</h3><div class="value">${counts.created}</div></div>
+<div class="stat-card cyan"><div class="icon"><i class="fas fa-edit"></i></div><h3>Updated</h3><div class="value">${counts.updated}</div></div>
+<div class="stat-card red"><div class="icon"><i class="fas fa-trash"></i></div><h3>Deleted</h3><div class="value">${counts.deleted}</div></div>
+<div class="stat-card orange"><div class="icon"><i class="fas fa-undo"></i></div><h3>Reversed</h3><div class="value">${counts.reversed}</div></div>
+<div class="stat-card purple"><div class="icon"><i class="fas fa-sign-in-alt"></i></div><h3>Logins</h3><div class="value">${counts.logins}</div></div>
+`;
+
 if (!entries.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-stream"></i><h3>No activities yet</h3></div>'; return; }
-const colorMap = { slip: 'success', loan: 'warning', advance: 'pink', worker: '', system: 'danger' };
-container.innerHTML = entries.slice(0, 100).map(e => {
+const colorMap = { slip: 'success', loan: 'warning', advance: 'pink', worker: '', component: 'purple', addition: 'success', deduction: 'danger', auth: 'purple', system: 'danger' };
+container.innerHTML = entries.slice(0, 200).map(e => {
 const time = e.dateStr ? new Date(e.dateStr).toLocaleString() : 'Unknown time';
 const color = colorMap[e.type] || '';
+const action = (e.action || '').toLowerCase();
+const isDeletable = action.includes('created') || action.includes('added') || action.includes('updated') || action.includes('issued') || action.includes('reversed') || action.includes('deleted');
 return `<div class="timeline-item ${color}">
 <div class="tl-time"><i class="fas fa-clock"></i> ${time}</div>
 <div class="tl-text"><strong>${e.action}</strong> — ${e.details || ''}</div>
-<div class="tl-user"><i class="fas fa-user"></i> ${e.userName || e.userEmail || 'System'}</div>
+<div class="tl-user"><i class="fas fa-user"></i> ${e.userName || e.userEmail || 'System'} <span class="badge badge-info" style="margin-left:5px;">${e.type}</span></div>
+${isDeletable ? `<div class="tl-actions">
+<button class="btn btn-sm btn-warning" onclick="restoreTimelineEntry('${e.id}')"><i class="fas fa-undo"></i> Restore</button>
+<button class="btn btn-sm btn-danger" onclick="deleteTimelineEntry('${e.id}')"><i class="fas fa-trash"></i> Delete Log</button>
+</div>` : ''}
 </div>`;
 }).join('');
+}
+async function restoreTimelineEntry(id) {
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
+const entry = data.timeline.find(e => e.id === id);
+if (!entry) return;
+requestSecurityVerification(`Restore action: "${entry.action}" for "${entry.details||''}"`, async () => {
+if (!confirm(`Restore this action?\n\nAction: ${entry.action}\nDetails: ${entry.details||''}\n\nThis will attempt to reverse the original action.`)) return;
+try {
+showLoading('Restoring...');
+// Attempt to reverse based on type
+if (entry.type === 'slip' && entry.workerId) {
+const action = (entry.action || '').toLowerCase();
+if (action.includes('finalized') || action.includes('paid')) {
+const slip = data.salarySlips.find(s => s.workerId === entry.workerId && s.status === 'Paid');
+if (slip) {
+await reverseSlipDeductions(slip);
+await updateInFirebase(collections.salarySlips, slip.id, { status: 'Reversed', reversedAt: new Date().toISOString(), reversedBy: auth.currentUser.displayName || auth.currentUser.email });
+}
+}
+}
+await logTimeline('Restored action', 'system', `Restored: ${entry.action} - ${entry.details||''}`, entry.workerId);
+await loadData();
+toast('Action restored!');
+renderTimeline();
+} catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+});
+}
+async function deleteTimelineEntry(id) {
+if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
+if (!confirm('Delete this timeline entry?')) return;
+try {
+showLoading('Deleting...');
+await deleteFromFirebase(collections.timeline, id);
+await loadData();
+toast('Timeline entry deleted!');
+renderTimeline();
+} catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // ============ DESIGN ============
@@ -2303,13 +2966,10 @@ document.getElementById('designPaperSize').value = d.paperSize || 'a4';
 document.getElementById('designFontSize').value = d.fontSize || 'medium';
 document.getElementById('designHeaderStyle').value = d.headerStyle || 'full';
 document.getElementById('designBorder').value = d.border || 'none';
-document.getElementById('designShowLogo').checked = d.showLogo !== false;
 document.getElementById('designShowBank').checked = d.showBank !== false;
 document.getElementById('designShowTax').checked = d.showTax !== false;
-document.getElementById('designShowAnalysis').checked = d.showAnalysis !== false;
 document.getElementById('designShowSignatures').checked = d.showSignatures !== false;
 document.getElementById('designShowFooter').checked = d.showFooter !== false;
-document.getElementById('designShowWatermark').checked = d.showWatermark === true;
 document.getElementById('designCurrency').value = d.currency || 'Rs';
 document.getElementById('designCurrencyPosition').value = d.currencyPosition || 'before';
 document.getElementById('designSlipTitle').value = d.slipTitle || 'SALARY PAY SLIP';
@@ -2339,13 +2999,11 @@ paperSize: document.getElementById('designPaperSize').value,
 fontSize: document.getElementById('designFontSize').value,
 headerStyle: document.getElementById('designHeaderStyle').value,
 border: document.getElementById('designBorder').value,
-showLogo: document.getElementById('designShowLogo').checked,
-showBank: document.getElementById('designShowBank').checked,
-showTax: document.getElementById('designShowTax').checked,
-showAnalysis: document.getElementById('designShowAnalysis').checked,
+showLogo: true, showBank: document.getElementById('designShowBank').checked,
+showTax: document.getElementById('designShowTax').checked, showAnalysis: true,
 showSignatures: document.getElementById('designShowSignatures').checked,
 showFooter: document.getElementById('designShowFooter').checked,
-showWatermark: document.getElementById('designShowWatermark').checked,
+showWatermark: false,
 currency: document.getElementById('designCurrency').value,
 currencyPosition: document.getElementById('designCurrencyPosition').value,
 slipTitle: document.getElementById('designSlipTitle').value,
@@ -2373,7 +3031,6 @@ document.getElementById('cTax').value = c.tax || '';
 document.getElementById('cPhone').value = c.phone || '';
 document.getElementById('cEmail').value = c.email || '';
 document.getElementById('cWeb').value = c.web || '';
-document.getElementById('cLogo').value = c.logo || '';
 document.getElementById('cBank').value = c.bank || '';
 document.getElementById('cBankAccount').value = c.bankAccount || '';
 document.getElementById('cAddress').value = c.address || '';
@@ -2386,17 +3043,17 @@ const cd = {
 name: document.getElementById('cName').value, reg: document.getElementById('cReg').value || '',
 tax: document.getElementById('cTax').value || '', phone: document.getElementById('cPhone').value || '',
 email: document.getElementById('cEmail').value || '', web: document.getElementById('cWeb').value || '',
-logo: document.getElementById('cLogo').value || '', bank: document.getElementById('cBank').value || '',
+bank: document.getElementById('cBank').value || '',
 bankAccount: document.getElementById('cBankAccount').value || '', address: document.getElementById('cAddress').value || ''
 };
-try { showLoading('Saving...'); await saveToFirebase(collections.company, 'config', cd); data.company = cd; toast('Company info saved!'); }
+try { showLoading('Saving...'); await saveToFirebase(collections.company, 'config', cd); data.company = cd; await logTimeline('Updated company info', 'system', cd.name); toast('Company info saved!'); }
 catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function addDepartment() {
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
 const name = document.getElementById('newDept').value.trim(); if (!name) return;
 if (data.departments.includes(name)) { toast('Department exists', 'error'); return; }
-try { showLoading('Adding...'); await saveToFirebase(collections.departments, null, { name }); data.departments.push(name); document.getElementById('newDept').value = ''; renderDepartments(); toast('Department added!'); }
+try { showLoading('Adding...'); await saveToFirebase(collections.departments, null, { name }); data.departments.push(name); document.getElementById('newDept').value = ''; renderDepartments(); await logTimeline('Added department', 'system', name); toast('Department added!'); }
 catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function removeDepartment(name) {
@@ -2406,7 +3063,7 @@ try {
 showLoading('Removing...');
 const deptDoc = await db.collection(collections.departments).where('name', '==', name).get();
 deptDoc.forEach(async doc => { await deleteFromFirebase(collections.departments, doc.id); });
-data.departments = data.departments.filter(d => d !== name); renderDepartments(); toast('Department removed!');
+data.departments = data.departments.filter(d => d !== name); renderDepartments(); await logTimeline('Removed department', 'system', name); toast('Department removed!');
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderDepartments() {
@@ -2448,42 +3105,25 @@ toast('All data cleared!'); setTimeout(() => location.reload(), 1000);
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ DASHBOARD (FIXED) ============
+// ============ DASHBOARD ============
 let charts = {};
 function refreshDashboard() {
 const selectedYear = document.getElementById('dashboardYear')?.value || new Date().getFullYear().toString();
 const selectedMonth = document.getElementById('dashboardMonth')?.value || 'all';
-
-// Get all paid slips
 let allPaidSlips = data.salarySlips.filter(s => s.status === 'Paid');
 if (currentUserRole === USER_ROLES.VIEWER) {
 const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
 allPaidSlips = allPaidSlips.filter(s => wIds.includes(s.workerId));
 }
-
-// Filter slips by year and month for stats
 let filteredSlips = [...allPaidSlips];
-if (selectedYear !== 'all') {
-filteredSlips = filteredSlips.filter(s => s.month && s.month.startsWith(selectedYear));
-}
-if (selectedMonth !== 'all') {
-filteredSlips = filteredSlips.filter(s => s.month && s.month.endsWith('-' + selectedMonth));
-}
-
-// Calculate stats from filtered slips
+if (selectedYear !== 'all') filteredSlips = filteredSlips.filter(s => s.month && s.month.startsWith(selectedYear));
+if (selectedMonth !== 'all') filteredSlips = filteredSlips.filter(s => s.month && s.month.endsWith('-' + selectedMonth));
 const periodPayroll = filteredSlips.reduce((sum, s) => sum + (s.net || 0), 0);
-let periodAdditions = 0;
-let periodDeductions = 0;
+let periodAdditions = 0, periodDeductions = 0;
 filteredSlips.forEach(s => {
-if (s.earnings && Array.isArray(s.earnings)) {
-s.earnings.forEach(e => { if (e.id !== 'basic' && e.id !== 'allowances') periodAdditions += (e.amount || 0); });
-}
-if (s.deductions && Array.isArray(s.deductions)) {
-s.deductions.forEach(d => { periodDeductions += (d.amount || 0); });
-}
+if (s.earnings && Array.isArray(s.earnings)) s.earnings.forEach(e => { if (e.id !== 'basic' && e.id !== 'allowances') periodAdditions += (e.amount || 0); });
+if (s.deductions && Array.isArray(s.deductions)) s.deductions.forEach(d => { periodDeductions += (d.amount || 0); });
 });
-
-// Loans and advances (always show active totals, filtered by viewer role)
 let activeLoans = data.loans.filter(l => l.status === 'Active');
 let activeAdvances = data.advances.filter(a => a.status === 'Active');
 if (currentUserRole === USER_ROLES.VIEWER) {
@@ -2493,11 +3133,8 @@ activeAdvances = activeAdvances.filter(a => wIds.includes(a.workerId));
 }
 const loansTotal = activeLoans.reduce((s, l) => s + (l.remaining || 0), 0);
 const advancesTotal = activeAdvances.reduce((s, a) => s + (a.remaining || 0), 0);
-
 let workers = data.workers;
 if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
-
-// Update stat cards
 document.getElementById('statWorkers').textContent = workers.length;
 document.getElementById('statPayroll').textContent = fmt(periodPayroll);
 document.getElementById('statLoans').textContent = fmt(loansTotal);
@@ -2505,13 +3142,8 @@ document.getElementById('statAdvances').textContent = fmt(advancesTotal);
 document.getElementById('statDeductions').textContent = fmt(periodDeductions);
 document.getElementById('statAdditions').textContent = fmt(periodAdditions);
 document.getElementById('statSlips').textContent = filteredSlips.length;
-
-// Destroy old charts
 Object.values(charts).forEach(c => { if (c && c.destroy) c.destroy(); });
-
-// Build chart data
-const months = [];
-const payrollData = [];
+const months = [], payrollData = [];
 if (selectedYear === 'all') {
 for (let i = 11; i >= 0; i--) {
 const d = new Date(); d.setMonth(d.getMonth() - i);
@@ -2526,7 +3158,6 @@ months.push(monthStr);
 payrollData.push(allPaidSlips.filter(p => p.month === monthStr).reduce((s, p) => s + (p.net || 0), 0));
 }
 }
-
 const payrollCanvas = document.getElementById('payrollChart');
 if (payrollCanvas) {
 charts.payroll = new Chart(payrollCanvas, {
@@ -2535,7 +3166,6 @@ data: { labels: months, datasets: [{ label: 'Net Payroll', data: payrollData, ba
 options: { responsive: true, plugins: { legend: { display: false } } }
 });
 }
-
 const deptData = {};
 workers.forEach(w => { deptData[w.department] = (deptData[w.department] || 0) + 1; });
 const distCanvas = document.getElementById('distributionChart');
@@ -2546,12 +3176,9 @@ data: { labels: Object.keys(deptData), datasets: [{ data: Object.values(deptData
 options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
 });
 }
-
-// Recent activities from timeline
 const activities = data.timeline.slice(0, 8);
 const actDiv = document.getElementById('recentActivities');
 if (!activities.length) {
-// Fallback to slips
 const slipActivities = filteredSlips.slice(-5).reverse();
 if (!slipActivities.length) actDiv.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><h3>No activities</h3></div>';
 else actDiv.innerHTML = slipActivities.map(s => {
@@ -2562,8 +3189,8 @@ return `<div style="display:flex;align-items:center;gap:15px;padding:12px;border
 <div style="font-size:12px;color:var(--gray);">${s.modifiedAt || s.createdAt}</div></div></div>`;
 }).join('');
 } else {
-const colorMap = { slip: 'var(--success)', loan: 'var(--warning)', advance: 'var(--pink)', worker: 'var(--primary)', system: 'var(--danger)' };
-const iconMap = { slip: 'fa-file-invoice', loan: 'fa-hand-holding-usd', advance: 'fa-money-check-alt', worker: 'fa-user', system: 'fa-cog' };
+const colorMap = { slip: 'var(--success)', loan: 'var(--warning)', advance: 'var(--pink)', worker: 'var(--primary)', system: 'var(--danger)', auth: 'var(--purple)', component: 'var(--purple)' };
+const iconMap = { slip: 'fa-file-invoice', loan: 'fa-hand-holding-usd', advance: 'fa-money-check-alt', worker: 'fa-user', system: 'fa-cog', auth: 'fa-sign-in-alt', component: 'fa-puzzle-piece' };
 actDiv.innerHTML = activities.map(a => {
 const color = colorMap[a.type] || 'var(--gray)';
 const icon = iconMap[a.type] || 'fa-info-circle';
@@ -2576,11 +3203,12 @@ return `<div style="display:flex;align-items:center;gap:15px;padding:12px;border
 }
 }
 
-window.onload = async () => {
-if (!data.company.name) {
-data.company = { name: 'LANKA SHOE', phone: '+94 11 234 5678', email: 'info@lankashoe.lk', address: 'No. 45, Shoe Industry Zone, Colombo, Sri Lanka' };
+// Initialize EmailJS on load
+window.addEventListener('load', () => {
+if (data.emailSettings?.emailjsPublicKey) {
+try { emailjs.init(data.emailSettings.emailjsPublicKey); } catch(e) {}
 }
-};
+});
 </script>
 </body>
 </html>
