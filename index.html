@@ -14,91 +14,441 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 
-<!-- ============ CONSOLE BLOCKER ============ -->
+<!-- ============ ULTRA CONSOLE BLOCKER (Mac Brave + All Browsers) ============ -->
 <script>
 (function(){
 'use strict';
 if(window.__consoleBlockerLoaded) return;
 window.__consoleBlockerLoaded = true;
+
 const noop = function(){};
-const blocked = ['log','debug','info','warn','error','table','trace','dir','dirxml','group','groupCollapsed','groupEnd','time','timeEnd','timeLog','assert','clear','count','countReset','profile','profileEnd'];
+const blockedMethods = ['log','debug','info','warn','error','table','trace','dir','dirxml','group','groupCollapsed','groupEnd','time','timeEnd','timeLog','assert','clear','count','countReset','profile','profileEnd','memory','context'];
+
+// 1. Override & freeze console
 try {
-    blocked.forEach(m => {
+    blockedMethods.forEach(m => {
         try { Object.defineProperty(console, m, { value: noop, writable: false, configurable: false }); }
-        catch(e) { console[m] = noop; }
+        catch(e) { try { console[m] = noop; } catch(err){} }
     });
+    try { Object.defineProperty(console, 'clear', { value: noop, writable: false, configurable: false }); } catch(e) {}
     try { Object.freeze(console); } catch(e) {}
-} catch(e) { blocked.forEach(m => { try { console[m] = noop; } catch(err){} }); }
-window.addEventListener('error', function(e){ e.preventDefault(); return true; }, true);
-window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); return true; }, true);
+    try { Object.seal(console); } catch(e) {}
+} catch(e) { blockedMethods.forEach(m => { try { console[m] = noop; } catch(err){} }); }
+
+// 2. Block window.onerror & unhandledrejection from showing
+window.addEventListener('error', function(e){ try { e.preventDefault(); } catch(err){} return true; }, true);
+window.addEventListener('unhandledrejection', function(e){ try { e.preventDefault(); } catch(err){} return true; }, true);
+
+// 3. Detect Brave browser specifically
+const isBrave = (async () => {
+    try {
+        if (navigator.brave && await navigator.brave.isBrave()) return true;
+    } catch(e) {}
+    return false;
+})();
+
+// 4. Override navigator.brave.isBrave to prevent detection
+try {
+    if (navigator.brave && navigator.brave.isBrave) {
+        Object.defineProperty(navigator.brave, 'isBrave', {
+            value: async function(){ return false; },
+            writable: false, configurable: false
+        });
+    }
+} catch(e) {}
+
+// 5. Override Function.prototype.toString to hide our overrides
+const origToString = Function.prototype.toString;
+Function.prototype.toString = function(){
+    if (this === Function.prototype.toString) return 'function toString() { [native code] }';
+    if (this === noop) return 'function () { [native code] }';
+    if (this === window.open) return 'function open() { [native code] }';
+    try { return origToString.call(this); } catch(e) { return ''; }
+};
+
+// 6. DevTools detection via multiple methods
 let devtoolsDetected = false;
 let warningShown = false;
+let detectionPaused = false;
+
 function showDevToolsWarning() {
-    if (warningShown) return;
+    if (warningShown || detectionPaused) return;
     warningShown = true;
+    devtoolsDetected = true;
+    const existing = document.getElementById('devtoolsWarningOverlay');
+    if (existing) existing.remove();
     const overlay = document.createElement('div');
     overlay.id = 'devtoolsWarningOverlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:linear-gradient(135deg,#0f172a,#1e3a8a);z-index:999999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:Inter,sans-serif;';
-    overlay.innerHTML = `<div style="text-align:center;max-width:600px;padding:40px;">
-        <div style="font-size:80px;margin-bottom:20px;">🔒</div>
-        <h1 style="font-size:32px;margin-bottom:15px;font-weight:800;">Access Restricted</h1>
-        <p style="font-size:16px;opacity:0.9;margin-bottom:20px;">Developer tools detected. Please close DevTools and refresh.</p>
-        <button onclick="location.reload()" style="margin-top:20px;padding:12px 30px;background:white;color:#1e40af;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">Reload Page</button>
-    </div>`;
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 50%,#7c3aed 100%);z-index:9999999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:Inter,sans-serif;';
+    overlay.innerHTML = `
+        <div style="text-align:center;max-width:650px;padding:40px;">
+            <div style="font-size:100px;margin-bottom:20px;animation:pulse 2s infinite;">🔒</div>
+            <h1 style="font-size:36px;margin-bottom:15px;font-weight:800;letter-spacing:-1px;">Access Restricted</h1>
+            <p style="font-size:17px;opacity:0.95;margin-bottom:25px;">Developer tools have been detected on your browser.</p>
+            <div style="background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);padding:25px;border-radius:16px;margin-bottom:25px;text-align:left;border:1px solid rgba(255,255,255,0.2);">
+                <p style="margin-bottom:12px;font-weight:600;font-size:15px;">Please close DevTools using:</p>
+                <p style="margin-bottom:8px;"><strong>Windows/Linux:</strong> Press <kbd style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:4px;">F12</kbd> or <kbd style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:4px;">Ctrl+Shift+I</kbd></p>
+                <p style="margin-bottom:8px;"><strong>Mac:</strong> Press <kbd style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:4px;">Cmd+Option+I</kbd></p>
+                <p style="margin-bottom:8px;"><strong>Brave/Chrome:</strong> Menu → More Tools → Developer Tools (uncheck)</p>
+                <p><strong>Safari:</strong> Develop → Show Web Inspector (uncheck)</p>
+            </div>
+            <p style="font-size:13px;opacity:0.7;margin-bottom:20px;">Then click the button below to continue.</p>
+            <button onclick="location.reload()" style="padding:14px 40px;background:white;color:#1e40af;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,0.3);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">🔄 Reload Page</button>
+        </div>
+    `;
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
+    // Disable all interactions
+    document.body.style.pointerEvents = 'none';
+    overlay.style.pointerEvents = 'auto';
 }
-(function detectDevTools(){
+
+function hideDevToolsWarning() {
+    if (!warningShown) return;
+    warningShown = false;
+    devtoolsDetected = false;
+    const ov = document.getElementById('devtoolsWarningOverlay');
+    if (ov) ov.remove();
+    document.body.style.overflow = '';
+    document.body.style.pointerEvents = '';
+}
+
+// Method A: Debugger timing trap (most reliable)
+(function debuggerTrap(){
+    if (detectionPaused) { setTimeout(debuggerTrap, 2000); return; }
     const start = performance.now();
-    (function(){ return false; })['constructor']('debugger')['call']();
+    try {
+        (function(){ return false; })['constructor']('debugger')['call']();
+    } catch(e) {}
     const end = performance.now();
-    if (end - start > 100) {
-        if (!devtoolsDetected) { devtoolsDetected = true; showDevToolsWarning(); }
-    } else {
-        devtoolsDetected = false;
-        if (warningShown) {
-            const ov = document.getElementById('devtoolsWarningOverlay');
-            if (ov) ov.remove();
-            warningShown = false;
-            document.body.style.overflow = '';
-        }
+    if (end - start > 150) {
+        showDevToolsWarning();
+    } else if (devtoolsDetected && end - start < 50) {
+        hideDevToolsWarning();
     }
-    setTimeout(detectDevTools, 1000);
+    setTimeout(debuggerTrap, 800);
 })();
+
+// Method B: Window size detection
 setInterval(function(){
+    if (detectionPaused) return;
     const widthDiff = window.outerWidth - window.innerWidth;
     const heightDiff = window.outerHeight - window.innerHeight;
     if (widthDiff > 160 || heightDiff > 160) {
-        if (!devtoolsDetected) { devtoolsDetected = true; showDevToolsWarning(); }
+        showDevToolsWarning();
     }
-}, 800);
+}, 600);
+
+// Method C: Element toString trap
+(function elementTrap(){
+    const el = document.createElement('div');
+    let accessed = false;
+    Object.defineProperty(el, 'toString', {
+        get: function(){
+            accessed = true;
+            showDevToolsWarning();
+            return function(){ return ''; };
+        }
+    });
+    setInterval(function(){
+        accessed = false;
+        try { console.log('%c', el); } catch(e) {}
+        setTimeout(function(){
+            if (!accessed && devtoolsDetected) {
+                // console.log didn't trigger toString - devtools may be closed
+            }
+        }, 100);
+    }, 1200);
+})();
+
+// Method D: Timing-based detection (setInterval drift)
+(function timingTrap(){
+    let lastTime = Date.now();
+    let lastPerf = performance.now();
+    setInterval(function(){
+        if (detectionPaused) return;
+        const nowTime = Date.now();
+        const nowPerf = performance.now();
+        const timeDiff = nowTime - lastTime;
+        const perfDiff = nowPerf - lastPerf;
+        lastTime = nowTime;
+        lastPerf = nowPerf;
+        // If interval was significantly delayed, debugger may be pausing
+        if (timeDiff > 2000 || perfDiff > 2000) {
+            showDevToolsWarning();
+        }
+    }, 500);
+})();
+
+// Method E: requestAnimationFrame loop
+(function rafTrap(){
+    let lastFrame = performance.now();
+    function check(){
+        if (!detectionPaused) {
+            const now = performance.now();
+            const diff = now - lastFrame;
+            lastFrame = now;
+            // If frame took too long, devtools might be open
+            if (diff > 500 && devtoolsDetected === false) {
+                // Only flag if multiple consecutive slow frames
+            }
+        }
+        requestAnimationFrame(check);
+    }
+    requestAnimationFrame(check);
+})();
+
+// 7. BLOCK ALL KEYBOARD SHORTCUTS (Mac + Windows + Brave-specific)
 document.addEventListener('keydown', function(e){
     const key = e.key ? e.key.toLowerCase() : '';
+    const code = e.code || '';
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
-    if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); e.stopPropagation(); return false; }
-    if (ctrlOrCmd && e.shiftKey && ['i','j','c','k'].includes(key)) { e.preventDefault(); e.stopPropagation(); return false; }
-    if (ctrlOrCmd && e.altKey && ['i','j','c','k','u','s','p'].includes(key)) { e.preventDefault(); e.stopPropagation(); return false; }
-    if (ctrlOrCmd && key === 'u') { e.preventDefault(); e.stopPropagation(); return false; }
-    if (ctrlOrCmd && key === 's') { const tag = (e.target.tagName || '').toUpperCase(); if (tag !== 'INPUT' && tag !== 'TEXTAREA') { e.preventDefault(); e.stopPropagation(); return false; } }
-    if (ctrlOrCmd && key === 'p') { e.preventDefault(); e.stopPropagation(); return false; }
-    if (ctrlOrCmd && key === 'a') { const tag = (e.target.tagName || '').toUpperCase(); if (tag !== 'INPUT' && tag !== 'TEXTAREA') { e.preventDefault(); e.stopPropagation(); return false; } }
-    if (ctrlOrCmd && key === 'f') { e.preventDefault(); e.stopPropagation(); return false; }
+    const tag = (e.target.tagName || '').toUpperCase();
+    const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable;
+
+    // F12 (all browsers)
+    if (e.key === 'F12' || e.keyCode === 123 || code === 'F12') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // PrintScreen
+    if (e.key === 'PrintScreen' || e.keyCode === 44 || code === 'PrintScreen') {
+        e.preventDefault(); e.stopPropagation(); return false;
+    }
+    // Ctrl/Cmd + Shift + I/J/C/K (DevTools - Windows & Mac)
+    if (ctrlOrCmd && e.shiftKey) {
+        if (['i','j','c','k'].includes(key)) {
+            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+        }
+    }
+    // Ctrl/Cmd + Alt/Option + I/J/C/K/U/S/P/E/R (Mac DevTools + Brave)
+    if (ctrlOrCmd && e.altKey) {
+        if (['i','j','c','k','u','s','p','e','r'].includes(key)) {
+            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+        }
+    }
+    // Ctrl/Cmd + U (View Source)
+    if (ctrlOrCmd && key === 'u') {
+        e.preventDefault(); e.stopPropagation(); return false;
+    }
+    // Ctrl/Cmd + S (Save Page) - block outside inputs
+    if (ctrlOrCmd && key === 's') {
+        if (!isInput) { e.preventDefault(); e.stopPropagation(); return false; }
+    }
+    // Ctrl/Cmd + P (Print)
+    if (ctrlOrCmd && key === 'p') {
+        e.preventDefault(); e.stopPropagation(); return false;
+    }
+    // Ctrl/Cmd + F (Find) - block outside inputs
+    if (ctrlOrCmd && key === 'f') {
+        if (!isInput) { e.preventDefault(); e.stopPropagation(); return false; }
+    }
+    // Ctrl/Cmd + G (Find Next)
+    if (ctrlOrCmd && key === 'g') {
+        e.preventDefault(); e.stopPropagation(); return false;
+    }
+    // Ctrl/Cmd + H (History)
+    if (ctrlOrCmd && key === 'h') {
+        e.preventDefault(); e.stopPropagation(); return false;
+    }
+    // Ctrl/Cmd + D (Bookmark)
+    if (ctrlOrCmd && key === 'd') {
+        e.preventDefault(); e.stopPropagation(); return false;
+    }
+    // Ctrl/Cmd + , (Preferences)
+    if (ctrlOrCmd && key === ',') {
+        e.preventDefault(); e.stopPropagation(); return false;
+    }
+    // Ctrl/Cmd + Shift + Delete (Clear Data)
+    if (ctrlOrCmd && e.shiftKey && (key === 'delete' || e.keyCode === 46)) {
+        e.preventDefault(); e.stopPropagation(); return false;
+    }
+    // Ctrl/Cmd + Shift + R (Hard Reload)
+    if (ctrlOrCmd && e.shiftKey && key === 'r') {
+        e.preventDefault(); e.stopPropagation(); return false;
+    }
+    // Ctrl/Cmd + A (Select All) - block outside inputs
+    if (ctrlOrCmd && key === 'a') {
+        if (!isInput) { e.preventDefault(); e.stopPropagation(); return false; }
+    }
+    // Escape when devtools detected
+    if (key === 'escape' && devtoolsDetected) {
+        e.preventDefault(); e.stopPropagation(); return false;
+    }
 }, true);
-document.addEventListener('contextmenu', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, true);
-document.addEventListener('selectstart', function(e){ const tag = (e.target.tagName || '').toUpperCase(); if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) { e.preventDefault(); return false; } }, true);
-['copy','cut'].forEach(function(evt){ document.addEventListener(evt, function(e){ const tag = (e.target.tagName || '').toUpperCase(); if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) { e.preventDefault(); e.stopPropagation(); return false; } }, true); });
+
+// Also block keyup and keypress for safety
+['keyup','keypress'].forEach(evt => {
+    document.addEventListener(evt, function(e){
+        if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault(); e.stopPropagation(); return false;
+        }
+    }, true);
+});
+
+// 8. BLOCK RIGHT-CLICK CONTEXT MENU
+document.addEventListener('contextmenu', function(e){
+    e.preventDefault(); e.stopPropagation(); return false;
+}, true);
+
+// 9. BLOCK TEXT SELECTION (except inputs)
+document.addEventListener('selectstart', function(e){
+    const tag = (e.target.tagName || '').toUpperCase();
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) {
+        e.preventDefault(); return false;
+    }
+}, true);
+
+// 10. BLOCK COPY/CUT (except inputs)
+['copy','cut'].forEach(function(evt){
+    document.addEventListener(evt, function(e){
+        const tag = (e.target.tagName || '').toUpperCase();
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) {
+            e.preventDefault(); e.stopPropagation(); return false;
+        }
+    }, true);
+});
+
+// 11. BLOCK DRAG
 document.addEventListener('dragstart', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, true);
-if (window.top !== window.self) { try { window.top.location = window.self.location; } catch(e) { document.body.innerHTML = '<div style="padding:50px;text-align:center;"><h1>Access Denied</h1></div>'; } }
-setInterval(function(){ try { blocked.forEach(m => { if (console[m] !== noop) { try { console[m] = noop; } catch(e){} } }); } catch(e){} }, 2000);
+document.addEventListener('drop', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, true);
+
+// 12. BLOCK IFRAME INJECTION
+if (window.top !== window.self) {
+    try { window.top.location = window.self.location; }
+    catch(e) { document.body.innerHTML = '<div style="padding:50px;text-align:center;"><h1>Access Denied</h1></div>'; }
+}
+
+// 13. BLOCK window.open for devtools URLs
+const origOpen = window.open;
+window.open = function(){
+    const url = arguments[0] || '';
+    if (url && (url.includes('devtools') || url.includes('inspect') || url === 'about:blank' || url === 'chrome://')) {
+        return null;
+    }
+    try { return origOpen.apply(window, arguments); } catch(e) { return null; }
+};
+
+// 14. PERIODIC CONSOLE RE-FREEZE
+setInterval(function(){
+    try {
+        blockedMethods.forEach(m => {
+            if (console[m] !== noop) {
+                try { console[m] = noop; } catch(e){}
+            }
+        });
+    } catch(e){}
+}, 1000);
+
+// 15. MutationObserver - re-show warning if removed
+const observer = new MutationObserver(function(mutations){
+    mutations.forEach(function(m){
+        if (m.type === 'childList') {
+            m.removedNodes.forEach(function(node){
+                if (node.id === 'devtoolsWarningOverlay') {
+                    setTimeout(showDevToolsWarning, 50);
+                }
+            });
+        }
+    });
+});
+if (document.body) observer.observe(document.body, { childList: true, subtree: true });
+else document.addEventListener('DOMContentLoaded', function(){ observer.observe(document.body, { childList: true, subtree: true }); });
+
+// 16. Detect focus loss (user switching to devtools window)
+let lastFocus = Date.now();
+window.addEventListener('blur', function(){
+    lastFocus = Date.now();
+}, true);
+window.addEventListener('focus', function(){
+    const gap = Date.now() - lastFocus;
+    // If focus was lost for a long time and came back, might be devtools
+    if (gap > 3000 && !devtoolsDetected) {
+        // Don't auto-flag, but check size
+        const widthDiff = window.outerWidth - window.innerWidth;
+        const heightDiff = window.outerHeight - window.innerHeight;
+        if (widthDiff > 160 || heightDiff > 160) {
+            showDevToolsWarning();
+        }
+    }
+}, true);
+
+// 17. Visibility change detection
+document.addEventListener('visibilitychange', function(){
+    if (document.hidden && devtoolsDetected) {
+        // DevTools was open and user hid the tab
+    }
+});
+
+// 18. Block PrintScreen via clipboard
+document.addEventListener('keyup', function(e){
+    if (e.key === 'PrintScreen' || e.keyCode === 44) {
+        try {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText('').catch(function(){});
+            }
+        } catch(err){}
+        const warn = document.createElement('div');
+        warn.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#dc2626;color:white;padding:15px 25px;border-radius:10px;z-index:9999999;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,0.3);';
+        warn.textContent = '⚠️ Screenshots are not allowed';
+        document.body.appendChild(warn);
+        setTimeout(function(){ warn.remove(); }, 3000);
+    }
+}, true);
+
+// 19. Block browser back/forward with devtools
+window.addEventListener('beforeunload', function(e){
+    if (devtoolsDetected) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+    }
+});
+
+// 20. Anti-tamper: Detect attempts to bypass via Proxy/Reflect
+try {
+    const origFunc = Function;
+    const handler = {
+        construct: function(target, args) {
+            const code = args[0] || '';
+            if (code.includes('debugger') || code.includes('console')) {
+                throw new Error('Blocked');
+            }
+            return new target(...args);
+        },
+        apply: function(target, thisArg, args) {
+            const code = args[0] || '';
+            if (typeof code === 'string' && (code.includes('debugger') || code.includes('console'))) {
+                return noop;
+            }
+            return target.apply(thisArg, args);
+        }
+    };
+    window.Function = new Proxy(origFunc, handler);
+} catch(e) {}
+
+// Initial console message
+try {
+    console.log('%c⚠️ ACCESS RESTRICTED', 'color:red;font-size:40px;font-weight:bold;');
+    console.log('%cThis system is protected. Console access is disabled.', 'color:orange;font-size:16px;');
+} catch(e) {}
+
 })();
 </script>
 
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
-html, body, div, span, p, a, h1, h2, h3, h4, h5, h6, img, table, tr, td { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
-input, textarea, select, [contenteditable="true"] { -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text; }
+/* ANTI-SELECTION CSS */
+html, body, div, span, p, a, h1, h2, h3, h4, h5, h6, img, table, tr, td, li, ul, ol {
+    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+}
+input, textarea, select, [contenteditable="true"] {
+    -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text;
+}
 img { -webkit-user-drag: none; pointer-events: none; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
 :root {
 --primary: #1e40af; --primary-dark: #1e3a8a; --primary-light: #3b82f6;
 --secondary: #0891b2; --success: #059669; --danger: #dc2626;
@@ -350,7 +700,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .myla-section-header.advances { background: linear-gradient(135deg, #db2777, #ec4899); }
 .myla-section-header h3 { font-size: 16px; display: flex; align-items: center; gap: 10px; }
 .myla-section-header .count-badge { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-.myla-section-body { padding: 15px; max-height: 500px; overflow-y: auto; }
+.myla-section-body { padding: 15px; max-height: 600px; overflow-y: auto; }
 .myla-card { background: #f8fafc; border-radius: 10px; padding: 15px; margin-bottom: 12px; border: 1px solid var(--border); transition: all 0.3s; }
 .myla-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--primary-light); }
 .myla-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -374,12 +724,29 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .myla-card-footer .status-badge { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
 .myla-card-footer .status-badge.active { background: #fef3c7; color: #92400e; }
 .myla-card-footer .status-badge.completed { background: #d1fae5; color: #065f46; }
-.myla-card-actions { display: flex; gap: 5px; }
+.myla-card-actions { display: flex; gap: 5px; flex-wrap: wrap; }
 .myla-card-actions button { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; transition: all 0.2s; }
 .myla-card-actions button:hover { background: var(--primary); color: white; border-color: var(--primary); }
 .myla-card-actions button.danger:hover { background: var(--danger); border-color: var(--danger); }
+.myla-card-actions button.history-btn { background: var(--purple); color: white; border-color: var(--purple); }
+.myla-card-actions button.history-btn:hover { background: #6d28d9; }
 .myla-empty { text-align: center; padding: 30px 15px; color: var(--gray); }
 .myla-empty i { font-size: 40px; opacity: 0.3; margin-bottom: 10px; }
+.history-panel { margin-top: 12px; padding: 12px; background: white; border-radius: 8px; border: 1px solid var(--border); }
+.history-panel h5 { font-size: 13px; color: var(--dark); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.history-entry { padding: 10px; background: #f8fafc; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--purple); }
+.history-entry-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; flex-wrap: wrap; gap: 8px; }
+.history-entry-info { flex: 1; min-width: 200px; }
+.history-entry-info .he-type { font-size: 12px; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
+.history-entry-info .he-meta { font-size: 11px; color: var(--gray); }
+.history-entry-amounts { display: flex; gap: 15px; margin-top: 6px; font-size: 12px; flex-wrap: wrap; }
+.history-entry-amounts span { display: flex; flex-direction: column; }
+.history-entry-amounts .lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; }
+.history-entry-amounts .val { font-weight: 700; }
+.history-entry-actions { display: flex; gap: 5px; }
+.history-entry-actions button { padding: 4px 10px; font-size: 11px; border-radius: 5px; border: 1px solid var(--border); background: white; cursor: pointer; transition: all 0.2s; }
+.history-entry-actions button:hover { background: var(--primary); color: white; border-color: var(--primary); }
+.history-entry-actions button.danger:hover { background: var(--danger); border-color: var(--danger); }
 .tab-filter-bar { display: flex; gap: 10px; flex-wrap: wrap; padding: 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); }
 .tab-filter-bar select, .tab-filter-bar input { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 12px; background: white; }
 .tab-filter-bar label { font-size: 11px; font-weight: 600; color: var(--gray); text-transform: uppercase; }
@@ -589,6 +956,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <h4><i class="fas fa-info-circle"></i> About Loans</h4>
 <p>✅ Long-term loans with monthly installments</p>
 <p>✅ Installment auto-appears in pay slip and reduces balance when paid</p>
+<p>✅ Admin can view full adding history, edit, or delete individual entries</p>
 </div>
 <div class="table-container">
 <table>
@@ -616,6 +984,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <h4><i class="fas fa-info-circle"></i> About Salary Advances</h4>
 <p>✅ Short-term advances merged with existing active advances</p>
 <p>✅ Auto-deducted from pay slip</p>
+<p>✅ Admin can review full history, edit, or delete individual additions</p>
 </div>
 <div class="table-container">
 <table>
@@ -997,6 +1366,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <h4><i class="fas fa-lightbulb"></i> Advance Merging</h4>
 <p>• If worker has active advance, new amount will be <strong>added</strong> to it</p>
 <p>• Installment recalculated automatically</p>
+<p>• Each addition is tracked in history for admin review</p>
 </div>
 <form id="advanceForm" onsubmit="addAdvance(event)">
 <div class="form-grid">
@@ -1015,6 +1385,31 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <div class="modal-footer">
 <button class="btn btn-secondary" onclick="closeModal('addAdvanceModal')">Cancel</button>
 <button class="btn btn-pink" onclick="document.getElementById('advanceForm').requestSubmit()"><i class="fas fa-money-check-alt"></i> Issue Advance</button>
+</div>
+</div>
+</div>
+
+<!-- NEW: History Entry Edit Modal -->
+<div class="modal" id="editHistoryEntryModal">
+<div class="modal-content" style="max-width:600px;">
+<div class="modal-header"><h2 id="historyEntryModalTitle"><i class="fas fa-edit"></i> Edit History Entry</h2><button class="close-btn" onclick="closeModal('editHistoryEntryModal')">&times;</button></div>
+<div class="modal-body">
+<input type="hidden" id="heEntityType">
+<input type="hidden" id="heEntityId">
+<input type="hidden" id="heEntryId">
+<div class="form-grid">
+<div class="form-group"><label>Amount (Rs) *</label><input type="number" id="heAmount" step="0.01" required></div>
+<div class="form-group"><label>Installment (Rs) *</label><input type="number" id="heInstallment" step="0.01" required></div>
+<div class="form-group"><label>Type</label><input type="text" id="heType"></div>
+<div class="form-group"><label>Reason</label><input type="text" id="heReason"></div>
+</div>
+<div style="margin-top:15px;padding:12px;background:#fef3c7;border-radius:8px;border-left:4px solid var(--warning);font-size:12px;color:#78350f;">
+<strong>⚠️ Note:</strong> Editing this entry will recalculate the total amount, installment, and remaining balance. Any paid slips that deducted from this advance/loan will also be adjusted automatically.
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-secondary" onclick="closeModal('editHistoryEntryModal')">Cancel</button>
+<button class="btn btn-primary" onclick="saveHistoryEntryEdit()"><i class="fas fa-save"></i> Save Changes</button>
 </div>
 </div>
 </div>
@@ -1097,7 +1492,6 @@ appId: "1:855308990839:web:8816b4a7fd95377e21c972",
 measurementId: "G-64NXH3T93L"
 };
 
-// 🔥 CRITICAL FIX: Initialize Firebase with proper error handling
 let firebaseApp, db, auth;
 let firebaseReady = false;
 
@@ -1107,41 +1501,24 @@ try {
     auth = firebase.auth();
     firebaseReady = true;
 } catch (initError) {
-    console.error('Firebase initialization failed:', initError);
     alert('Firebase initialization failed. Please refresh the page.');
 }
 
-// 🔥 AUTH READY CHECK - Prevents "cannot access auth before initialization" error
 function ensureAuthReady() {
     return new Promise((resolve, reject) => {
-        if (!firebaseReady) {
-            reject(new Error('Firebase not initialized'));
-            return;
-        }
-        // Check if auth is actually accessible
+        if (!firebaseReady) { reject(new Error('Firebase not initialized')); return; }
         try {
-            if (auth && typeof auth.signInWithPopup === 'function') {
-                resolve(auth);
-                return;
-            }
-        } catch (e) {
-            // Auth not ready yet
-        }
-        
-        // Wait for auth to be ready with timeout
+            if (auth && typeof auth.signInWithPopup === 'function') { resolve(auth); return; }
+        } catch (e) {}
         let attempts = 0;
-        const maxAttempts = 50; // 5 seconds max
+        const maxAttempts = 50;
         const checkInterval = setInterval(() => {
             attempts++;
             try {
                 if (auth && typeof auth.signInWithPopup === 'function') {
-                    clearInterval(checkInterval);
-                    resolve(auth);
-                    return;
+                    clearInterval(checkInterval); resolve(auth); return;
                 }
-            } catch (e) {
-                // Still not ready
-            }
+            } catch (e) {}
             if (attempts >= maxAttempts) {
                 clearInterval(checkInterval);
                 reject(new Error('Auth initialization timeout. Please refresh the page.'));
@@ -1223,7 +1600,6 @@ async function loadUserRoles() {
     } catch(e) {}
 }
 
-// 🔥 FIXED: Auth state change with proper error handling
 if (firebaseReady) {
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -1247,63 +1623,44 @@ if (firebaseReady) {
     });
 }
 
-// 🔥 FIXED: Google Sign-In with proper auth initialization check
 async function signInWithGoogle() {
     const btn = document.getElementById('googleSignInBtn');
     const btnText = document.getElementById('googleBtnText');
     const originalText = btnText.textContent;
-    
     try {
         btn.disabled = true;
         btnText.textContent = 'Initializing...';
         showLoading('Initializing Firebase Auth...');
-        
-        // 🔥 CRITICAL: Wait for auth to be fully ready
         await ensureAuthReady();
-        
         btnText.textContent = 'Connecting to Google...';
-        
         if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
         await loadUserRoles();
-        
         const provider = new firebase.auth.GoogleAuthProvider();
-        // Force account selection to avoid cached session issues
         provider.setCustomParameters({ prompt: 'select_account' });
-        
         const result = await auth.signInWithPopup(provider);
-        
-        if (!isAuthorizedUser(result.user.email)) { 
-            toast('Access denied. Your email is not authorized.', 'error'); 
-            await auth.signOut(); 
-            return; 
+        if (!isAuthorizedUser(result.user.email)) {
+            toast('Access denied.', 'error'); await auth.signOut(); return;
         }
         let role = result.user.email === DEFAULT_ADMIN_EMAIL ? USER_ROLES.ADMIN : getUserRole(result.user.email);
         toast(`Welcome ${result.user.displayName || result.user.email}! Role: ${role.toUpperCase()}`);
     } catch(error) {
         let msg = 'Google Sign-In failed. ';
-        if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Please allow popups for this site.';
-        else if (error.code === 'auth/popup-closed-by-user') msg = 'Popup was closed. Please try again.';
-        else if (error.code === 'auth/unauthorized-domain') msg = 'This domain is not authorized in Firebase Console.';
-        else if (error.code === 'auth/operation-not-allowed') msg = 'Google Sign-In is not enabled in Firebase.';
-        else if (error.code === 'auth/network-request-failed') msg = 'Network error. Check your internet connection.';
-        else if (error.code === 'auth/cancelled-popup-request') msg = 'Sign-in was cancelled.';
+        if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Please allow popups.';
+        else if (error.code === 'auth/popup-closed-by-user') msg = 'Popup was closed.';
+        else if (error.code === 'auth/unauthorized-domain') msg = 'Domain not authorized.';
+        else if (error.code === 'auth/operation-not-allowed') msg = 'Google Sign-In not enabled.';
+        else if (error.code === 'auth/network-request-failed') msg = 'Network error.';
         else if (error.message && error.message.includes('before initialization')) {
-            msg = 'Firebase Auth is still initializing. Please wait a moment and try again.';
-            // Auto-retry after delay
-            setTimeout(() => {
-                btn.disabled = false;
-                btnText.textContent = originalText;
-                hideLoading();
-            }, 2000);
-            toast(msg, 'error');
-            return;
+            msg = 'Auth still initializing. Please wait and retry.';
+            setTimeout(() => { btn.disabled = false; btnText.textContent = originalText; hideLoading(); }, 2000);
+            toast(msg, 'error'); return;
         }
         else msg += error.message || 'Unknown error';
         toast(msg, 'error');
-    } finally { 
+    } finally {
         btn.disabled = false;
         btnText.textContent = originalText;
-        hideLoading(); 
+        hideLoading();
     }
 }
 
@@ -1317,22 +1674,22 @@ async function signInWithEmail(e) {
         const email = document.getElementById('loginEmail').value;
         if (!isAuthorizedUser(email)) { toast('Access denied.', 'error'); hideLoading(); return; }
         await auth.signInWithEmailAndPassword(email, document.getElementById('loginPassword').value);
-    } catch(error) { 
+    } catch(error) {
         if (error.message && error.message.includes('before initialization')) {
             toast('Auth still initializing. Please wait and retry.', 'error');
         } else {
-            toast('Sign-in failed: ' + error.message, 'error'); 
+            toast('Sign-in failed: ' + error.message, 'error');
         }
     } finally { hideLoading(); }
 }
 
 async function resetPassword() {
     const email = prompt('Enter your email:'); if (!email) return;
-    try { 
-        showLoading('Sending email...'); 
+    try {
+        showLoading('Sending email...');
         await ensureAuthReady();
-        await auth.sendPasswordResetEmail(email); 
-        toast('Reset email sent!'); 
+        await auth.sendPasswordResetEmail(email);
+        toast('Reset email sent!');
     } catch(error) { toast('Failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
@@ -1361,6 +1718,8 @@ const fmt = (n) => {
 };
 const today = () => new Date().toISOString().split('T')[0];
 const currentMonth = () => new Date().toISOString().slice(0,7);
+const genId = () => Date.now().toString(36) + Math.random().toString(36).substr(2,5);
+
 let data = { workers: [], additions: [], deductions: [], loans: [], advances: [], salarySlips: [], salaryComponents: [], company: {}, salarySettings: {}, payslipDesign: {}, departments: [], timeline: [], emailSettings: {} };
 
 async function loadData() {
@@ -1392,6 +1751,9 @@ async function loadData() {
         if (snaps[7].exists) data.company = snaps[7].data();
         if (snaps[8].exists) data.salarySettings = snaps[8].data();
         if (snaps[9].exists) data.payslipDesign = snaps[9].data();
+        // Ensure all loans/advances have history array
+        data.loans.forEach(l => { if (!l.history) l.history = []; });
+        data.advances.forEach(a => { if (!a.history) a.history = []; });
         if (!data.salaryComponents.length) {
             data.salaryComponents = [
                 { id: 'c1', name: 'Transport Allowance', type: 'earning', calcType: 'fixed', value: 2000, active: true, applicableWorkers: [] },
@@ -1840,7 +2202,10 @@ return `<tr><td><span class="badge badge-warning">${l.type}</span></td><td>${fmt
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></td>
 <td><span class="badge ${l.status==='Active'?'badge-warning':'badge-success'}">${l.status}</span></td>
 <td>${canAdmin ? `<div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
-<div class="action-dropdown"><div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div></div></div>` : ''}</td>
+<div class="action-dropdown">
+<div class="action-dropdown-item info" onclick="viewLoanHistory('${l.id}')"><i class="fas fa-history"></i> History</div>
+<div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>
+</div></div>` : ''}</td>
 </tr>`;
 }).join('')}</tbody></table></div>`;
 }
@@ -1865,7 +2230,10 @@ return `<tr><td><span class="badge badge-pink">${a.type}</span></td><td>${fmt(a.
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:linear-gradient(90deg,#db2777,#ec4899);"></div></div></td>
 <td><span class="badge ${a.status==='Active'?'badge-pink':'badge-success'}">${a.status}</span></td>
 <td>${canAdmin ? `<div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
-<div class="action-dropdown"><div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div></div></div>` : ''}</td>
+<div class="action-dropdown">
+<div class="action-dropdown-item info" onclick="viewAdvanceHistory('${a.id}')"><i class="fas fa-history"></i> History</div>
+<div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>
+</div></div>` : ''}</td>
 </tr>`;
 }).join('')}</tbody></table></div>`;
 }
@@ -2046,7 +2414,9 @@ async function deleteTransaction(id, type) {
     } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// My Loans & Advances
+// ============================================
+// MY LOANS & ADVANCES (with history support)
+// ============================================
 function renderMyLoansAdvances() {
     const titleEl = document.getElementById('myloansTitle');
     const selectorEl = document.getElementById('mylaWorkerSelector');
@@ -2123,6 +2493,7 @@ ${data.workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>
         advancesContainer.innerHTML = advances.map(a => renderMylaCard(a, 'advance', canAdmin)).join('');
     }
 }
+
 function renderMylaCard(item, kind, canAdmin) {
     const w = data.workers.find(x => x.id === item.workerId);
     const pct = item.amount > 0 ? ((item.paid||0) / item.amount * 100).toFixed(1) : 0;
@@ -2130,6 +2501,7 @@ function renderMylaCard(item, kind, canAdmin) {
     const typeBadgeClass = isLoan ? 'loan' : 'advance';
     const progressColor = isLoan ? 'linear-gradient(90deg,#d97706,#f59e0b)' : 'linear-gradient(90deg,#db2777,#ec4899)';
     const statusClass = item.status === 'Active' ? 'active' : item.status === 'Reversed' ? 'reversed' : 'completed';
+    const historyCount = (item.history || []).length;
     return `
 <div class="myla-card">
 <div class="myla-card-header">
@@ -2155,19 +2527,346 @@ function renderMylaCard(item, kind, canAdmin) {
 <div class="progress"><div class="progress-bar" style="width:${pct}%;background:${progressColor};"></div></div>
 <div style="font-size:11px;color:var(--gray);margin-top:5px;">
 <i class="fas fa-calendar"></i> Start: ${item.startMonth || '-'} • Issue: ${item.issueDate || '-'}
+${historyCount > 0 ? ` • <strong>${historyCount} history entries</strong>` : ''}
 </div>
 </div>
 <div class="myla-card-footer">
 <span class="status-badge ${statusClass}">${item.status}</span>
 <div class="myla-card-actions">
 ${w ? `<button onclick="openWorkerDetail('${w.id}')" title="View Worker"><i class="fas fa-user"></i></button>` : ''}
+${canAdmin ? `<button class="history-btn" onclick="toggleHistoryPanel('${kind}','${item.id}')" title="View History"><i class="fas fa-history"></i> History (${historyCount})</button>` : ''}
 ${canAdmin ? `<button class="danger" onclick="${isLoan?`deleteLoan('${item.id}')`:`deleteAdvance('${item.id}')`}" title="Delete"><i class="fas fa-trash"></i></button>` : ''}
 </div>
 </div>
+<div id="historyPanel_${kind}_${item.id}" class="history-panel" style="display:none;"></div>
 </div>`;
 }
 
-// Loans
+// ============================================
+// HISTORY PANEL - Show full adding history
+// ============================================
+function toggleHistoryPanel(kind, entityId) {
+    const panel = document.getElementById(`historyPanel_${kind}_${entityId}`);
+    if (!panel) return;
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        renderHistoryPanel(kind, entityId);
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function renderHistoryPanel(kind, entityId) {
+    const panel = document.getElementById(`historyPanel_${kind}_${entityId}`);
+    if (!panel) return;
+    const entity = kind === 'loan' ? data.loans.find(l => l.id === entityId) : data.advances.find(a => a.id === entityId);
+    if (!entity) return;
+    const history = entity.history || [];
+    const canAdmin = hasPermission(USER_ROLES.ADMIN);
+    let html = `<h5><i class="fas fa-history" style="color:var(--purple);"></i> Full Adding History (${history.length} entries)</h5>`;
+    if (history.length === 0) {
+        html += `<p style="color:var(--gray);font-size:12px;text-align:center;padding:10px;">No history entries found. This may be an older record created before history tracking was enabled.</p>`;
+    } else {
+        html += history.slice().reverse().map(entry => {
+            return `<div class="history-entry">
+<div class="history-entry-header">
+<div class="history-entry-info">
+<div class="he-type">${entry.type || 'Unknown Type'}</div>
+<div class="he-meta">
+<i class="fas fa-calendar"></i> ${entry.date || '-'} 
+${entry.addedByName ? `• <i class="fas fa-user"></i> ${entry.addedByName}` : ''}
+</div>
+</div>
+${canAdmin ? `<div class="history-entry-actions">
+<button onclick="openEditHistoryEntry('${kind}','${entityId}','${entry.id}')"><i class="fas fa-edit"></i> Edit</button>
+<button class="danger" onclick="deleteHistoryEntry('${kind}','${entityId}','${entry.id}')"><i class="fas fa-trash"></i> Delete</button>
+</div>` : ''}
+</div>
+<div class="history-entry-amounts">
+<span><span class="lbl">Amount Added</span><span class="val" style="color:var(--success);">+${fmt(entry.amountAdded || 0)}</span></span>
+<span><span class="lbl">Installment Added</span><span class="val" style="color:var(--primary);">+${fmt(entry.installmentAdded || 0)}/mo</span></span>
+${entry.reason ? `<span><span class="lbl">Reason</span><span class="val" style="color:var(--gray);font-weight:500;font-size:11px;">${entry.reason}</span></span>` : ''}
+</div>
+</div>`;
+        }).join('');
+    }
+    panel.innerHTML = html;
+}
+
+// ============================================
+// EDIT HISTORY ENTRY - Recalculate everything
+// ============================================
+function openEditHistoryEntry(kind, entityId, entryId) {
+    if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
+    const entity = kind === 'loan' ? data.loans.find(l => l.id === entityId) : data.advances.find(a => a.id === entityId);
+    if (!entity) return;
+    const entry = (entity.history || []).find(h => h.id === entryId);
+    if (!entry) return;
+    document.getElementById('heEntityType').value = kind;
+    document.getElementById('heEntityId').value = entityId;
+    document.getElementById('heEntryId').value = entryId;
+    document.getElementById('heAmount').value = entry.amountAdded || 0;
+    document.getElementById('heInstallment').value = entry.installmentAdded || 0;
+    document.getElementById('heType').value = entry.type || '';
+    document.getElementById('heReason').value = entry.reason || '';
+    document.getElementById('historyEntryModalTitle').innerHTML = `<i class="fas fa-edit"></i> Edit ${kind === 'loan' ? 'Loan' : 'Advance'} History Entry`;
+    openModal('editHistoryEntryModal');
+}
+
+async function saveHistoryEntryEdit() {
+    if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
+    const kind = document.getElementById('heEntityType').value;
+    const entityId = document.getElementById('heEntityId').value;
+    const entryId = document.getElementById('heEntryId').value;
+    const newAmount = parseFloat(document.getElementById('heAmount').value) || 0;
+    const newInstallment = parseFloat(document.getElementById('heInstallment').value) || 0;
+    const newType = document.getElementById('heType').value;
+    const newReason = document.getElementById('heReason').value;
+    if (newAmount <= 0) { toast('Amount must be > 0', 'error'); return; }
+    if (newInstallment < 0) { toast('Installment cannot be negative', 'error'); return; }
+    const entity = kind === 'loan' ? data.loans.find(l => l.id === entityId) : data.advances.find(a => a.id === entityId);
+    if (!entity) return;
+    const entryIdx = (entity.history || []).findIndex(h => h.id === entryId);
+    if (entryIdx < 0) return;
+    const oldEntry = entity.history[entryIdx];
+    const amountDiff = newAmount - (oldEntry.amountAdded || 0);
+    const installmentDiff = newInstallment - (oldEntry.installmentAdded || 0);
+    const paidMonthsCount = (entity.paidMonths || []).length;
+    try {
+        showLoading('Recalculating...');
+        // Update entity totals
+        const newTotalAmount = Math.max(0, (entity.amount || 0) + amountDiff);
+        const newTotalInstallment = Math.max(0, (entity.installment || 0) + installmentDiff);
+        const paidAmountFromThisEntry = (oldEntry.installmentAdded || 0) * paidMonthsCount;
+        const newPaidFromThisEntry = newInstallment * paidMonthsCount;
+        const paidDiff = newPaidFromThisEntry - paidAmountFromThisEntry;
+        const newPaid = Math.max(0, (entity.paid || 0) + paidDiff);
+        const newRemaining = Math.max(0, newTotalAmount - newPaid);
+        // Update history entry
+        entity.history[entryIdx] = {
+            ...oldEntry,
+            amountAdded: newAmount,
+            installmentAdded: newInstallment,
+            type: newType,
+            reason: newReason,
+            editedAt: new Date().toISOString(),
+            editedBy: auth.currentUser.displayName || auth.currentUser.email
+        };
+        // Update status
+        let newStatus = entity.status;
+        if (newRemaining <= 0.01) {
+            newStatus = 'Completed';
+        } else {
+            newStatus = 'Active';
+        }
+        // Update paid slips that deducted from this entity
+        await adjustPaidSlipsForEntityEdit(kind, entity, amountDiff, installmentDiff, oldEntry);
+        // Save to Firebase
+        const collection = kind === 'loan' ? collections.loans : collections.advances;
+        await updateInFirebase(collection, entityId, {
+            amount: newTotalAmount,
+            installment: newTotalInstallment,
+            paid: newPaid,
+            remaining: newRemaining,
+            status: newStatus,
+            history: entity.history,
+            modifiedAt: today(),
+            modifiedBy: auth.currentUser.displayName || auth.currentUser.email
+        });
+        const w = data.workers.find(x => x.id === entity.workerId);
+        await logTimeline(`Edited ${kind} history entry`, kind, `${w?.name||'Worker'}: ${fmt(amountDiff)} amount change, ${fmt(installmentDiff)} installment change`, entity.workerId);
+        await loadData();
+        toast('History entry updated! All calculations recalculated.');
+        closeModal('editHistoryEntryModal');
+        // Refresh the current view
+        if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
+        if (document.getElementById('loans')?.classList.contains('active')) renderLoans();
+        if (document.getElementById('advances')?.classList.contains('active')) renderAdvances();
+        if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
+    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+}
+
+// Adjust paid slips when a history entry is edited
+async function adjustPaidSlipsForEntityEdit(kind, entity, amountDiff, installmentDiff, oldEntry) {
+    if (!entity.paidMonths || entity.paidMonths.length === 0) return;
+    const entityPrefix = kind === 'loan' ? 'loan_' : 'advance_';
+    const entityIdKey = kind === 'loan' ? 'loanId' : 'advanceId';
+    const deductedKey = kind === 'loan' ? 'loansDeducted' : 'advancesDeducted';
+    for (const month of entity.paidMonths) {
+        const slip = data.salarySlips.find(s => s.workerId === entity.workerId && s.month === month && s.status === 'Paid');
+        if (!slip) continue;
+        // Find the deduction row for this entity in this slip
+        const deductionId = entityPrefix + entity.id;
+        const deductionRow = (slip.deductions || []).find(d => d.id === deductionId);
+        if (deductionRow) {
+            // Adjust the deduction amount by the installment difference
+            const newDeductionAmount = Math.max(0, (deductionRow.amount || 0) + installmentDiff);
+            deductionRow.amount = newDeductionAmount;
+            // Update the loansDeducted/advancesDeducted array
+            const deductedArr = slip[deductedKey] || [];
+            const deductedItem = deductedArr.find(x => x[entityIdKey] === entity.id);
+            if (deductedItem) {
+                deductedItem.amount = newDeductionAmount;
+            }
+            // Recalculate slip totals
+            const newTotalDeductions = (slip.deductions || []).reduce((s,d) => s + (d.amount||0), 0);
+            const totalEarnings = (slip.earnings || []).reduce((s,e) => s + (e.amount||0), 0);
+            const newNet = totalEarnings - newTotalDeductions;
+            slip.totalDeductions = newTotalDeductions;
+            slip.net = newNet;
+            await updateInFirebase(collections.salarySlips, slip.id, {
+                deductions: slip.deductions,
+                [deductedKey]: deductedArr,
+                totalDeductions: newTotalDeductions,
+                net: newNet,
+                modifiedAt: today(),
+                modifiedBy: auth.currentUser.displayName || auth.currentUser.email
+            });
+        }
+    }
+}
+
+// ============================================
+// DELETE HISTORY ENTRY - Reverse accurately
+// ============================================
+async function deleteHistoryEntry(kind, entityId, entryId) {
+    if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
+    const entity = kind === 'loan' ? data.loans.find(l => l.id === entityId) : data.advances.find(a => a.id === entityId);
+    if (!entity) return;
+    const entry = (entity.history || []).find(h => h.id === entryId);
+    if (!entry) return;
+    const w = data.workers.find(x => x.id === entity.workerId);
+    if (!confirm(`Delete this history entry?\n\nType: ${entry.type}\nAmount: ${fmt(entry.amountAdded)}\nInstallment: ${fmt(entry.installmentAdded)}/mo\nDate: ${entry.date}\n\nThis will:\n• Subtract from total amount & installment\n• Reverse any paid slip deductions\n• Update all calculations\n\nContinue?`)) return;
+    requestSecurityVerification(`Delete ${kind} history entry for ${w?.name||'worker'}`, async () => {
+        try {
+            showLoading('Reversing & recalculating...');
+            const amountToRemove = entry.amountAdded || 0;
+            const installmentToRemove = entry.installmentAdded || 0;
+            const paidMonthsCount = (entity.paidMonths || []).length;
+            const paidAmountFromThisEntry = installmentToRemove * paidMonthsCount;
+            // Reverse from paid slips first
+            await reverseHistoryEntryFromPaidSlips(kind, entity, entry);
+            // Calculate new totals
+            const newTotalAmount = Math.max(0, (entity.amount || 0) - amountToRemove);
+            const newTotalInstallment = Math.max(0, (entity.installment || 0) - installmentToRemove);
+            const newPaid = Math.max(0, (entity.paid || 0) - paidAmountFromThisEntry);
+            const newRemaining = Math.max(0, newTotalAmount - newPaid);
+            // Remove entry from history
+            entity.history = (entity.history || []).filter(h => h.id !== entryId);
+            // Determine new status
+            let newStatus = entity.status;
+            if (newTotalAmount <= 0.01) {
+                newStatus = 'Completed';
+            } else if (newRemaining <= 0.01) {
+                newStatus = 'Completed';
+            } else {
+                newStatus = 'Active';
+            }
+            // If total becomes 0, delete the entire entity
+            if (newTotalAmount <= 0.01) {
+                const collection = kind === 'loan' ? collections.loans : collections.advances;
+                await deleteFromFirebase(collection, entityId);
+                await logTimeline(`Deleted ${kind} (via history)`, kind, `${w?.name||'Worker'}: ${entry.type} - ${fmt(amountToRemove)} (all entries removed)`, entity.workerId);
+            } else {
+                const collection = kind === 'loan' ? collections.loans : collections.advances;
+                await updateInFirebase(collection, entityId, {
+                    amount: newTotalAmount,
+                    installment: newTotalInstallment,
+                    paid: newPaid,
+                    remaining: newRemaining,
+                    status: newStatus,
+                    history: entity.history,
+                    modifiedAt: today(),
+                    modifiedBy: auth.currentUser.displayName || auth.currentUser.email
+                });
+            }
+            await logTimeline(`Deleted ${kind} history entry`, kind, `${w?.name||'Worker'}: ${entry.type} - ${fmt(amountToRemove)}`, entity.workerId);
+            await loadData();
+            toast('History entry deleted! All calculations recalculated.');
+            if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
+            if (document.getElementById('loans')?.classList.contains('active')) renderLoans();
+            if (document.getElementById('advances')?.classList.contains('active')) renderAdvances();
+            if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
+        } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    });
+}
+
+// Reverse a history entry from all paid slips that deducted from this entity
+async function reverseHistoryEntryFromPaidSlips(kind, entity, entry) {
+    if (!entity.paidMonths || entity.paidMonths.length === 0) return;
+    const installmentToRemove = entry.installmentAdded || 0;
+    const entityPrefix = kind === 'loan' ? 'loan_' : 'advance_';
+    const entityIdKey = kind === 'loan' ? 'loanId' : 'advanceId';
+    const deductedKey = kind === 'loan' ? 'loansDeducted' : 'advancesDeducted';
+    for (const month of entity.paidMonths) {
+        const slip = data.salarySlips.find(s => s.workerId === entity.workerId && s.month === month && s.status === 'Paid');
+        if (!slip) continue;
+        const deductionId = entityPrefix + entity.id;
+        const deductionRow = (slip.deductions || []).find(d => d.id === deductionId);
+        if (deductionRow) {
+            const newDeductionAmount = Math.max(0, (deductionRow.amount || 0) - installmentToRemove);
+            if (newDeductionAmount <= 0.01) {
+                // Remove deduction row entirely
+                slip.deductions = (slip.deductions || []).filter(d => d.id !== deductionId);
+                slip[deductedKey] = (slip[deductedKey] || []).filter(x => x[entityIdKey] !== entity.id);
+            } else {
+                deductionRow.amount = newDeductionAmount;
+                const deductedArr = slip[deductedKey] || [];
+                const deductedItem = deductedArr.find(x => x[entityIdKey] === entity.id);
+                if (deductedItem) {
+                    deductedItem.amount = newDeductionAmount;
+                }
+            }
+            // Recalculate slip totals
+            const newTotalDeductions = (slip.deductions || []).reduce((s,d) => s + (d.amount||0), 0);
+            const totalEarnings = (slip.earnings || []).reduce((s,e) => s + (e.amount||0), 0);
+            const newNet = totalEarnings - newTotalDeductions;
+            slip.totalDeductions = newTotalDeductions;
+            slip.net = newNet;
+            await updateInFirebase(collections.salarySlips, slip.id, {
+                deductions: slip.deductions,
+                [deductedKey]: slip[deductedKey],
+                totalDeductions: newTotalDeductions,
+                net: newNet,
+                modifiedAt: today(),
+                modifiedBy: auth.currentUser.displayName || auth.currentUser.email
+            });
+        }
+    }
+}
+
+// ============================================
+// VIEW HISTORY (from worker detail tables)
+// ============================================
+function viewLoanHistory(loanId) {
+    if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
+    currentWorkerDetailId && openWorkerDetail(currentWorkerDetailId);
+    setTimeout(() => {
+        const panel = document.getElementById(`historyPanel_loan_${loanId}`);
+        if (panel) {
+            panel.style.display = 'block';
+            renderHistoryPanel('loan', loanId);
+            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 300);
+}
+
+function viewAdvanceHistory(advanceId) {
+    if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
+    currentWorkerDetailId && openWorkerDetail(currentWorkerDetailId);
+    setTimeout(() => {
+        const panel = document.getElementById(`historyPanel_advance_${advanceId}`);
+        if (panel) {
+            panel.style.display = 'block';
+            renderHistoryPanel('advance', advanceId);
+            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 300);
+}
+
+// ============================================
+// LOANS (with history tracking)
+// ============================================
 function openAddLoanModal() {
     if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
     populateWorkerSelect('lWorker'); document.getElementById('loanForm').reset();
@@ -2178,21 +2877,36 @@ async function addLoan(e) {
     e.preventDefault();
     if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
     const total = parseFloat(document.getElementById('lAmount').value) || 0;
+    const installment = parseFloat(document.getElementById('lInstallment').value) || 0;
     const cu = auth.currentUser;
     const wId = document.getElementById('lWorker').value;
     const w = data.workers.find(x => x.id === wId);
+    const loanType = document.getElementById('lType').value;
+    const reason = document.getElementById('lReason').value || '';
+    const historyEntry = {
+        id: genId(),
+        date: today(),
+        type: loanType,
+        amountAdded: total,
+        installmentAdded: installment,
+        reason: reason,
+        addedBy: cu.email,
+        addedByName: cu.displayName || cu.email
+    };
     const loanData = {
-        workerId: wId, type: document.getElementById('lType').value,
-        amount: total, installment: parseFloat(document.getElementById('lInstallment').value) || 0,
+        workerId: wId, type: loanType,
+        amount: total, installment: installment,
         paid: 0, remaining: total, issueDate: document.getElementById('lIssueDate').value,
-        startMonth: document.getElementById('lStartMonth').value, reason: document.getElementById('lReason').value || '',
-        status: 'Active', paidMonths: [], createdAt: today(),
+        startMonth: document.getElementById('lStartMonth').value, reason: reason,
+        status: 'Active', paidMonths: [],
+        history: [historyEntry],
+        createdAt: today(),
         createdBy: cu.displayName || cu.email, createdByEmail: cu.email
     };
     try {
         showLoading('Issuing loan...');
         await saveToFirebase(collections.loans, null, loanData);
-        await logTimeline('Issued loan', 'loan', `${w?.name||'Worker'}: ${fmt(total)} (${loanData.type})`, wId);
+        await logTimeline('Issued loan', 'loan', `${w?.name||'Worker'}: ${fmt(total)} (${loanType})`, wId);
         await loadData(); toast('Loan issued!'); closeModal('addLoanModal');
     } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
@@ -2219,6 +2933,7 @@ function renderLoans() {
     tbody.innerHTML = loans.map(l => {
         const w = data.workers.find(x => x.id === l.workerId);
         const pct = l.amount > 0 ? ((l.paid||0) / l.amount * 100).toFixed(1) : 0;
+        const historyCount = (l.history || []).length;
         return `<tr><td>${w?w.name:'Unknown'}</td><td><span class="badge badge-warning">${l.type}</span></td>
 <td>${fmt(l.amount)}</td><td>${fmt(l.installment)}</td>
 <td style="color:var(--success);">${fmt(l.paid||0)}</td><td style="color:var(--danger);"><strong>${fmt(l.remaining||0)}</strong></td>
@@ -2228,6 +2943,7 @@ function renderLoans() {
 <td><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown">
 ${w ? `<div class="action-dropdown-item info" onclick="openWorkerDetail('${w.id}')"><i class="fas fa-user"></i> View Worker</div>` : ''}
+${canDel ? `<div class="action-dropdown-item info" onclick="viewLoanHistory('${l.id}')"><i class="fas fa-history"></i> History (${historyCount})</div>` : ''}
 ${canDel ? `<div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div></div></td></tr>`;
     }).join('');
@@ -2267,7 +2983,9 @@ async function deleteLoan(id) {
     } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// Advances
+// ============================================
+// ADVANCES (with history tracking + merging)
+// ============================================
 function openAddAdvanceModal() {
     if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
     populateWorkerSelect('aWorker'); document.getElementById('advanceForm').reset();
@@ -2283,29 +3001,61 @@ async function addAdvance(e) {
     const wId = document.getElementById('aWorker').value;
     const w = data.workers.find(x => x.id === wId);
     const advType = document.getElementById('aType').value;
+    const reason = document.getElementById('aReason').value || '';
+    const newHistoryEntry = {
+        id: genId(),
+        date: today(),
+        type: advType,
+        amountAdded: addAmount,
+        installmentAdded: addInstallment,
+        reason: reason,
+        addedBy: cu.email,
+        addedByName: cu.displayName || cu.email
+    };
     try {
         showLoading('Processing advance...');
         const existingAdvance = data.advances.find(a => a.workerId === wId && a.status === 'Active');
         if (existingAdvance) {
+            // MERGE: Add new amount and add to history
             const newTotal = (existingAdvance.amount || 0) + addAmount;
             const newInstallment = (existingAdvance.installment || 0) + addInstallment;
             const newRemaining = (existingAdvance.remaining || 0) + addAmount;
             const updatedType = existingAdvance.type + ' + ' + advType;
+            const existingHistory = existingAdvance.history || [];
+            // If no history yet (old record), create initial entry from original data
+            if (existingHistory.length === 0) {
+                existingHistory.push({
+                    id: genId(),
+                    date: existingAdvance.createdAt || today(),
+                    type: existingAdvance.type.split(' + ')[0],
+                    amountAdded: existingAdvance.amount - addAmount, // original amount
+                    installmentAdded: existingAdvance.installment - addInstallment,
+                    reason: existingAdvance.reason || 'Initial advance (before history tracking)',
+                    addedBy: existingAdvance.createdByEmail || 'system',
+                    addedByName: existingAdvance.createdBy || 'System',
+                    migrated: true
+                });
+            }
+            existingHistory.push(newHistoryEntry);
             await updateInFirebase(collections.advances, existingAdvance.id, {
                 amount: newTotal, installment: newInstallment, remaining: newRemaining,
                 type: updatedType,
-                reason: (existingAdvance.reason || '') + ' | ' + (document.getElementById('aReason').value || advType + ' added ' + today()),
+                history: existingHistory,
+                reason: (existingAdvance.reason || '') + ' | ' + (reason || advType + ' added ' + today()),
                 modifiedAt: today(), modifiedBy: cu.displayName || cu.email
             });
             await logTimeline('Added to advance', 'advance', `${w?.name||'Worker'}: +${fmt(addAmount)} (Total: ${fmt(newTotal)})`, wId);
-            toast(`Advance merged! New total: ${fmt(newTotal)}`);
+            toast(`Advance merged! New total: ${fmt(newTotal)}. History entry added.`);
         } else {
+            // CREATE NEW with history
             const advData = {
                 workerId: wId, type: advType,
                 amount: addAmount, installment: addInstallment,
                 paid: 0, remaining: addAmount, issueDate: document.getElementById('aIssueDate').value,
-                startMonth: document.getElementById('aStartMonth').value, reason: document.getElementById('aReason').value || '',
-                status: 'Active', paidMonths: [], createdAt: today(),
+                startMonth: document.getElementById('aStartMonth').value, reason: reason,
+                status: 'Active', paidMonths: [],
+                history: [newHistoryEntry],
+                createdAt: today(),
                 createdBy: cu.displayName || cu.email, createdByEmail: cu.email
             };
             await saveToFirebase(collections.advances, null, advData);
@@ -2338,6 +3088,7 @@ function renderAdvances() {
     tbody.innerHTML = advances.map(a => {
         const w = data.workers.find(x => x.id === a.workerId);
         const pct = a.amount > 0 ? ((a.paid||0) / a.amount * 100).toFixed(1) : 0;
+        const historyCount = (a.history || []).length;
         return `<tr><td>${w?w.name:'Unknown'}</td><td><span class="badge badge-pink">${a.type}</span></td>
 <td>${fmt(a.amount)}</td><td>${fmt(a.installment)}</td>
 <td style="color:var(--success);">${fmt(a.paid||0)}</td><td style="color:var(--danger);"><strong>${fmt(a.remaining||0)}</strong></td>
@@ -2347,6 +3098,7 @@ function renderAdvances() {
 <td><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown">
 ${w ? `<div class="action-dropdown-item info" onclick="openWorkerDetail('${w.id}')"><i class="fas fa-user"></i> View Worker</div>` : ''}
+${canDel ? `<div class="action-dropdown-item info" onclick="viewAdvanceHistory('${a.id}')"><i class="fas fa-history"></i> History (${historyCount})</div>` : ''}
 ${canDel ? `<div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div></div></td></tr>`;
     }).join('');
@@ -3119,17 +3871,17 @@ function generateReport() {
                 return [dp, ws.length, fmt(totalBasic), fmt(paid)];
             }); break;
         case 'loan':
-            title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status'];
+            title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History Entries'];
             let loans = data.loans;
             if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); loans = loans.filter(l => wIds.includes(l.workerId)); }
             if (workerId) loans = loans.filter(l => l.workerId === workerId);
-            reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid||0), fmt(l.remaining||0), l.startMonth, l.status]; }); break;
+            reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid||0), fmt(l.remaining||0), l.startMonth, l.status, (l.history||[]).length]; }); break;
         case 'advance':
-            title = 'Advance Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status'];
+            title = 'Advance Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History Entries'];
             let advs = data.advances;
             if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); advs = advs.filter(a => wIds.includes(a.workerId)); }
             if (workerId) advs = advs.filter(a => a.workerId === workerId);
-            reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.installment), fmt(a.paid||0), fmt(a.remaining||0), a.startMonth, a.status]; }); break;
+            reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.installment), fmt(a.paid||0), fmt(a.remaining||0), a.startMonth, a.status, (a.history||[]).length]; }); break;
         case 'addition':
             title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount'];
             let adds = data.additions;
