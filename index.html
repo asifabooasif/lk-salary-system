@@ -133,7 +133,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .action-menu-wrapper { position: relative; display: inline-block; }
 .action-dots-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--gray); padding: 4px 8px; border-radius: 4px; }
 .action-dots-btn:hover { background: var(--border); color: var(--dark); }
-.action-dropdown { display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-lg); min-width: 180px; z-index: 100; overflow: hidden; }
+.action-dropdown { display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-lg); min-width: 200px; z-index: 100; overflow: hidden; }
 .action-dropdown.show { display: block; }
 .action-dropdown-item { padding: 10px 15px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
 .action-dropdown-item:hover { background: #f1f5f9; }
@@ -142,6 +142,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .action-dropdown-item.info { color: var(--primary); }
 .action-dropdown-item.warning { color: var(--warning); }
 .action-dropdown-item.success { color: var(--success); }
+.action-dropdown-item.disabled { opacity: 0.5; cursor: not-allowed; }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
 .modal.show { display: flex; animation: fadeIn 0.3s; }
 .modal-content { background: white; border-radius: 15px; max-width: 1000px; width: 100%; max-height: 90vh; overflow-y: auto; }
@@ -259,6 +260,50 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .email-config-banner { background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 15px; border-radius: 10px; border-left: 4px solid var(--primary); margin-bottom: 15px; }
 .email-config-banner h4 { color: #1e40af; margin-bottom: 5px; }
 .email-config-banner p { font-size: 13px; color: #1e3a8a; }
+/* My Loans & Advances Split UI */
+.myla-split-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.myla-section { background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+.myla-section-header { padding: 18px 22px; color: white; display: flex; justify-content: space-between; align-items: center; }
+.myla-section-header.loans { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.myla-section-header.advances { background: linear-gradient(135deg, #db2777, #ec4899); }
+.myla-section-header h3 { font-size: 16px; display: flex; align-items: center; gap: 10px; }
+.myla-section-header .count-badge { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.myla-section-body { padding: 15px; max-height: 500px; overflow-y: auto; }
+.myla-card { background: #f8fafc; border-radius: 10px; padding: 15px; margin-bottom: 12px; border: 1px solid var(--border); transition: all 0.3s; position: relative; }
+.myla-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--primary-light); }
+.myla-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.myla-card-worker { display: flex; align-items: center; gap: 10px; }
+.myla-card-worker-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
+.myla-card-worker-info h4 { font-size: 14px; color: var(--dark); margin-bottom: 2px; }
+.myla-card-worker-info p { font-size: 11px; color: var(--gray); }
+.myla-card-type { font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
+.myla-card-type.loan { background: #fef3c7; color: #92400e; }
+.myla-card-type.advance { background: #fce7f3; color: #9d174d; }
+.myla-card-amounts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 10px 0; padding: 10px; background: white; border-radius: 8px; }
+.myla-card-amounts .amt-item { text-align: center; }
+.myla-card-amounts .amt-label { font-size: 10px; color: var(--gray); text-transform: uppercase; margin-bottom: 3px; }
+.myla-card-amounts .amt-value { font-size: 14px; font-weight: 700; }
+.myla-card-amounts .amt-value.total { color: var(--dark); }
+.myla-card-amounts .amt-value.paid { color: var(--success); }
+.myla-card-amounts .amt-value.remaining { color: var(--danger); }
+.myla-card-progress { margin-top: 10px; }
+.myla-card-progress .progress-info { display: flex; justify-content: space-between; font-size: 11px; color: var(--gray); margin-bottom: 4px; }
+.myla-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+.myla-card-footer .status-badge { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
+.myla-card-footer .status-badge.active { background: #fef3c7; color: #92400e; }
+.myla-card-footer .status-badge.completed { background: #d1fae5; color: #065f46; }
+.myla-card-footer .status-badge.reversed { background: #fee2e2; color: #991b1b; }
+.myla-card-actions { display: flex; gap: 5px; }
+.myla-card-actions button { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; transition: all 0.2s; }
+.myla-card-actions button:hover { background: var(--primary); color: white; border-color: var(--primary); }
+.myla-card-actions button.danger:hover { background: var(--danger); border-color: var(--danger); }
+.myla-empty { text-align: center; padding: 30px 15px; color: var(--gray); }
+.myla-empty i { font-size: 40px; opacity: 0.3; margin-bottom: 10px; }
+.myla-summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 12px; background: linear-gradient(135deg, rgba(30,64,175,0.05), rgba(8,145,178,0.05)); border-radius: 8px; margin-bottom: 15px; }
+.myla-summary-item { text-align: center; }
+.myla-summary-item .lbl { font-size: 10px; color: var(--gray); text-transform: uppercase; }
+.myla-summary-item .val { font-size: 15px; font-weight: 700; color: var(--dark); margin-top: 2px; }
+@media (max-width: 1024px) { .myla-split-container { grid-template-columns: 1fr; } }
 @media (max-width: 768px) {
 .login-container { grid-template-columns: 1fr; }
 .login-illustration { display: none; }
@@ -270,18 +315,22 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .worker-quick-stats { margin-left: 0; justify-content: center; }
 .slip-row { grid-template-columns: 1fr; }
 .setting-row { grid-template-columns: 1fr; }
+.myla-card-amounts { grid-template-columns: 1fr; }
+.myla-summary-row { grid-template-columns: 1fr 1fr; }
 }
 .menu-toggle { display: none; background: none; border: none; font-size: 22px; cursor: pointer; }
 @media (max-width: 768px) { .menu-toggle { display: block; } }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.tab-filter-bar { display: flex; gap: 10px; flex-wrap: wrap; padding: 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); }
+.tab-filter-bar select, .tab-filter-bar input { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 12px; background: white; }
+.tab-filter-bar label { font-size: 11px; font-weight: 600; color: var(--gray); text-transform: uppercase; }
 </style>
 </head>
 <body>
 <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div class="loading-text">Loading...</div></div>
 
-<!-- LOGIN SCREEN -->
 <div class="login-wrapper" id="loginScreen">
 <div class="login-container">
 <div class="login-illustration">
@@ -308,7 +357,6 @@ Continue with Google
 </div>
 </div>
 
-<!-- MAIN APP -->
 <div class="main-app" id="mainApp">
 <div class="sidebar" id="sidebar">
 <div class="sidebar-header"><h2><i class="fas fa-shoe-prints"></i> LANKA SHOE</h2><p>Salary Management System</p></div>
@@ -396,6 +444,11 @@ Continue with Google
 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
 <input type="text" id="searchWorker" placeholder="Search..." onkeyup="renderWorkers()" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;">
 <select id="filterWorkerDept" onchange="renderWorkers()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;"><option value="">All Depts</option></select>
+<select id="filterWorkerSort" onchange="renderWorkers()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;">
+<option value="nameAsc">Name A-Z</option><option value="nameDesc">Name Z-A</option>
+<option value="salaryDesc">Highest Salary</option><option value="salaryAsc">Lowest Salary</option>
+<option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option>
+</select>
 <button class="btn btn-primary" id="btnAddWorker" onclick="openAddWorkerModal()"><i class="fas fa-plus"></i> Add Worker</button>
 </div>
 </div>
@@ -408,17 +461,12 @@ Continue with Google
 </div>
 </div>
 
-<!-- MY LOANS & ADVANCES (NEW) -->
+<!-- MY LOANS & ADVANCES (NEW SPLIT UI) -->
 <div class="section" id="myloans">
-<div class="card">
+<div class="card" style="margin-bottom:20px;">
 <div class="card-header">
 <h2><i class="fas fa-wallet"></i> <span id="myloansTitle">My Loans & Advances</span></h2>
 <div class="filter-bar" style="padding:0;">
-<select id="mylaFilterType" onchange="renderMyLoansAdvances()">
-<option value="all">All Types</option>
-<option value="loan">Loans Only</option>
-<option value="advance">Advances Only</option>
-</select>
 <select id="mylaFilterYear" onchange="renderMyLoansAdvances()">
 <option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
 </select>
@@ -427,25 +475,32 @@ Continue with Google
 <option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
 </select>
 <select id="mylaFilterStatus" onchange="renderMyLoansAdvances()">
-<option value="all">All Status</option>
-<option value="Active">Active</option><option value="Completed">Completed</option>
+<option value="all">All Status</option><option value="Active">Active</option><option value="Completed">Completed</option>
 </select>
 <select id="mylaSortBy" onchange="renderMyLoansAdvances()">
-<option value="dateDesc">Newest First</option>
-<option value="dateAsc">Oldest First</option>
-<option value="amountDesc">Highest Amount</option>
-<option value="amountAsc">Lowest Amount</option>
+<option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option>
+<option value="amountDesc">Highest Amount</option><option value="amountAsc">Lowest Amount</option>
 <option value="remainingDesc">Highest Remaining</option>
 </select>
 </div>
 </div>
-<div id="mylaSummaryStats" class="stats-grid" style="margin-bottom:20px;"></div>
 <div id="mylaWorkerSelector" style="margin-bottom:15px;"></div>
-<div class="table-container">
-<table>
-<thead><tr><th>Type</th><th>Worker</th><th>Category</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
-<tbody id="mylaTable"></tbody>
-</table>
+<div id="mylaSummaryStats" class="stats-grid" style="margin-bottom:20px;"></div>
+</div>
+<div class="myla-split-container">
+<div class="myla-section">
+<div class="myla-section-header loans">
+<h3><i class="fas fa-hand-holding-usd"></i> LOANS</h3>
+<span class="count-badge" id="loansCountBadge">0</span>
+</div>
+<div class="myla-section-body" id="mylaLoansContainer"></div>
+</div>
+<div class="myla-section">
+<div class="myla-section-header advances">
+<h3><i class="fas fa-money-check-alt"></i> ADVANCES</h3>
+<span class="count-badge" id="advancesCountBadge">0</span>
+</div>
+<div class="myla-section-body" id="mylaAdvancesContainer"></div>
 </div>
 </div>
 </div>
@@ -591,8 +646,11 @@ Continue with Google
 <div class="filter-bar" style="padding:0;">
 <select id="timelineFilterType" onchange="renderTimeline()"><option value="all">All Types</option><option value="slip">Pay Slips</option><option value="loan">Loans</option><option value="advance">Advances</option><option value="worker">Workers</option><option value="component">Components</option><option value="addition">Additions</option><option value="deduction">Deductions</option><option value="auth">Auth</option><option value="system">System</option></select>
 <select id="timelineFilterAction" onchange="renderTimeline()"><option value="all">All Actions</option><option value="created">Created</option><option value="updated">Updated</option><option value="deleted">Deleted</option><option value="reversed">Reversed</option><option value="restored">Restored</option><option value="login">Login</option><option value="logout">Logout</option></select>
+<select id="timelineFilterUser" onchange="renderTimeline()"><option value="all">All Users</option></select>
+<select id="timelineFilterWorker" onchange="renderTimeline()"><option value="all">All Workers</option></select>
 <select id="timelineFilterMonth" onchange="renderTimeline()"><option value="all">All Months</option></select>
 <select id="timelineSortBy" onchange="renderTimeline()"><option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option></select>
+<button class="btn btn-sm btn-info" onclick="exportTimeline()"><i class="fas fa-download"></i> Export</button>
 </div>
 </div>
 <div id="timelineSummaryStats" class="stats-grid" style="margin-bottom:20px;"></div>
@@ -721,7 +779,7 @@ Continue with Google
 </div>
 </div>
 
-<!-- EMAIL SETTINGS (NEW) -->
+<!-- EMAIL SETTINGS -->
 <div class="section" id="emailsettings">
 <div class="card">
 <div class="card-header"><h2><i class="fas fa-envelope"></i> Email Configuration</h2></div>
@@ -740,9 +798,7 @@ Continue with Google
 <div class="form-group"><label>EmailJS Template ID *</label><input type="text" id="emailjsTemplateId" placeholder="template_xxxxxxx"></div>
 <div class="form-group"><label>Sender Name</label><input type="text" id="emailSenderName" value="LANKA SHOE HR"></div>
 <div class="form-group"><label>Reply-To Email</label><input type="email" id="emailReplyTo" placeholder="hr@lankashoe.lk"></div>
-<div class="form-group full"><label>
-<input type="checkbox" id="emailAutoSend" checked> Auto-send pay slip email when finalized
-</label></div>
+<div class="form-group full"><label><input type="checkbox" id="emailAutoSend" checked> Auto-send pay slip email when finalized</label></div>
 <div class="form-group full"><button type="submit" class="btn btn-primary" id="btnSaveEmail"><i class="fas fa-save"></i> Save Email Settings</button></div>
 </div>
 </form>
@@ -796,7 +852,6 @@ Continue with Google
 </div>
 </div>
 
-<!-- SECURITY MODAL -->
 <div class="modal" id="securityModal">
 <div class="modal-content security-modal-content">
 <div class="modal-header"><h2><i class="fas fa-shield-alt" style="color:var(--danger);"></i> Security Verification</h2><button class="close-btn" onclick="closeModal('securityModal')">&times;</button></div>
@@ -856,11 +911,7 @@ Continue with Google
 <div class="form-grid">
 <div class="form-group"><label>Worker *</label><select id="lWorker" required><option value="">Select Worker</option></select></div>
 <div class="form-group"><label>Loan Type *</label>
-<select id="lType" required>
-<option value="">Select Type</option>
-<option>Personal Loan</option><option>Equipment Loan</option>
-<option>Emergency Loan</option><option>Vehicle Loan</option><option>Other</option>
-</select>
+<select id="lType" required><option value="">Select Type</option><option>Personal Loan</option><option>Equipment Loan</option><option>Emergency Loan</option><option>Vehicle Loan</option><option>Other</option></select>
 </div>
 <div class="form-group"><label>Total Loan Amount (Rs) *</label><input type="number" id="lAmount" step="0.01" required></div>
 <div class="form-group"><label>Monthly Installment (Rs) *</label><input type="number" id="lInstallment" step="0.01" required></div>
@@ -890,11 +941,7 @@ Continue with Google
 <div class="form-grid">
 <div class="form-group"><label>Worker *</label><select id="aWorker" required><option value="">Select Worker</option></select></div>
 <div class="form-group"><label>Advance Type *</label>
-<select id="aType" required>
-<option value="">Select Type</option>
-<option>Salary Advance</option><option>Festival Advance</option>
-<option>Emergency Cash</option><option>Transport Advance</option><option>Other</option>
-</select>
+<select id="aType" required><option value="">Select Type</option><option>Salary Advance</option><option>Festival Advance</option><option>Emergency Cash</option><option>Transport Advance</option><option>Other</option></select>
 </div>
 <div class="form-group"><label>Advance Amount (Rs) *</label><input type="number" id="aAmount" step="0.01" required></div>
 <div class="form-group"><label>Monthly Installment (Rs) *</label><input type="number" id="aInstallment" step="0.01" required></div>
@@ -918,16 +965,9 @@ Continue with Google
 <input type="hidden" id="compEditId">
 <div class="form-grid">
 <div class="form-group"><label>Component Name *</label><input type="text" id="compName" placeholder="e.g., Transport Allowance"></div>
-<div class="form-group"><label>Type *</label>
-<select id="compType"><option value="earning">Earning</option><option value="deduction">Deduction</option></select>
-</div>
+<div class="form-group"><label>Type *</label><select id="compType"><option value="earning">Earning</option><option value="deduction">Deduction</option></select></div>
 <div class="form-group"><label>Calculation Method *</label>
-<select id="compCalcType">
-<option value="fixed">Fixed Amount</option>
-<option value="percentage">% of Basic Salary</option>
-<option value="perHour">Per Hour Rate</option>
-<option value="manual">Manual Entry</option>
-</select>
+<select id="compCalcType"><option value="fixed">Fixed Amount</option><option value="percentage">% of Basic Salary</option><option value="perHour">Per Hour Rate</option><option value="manual">Manual Entry</option></select>
 </div>
 <div class="form-group"><label>Default Value</label><input type="number" id="compValue" step="0.01"></div>
 <div class="form-group full"><label>Description</label><textarea id="compDesc"></textarea></div>
@@ -948,7 +988,6 @@ Continue with Google
 </div>
 </div>
 
-<!-- ADDITION/DEDUCTION MODAL FOR WORKER -->
 <div class="modal" id="addTransactionModal">
 <div class="modal-content">
 <div class="modal-header"><h2 id="transactionModalTitle"><i class="fas fa-plus-circle"></i> Add Transaction</h2><button class="close-btn" onclick="closeModal('addTransactionModal')">&times;</button></div>
@@ -957,11 +996,7 @@ Continue with Google
 <input type="hidden" id="trWorkerId">
 <input type="hidden" id="trType">
 <div class="form-grid">
-<div class="form-group"><label>Transaction Type *</label>
-<select id="trTransactionType" required>
-<option value="">Select Type</option>
-</select>
-</div>
+<div class="form-group"><label>Transaction Type *</label><select id="trTransactionType" required><option value="">Select Type</option></select></div>
 <div class="form-group"><label>Amount (Rs) *</label><input type="number" id="trAmount" step="0.01" required></div>
 <div class="form-group"><label>For Month *</label><input type="month" id="trMonth" required></div>
 <div class="form-group"><label>Date *</label><input type="date" id="trDate" required></div>
@@ -1004,11 +1039,9 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// ============ SECURITY REF CODE ============
 const ADMIN_REF_CODE = '7860';
 let pendingSecurityAction = null;
 
-// ============ ROLE-BASED ACCESS CONTROL ============
 const USER_ROLES = { ADMIN: 'admin', EDITOR: 'editor', VIEWER: 'viewer' };
 const DEFAULT_ADMIN_EMAIL = 'asifabooasif@gmail.com';
 var ROLE_CONFIG = {};
@@ -1017,17 +1050,12 @@ let currentUserId = null;
 let currentUserEmail = null;
 let usersCollection = 'userRoles';
 
-function getUserRole(email) {
-if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
-return ROLE_CONFIG[email] || USER_ROLES.VIEWER;
-}
+function getUserRole(email) { return ROLE_CONFIG[email] || USER_ROLES.VIEWER; }
 function hasPermission(requiredRole) {
 const h = { [USER_ROLES.ADMIN]: 3, [USER_ROLES.EDITOR]: 2, [USER_ROLES.VIEWER]: 1 };
 return h[currentUserRole] >= h[requiredRole];
 }
-function isAuthorizedUser(email) {
-return email === DEFAULT_ADMIN_EMAIL || ROLE_CONFIG[email];
-}
+function isAuthorizedUser(email) { return email === DEFAULT_ADMIN_EMAIL || ROLE_CONFIG[email]; }
 function applyRoleBasedUI() {
 const menuUsers = document.getElementById('menuUsers');
 const menuDesign = document.querySelector('[data-section="design"]');
@@ -1041,10 +1069,12 @@ if (menuSettings) menuSettings.style.display = hasPermission(USER_ROLES.ADMIN) ?
 if (menuComponents) menuComponents.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
 if (menuTimeline) menuTimeline.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
 if (menuEmailSettings) menuEmailSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
-const ids = ['btnAddWorker','btnAddLoan','btnAddAdvance','btnAddComponent'];
-ids.forEach(id => { const el = document.getElementById(id); if (el && !hasPermission(USER_ROLES.EDITOR)) el.style.display = 'none'; });
-const adminIds = ['btnSaveDesign','btnSaveCompany','btnAddDepartment','btnClearAll','btnSaveEmail'];
-adminIds.forEach(id => { const el = document.getElementById(id); if (el && !hasPermission(USER_ROLES.ADMIN)) el.style.display = 'none'; });
+['btnAddWorker','btnAddLoan','btnAddAdvance','btnAddComponent'].forEach(id => {
+const el = document.getElementById(id); if (el && !hasPermission(USER_ROLES.EDITOR)) el.style.display = 'none';
+});
+['btnSaveDesign','btnSaveCompany','btnAddDepartment','btnClearAll','btnSaveEmail'].forEach(id => {
+const el = document.getElementById(id); if (el && !hasPermission(USER_ROLES.ADMIN)) el.style.display = 'none';
+});
 const roleBadge = document.getElementById('userRoleBadge');
 if (roleBadge) { roleBadge.textContent = currentUserRole.toUpperCase(); roleBadge.className = 'user-role-badge ' + currentUserRole; }
 }
@@ -1062,16 +1092,11 @@ try { const o = document.getElementById('loadingOverlay'); const t = document.qu
 }
 function hideLoading() { try { const o = document.getElementById('loadingOverlay'); if (o) o.classList.remove('show'); } catch(e) {} }
 
-// ============ TIMELINE LOGGING ============
 async function logTimeline(action, type, details, workerId = null, extraData = {}) {
 try {
 const entry = {
-action: action,
-type: type,
-details: details,
-workerId: workerId,
-userId: currentUserId,
-userEmail: currentUserEmail,
+action, type, details, workerId,
+userId: currentUserId, userEmail: currentUserEmail,
 userName: auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email) : 'System',
 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 dateStr: new Date().toISOString(),
@@ -1091,7 +1116,7 @@ snapshot.forEach(doc => { const d = doc.data(); ROLE_CONFIG[d.email] = d.role; }
 auth.onAuthStateChanged(async (user) => {
 if (user) {
 await loadUserRoles();
-if (!isAuthorizedUser(user.email)) { toast('Access denied. Your email is not authorized.', 'error'); await auth.signOut(); return; }
+if (!isAuthorizedUser(user.email)) { toast('Access denied.', 'error'); await auth.signOut(); return; }
 currentUserRole = user.email === DEFAULT_ADMIN_EMAIL ? USER_ROLES.ADMIN : getUserRole(user.email);
 currentUserId = user.uid;
 currentUserEmail = user.email;
@@ -1112,7 +1137,6 @@ document.getElementById('mainApp').classList.remove('show');
 async function signInWithGoogle() {
 try {
 showLoading('Signing in with Google...');
-if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
 await loadUserRoles();
 const provider = new firebase.auth.GoogleAuthProvider();
 const result = await auth.signInWithPopup(provider);
@@ -1131,7 +1155,6 @@ async function signInWithEmail(e) {
 e.preventDefault();
 try {
 showLoading('Signing in...');
-if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
 await loadUserRoles();
 const email = document.getElementById('loginEmail').value;
 if (!isAuthorizedUser(email)) { toast('Access denied.', 'error'); hideLoading(); return; }
@@ -1244,7 +1267,6 @@ item.addEventListener('click', () => showSection(item.dataset.section));
 });
 
 function showSection(sec, title=null) {
-// Timeline security check
 if (sec === 'timeline' && !hasPermission(USER_ROLES.ADMIN)) {
 toast('Admin access required for Timeline', 'error');
 return;
@@ -1293,7 +1315,6 @@ document.querySelectorAll('.action-dropdown.show').forEach(d => d.classList.remo
 if (!isOpen) dropdown.classList.add('show');
 }
 
-// ============ SECURITY VERIFICATION ============
 function requestSecurityVerification(actionDesc, callback) {
 pendingSecurityAction = callback;
 document.getElementById('securityActionDesc').textContent = actionDesc;
@@ -1326,13 +1347,13 @@ async function saveUserRole() {
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin role required.', 'error'); return; }
 const email = document.getElementById('userEmail').value.trim();
 const role = document.getElementById('userRole').value;
-if (!email) { toast('Please enter an email', 'error'); return; }
+if (!email) { toast('Enter email', 'error'); return; }
 try {
 showLoading('Saving...');
 await db.collection(usersCollection).doc(email).set({ email, role, updatedAt: new Date().toISOString(), updatedBy: auth.currentUser.email });
 ROLE_CONFIG[email] = role;
 await logTimeline('Updated user role', 'system', `${email} → ${role.toUpperCase()}`);
-toast(`User ${email} role: ${role.toUpperCase()}`);
+toast(`User role: ${role.toUpperCase()}`);
 closeModal('addUserModal');
 renderUsers();
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
@@ -1429,10 +1450,17 @@ closeModal('addWorkerModal');
 function renderWorkers() {
 const search = (document.getElementById('searchWorker')?.value || '').toLowerCase();
 const deptFilter = document.getElementById('filterWorkerDept')?.value || '';
+const sortBy = document.getElementById('filterWorkerSort')?.value || 'nameAsc';
 let workers = data.workers;
 if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
 let filtered = workers.filter(w => w.name.toLowerCase().includes(search) || w.empId.toLowerCase().includes(search) || w.department.toLowerCase().includes(search));
 if (deptFilter) filtered = filtered.filter(w => w.department === deptFilter);
+if (sortBy === 'nameAsc') filtered.sort((a,b) => a.name.localeCompare(b.name));
+else if (sortBy === 'nameDesc') filtered.sort((a,b) => b.name.localeCompare(a.name));
+else if (sortBy === 'salaryDesc') filtered.sort((a,b) => (b.salary||0) - (a.salary||0));
+else if (sortBy === 'salaryAsc') filtered.sort((a,b) => (a.salary||0) - (b.salary||0));
+else if (sortBy === 'dateDesc') filtered.sort((a,b) => (b.joinDate||'').localeCompare(a.joinDate||''));
+else if (sortBy === 'dateAsc') filtered.sort((a,b) => (a.joinDate||'').localeCompare(b.joinDate||''));
 document.getElementById('workerCount').textContent = filtered.length;
 const tbody = document.getElementById('workersTable');
 if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fas fa-users"></i><h3>No workers</h3></div></td></tr>'; return; }
@@ -1467,8 +1495,10 @@ await loadData(); toast('Deleted!');
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ WORKER DETAIL (WITH ADDITIONS/DEDUCTIONS) ============
+// ============ WORKER DETAIL (with filter/sort in tabs) ============
+let currentWorkerDetailId = null;
 function openWorkerDetail(id) {
+currentWorkerDetailId = id;
 const w = data.workers.find(x => x.id === id); if (!w) return;
 if (currentUserRole === USER_ROLES.VIEWER && w.email !== currentUserEmail) { toast('Access denied.', 'error'); return; }
 const slips = data.salarySlips.filter(s => s.workerId === id && s.status !== 'Reversed');
@@ -1521,9 +1551,110 @@ ${canEdit ? `<button class="btn btn-info" onclick="openEditWorkerModal('${w.id}'
 <div class="stat-card red"><div class="icon"><i class="fas fa-minus-circle"></i></div><h3>Total Deductions</h3><div class="value">${fmt(totalDeductions)}</div></div>
 <div class="stat-card blue"><div class="icon"><i class="fas fa-money-bill-wave"></i></div><h3>Total Paid</h3><div class="value">${fmt(totalPaid)}</div></div>
 </div></div>
-<div class="tab-content" id="wt-slips"><div class="table-container"><table>
+<div class="tab-content" id="wt-slips">
+<div class="tab-filter-bar">
+<label>Month:</label>
+<select id="wdSlipFilterMonth" onchange="renderWorkerSlipsTab()"><option value="all">All</option></select>
+<label>Year:</label>
+<select id="wdSlipFilterYear" onchange="renderWorkerSlipsTab()"><option value="all">All</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select>
+<label>Status:</label>
+<select id="wdSlipFilterStatus" onchange="renderWorkerSlipsTab()"><option value="all">All</option><option value="Paid">Paid</option><option value="Draft">Draft</option><option value="Reversed">Reversed</option></select>
+<label>Sort:</label>
+<select id="wdSlipSortBy" onchange="renderWorkerSlipsTab()"><option value="dateDesc">Newest</option><option value="dateAsc">Oldest</option><option value="amountDesc">Highest Net</option><option value="amountAsc">Lowest Net</option></select>
+</div>
+<div id="workerSlipsTableContainer"></div>
+</div>
+<div class="tab-content" id="wt-loans">
+<div class="tab-filter-bar">
+<label>Status:</label>
+<select id="wdLoanFilterStatus" onchange="renderWorkerLoansTab()"><option value="all">All</option><option value="Active">Active</option><option value="Completed">Completed</option></select>
+<label>Sort:</label>
+<select id="wdLoanSortBy" onchange="renderWorkerLoansTab()"><option value="dateDesc">Newest</option><option value="dateAsc">Oldest</option><option value="amountDesc">Highest Amount</option><option value="remainingDesc">Highest Remaining</option></select>
+</div>
+<div id="workerLoansTableContainer"></div>
+</div>
+<div class="tab-content" id="wt-advances">
+<div class="tab-filter-bar">
+<label>Status:</label>
+<select id="wdAdvFilterStatus" onchange="renderWorkerAdvancesTab()"><option value="all">All</option><option value="Active">Active</option><option value="Completed">Completed</option></select>
+<label>Sort:</label>
+<select id="wdAdvSortBy" onchange="renderWorkerAdvancesTab()"><option value="dateDesc">Newest</option><option value="dateAsc">Oldest</option><option value="amountDesc">Highest Amount</option><option value="remainingDesc">Highest Remaining</option></select>
+</div>
+<div id="workerAdvancesTableContainer"></div>
+</div>
+<div class="tab-content" id="wt-additions">
+<div class="tab-filter-bar">
+<label>Month:</label>
+<select id="wdAddFilterMonth" onchange="renderWorkerAdditionsTab()"><option value="all">All</option></select>
+<label>Sort:</label>
+<select id="wdAddSortBy" onchange="renderWorkerAdditionsTab()"><option value="dateDesc">Newest</option><option value="dateAsc">Oldest</option><option value="amountDesc">Highest</option><option value="amountAsc">Lowest</option></select>
+</div>
+${canEdit ? `<div style="margin-bottom:15px;"><button class="btn btn-success" onclick="openAddTransaction('${w.id}','addition')"><i class="fas fa-plus"></i> Add New Addition</button></div>` : ''}
+<div id="workerAdditionsTableContainer"></div>
+</div>
+<div class="tab-content" id="wt-deductions">
+<div class="tab-filter-bar">
+<label>Month:</label>
+<select id="wdDedFilterMonth" onchange="renderWorkerDeductionsTab()"><option value="all">All</option></select>
+<label>Sort:</label>
+<select id="wdDedSortBy" onchange="renderWorkerDeductionsTab()"><option value="dateDesc">Newest</option><option value="dateAsc">Oldest</option><option value="amountDesc">Highest</option><option value="amountAsc">Lowest</option></select>
+</div>
+${canEdit ? `<div style="margin-bottom:15px;"><button class="btn btn-warning" onclick="openAddTransaction('${w.id}','deduction')"><i class="fas fa-plus"></i> Add New Deduction</button></div>` : ''}
+<div id="workerDeductionsTableContainer"></div>
+</div>
+<div class="tab-content" id="wt-personal"><div class="form-grid">
+<div><strong>Name:</strong> ${w.name}</div><div><strong>Emp ID:</strong> ${w.empId}</div>
+<div><strong>Email:</strong> ${w.email||'-'}</div><div><strong>Position:</strong> ${w.position}</div>
+<div><strong>Department:</strong> ${w.department}</div><div><strong>Join Date:</strong> ${w.joinDate}</div>
+<div><strong>Phone:</strong> ${w.phone||'-'}</div><div><strong>Bank:</strong> ${w.bank||'-'}</div>
+<div><strong>Account:</strong> ${w.account||'-'}</div><div><strong>Tax ID:</strong> ${w.taxId||'-'}</div>
+<div style="grid-column:1/-1;"><strong>Address:</strong> ${w.address||'-'}</div>
+${w.modifiedBy ? `<div style="grid-column:1/-1;"><strong>Last Modified:</strong> ${w.modifiedBy} on ${w.modifiedAt||'-'}</div>` : ''}
+</div></div></div>`;
+// Populate month filters
+const slipMonths = [...new Set(slips.map(s => s.month))].sort().reverse();
+const addMonths = [...new Set(additions.map(a => a.month))].sort().reverse();
+const dedMonths = [...new Set(deductions.map(d => d.month))].sort().reverse();
+const wdSlipM = document.getElementById('wdSlipFilterMonth');
+if (wdSlipM) wdSlipM.innerHTML = '<option value="all">All</option>' + slipMonths.map(m => `<option value="${m}">${m}</option>`).join('');
+const wdAddM = document.getElementById('wdAddFilterMonth');
+if (wdAddM) wdAddM.innerHTML = '<option value="all">All</option>' + addMonths.map(m => `<option value="${m}">${m}</option>`).join('');
+const wdDedM = document.getElementById('wdDedFilterMonth');
+if (wdDedM) wdDedM.innerHTML = '<option value="all">All</option>' + dedMonths.map(m => `<option value="${m}">${m}</option>`).join('');
+renderWorkerSlipsTab();
+renderWorkerLoansTab();
+renderWorkerAdvancesTab();
+renderWorkerAdditionsTab();
+renderWorkerDeductionsTab();
+showSection('workerDetail', w.name);
+}
+function switchWorkerTab(tab, el) {
+document.querySelectorAll('#workerDetailContent .tab').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('#workerDetailContent .tab-content').forEach(t => t.classList.remove('active'));
+el.classList.add('active');
+document.getElementById('wt-' + tab).classList.add('active');
+}
+function renderWorkerSlipsTab() {
+const id = currentWorkerDetailId; if (!id) return;
+const fm = document.getElementById('wdSlipFilterMonth')?.value || 'all';
+const fy = document.getElementById('wdSlipFilterYear')?.value || 'all';
+const fs = document.getElementById('wdSlipFilterStatus')?.value || 'all';
+const sb = document.getElementById('wdSlipSortBy')?.value || 'dateDesc';
+let slips = data.salarySlips.filter(s => s.workerId === id);
+if (fm !== 'all') slips = slips.filter(s => s.month === fm);
+if (fy !== 'all') slips = slips.filter(s => s.month && s.month.startsWith(fy));
+if (fs !== 'all') slips = slips.filter(s => s.status === fs);
+if (sb === 'dateDesc') slips.sort((a,b) => (b.createdTime||b.createdAt||'').localeCompare(a.createdTime||a.createdAt||''));
+else if (sb === 'dateAsc') slips.sort((a,b) => (a.createdTime||a.createdAt||'').localeCompare(b.createdTime||b.createdAt||''));
+else if (sb === 'amountDesc') slips.sort((a,b) => (b.net||0) - (a.net||0));
+else if (sb === 'amountAsc') slips.sort((a,b) => (a.net||0) - (b.net||0));
+const canEdit = hasPermission(USER_ROLES.EDITOR);
+const canAdmin = hasPermission(USER_ROLES.ADMIN);
+const container = document.getElementById('workerSlipsTableContainer');
+if (!slips.length) { container.innerHTML = '<div class="empty-state"><h3>No slips</h3></div>'; return; }
+container.innerHTML = `<div class="table-container"><table>
 <thead><tr><th>Slip #</th><th>Month</th><th>Basic</th><th>Additions</th><th>Deductions</th><th>Net</th><th>Status</th><th>Actions</th></tr></thead>
-<tbody>${slips.length ? slips.slice().reverse().map(s => `<tr>
+<tbody>${slips.map(s => `<tr>
 <td><strong>#${s.slipNo}</strong></td><td>${s.month}</td><td>${fmt(s.basic)}</td>
 <td style="color:var(--success);">+${fmt(s.totalAdditions)}</td>
 <td style="color:var(--danger);">-${fmt(s.totalDeductions)}</td>
@@ -1535,11 +1666,26 @@ ${canEdit ? `<button class="btn btn-info" onclick="openEditWorkerModal('${w.id}'
 <div class="action-dropdown-item info" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i> PDF</div>
 ${canEdit && s.status !== 'Reversed' ? `<div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
 ${canAdmin && s.status === 'Paid' ? `<div class="action-dropdown-item danger" onclick="reverseSlip('${s.id}')"><i class="fas fa-undo"></i> Reverse</div>` : ''}
+${canAdmin ? `<div class="action-dropdown-item danger" onclick="deleteSlip('${s.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div></div></td>
-</tr>`).join('') : '<tr><td colspan="8"><div class="empty-state"><h3>No slips</h3></div></td></tr>'}</tbody></table></div></div>
-<div class="tab-content" id="wt-loans"><div class="table-container"><table>
+</tr>`).join('')}</tbody></table></div>`;
+}
+function renderWorkerLoansTab() {
+const id = currentWorkerDetailId; if (!id) return;
+const fs = document.getElementById('wdLoanFilterStatus')?.value || 'all';
+const sb = document.getElementById('wdLoanSortBy')?.value || 'dateDesc';
+let loans = data.loans.filter(l => l.workerId === id);
+if (fs !== 'all') loans = loans.filter(l => l.status === fs);
+if (sb === 'dateDesc') loans.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
+else if (sb === 'dateAsc') loans.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
+else if (sb === 'amountDesc') loans.sort((a,b) => (b.amount||0) - (a.amount||0));
+else if (sb === 'remainingDesc') loans.sort((a,b) => (b.remaining||0) - (a.remaining||0));
+const canAdmin = hasPermission(USER_ROLES.ADMIN);
+const container = document.getElementById('workerLoansTableContainer');
+if (!loans.length) { container.innerHTML = '<div class="empty-state"><h3>No loans</h3></div>'; return; }
+container.innerHTML = `<div class="table-container"><table>
 <thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
-<tbody>${loans.length ? loans.map(l => { const pct = l.amount > 0 ? ((l.paid||0) / l.amount * 100).toFixed(1) : 0;
+<tbody>${loans.map(l => { const pct = l.amount > 0 ? ((l.paid||0) / l.amount * 100).toFixed(1) : 0;
 return `<tr><td><span class="badge badge-warning">${l.type}</span></td><td>${fmt(l.amount)}</td><td>${fmt(l.installment)}</td>
 <td style="color:var(--success);">${fmt(l.paid||0)}</td><td style="color:var(--danger);"><strong>${fmt(l.remaining||0)}</strong></td><td>${l.startMonth}</td>
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div></td>
@@ -1547,10 +1693,24 @@ return `<tr><td><span class="badge badge-warning">${l.type}</span></td><td>${fmt
 <td>${canAdmin ? `<div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown"><div class="action-dropdown-item danger" onclick="deleteLoan('${l.id}')"><i class="fas fa-trash"></i> Delete</div></div></div>` : ''}</td>
 </tr>`;
-}).join('') : '<tr><td colspan="9"><div class="empty-state"><h3>No loans</h3></div></td></tr>'}</tbody></table></div></div>
-<div class="tab-content" id="wt-advances"><div class="table-container"><table>
+}).join('')}</tbody></table></div>`;
+}
+function renderWorkerAdvancesTab() {
+const id = currentWorkerDetailId; if (!id) return;
+const fs = document.getElementById('wdAdvFilterStatus')?.value || 'all';
+const sb = document.getElementById('wdAdvSortBy')?.value || 'dateDesc';
+let advances = data.advances.filter(a => a.workerId === id);
+if (fs !== 'all') advances = advances.filter(a => a.status === fs);
+if (sb === 'dateDesc') advances.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
+else if (sb === 'dateAsc') advances.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
+else if (sb === 'amountDesc') advances.sort((a,b) => (b.amount||0) - (a.amount||0));
+else if (sb === 'remainingDesc') advances.sort((a,b) => (b.remaining||0) - (a.remaining||0));
+const canAdmin = hasPermission(USER_ROLES.ADMIN);
+const container = document.getElementById('workerAdvancesTableContainer');
+if (!advances.length) { container.innerHTML = '<div class="empty-state"><h3>No advances</h3></div>'; return; }
+container.innerHTML = `<div class="table-container"><table>
 <thead><tr><th>Type</th><th>Total</th><th>Installment</th><th>Paid</th><th>Remaining</th><th>Start</th><th>Progress</th><th>Status</th><th>Actions</th></tr></thead>
-<tbody>${advances.length ? advances.map(a => { const pct = a.amount > 0 ? ((a.paid||0) / a.amount * 100).toFixed(1) : 0;
+<tbody>${advances.map(a => { const pct = a.amount > 0 ? ((a.paid||0) / a.amount * 100).toFixed(1) : 0;
 return `<tr><td><span class="badge badge-pink">${a.type}</span></td><td>${fmt(a.amount)}</td><td>${fmt(a.installment)}</td>
 <td style="color:var(--success);">${fmt(a.paid||0)}</td><td style="color:var(--danger);"><strong>${fmt(a.remaining||0)}</strong></td><td>${a.startMonth}</td>
 <td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:linear-gradient(90deg,#db2777,#ec4899);"></div></div></td>
@@ -1558,12 +1718,25 @@ return `<tr><td><span class="badge badge-pink">${a.type}</span></td><td>${fmt(a.
 <td>${canAdmin ? `<div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
 <div class="action-dropdown"><div class="action-dropdown-item danger" onclick="deleteAdvance('${a.id}')"><i class="fas fa-trash"></i> Delete</div></div></div>` : ''}</td>
 </tr>`;
-}).join('') : '<tr><td colspan="9"><div class="empty-state"><h3>No advances</h3></div></td></tr>'}</tbody></table></div></div>
-<div class="tab-content" id="wt-additions">
-${canEdit ? `<div style="margin-bottom:15px;"><button class="btn btn-success" onclick="openAddTransaction('${w.id}','addition')"><i class="fas fa-plus"></i> Add New Addition</button></div>` : ''}
-<div class="table-container"><table>
+}).join('')}</tbody></table></div>`;
+}
+function renderWorkerAdditionsTab() {
+const id = currentWorkerDetailId; if (!id) return;
+const fm = document.getElementById('wdAddFilterMonth')?.value || 'all';
+const sb = document.getElementById('wdAddSortBy')?.value || 'dateDesc';
+let additions = data.additions.filter(a => a.workerId === id);
+if (fm !== 'all') additions = additions.filter(a => a.month === fm);
+if (sb === 'dateDesc') additions.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+else if (sb === 'dateAsc') additions.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+else if (sb === 'amountDesc') additions.sort((a,b) => (b.amount||0) - (a.amount||0));
+else if (sb === 'amountAsc') additions.sort((a,b) => (a.amount||0) - (b.amount||0));
+const canEdit = hasPermission(USER_ROLES.EDITOR);
+const canAdmin = hasPermission(USER_ROLES.ADMIN);
+const container = document.getElementById('workerAdditionsTableContainer');
+if (!additions.length) { container.innerHTML = '<div class="empty-state"><h3>No additions</h3></div>'; return; }
+container.innerHTML = `<div class="table-container"><table>
 <thead><tr><th>Date</th><th>Type</th><th>Month</th><th>Amount</th><th>Reason</th><th>Actions</th></tr></thead>
-<tbody>${additions.length ? additions.slice().reverse().map(a => `<tr>
+<tbody>${additions.map(a => `<tr>
 <td>${a.date}</td><td><span class="badge badge-info">${a.type}</span></td><td>${a.month}</td>
 <td><strong style="color:var(--success);">+${fmt(a.amount)}</strong></td>
 <td style="font-size:12px;">${a.reason || '-'}</td>
@@ -1572,13 +1745,25 @@ ${canEdit ? `<div style="margin-bottom:15px;"><button class="btn btn-success" on
 ${canEdit ? `<div class="action-dropdown-item warning" onclick="editTransaction('${a.id}','addition')"><i class="fas fa-edit"></i> Edit</div>` : ''}
 ${canAdmin ? `<div class="action-dropdown-item danger" onclick="deleteTransaction('${a.id}','addition')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div></div></td>
-</tr>`).join('') : '<tr><td colspan="6"><div class="empty-state"><h3>No additions</h3></div></td></tr>'}</tbody>
-</table></div></div>
-<div class="tab-content" id="wt-deductions">
-${canEdit ? `<div style="margin-bottom:15px;"><button class="btn btn-warning" onclick="openAddTransaction('${w.id}','deduction')"><i class="fas fa-plus"></i> Add New Deduction</button></div>` : ''}
-<div class="table-container"><table>
+</tr>`).join('')}</tbody></table></div>`;
+}
+function renderWorkerDeductionsTab() {
+const id = currentWorkerDetailId; if (!id) return;
+const fm = document.getElementById('wdDedFilterMonth')?.value || 'all';
+const sb = document.getElementById('wdDedSortBy')?.value || 'dateDesc';
+let deductions = data.deductions.filter(d => d.workerId === id);
+if (fm !== 'all') deductions = deductions.filter(d => d.month === fm);
+if (sb === 'dateDesc') deductions.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+else if (sb === 'dateAsc') deductions.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+else if (sb === 'amountDesc') deductions.sort((a,b) => (b.amount||0) - (a.amount||0));
+else if (sb === 'amountAsc') deductions.sort((a,b) => (a.amount||0) - (b.amount||0));
+const canEdit = hasPermission(USER_ROLES.EDITOR);
+const canAdmin = hasPermission(USER_ROLES.ADMIN);
+const container = document.getElementById('workerDeductionsTableContainer');
+if (!deductions.length) { container.innerHTML = '<div class="empty-state"><h3>No deductions</h3></div>'; return; }
+container.innerHTML = `<div class="table-container"><table>
 <thead><tr><th>Date</th><th>Type</th><th>Month</th><th>Amount</th><th>Reason</th><th>Actions</th></tr></thead>
-<tbody>${deductions.length ? deductions.slice().reverse().map(d => `<tr>
+<tbody>${deductions.map(d => `<tr>
 <td>${d.date}</td><td><span class="badge badge-warning">${d.type}</span></td><td>${d.month}</td>
 <td><strong style="color:var(--danger);">-${fmt(d.amount)}</strong></td>
 <td style="font-size:12px;">${d.reason || '-'}</td>
@@ -1587,24 +1772,7 @@ ${canEdit ? `<div style="margin-bottom:15px;"><button class="btn btn-warning" on
 ${canEdit ? `<div class="action-dropdown-item warning" onclick="editTransaction('${d.id}','deduction')"><i class="fas fa-edit"></i> Edit</div>` : ''}
 ${canAdmin ? `<div class="action-dropdown-item danger" onclick="deleteTransaction('${d.id}','deduction')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div></div></td>
-</tr>`).join('') : '<tr><td colspan="6"><div class="empty-state"><h3>No deductions</h3></div></td></tr>'}</tbody>
-</table></div></div>
-<div class="tab-content" id="wt-personal"><div class="form-grid">
-<div><strong>Name:</strong> ${w.name}</div><div><strong>Emp ID:</strong> ${w.empId}</div>
-<div><strong>Email:</strong> ${w.email||'-'}</div><div><strong>Position:</strong> ${w.position}</div>
-<div><strong>Department:</strong> ${w.department}</div><div><strong>Join Date:</strong> ${w.joinDate}</div>
-<div><strong>Phone:</strong> ${w.phone||'-'}</div><div><strong>Bank:</strong> ${w.bank||'-'}</div>
-<div><strong>Account:</strong> ${w.account||'-'}</div><div><strong>Tax ID:</strong> ${w.taxId||'-'}</div>
-<div style="grid-column:1/-1;"><strong>Address:</strong> ${w.address||'-'}</div>
-${w.modifiedBy ? `<div style="grid-column:1/-1;"><strong>Last Modified:</strong> ${w.modifiedBy} on ${w.modifiedAt||'-'}</div>` : ''}
-</div></div></div>`;
-showSection('workerDetail', w.name);
-}
-function switchWorkerTab(tab, el) {
-document.querySelectorAll('#workerDetailContent .tab').forEach(t => t.classList.remove('active'));
-document.querySelectorAll('#workerDetailContent .tab-content').forEach(t => t.classList.remove('active'));
-el.classList.add('active');
-document.getElementById('wt-' + tab).classList.add('active');
+</tr>`).join('')}</tbody></table></div>`;
 }
 function goCreateSlip(workerId) { showSection('slips'); setTimeout(() => { document.getElementById('slipWorker').value = workerId; loadSlipDefaults(); }, 100); }
 function quickAddLoan(workerId) {
@@ -1635,7 +1803,7 @@ const months = [...new Set(data.salarySlips.map(s => s.month))].sort().reverse()
 ms.innerHTML = '<option value="all">All Months</option>' + months.map(m => `<option value="${m}">${m}</option>`).join('');
 }
 
-// ============ ADDITIONS / DEDUCTIONS FOR WORKER ============
+// ============ ADDITIONS / DEDUCTIONS ============
 function openAddTransaction(workerId, type) {
 if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
 document.getElementById('transactionModalTitle').innerHTML = `<i class="fas fa-${type==='addition'?'plus':'minus'}-circle"></i> Add ${type.charAt(0).toUpperCase()+type.slice(1)}`;
@@ -1709,7 +1877,7 @@ await logTimeline(`Added ${type}`, type, `${w?.name||'Worker'}: ${fmt(trData.amo
 await loadData();
 toast(editId ? 'Updated!' : 'Added!');
 closeModal('addTransactionModal');
-openWorkerDetail(workerId);
+if (currentWorkerDetailId === workerId) openWorkerDetail(workerId);
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function deleteTransaction(id, type) {
@@ -1729,25 +1897,18 @@ if (tr) openWorkerDetail(tr.workerId);
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ MY LOANS & ADVANCES ============
+// ============ MY LOANS & ADVANCES (SPLIT UI) ============
 function renderMyLoansAdvances() {
 const titleEl = document.getElementById('myloansTitle');
 const selectorEl = document.getElementById('mylaWorkerSelector');
-let items = [];
 let visibleWorkers = data.workers;
 
 if (currentUserRole === USER_ROLES.VIEWER) {
 visibleWorkers = visibleWorkers.filter(w => w.email === currentUserEmail);
 titleEl.textContent = 'My Loans & Advances';
 selectorEl.innerHTML = '';
-// Only own data
-items = [
-...data.loans.filter(l => visibleWorkers.some(w => w.id === l.workerId)).map(l => ({...l, _kind: 'loan'})),
-...data.advances.filter(a => visibleWorkers.some(w => w.id === a.workerId)).map(a => ({...a, _kind: 'advance'}))
-];
 } else {
 titleEl.textContent = 'All Workers Loans & Advances';
-// Worker selector for admin/editor
 selectorEl.innerHTML = `
 <div class="form-group">
 <label>Filter by Worker</label>
@@ -1758,71 +1919,114 @@ ${data.workers.map(w => `<option value="${w.id}">${w.name} (${w.empId})</option>
 </div>`;
 const fw = document.getElementById('mylaFilterWorker')?.value || 'all';
 if (fw !== 'all') visibleWorkers = visibleWorkers.filter(w => w.id === fw);
-items = [
-...data.loans.filter(l => visibleWorkers.some(w => w.id === l.workerId)).map(l => ({...l, _kind: 'loan'})),
-...data.advances.filter(a => visibleWorkers.some(w => w.id === a.workerId)).map(a => ({...a, _kind: 'advance'}))
-];
 }
 
-// Apply filters
-const ft = document.getElementById('mylaFilterType')?.value || 'all';
 const fy = document.getElementById('mylaFilterYear')?.value || 'all';
 const fm = document.getElementById('mylaFilterMonth')?.value || 'all';
 const fs = document.getElementById('mylaFilterStatus')?.value || 'all';
 const sb = document.getElementById('mylaSortBy')?.value || 'dateDesc';
 
-if (ft !== 'all') items = items.filter(i => i._kind === ft);
-if (fy !== 'all') items = items.filter(i => i.startMonth && i.startMonth.startsWith(fy));
-if (fm !== 'all') items = items.filter(i => i.startMonth && i.startMonth.endsWith('-' + fm));
-if (fs !== 'all') items = items.filter(i => i.status === fs);
+let loans = data.loans.filter(l => visibleWorkers.some(w => w.id === l.workerId));
+let advances = data.advances.filter(a => visibleWorkers.some(w => w.id === a.workerId));
 
-// Sort
-if (sb === 'dateDesc') items.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
-else if (sb === 'dateAsc') items.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
-else if (sb === 'amountDesc') items.sort((a,b) => (b.amount||0) - (a.amount||0));
-else if (sb === 'amountAsc') items.sort((a,b) => (a.amount||0) - (b.amount||0));
-else if (sb === 'remainingDesc') items.sort((a,b) => (b.remaining||0) - (a.remaining||0));
+if (fy !== 'all') {
+loans = loans.filter(l => l.startMonth && l.startMonth.startsWith(fy));
+advances = advances.filter(a => a.startMonth && a.startMonth.startsWith(fy));
+}
+if (fm !== 'all') {
+loans = loans.filter(l => l.startMonth && l.startMonth.endsWith('-' + fm));
+advances = advances.filter(a => a.startMonth && a.startMonth.endsWith('-' + fm));
+}
+if (fs !== 'all') {
+loans = loans.filter(l => l.status === fs);
+advances = advances.filter(a => a.status === fs);
+}
 
-// Stats
-const totalAmount = items.reduce((s,i) => s + (i.amount||0), 0);
-const totalPaid = items.reduce((s,i) => s + (i.paid||0), 0);
-const totalRemaining = items.reduce((s,i) => s + (i.remaining||0), 0);
-const activeCount = items.filter(i => i.status === 'Active').length;
+if (sb === 'dateDesc') { loans.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||'')); advances.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||'')); }
+else if (sb === 'dateAsc') { loans.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||'')); advances.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||'')); }
+else if (sb === 'amountDesc') { loans.sort((a,b) => (b.amount||0) - (a.amount||0)); advances.sort((a,b) => (b.amount||0) - (a.amount||0)); }
+else if (sb === 'amountAsc') { loans.sort((a,b) => (a.amount||0) - (b.amount||0)); advances.sort((a,b) => (a.amount||0) - (b.amount||0)); }
+else if (sb === 'remainingDesc') { loans.sort((a,b) => (b.remaining||0) - (a.remaining||0)); advances.sort((a,b) => (b.remaining||0) - (a.remaining||0)); }
+
+const totalLoanAmount = loans.reduce((s,l) => s + (l.amount||0), 0);
+const totalLoanPaid = loans.reduce((s,l) => s + (l.paid||0), 0);
+const totalLoanRemaining = loans.reduce((s,l) => s + (l.remaining||0), 0);
+const totalAdvAmount = advances.reduce((s,a) => s + (a.amount||0), 0);
+const totalAdvPaid = advances.reduce((s,a) => s + (a.paid||0), 0);
+const totalAdvRemaining = advances.reduce((s,a) => s + (a.remaining||0), 0);
+
 document.getElementById('mylaSummaryStats').innerHTML = `
-<div class="stat-card blue"><div class="icon"><i class="fas fa-list"></i></div><h3>Total Items</h3><div class="value">${items.length}</div></div>
-<div class="stat-card orange"><div class="icon"><i class="fas fa-coins"></i></div><h3>Total Amount</h3><div class="value">${fmt(totalAmount)}</div></div>
-<div class="stat-card green"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>Total Paid</h3><div class="value">${fmt(totalPaid)}</div></div>
-<div class="stat-card red"><div class="icon"><i class="fas fa-exclamation-circle"></i></div><h3>Total Remaining</h3><div class="value">${fmt(totalRemaining)}</div></div>
-<div class="stat-card purple"><div class="icon"><i class="fas fa-bolt"></i></div><h3>Active</h3><div class="value">${activeCount}</div></div>
+<div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Loans Total</h3><div class="value">${fmt(totalLoanAmount)}</div></div>
+<div class="stat-card green"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>Loans Paid</h3><div class="value">${fmt(totalLoanPaid)}</div></div>
+<div class="stat-card red"><div class="icon"><i class="fas fa-exclamation-circle"></i></div><h3>Loans Remaining</h3><div class="value">${fmt(totalLoanRemaining)}</div></div>
+<div class="stat-card pink"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Advances Total</h3><div class="value">${fmt(totalAdvAmount)}</div></div>
+<div class="stat-card green"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>Advances Paid</h3><div class="value">${fmt(totalAdvPaid)}</div></div>
+<div class="stat-card red"><div class="icon"><i class="fas fa-exclamation-circle"></i></div><h3>Advances Remaining</h3><div class="value">${fmt(totalAdvRemaining)}</div></div>
+<div class="stat-card blue"><div class="icon"><i class="fas fa-coins"></i></div><h3>Grand Total</h3><div class="value">${fmt(totalLoanAmount + totalAdvAmount)}</div></div>
+<div class="stat-card purple"><div class="icon"><i class="fas fa-bolt"></i></div><h3>Active Items</h3><div class="value">${loans.filter(l=>l.status==='Active').length + advances.filter(a=>a.status==='Active').length}</div></div>
 `;
 
-const tbody = document.getElementById('mylaTable');
-if (!items.length) { tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><i class="fas fa-wallet"></i><h3>No loans or advances</h3></div></td></tr>'; return; }
+document.getElementById('loansCountBadge').textContent = loans.length;
+document.getElementById('advancesCountBadge').textContent = advances.length;
+
 const canAdmin = hasPermission(USER_ROLES.ADMIN);
-tbody.innerHTML = items.map(i => {
-const w = data.workers.find(x => x.id === i.workerId);
-const pct = i.amount > 0 ? ((i.paid||0) / i.amount * 100).toFixed(1) : 0;
-const isLoan = i._kind === 'loan';
+const loansContainer = document.getElementById('mylaLoansContainer');
+const advancesContainer = document.getElementById('mylaAdvancesContainer');
+
+if (!loans.length) {
+loansContainer.innerHTML = `<div class="myla-empty"><i class="fas fa-hand-holding-usd"></i><h4>No loans</h4><p>No loans found for the selected filters</p></div>`;
+} else {
+loansContainer.innerHTML = loans.map(l => renderMylaCard(l, 'loan', canAdmin)).join('');
+}
+if (!advances.length) {
+advancesContainer.innerHTML = `<div class="myla-empty"><i class="fas fa-money-check-alt"></i><h4>No advances</h4><p>No advances found for the selected filters</p></div>`;
+} else {
+advancesContainer.innerHTML = advances.map(a => renderMylaCard(a, 'advance', canAdmin)).join('');
+}
+}
+
+function renderMylaCard(item, kind, canAdmin) {
+const w = data.workers.find(x => x.id === item.workerId);
+const pct = item.amount > 0 ? ((item.paid||0) / item.amount * 100).toFixed(1) : 0;
+const isLoan = kind === 'loan';
+const typeBadgeClass = isLoan ? 'loan' : 'advance';
 const progressColor = isLoan ? 'linear-gradient(90deg,#d97706,#f59e0b)' : 'linear-gradient(90deg,#db2777,#ec4899)';
-const statusBadge = i.status === 'Active' ? (isLoan ? 'badge-warning' : 'badge-pink') : 'badge-success';
-return `<tr>
-<td><span class="badge ${isLoan?'badge-warning':'badge-pink'}"><i class="fas ${isLoan?'fa-hand-holding-usd':'fa-money-check-alt'}"></i> ${isLoan?'LOAN':'ADVANCE'}</span></td>
-<td>${w?w.name:'Unknown'}</td>
-<td><span class="badge badge-info">${i.type}</span></td>
-<td>${fmt(i.amount)}</td>
-<td>${fmt(i.installment)}</td>
-<td style="color:var(--success);">${fmt(i.paid||0)}</td>
-<td style="color:var(--danger);"><strong>${fmt(i.remaining||0)}</strong></td>
-<td>${i.startMonth}</td>
-<td style="min-width:150px;"><div style="font-size:11px;">${pct}%</div><div class="progress"><div class="progress-bar" style="width:${pct}%;background:${progressColor};"></div></div></td>
-<td><span class="badge ${statusBadge}">${i.status}</span></td>
-<td><div class="action-menu-wrapper"><button class="action-dots-btn" onclick="toggleActionMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
-<div class="action-dropdown">
-${w ? `<div class="action-dropdown-item info" onclick="openWorkerDetail('${w.id}')"><i class="fas fa-user"></i> View Worker</div>` : ''}
-${canAdmin ? `<div class="action-dropdown-item danger" onclick="${isLoan?`deleteLoan('${i.id}')`:`deleteAdvance('${i.id}')`}"><i class="fas fa-trash"></i> Delete</div>` : ''}
-</div></div></td>
-</tr>`;
-}).join('');
+const statusClass = item.status === 'Active' ? 'active' : item.status === 'Reversed' ? 'reversed' : 'completed';
+return `
+<div class="myla-card">
+<div class="myla-card-header">
+<div class="myla-card-worker">
+<div class="myla-card-worker-avatar">${(w?.name||'?').charAt(0).toUpperCase()}</div>
+<div class="myla-card-worker-info">
+<h4>${w?.name || 'Unknown Worker'}</h4>
+<p>${w?.empId || '-'} • ${w?.department || '-'}</p>
+</div>
+</div>
+<span class="myla-card-type ${typeBadgeClass}">${item.type}</span>
+</div>
+<div class="myla-card-amounts">
+<div class="amt-item"><div class="amt-label">Total</div><div class="amt-value total">${fmt(item.amount)}</div></div>
+<div class="amt-item"><div class="amt-label">Paid</div><div class="amt-value paid">${fmt(item.paid||0)}</div></div>
+<div class="amt-item"><div class="amt-label">Remaining</div><div class="amt-value remaining">${fmt(item.remaining||0)}</div></div>
+</div>
+<div class="myla-card-progress">
+<div class="progress-info">
+<span>Installment: ${fmt(item.installment)}/mo</span>
+<span>${pct}% complete</span>
+</div>
+<div class="progress"><div class="progress-bar" style="width:${pct}%;background:${progressColor};"></div></div>
+<div style="font-size:11px;color:var(--gray);margin-top:5px;">
+<i class="fas fa-calendar"></i> Start: ${item.startMonth || '-'} • Issue: ${item.issueDate || '-'}
+</div>
+</div>
+<div class="myla-card-footer">
+<span class="status-badge ${statusClass}">${item.status}</span>
+<div class="myla-card-actions">
+${w ? `<button onclick="openWorkerDetail('${w.id}')" title="View Worker"><i class="fas fa-user"></i></button>` : ''}
+${canAdmin ? `<button class="danger" onclick="${isLoan?`deleteLoan('${item.id}')`:`deleteAdvance('${item.id}')`}" title="Delete"><i class="fas fa-trash"></i></button>` : ''}
+</div>
+</div>
+</div>`;
 }
 
 // ============ LOANS ============
@@ -1920,6 +2124,8 @@ await deleteFromFirebase(collections.loans, id);
 const w = data.workers.find(x => x.id === loan?.workerId);
 await logTimeline('Deleted loan', 'loan', `${w?.name||'Worker'}: ${loan?.type||''}`, loan?.workerId);
 await loadData(); toast('Loan deleted & slips recalculated!');
+if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
+if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
@@ -2037,10 +2243,12 @@ await deleteFromFirebase(collections.advances, id);
 const w = data.workers.find(x => x.id === adv?.workerId);
 await logTimeline('Deleted advance', 'advance', `${w?.name||'Worker'}: ${adv?.type||''}`, adv?.workerId);
 await loadData(); toast('Advance deleted & slips recalculated!');
+if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
+if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ SALARY COMPONENTS (WITH WORKER SELECTION) ============
+// ============ SALARY COMPONENTS ============
 function renderComponents() {
 const earnings = data.salaryComponents.filter(c => c.type === 'earning');
 const deductions = data.salaryComponents.filter(c => c.type === 'deduction');
@@ -2112,15 +2320,12 @@ const name = document.getElementById('compName').value.trim();
 if (!name) { toast('Enter name', 'error'); return; }
 const selectedWorkers = Array.from(document.querySelectorAll('#compWorkerList input[type="checkbox"]:checked')).map(cb => cb.value);
 const compData = {
-name,
-type: document.getElementById('compType').value,
+name, type: document.getElementById('compType').value,
 calcType: document.getElementById('compCalcType').value,
 value: parseFloat(document.getElementById('compValue').value) || 0,
 desc: document.getElementById('compDesc').value || '',
-applicableWorkers: selectedWorkers,
-active: true,
-modifiedAt: today(),
-modifiedBy: auth.currentUser.displayName || auth.currentUser.email
+applicableWorkers: selectedWorkers, active: true,
+modifiedAt: today(), modifiedBy: auth.currentUser.displayName || auth.currentUser.email
 };
 try {
 showLoading('Saving...');
@@ -2195,7 +2400,6 @@ earningsHtml += `<div class="slip-row" data-type="earning" data-id="allowances">
 currentSlipDefaults['allowances'] = w.allowances;
 }
 data.salaryComponents.filter(c => c.type === 'earning' && c.active).forEach(c => {
-// Check worker applicability
 if (c.applicableWorkers && c.applicableWorkers.length > 0 && !c.applicableWorkers.includes(workerId)) return;
 let def = c.calcType === 'fixed' ? c.value : (c.calcType === 'percentage' ? w.salary * c.value / 100 : 0);
 earningsHtml += `<div class="slip-row" data-type="earning" data-id="${c.id}" data-base="${c.value}">
@@ -2349,12 +2553,9 @@ await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining
 }
 }
 await logTimeline('Finalized pay slip', 'slip', `${w?.name||'Worker'} #${slipData.slipNo}: Net ${fmt(slipData.net)} (${month})`, workerId);
-// Auto-send email
 const es = data.emailSettings || {};
 if (es.autoSend !== false && es.emailjsServiceId && es.emailjsTemplateId && w?.email) {
-try {
-await sendSlipEmail(slipData, w);
-} catch(emailErr) { console.error('Email send failed:', emailErr); }
+try { await sendSlipEmail(slipData, w); } catch(emailErr) { console.error('Email send failed:', emailErr); }
 }
 } else {
 await logTimeline('Saved draft slip', 'slip', `${w?.name||'Worker'} #${slipData.slipNo} (${month})`, workerId);
@@ -2413,7 +2614,7 @@ else if (sb === 'amountDesc') slips.sort((a,b) => (b.net||0) - (a.net||0));
 else if (sb === 'amountAsc') slips.sort((a,b) => (a.net||0) - (b.net||0));
 if (!slips.length) { tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><h3>No slips</h3></div></td></tr>'; return; }
 const canEdit = hasPermission(USER_ROLES.EDITOR);
-const canReverse = hasPermission(USER_ROLES.ADMIN);
+const canAdmin = hasPermission(USER_ROLES.ADMIN);
 tbody.innerHTML = slips.map(s => {
 const w = data.workers.find(x => x.id === s.workerId);
 const createdInfo = s.createdTime ? new Date(s.createdTime).toLocaleString() : (s.createdAt || '-');
@@ -2430,8 +2631,8 @@ return `<tr>
 <div class="action-dropdown-item info" onclick="downloadSlipPDF(data.salarySlips.find(x=>x.id==='${s.id}'))"><i class="fas fa-file-pdf"></i> PDF</div>
 ${w?.email ? `<div class="action-dropdown-item success" onclick="emailSlipById('${s.id}')"><i class="fas fa-envelope"></i> Email</div>` : ''}
 ${canEdit && s.status !== 'Reversed' ? `<div class="action-dropdown-item warning" onclick="editSlip('${s.id}')"><i class="fas fa-edit"></i> Edit</div>` : ''}
-${canReverse && s.status === 'Paid' ? `<div class="action-dropdown-item danger" onclick="reverseSlip('${s.id}')"><i class="fas fa-undo"></i> Reverse</div>` : ''}
-${canReverse && s.status === 'Draft' ? `<div class="action-dropdown-item danger" onclick="deleteDraftSlip('${s.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
+${canAdmin && s.status === 'Paid' ? `<div class="action-dropdown-item danger" onclick="reverseSlip('${s.id}')"><i class="fas fa-undo"></i> Reverse</div>` : ''}
+${canAdmin ? `<div class="action-dropdown-item danger" onclick="deleteSlip('${s.id}')"><i class="fas fa-trash"></i> Delete</div>` : ''}
 </div></div></td></tr>`;
 }).join('');
 }
@@ -2476,7 +2677,7 @@ const slip = data.salarySlips.find(s => s.id === id); if (!slip) return;
 const w = data.workers.find(x => x.id === slip.workerId);
 if (slip.status !== 'Paid') { toast('Only paid slips can be reversed.', 'error'); return; }
 requestSecurityVerification(`Reverse pay slip #${slip.slipNo} for ${w?.name||'worker'}`, async () => {
-if (!confirm(`Reverse pay slip #${slip.slipNo}?\n\nThis will:\n• Restore all loan/advance balances\n• Recalculate all amounts\n• Mark slip as Reversed\n\nContinue?`)) return;
+if (!confirm(`Reverse pay slip #${slip.slipNo}?\n\nThis will:\n• Restore all loan/advance balances\n• Mark slip as Reversed\n\nContinue?`)) return;
 try {
 showLoading('Reversing slip & restoring balances...');
 await reverseSlipDeductions(slip);
@@ -2491,15 +2692,23 @@ toast(`Slip reversed! All balances restored.`);
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 });
 }
-async function deleteDraftSlip(id) {
+async function deleteSlip(id) {
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
-if (!confirm('Delete this draft slip?')) return;
+const slip = data.salarySlips.find(s => s.id === id); if (!slip) return;
+const w = data.workers.find(x => x.id === slip.workerId);
+requestSecurityVerification(`Delete slip #${slip.slipNo} for ${w?.name||'worker'}`, async () => {
+if (!confirm(`Delete this slip permanently?\n\nSlip #${slip.slipNo}\nWorker: ${w?.name||'Unknown'}\nMonth: ${slip.month}\n\nThis cannot be undone.`)) return;
 try {
-showLoading('Deleting...');
+showLoading('Deleting slip...');
+if (slip.status === 'Paid') {
+await reverseSlipDeductions(slip);
+}
 await deleteFromFirebase(collections.salarySlips, id);
-await logTimeline('Deleted draft slip', 'slip', `Draft slip deleted`);
-await loadData(); toast('Draft deleted!');
+await logTimeline('Deleted slip', 'slip', `#${slip.slipNo} for ${w?.name||'Worker'} (${slip.month})`, slip.workerId);
+await loadData();
+toast('Slip deleted!');
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+});
 }
 
 // ============ SLIP PREVIEW & PDF ============
@@ -2658,45 +2867,29 @@ try {
 showLoading('Saving...');
 await saveToFirebase(collections.emailSettings, 'config', es);
 data.emailSettings = es;
-// Initialize EmailJS
-if (es.emailjsPublicKey) {
-try { emailjs.init(es.emailjsPublicKey); } catch(e) { console.error('EmailJS init error:', e); }
-}
+if (es.emailjsPublicKey) { try { emailjs.init(es.emailjsPublicKey); } catch(e) {} }
 await logTimeline('Updated email settings', 'system', 'Email configuration updated');
 toast('Email settings saved!');
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function sendSlipEmail(slip, worker) {
 const es = data.emailSettings || {};
-if (!es.emailjsServiceId || !es.emailjsTemplateId) {
-console.warn('Email settings not configured');
-return false;
-}
-if (!worker?.email) {
-console.warn('Worker has no email');
-return false;
-}
+if (!es.emailjsServiceId || !es.emailjsTemplateId || !worker?.email) return false;
 try {
-if (es.emailjsPublicKey) {
-try { emailjs.init(es.emailjsPublicKey); } catch(e) {}
-}
+if (es.emailjsPublicKey) { try { emailjs.init(es.emailjsPublicKey); } catch(e) {} }
 const c = data.company || {};
 const templateParams = {
-to_email: worker.email,
-to_name: worker.name,
+to_email: worker.email, to_name: worker.name,
 from_name: es.senderName || c.name || 'LANKA SHOE',
 reply_to: es.replyTo || c.email || '',
-slip_number: slip.slipNo,
-month: slip.month,
+slip_number: slip.slipNo, month: slip.month,
 basic_salary: fmt(slip.basic || 0),
 total_additions: fmt(slip.totalAdditions || 0),
 total_deductions: fmt(slip.totalDeductions || 0),
 net_salary: fmt(slip.net || 0),
 company_name: c.name || 'LANKA SHOE',
-employee_id: worker.empId,
-position: worker.position,
-department: worker.department,
-issue_date: today()
+employee_id: worker.empId, position: worker.position,
+department: worker.department, issue_date: today()
 };
 await emailjs.send(es.emailjsServiceId, es.emailjsTemplateId, templateParams);
 await logTimeline('Sent slip email', 'slip', `Email sent to ${worker.email} for slip #${slip.slipNo}`, worker.id);
@@ -2730,31 +2923,20 @@ await emailSlipById(currentSlipViewSlip.id);
 }
 async function testEmail() {
 const es = data.emailSettings || {};
-if (!es.emailjsServiceId || !es.emailjsTemplateId) {
-toast('Please save settings first', 'error'); return;
-}
+if (!es.emailjsServiceId || !es.emailjsTemplateId) { toast('Save settings first', 'error'); return; }
 const testEmail = prompt('Send test email to:', currentUserEmail);
 if (!testEmail) return;
 try {
 showLoading('Sending test email...');
-if (es.emailjsPublicKey) {
-try { emailjs.init(es.emailjsPublicKey); } catch(e) {}
-}
+if (es.emailjsPublicKey) { try { emailjs.init(es.emailjsPublicKey); } catch(e) {} }
 await emailjs.send(es.emailjsServiceId, es.emailjsTemplateId, {
-to_email: testEmail,
-to_name: 'Test User',
+to_email: testEmail, to_name: 'Test User',
 from_name: es.senderName || 'LANKA SHOE',
-slip_number: 'TEST-001',
-month: currentMonth(),
-basic_salary: fmt(10000),
-total_additions: fmt(2000),
-total_deductions: fmt(1500),
-net_salary: fmt(10500),
+slip_number: 'TEST-001', month: currentMonth(),
+basic_salary: fmt(10000), total_additions: fmt(2000),
+total_deductions: fmt(1500), net_salary: fmt(10500),
 company_name: data.company?.name || 'LANKA SHOE',
-employee_id: 'TEST',
-position: 'Test',
-department: 'Test',
-issue_date: today()
+employee_id: 'TEST', position: 'Test', department: 'Test', issue_date: today()
 });
 await logTimeline('Sent test email', 'system', `Test email to ${testEmail}`);
 toast('Test email sent!');
@@ -2849,7 +3031,7 @@ doc.save(`${currentReport}_${today()}.pdf`); toast('PDF exported!');
 }
 }
 
-// ============ TIMELINE (ENHANCED WITH RESTORE) ============
+// ============ TIMELINE (ENHANCED) ============
 function renderTimeline() {
 if (!hasPermission(USER_ROLES.ADMIN)) {
 document.getElementById('timelineContent').innerHTML = '<div class="empty-state"><h3>Admin access required</h3></div>';
@@ -2859,34 +3041,44 @@ const container = document.getElementById('timelineContent');
 let entries = data.timeline || [];
 const ft = document.getElementById('timelineFilterType')?.value || 'all';
 const fa = document.getElementById('timelineFilterAction')?.value || 'all';
+const fu = document.getElementById('timelineFilterUser')?.value || 'all';
+const fw = document.getElementById('timelineFilterWorker')?.value || 'all';
 const fm = document.getElementById('timelineFilterMonth')?.value || 'all';
 const sb = document.getElementById('timelineSortBy')?.value || 'dateDesc';
-if (ft !== 'all') entries = entries.filter(e => e.type === ft);
-if (fa !== 'all') {
-entries = entries.filter(e => {
-const action = (e.action || '').toLowerCase();
-return action.includes(fa);
-});
+
+// Populate user & worker filters (once)
+const userFilter = document.getElementById('timelineFilterUser');
+if (userFilter && userFilter.options.length <= 1) {
+const users = [...new Set(entries.map(e => e.userEmail).filter(Boolean))];
+userFilter.innerHTML = '<option value="all">All Users</option>' + users.map(u => `<option value="${u}">${u}</option>`).join('');
 }
+const workerFilter = document.getElementById('timelineFilterWorker');
+if (workerFilter && workerFilter.options.length <= 1) {
+workerFilter.innerHTML = '<option value="all">All Workers</option>' + data.workers.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+}
+
+if (ft !== 'all') entries = entries.filter(e => e.type === ft);
+if (fa !== 'all') entries = entries.filter(e => (e.action || '').toLowerCase().includes(fa));
+if (fu !== 'all') entries = entries.filter(e => e.userEmail === fu);
+if (fw !== 'all') entries = entries.filter(e => e.workerId === fw);
 if (fm !== 'all') entries = entries.filter(e => e.dateStr && e.dateStr.startsWith(fm));
 if (sb === 'dateDesc') entries.sort((a,b) => (b.dateStr||'').localeCompare(a.dateStr||''));
 else if (sb === 'dateAsc') entries.sort((a,b) => (a.dateStr||'').localeCompare(b.dateStr||''));
 
-// Populate month filter
 const tfm = document.getElementById('timelineFilterMonth');
 if (tfm && tfm.options.length <= 1) {
 const months = [...new Set((data.timeline||[]).map(e => e.dateStr ? e.dateStr.slice(0,7) : ''))].filter(Boolean).sort().reverse();
 tfm.innerHTML = '<option value="all">All Months</option>' + months.map(m => `<option value="${m}">${m}</option>`).join('');
 }
 
-// Stats
 const counts = {
 total: entries.length,
-created: entries.filter(e => (e.action||'').toLowerCase().includes('created') || (e.action||'').toLowerCase().includes('added') || (e.action||'').toLowerCase().includes('issued')).length,
-updated: entries.filter(e => (e.action||'').toLowerCase().includes('updated') || (e.action||'').toLowerCase().includes('edited')).length,
-deleted: entries.filter(e => (e.action||'').toLowerCase().includes('deleted') || (e.action||'').toLowerCase().includes('removed')).length,
-reversed: entries.filter(e => (e.action||'').toLowerCase().includes('reversed')).length,
-logins: entries.filter(e => e.type === 'auth' && (e.action||'').toLowerCase().includes('logged in')).length
+created: entries.filter(e => /created|added|issued/i.test(e.action||'')).length,
+updated: entries.filter(e => /updated|edited/i.test(e.action||'')).length,
+deleted: entries.filter(e => /deleted|removed/i.test(e.action||'')).length,
+reversed: entries.filter(e => /reversed/i.test(e.action||'')).length,
+restored: entries.filter(e => /restored/i.test(e.action||'')).length,
+logins: entries.filter(e => e.type === 'auth' && /logged in/i.test(e.action||'')).length
 };
 document.getElementById('timelineSummaryStats').innerHTML = `
 <div class="stat-card blue"><div class="icon"><i class="fas fa-list"></i></div><h3>Total Events</h3><div class="value">${counts.total}</div></div>
@@ -2894,24 +3086,25 @@ document.getElementById('timelineSummaryStats').innerHTML = `
 <div class="stat-card cyan"><div class="icon"><i class="fas fa-edit"></i></div><h3>Updated</h3><div class="value">${counts.updated}</div></div>
 <div class="stat-card red"><div class="icon"><i class="fas fa-trash"></i></div><h3>Deleted</h3><div class="value">${counts.deleted}</div></div>
 <div class="stat-card orange"><div class="icon"><i class="fas fa-undo"></i></div><h3>Reversed</h3><div class="value">${counts.reversed}</div></div>
-<div class="stat-card purple"><div class="icon"><i class="fas fa-sign-in-alt"></i></div><h3>Logins</h3><div class="value">${counts.logins}</div></div>
+<div class="stat-card purple"><div class="icon"><i class="fas fa-history"></i></div><h3>Restored</h3><div class="value">${counts.restored}</div></div>
 `;
 
-if (!entries.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-stream"></i><h3>No activities yet</h3></div>'; return; }
+if (!entries.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-stream"></i><h3>No activities</h3></div>'; return; }
 const colorMap = { slip: 'success', loan: 'warning', advance: 'pink', worker: '', component: 'purple', addition: 'success', deduction: 'danger', auth: 'purple', system: 'danger' };
 container.innerHTML = entries.slice(0, 200).map(e => {
 const time = e.dateStr ? new Date(e.dateStr).toLocaleString() : 'Unknown time';
 const color = colorMap[e.type] || '';
 const action = (e.action || '').toLowerCase();
-const isDeletable = action.includes('created') || action.includes('added') || action.includes('updated') || action.includes('issued') || action.includes('reversed') || action.includes('deleted');
+const worker = e.workerId ? data.workers.find(w => w.id === e.workerId) : null;
+const canRestore = action.includes('reversed') || action.includes('deleted');
 return `<div class="timeline-item ${color}">
 <div class="tl-time"><i class="fas fa-clock"></i> ${time}</div>
 <div class="tl-text"><strong>${e.action}</strong> — ${e.details || ''}</div>
-<div class="tl-user"><i class="fas fa-user"></i> ${e.userName || e.userEmail || 'System'} <span class="badge badge-info" style="margin-left:5px;">${e.type}</span></div>
-${isDeletable ? `<div class="tl-actions">
+<div class="tl-user"><i class="fas fa-user"></i> ${e.userName || e.userEmail || 'System'} <span class="badge badge-info" style="margin-left:5px;">${e.type}</span>${worker ? ` <span class="badge badge-primary" style="margin-left:5px;">${worker.name}</span>` : ''}</div>
+${canRestore ? `<div class="tl-actions">
 <button class="btn btn-sm btn-warning" onclick="restoreTimelineEntry('${e.id}')"><i class="fas fa-undo"></i> Restore</button>
 <button class="btn btn-sm btn-danger" onclick="deleteTimelineEntry('${e.id}')"><i class="fas fa-trash"></i> Delete Log</button>
-</div>` : ''}
+</div>` : `<div class="tl-actions"><button class="btn btn-sm btn-danger" onclick="deleteTimelineEntry('${e.id}')"><i class="fas fa-trash"></i> Delete Log</button></div>`}
 </div>`;
 }).join('');
 }
@@ -2920,26 +3113,68 @@ if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); retur
 const entry = data.timeline.find(e => e.id === id);
 if (!entry) return;
 requestSecurityVerification(`Restore action: "${entry.action}" for "${entry.details||''}"`, async () => {
-if (!confirm(`Restore this action?\n\nAction: ${entry.action}\nDetails: ${entry.details||''}\n\nThis will attempt to reverse the original action.`)) return;
 try {
 showLoading('Restoring...');
-// Attempt to reverse based on type
-if (entry.type === 'slip' && entry.workerId) {
 const action = (entry.action || '').toLowerCase();
-if (action.includes('finalized') || action.includes('paid')) {
-const slip = data.salarySlips.find(s => s.workerId === entry.workerId && s.status === 'Paid');
+let restored = false;
+// Handle slip reverse restore
+if (entry.type === 'slip' && entry.workerId && action.includes('reversed')) {
+const slip = data.salarySlips.find(s => s.workerId === entry.workerId && s.status === 'Reversed' && s.month === extractMonthFromDetails(entry.details));
 if (slip) {
-await reverseSlipDeductions(slip);
-await updateInFirebase(collections.salarySlips, slip.id, { status: 'Reversed', reversedAt: new Date().toISOString(), reversedBy: auth.currentUser.displayName || auth.currentUser.email });
+// Re-apply loan/advance deductions
+for (const ld of (slip.loansDeducted || [])) {
+const loan = data.loans.find(l => l.id === ld.loanId);
+if (loan) {
+if (!(loan.paidMonths||[]).includes(slip.month)) {
+loan.paidMonths = loan.paidMonths || [];
+loan.paidMonths.push(slip.month);
+}
+loan.paid = (loan.paid||0) + ld.amount;
+loan.remaining = Math.max(0, (loan.remaining||0) - ld.amount);
+if (loan.remaining <= 0.01) { loan.remaining = 0; loan.status = 'Completed'; }
+else loan.status = 'Active';
+await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths });
 }
 }
+for (const ad of (slip.advancesDeducted || [])) {
+const adv = data.advances.find(a => a.id === ad.advanceId);
+if (adv) {
+if (!(adv.paidMonths||[]).includes(slip.month)) {
+adv.paidMonths = adv.paidMonths || [];
+adv.paidMonths.push(slip.month);
+}
+adv.paid = (adv.paid||0) + ad.amount;
+adv.remaining = Math.max(0, (adv.remaining||0) - ad.amount);
+if (adv.remaining <= 0.01) { adv.remaining = 0; adv.status = 'Completed'; }
+else adv.status = 'Active';
+await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining: adv.remaining, status: adv.status, paidMonths: adv.paidMonths });
+}
+}
+await updateInFirebase(collections.salarySlips, slip.id, {
+status: 'Paid',
+restoredAt: new Date().toISOString(),
+restoredBy: auth.currentUser.displayName || auth.currentUser.email
+});
+restored = true;
+}
+}
+// Handle deleted slip restore (not possible since data is gone, but we log it)
+if (entry.type === 'slip' && action.includes('deleted')) {
+toast('Deleted slips cannot be restored (data permanently removed).', 'error');
+hideLoading();
+return;
 }
 await logTimeline('Restored action', 'system', `Restored: ${entry.action} - ${entry.details||''}`, entry.workerId);
 await loadData();
-toast('Action restored!');
+toast(restored ? 'Slip restored! All balances recalculated.' : 'Restore attempted.');
 renderTimeline();
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 });
+}
+function extractMonthFromDetails(details) {
+if (!details) return null;
+const match = details.match(/\d{4}-\d{2}/);
+return match ? match[0] : null;
 }
 async function deleteTimelineEntry(id) {
 if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
@@ -2951,6 +3186,19 @@ await loadData();
 toast('Timeline entry deleted!');
 renderTimeline();
 } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+}
+function exportTimeline() {
+const entries = data.timeline || [];
+const csv = ['Date,User,Type,Action,Details,Worker'].concat(
+entries.map(e => {
+const w = e.workerId ? data.workers.find(w => w.id === e.workerId) : null;
+return `"${e.dateStr||''}","${e.userEmail||''}","${e.type||''}","${e.action||''}","${(e.details||'').replace(/"/g,'""')}","${w?.name||''}"`;
+})
+).join('\n');
+const blob = new Blob([csv], { type: 'text/csv' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a'); a.href = url; a.download = `timeline_${today()}.csv`; a.click();
+toast('Timeline exported!');
 }
 
 // ============ DESIGN ============
@@ -3203,7 +3451,6 @@ return `<div style="display:flex;align-items:center;gap:15px;padding:12px;border
 }
 }
 
-// Initialize EmailJS on load
 window.addEventListener('load', () => {
 if (data.emailSettings?.emailjsPublicKey) {
 try { emailjs.init(data.emailSettings.emailjsPublicKey); } catch(e) {}
