@@ -12,7 +12,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 
 <!-- CONSOLE BLOCKER -->
@@ -324,7 +323,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .loan-info-banner p { font-size: 13px; color: #78350f; margin-bottom: 3px; }
 .advance-info-banner { background: linear-gradient(135deg, #fce7f3, #fbcfe8); padding: 15px; border-radius: 10px; border-left: 4px solid var(--pink); margin-bottom: 15px; }
 .advance-info-banner h4 { color: #9d174d; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-.advance-info-banner p { font-size: 13px; color: #831843; margin-bottom: 3px; } }
+.advance-info-banner p { font-size: 13px; color: #831843; margin-bottom: 3px; }
 .whatsapp-banner { background: linear-gradient(135deg, #dcfce7, #bbf7d0); padding: 15px; border-radius: 10px; border-left: 4px solid var(--whatsapp); margin-bottom: 15px; }
 .whatsapp-banner h4 { color: #166534; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
 .whatsapp-banner p { font-size: 13px; color: #14532d; margin-bottom: 3px; }
@@ -906,17 +905,17 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <div class="card">
 <div class="card-header"><h2><i class="fab fa-whatsapp" style="color:#25D366;"></i> WhatsApp Configuration</h2></div>
 <div class="whatsapp-banner">
-<h4><i class="fas fa-info-circle"></i> About WhatsApp Integration</h4>
-<p>• Send pay slips directly to workers' WhatsApp numbers with PDF attachment</p>
-<p>• PDF is uploaded to Firebase Storage and shared as download link</p>
+<h4><i class="fas fa-info-circle"></i> About WhatsApp Integration (0x0.st)</h4>
+<p>• PDF is uploaded instantly to <strong>0x0.st</strong> (free, no expiration, fast)</p>
+<p>• Download link is included in WhatsApp message automatically</p>
+<p>• Worker clicks link to download PDF directly on their phone</p>
 <p>• Worker WhatsApp numbers must be set in worker profiles</p>
-<p>• Messages include slip summary with net salary and PDF download link</p>
 <p>• Can auto-send when slip is finalized (optional)</p>
 </div>
 <form onsubmit="saveWhatsappSettings(event)">
 <div class="form-grid">
 <div class="form-group full"><label>Default Message Template</label>
-<textarea id="waTemplate" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:#f8fafc;width:100%;min-height:150px;font-family:monospace;">*{{company_name}}* - Salary Slip
+<textarea id="waTemplate" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:#f8fafc;width:100%;min-height:180px;font-family:monospace;">*{{company_name}}* - Salary Slip
 
 Dear {{worker_name}},
 
@@ -936,12 +935,13 @@ Please contact HR for any queries.
 
 Thank you!
 {{company_name}}</textarea>
+<div style="font-size:11px;color:var(--gray);margin-top:6px;">Available placeholders: {{company_name}}, {{worker_name}}, {{month}}, {{slip_number}}, {{basic_salary}}, {{total_additions}}, {{total_deductions}}, {{net_salary}}, {{pdf_link}}, {{employee_id}}, {{position}}, {{department}}</div>
 </div>
 <div class="form-group"><label>Country Code (for WhatsApp)</label>
 <input type="text" id="waCountryCode" value="+94" placeholder="+94">
-<div style="font-size:11px;color:var(--gray);margin-top:4px;">Used when worker number doesn't have country code</div>
+<div style="font-size:11px;color:var(--gray);margin-top:4px;">Used when worker number starts with 0</div>
 </div>
-<div class="form-group full"><label><input type="checkbox" id="waAutoSend" checked> Auto-send WhatsApp message with PDF when slip is finalized</label></div>
+<div class="form-group full"><label><input type="checkbox" id="waAutoSend" checked> Auto-send WhatsApp message with PDF link when slip is finalized</label></div>
 <div class="form-group full"><button type="submit" class="btn btn-whatsapp" id="btnSaveWhatsapp"><i class="fab fa-whatsapp"></i> Save WhatsApp Settings</button></div>
 </div>
 </form>
@@ -1192,14 +1192,13 @@ appId: "1:855308990839:web:8816b4a7fd95377e21c972",
 measurementId: "G-64NXH3T93L"
 };
 
-let firebaseApp, db, auth, storage;
+let firebaseApp, db, auth;
 let firebaseReady = false;
 
 try {
     firebaseApp = firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
     auth = firebase.auth();
-    storage = firebase.storage();
     firebaseReady = true;
 } catch (initError) {
     alert('Firebase initialization failed. Please refresh the page.');
@@ -1257,7 +1256,6 @@ function applyRoleBasedUI() {
     if (menuDesign) menuDesign.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuSettings) menuSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuComponents) menuComponents.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
-    // 🔥 FIX: Hide Timeline for viewers (only admin can see it)
     if (menuTimeline) menuTimeline.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuEmailSettings) menuEmailSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuWhatsappSettings) menuWhatsappSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
@@ -1347,7 +1345,7 @@ async function signInWithGoogle() {
         }
         let role = result.user.email === DEFAULT_ADMIN_EMAIL ? USER_ROLES.ADMIN : getUserRole(result.user.email);
         toast(`Welcome ${result.user.displayName || result.user.email}! Role: ${role.toUpperCase()}`);
-    } catch(error) {
+    } catch (error) {
         let msg = 'Google Sign-In failed. ';
         if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Please allow popups.';
         else if (error.code === 'auth/popup-closed-by-user') msg = 'Popup was closed.';
@@ -1378,7 +1376,7 @@ async function signInWithEmail(e) {
         const email = document.getElementById('loginEmail').value;
         if (!isAuthorizedUser(email)) { toast('Access denied.', 'error'); hideLoading(); return; }
         await auth.signInWithEmailAndPassword(email, document.getElementById('loginPassword').value);
-    } catch(error) {
+    } catch (error) {
         if (error.message && error.message.includes('before initialization')) {
             toast('Auth still initializing. Please wait and retry.', 'error');
         } else {
@@ -1394,7 +1392,7 @@ async function resetPassword() {
         await ensureAuthReady();
         await auth.sendPasswordResetEmail(email);
         toast('Reset email sent!');
-    } catch(error) { toast('Failed: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 async function logout() {
@@ -1495,7 +1493,7 @@ async function loadData() {
         if (deptFilter) deptFilter.innerHTML = '<option value="">All Depts</option>' + data.departments.map(d => `<option>${d}</option>`).join('');
         hideLoading();
         showSection('dashboard');
-    } catch(error) { hideLoading(); toast('Error: ' + error.message, 'error'); }
+    } catch (error) { hideLoading(); toast('Error: ' + error.message, 'error'); }
 }
 
 async function saveToFirebase(collection, docId, dataObj) {
@@ -1514,7 +1512,6 @@ document.querySelectorAll('.menu-item[data-section]').forEach(item => {
 });
 
 function showSection(sec, title=null) {
-    // 🔥 FIX: Block timeline access for viewers
     if (sec === 'timeline' && !hasPermission(USER_ROLES.ADMIN)) {
         toast('Admin access required for Timeline', 'error');
         return;
@@ -1564,20 +1561,6 @@ function toggleActionMenu(btn) {
     if (!isOpen) dropdown.classList.add('show');
 }
 
-function requestSecurityVerification(actionDesc, callback) {
-    pendingSecurityAction = callback;
-    document.getElementById('securityActionDesc').textContent = actionDesc;
-    document.getElementById('securityCode').value = '';
-    openModal('securityModal');
-}
-function verifySecurityCode() {
-    const code = document.getElementById('securityCode').value.trim();
-    if (code === ADMIN_REF_CODE) {
-        closeModal('securityModal');
-        if (pendingSecurityAction) { const cb = pendingSecurityAction; pendingSecurityAction = null; cb(); }
-    } else { toast('Invalid reference code!', 'error'); document.getElementById('securityCode').value = ''; }
-}
-
 // User Management
 function openAddUserModal() {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin role required.', 'error'); return; }
@@ -1598,7 +1581,7 @@ async function saveUserRole() {
         toast(`User role: ${role.toUpperCase()}`);
         closeModal('addUserModal');
         renderUsers();
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function renderUsers() {
     if (!hasPermission(USER_ROLES.ADMIN)) return;
@@ -1622,13 +1605,13 @@ async function renderUsers() {
         });
         tbody.innerHTML = html;
         hideLoading();
-    } catch(error) { toast('Error: ' + error.message, 'error'); hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); hideLoading(); }
 }
 function editUserRole(email, role) { document.getElementById('userEmail').value = email; document.getElementById('userRole').value = role; openModal('addUserModal'); }
 async function deleteUserRole(email) {
     if (!confirm(`Remove ${email}?`)) return;
     try { showLoading('Removing...'); await db.collection(usersCollection).doc(email).delete(); delete ROLE_CONFIG[email]; await logTimeline('Removed user role', 'system', email); toast('Removed'); renderUsers(); }
-    catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Workers
@@ -1689,7 +1672,7 @@ async function saveWorker(e) {
         await loadData();
         toast(editId ? 'Worker updated!' : 'Worker added!');
         closeModal('addWorkerModal');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderWorkers() {
     const search = (document.getElementById('searchWorker')?.value || '').toLowerCase();
@@ -1737,7 +1720,7 @@ async function deleteWorker(id) {
         await deleteFromFirebase(collections.workers, id);
         await logTimeline('Deleted worker', 'worker', `${w?.name || id}`);
         await loadData(); toast('Deleted!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Worker Detail
@@ -2122,7 +2105,7 @@ async function saveTransaction() {
         toast(editId ? 'Updated!' : 'Added!');
         closeModal('addTransactionModal');
         if (currentWorkerDetailId === workerId) openWorkerDetail(workerId);
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function deleteTransaction(id, type) {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
@@ -2138,7 +2121,7 @@ async function deleteTransaction(id, type) {
         await loadData();
         toast('Deleted!');
         if (tr) openWorkerDetail(tr.workerId);
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // My Loans & Advances
@@ -2387,7 +2370,7 @@ async function saveHistoryEntryEdit() {
         if (document.getElementById('loans')?.classList.contains('active')) renderLoans();
         if (document.getElementById('advances')?.classList.contains('active')) renderAdvances();
         if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 async function adjustPaidSlipsForEntityEdit(kind, entity, amountDiff, installmentDiff, oldEntry) {
@@ -2462,7 +2445,7 @@ async function deleteHistoryEntry(kind, entityId, entryId) {
             if (document.getElementById('loans')?.classList.contains('active')) renderLoans();
             if (document.getElementById('advances')?.classList.contains('active')) renderAdvances();
             if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
-        } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+        } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
     });
 }
 
@@ -2532,7 +2515,7 @@ async function addLoan(e) {
         await saveToFirebase(collections.loans, null, loanData);
         await logTimeline('Issued loan', 'loan', `${w?.name||'Worker'}: ${fmt(total)} (${loanType})`, wId);
         await loadData(); toast('Loan issued!'); closeModal('addLoanModal');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderLoans() {
     const tbody = document.getElementById('loansTable');
@@ -2601,7 +2584,7 @@ async function deleteLoan(id) {
         await loadData(); toast('Loan deleted & slips recalculated!');
         if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
         if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Advances
@@ -2656,7 +2639,7 @@ async function addAdvance(e) {
             toast('Advance issued!');
         }
         await loadData(); closeModal('addAdvanceModal');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderAdvances() {
     const tbody = document.getElementById('advancesTable');
@@ -2725,7 +2708,7 @@ async function deleteAdvance(id) {
         await loadData(); toast('Advance deleted & slips recalculated!');
         if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
         if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Components
@@ -2800,13 +2783,13 @@ async function saveComponent() {
         if (editId) { await updateInFirebase(collections.salaryComponents, editId, compData); await logTimeline('Updated component', 'component', `${name} (${compData.type})`); }
         else { compData.createdAt = today(); compData.createdBy = auth.currentUser.displayName || auth.currentUser.email; await saveToFirebase(collections.salaryComponents, null, compData); await logTimeline('Added component', 'component', `${name} (${compData.type})`); }
         await loadData(); toast(editId ? 'Updated!' : 'Added!'); closeModal('addComponentModal');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function deleteComponent(id) {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
     if (!confirm('Delete?')) return;
     try { showLoading('Deleting...'); const c = data.salaryComponents.find(x => x.id === id); await deleteFromFirebase(collections.salaryComponents, id); await logTimeline('Deleted component', 'component', c?.name || id); await loadData(); toast('Deleted!'); }
-    catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Pay Slip
@@ -3038,17 +3021,14 @@ async function finalizeSlip(status) {
                 }
             }
 
-            // 🔥 Save additions/deductions to worker's records
             await saveSlipAdditionsDeductionsToWorkerRecords(slipData, w, cu);
 
             await logTimeline('Finalized pay slip', 'slip', `${w?.name||'Worker'} #${slipData.slipNo}: Net ${fmt(slipData.net)} (${month})`, workerId);
 
-            // Auto-send email
             const es = data.emailSettings || {};
             if (es.autoSend !== false && es.emailjsServiceId && es.emailjsTemplateId && w?.email) {
                 try { await sendSlipEmail(slipData, w); } catch(emailErr) {}
             }
-            // 🔥 Auto-send WhatsApp with PDF
             const ws = data.whatsappSettings || {};
             if (ws.autoSend !== false && w?.whatsapp) {
                 try { await sendSlipWhatsapp(slipData, w); } catch(waErr) {}
@@ -3063,10 +3043,9 @@ async function finalizeSlip(status) {
             const savedSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month && s.status === 'Paid');
             if (savedSlip) downloadSlipPDF(savedSlip);
         }
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// 🔥 Save additions/deductions from slip to worker's records
 async function saveSlipAdditionsDeductionsToWorkerRecords(slipData, worker, currentUser) {
     if (!worker) return;
     const slipId = slipData.slipNo;
@@ -3252,7 +3231,7 @@ async function reverseSlip(id) {
             await logTimeline('Reversed pay slip', 'slip', `#${slip.slipNo} for ${w?.name||'Worker'} (${slip.month}) - All balances restored`, slip.workerId);
             await loadData();
             toast(`Slip reversed! All balances restored.`);
-        } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+        } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
     });
 }
 async function deleteSlip(id) {
@@ -3268,7 +3247,7 @@ async function deleteSlip(id) {
             await logTimeline('Deleted slip', 'slip', `#${slip.slipNo} for ${w?.name||'Worker'} (${slip.month})`, slip.workerId);
             await loadData();
             toast('Slip deleted!');
-        } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+        } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
     });
 }
 
@@ -3308,7 +3287,7 @@ ${d.showFooter!==false ? `<p style="text-align:center;margin-top:20px;font-size:
 </div>`;
 }
 
-// 🔥 Generate PDF as Blob (for upload to Firebase Storage)
+// 🔥 Generate PDF as Blob
 function generateSlipPDFBlob(slip) {
     return new Promise((resolve, reject) => {
         try {
@@ -3394,29 +3373,33 @@ function generateSlipPDFBlob(slip) {
             if (d.showFooter !== false && d.footerText) { doc.setFontSize(8); doc.setTextColor(100, 116, 139); doc.text(d.footerText, pageWidth/2, 282, { align: 'center' }); }
             doc.setFontSize(8); doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
             
-            // Get the PDF as blob
             const pdfBlob = doc.output('blob');
-            resolve({ blob: pdfBlob, filename: `PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf` });
-        } catch(error) {
+            const filename = `PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf`;
+            resolve({ blob: pdfBlob, filename: filename });
+        } catch (error) {
             reject(error);
         }
     });
 }
 
-// 🔥 Upload PDF to Firebase Storage and return download URL
-async function uploadSlipPDFToStorage(slip) {
-    try {
-        const { blob, filename } = await generateSlipPDFBlob(slip);
-        const w = data.workers.find(x => x.id === slip.workerId);
-        // Path: paySlips/{workerId}/{month}/{filename}
-        const storagePath = `paySlips/${slip.workerId}/${slip.month}/${filename}`;
-        const storageRef = storage.ref(storagePath);
-        await storageRef.put(blob);
-        const downloadURL = await storageRef.getDownloadURL();
-        return downloadURL;
-    } catch(error) {
-        throw error;
+// 🔥 0x0.st Instant PDF Upload
+async function uploadSlipPDFTo0x0(slip) {
+    const { blob, filename } = await generateSlipPDFBlob(slip);
+    
+    const formData = new FormData();
+    formData.append('file', blob, filename);
+    
+    const response = await fetch('https://0x0.st', {
+        method: 'POST',
+        body: formData
+    });
+    
+    if (!response.ok) {
+        throw new Error('Upload failed: ' + response.status);
     }
+    
+    const url = await response.text();
+    return url.trim();
 }
 
 function downloadSlipPDF(slip) {
@@ -3521,7 +3504,7 @@ function exportReport(format) {
     }
 }
 
-// ============ WHATSAPP INTEGRATION WITH PDF ============
+// ============ WHATSAPP INTEGRATION WITH 0x0.st ============
 function loadWhatsappSettings() {
     const ws = data.whatsappSettings || {};
     document.getElementById('waTemplate').value = ws.template || `*{{company_name}}* - Salary Slip\n\nDear {{worker_name}},\n\nYour salary slip for *{{month}}* is ready.\n\n📋 *Slip Details:*\n• Slip #: {{slip_number}}\n• Basic Salary: {{basic_salary}}\n• Total Additions: {{total_additions}}\n• Total Deductions: {{total_deductions}}\n• *Net Salary: {{net_salary}}*\n\n📎 *Download your slip PDF:*\n{{pdf_link}}\n\nPlease contact HR for any queries.\n\nThank you!\n{{company_name}}`;
@@ -3545,7 +3528,7 @@ async function saveWhatsappSettings(e) {
         data.whatsappSettings = ws;
         await logTimeline('Updated WhatsApp settings', 'system', 'WhatsApp configuration updated');
         toast('WhatsApp settings saved!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 function formatWhatsappNumber(phone, countryCode) {
@@ -3582,7 +3565,7 @@ function buildWhatsappMessage(slip, worker, pdfLink) {
     return message;
 }
 
-// 🔥 FIXED: Send WhatsApp with PDF upload to Firebase Storage
+// 🔥 Send WhatsApp with 0x0.st PDF upload
 async function sendSlipWhatsapp(slip, worker) {
     const ws = data.whatsappSettings || {};
     if (!worker?.whatsapp) return false;
@@ -3594,25 +3577,24 @@ async function sendSlipWhatsapp(slip, worker) {
 
     let pdfLink = '';
     try {
-        showLoading('Uploading PDF to cloud...');
-        pdfLink = await uploadSlipPDFToStorage(slip);
-        // Save PDF link to slip record
+        showLoading('⚡ Uploading PDF to 0x0.st (instant)...');
+        pdfLink = await uploadSlipPDFTo0x0(slip);
         await updateInFirebase(collections.salarySlips, slip.id, {
             pdfLink: pdfLink,
             pdfUploadedAt: new Date().toISOString()
         });
-    } catch(uploadErr) {
+        toast('✅ PDF uploaded instantly!');
+    } catch (uploadErr) {
         toast('PDF upload failed: ' + uploadErr.message + '. Sending message without PDF link.', 'error');
-        pdfLink = '';
+        pdfLink = '[PDF upload failed - please request from HR]';
     }
 
     const message = buildWhatsappMessage(slip, worker, pdfLink);
     const encodedMessage = encodeURIComponent(message);
     const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-    await logTimeline('Sent WhatsApp message', 'slip', `WhatsApp sent to ${worker.name} (${worker.whatsapp}) for slip #${slip.slipNo}${pdfLink ? ' with PDF' : ''}`, worker.id);
+    await logTimeline('Sent WhatsApp message', 'slip', `WhatsApp sent to ${worker.name} (${worker.whatsapp}) for slip #${slip.slipNo}${pdfLink && !pdfLink.startsWith('[') ? ' with PDF' : ''}`, worker.id);
 
-    // Open WhatsApp in new tab
     window.open(waUrl, '_blank');
 
     return { url: waUrl, phoneNumber, message, pdfLink };
@@ -3633,12 +3615,12 @@ async function whatsappSlipById(id) {
     const phoneNumber = formatWhatsappNumber(w.whatsapp, ws.countryCode);
     if (!phoneNumber) { toast('Invalid WhatsApp number', 'error'); return; }
 
-    if (!confirm(`Send WhatsApp message with PDF to ${w.name} (${w.whatsapp})?\n\nThis will:\n1. Upload PDF to cloud storage\n2. Open WhatsApp with the message and PDF link\n\nContinue?`)) return;
+    if (!confirm(`Send WhatsApp message with PDF to ${w.name} (${w.whatsapp})?\n\nThis will:\n1. Upload PDF to 0x0.st (instant)\n2. Open WhatsApp with the message and PDF link\n\nContinue?`)) return;
 
     try {
         await sendSlipWhatsapp(slip, w);
         toast('WhatsApp opened with PDF link!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); }
 }
 
 async function testWhatsapp() {
@@ -3664,19 +3646,18 @@ async function testWhatsapp() {
         whatsapp: testPhone
     };
 
-    if (!confirm('This will upload a test PDF and open WhatsApp. Continue?')) return;
+    if (!confirm('This will upload a test PDF to 0x0.st and open WhatsApp. Continue?')) return;
 
     try {
-        showLoading('Uploading test PDF...');
-        // For test, we don't have a real slip to upload, so just use a placeholder link
-        const pdfLink = 'https://example.com/test-slip.pdf';
+        showLoading('⚡ Uploading test PDF to 0x0.st...');
+        const pdfLink = await uploadSlipPDFTo0x0(testSlip);
         const message = buildWhatsappMessage(testSlip, testWorker, pdfLink);
         const encodedMessage = encodeURIComponent(message);
         const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
         window.open(waUrl, '_blank');
         await logTimeline('Sent test WhatsApp', 'system', `Test WhatsApp to ${testPhone}`);
-        toast('Test WhatsApp opened!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+        toast('Test WhatsApp opened with PDF!');
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Email
@@ -3709,7 +3690,7 @@ async function saveEmailSettings(e) {
         if (es.emailjsPublicKey) { try { emailjs.init(es.emailjsPublicKey); } catch(e) {} }
         await logTimeline('Updated email settings', 'system', 'Email configuration updated');
         toast('Email settings saved!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function sendSlipEmail(slip, worker) {
     const es = data.emailSettings || {};
@@ -3733,13 +3714,14 @@ async function sendSlipEmail(slip, worker) {
         await emailjs.send(es.emailjsServiceId, es.emailjsTemplateId, templateParams);
         await logTimeline('Sent slip email', 'slip', `Email sent to ${worker.email} for slip #${slip.slipNo}`, worker.id);
         return true;
-    } catch(error) {
+    } catch (error) {
         toast('Email send failed: ' + (error.text || error.message || 'Unknown error'), 'error');
         return false;
     }
 }
 async function emailSlipById(id) {
-    const slip = data.salarySlips.find(s => s.id === id); if (!slip) return;
+    const slip = data.salarySlips.find(s => s.id === id);
+    if (!slip) return;
     const w = data.workers.find(x => x.id === slip.workerId);
     if (!w?.email) { toast('Worker has no email address', 'error'); return; }
     const es = data.emailSettings || {};
@@ -3749,7 +3731,7 @@ async function emailSlipById(id) {
         showLoading('Sending email...');
         const success = await sendSlipEmail(slip, w);
         if (success) toast('Email sent successfully!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function emailCurrentSlip() {
     if (!currentSlipViewSlip) { toast('No slip to email', 'error'); return; }
@@ -3774,7 +3756,7 @@ async function testEmail() {
         });
         await logTimeline('Sent test email', 'system', `Test email to ${testEmail}`);
         toast('Test email sent!');
-    } catch(error) { toast('Email failed: ' + (error.text || error.message), 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Email failed: ' + (error.text || error.message), 'error'); } finally { hideLoading(); }
 }
 
 // Timeline
@@ -3941,7 +3923,7 @@ async function restoreTimelineEntry(id) {
             await loadData();
             toast('✅ Successfully restored! All calculations updated.');
             renderTimeline();
-        } catch(error) {
+        } catch (error) {
             toast('Error during restore: ' + error.message, 'error');
         } finally {
             hideLoading();
@@ -3957,7 +3939,7 @@ async function deleteTimelineEntry(id) {
         await loadData();
         toast('Timeline entry deleted!');
         renderTimeline();
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function exportTimeline() {
     const entries = data.timeline || [];
@@ -3997,7 +3979,9 @@ function loadDesignSettings() {
     document.getElementById('designSign1Label').value = d.sign1Label || 'Employee Signature';
     document.getElementById('designSign2Label').value = d.sign2Label || 'Authorized Signature';
 }
-function setActiveSwatch(pickerId, color) { document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => s.classList.toggle('active', s.dataset.color === color)); }
+function setActiveSwatch(pickerId, color) {
+    document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => s.classList.toggle('active', s.dataset.color === color));
+}
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('color-swatch')) {
         const picker = e.target.closest('.color-picker-row');
@@ -4033,7 +4017,7 @@ async function saveDesign() {
         showLoading('Saving design...');
         await saveToFirebase(collections.payslipDesign, 'config', dd);
         data.payslipDesign = dd; toast('Design saved!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function previewDesign() {
     if (!data.salarySlips.length) { toast('Create a pay slip first', 'error'); return; }
@@ -4065,14 +4049,14 @@ async function saveCompany(e) {
         bankAccount: document.getElementById('cBankAccount').value || '', address: document.getElementById('cAddress').value || ''
     };
     try { showLoading('Saving...'); await saveToFirebase(collections.company, 'config', cd); data.company = cd; await logTimeline('Updated company info', 'system', cd.name); toast('Company info saved!'); }
-    catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function addDepartment() {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
     const name = document.getElementById('newDept').value.trim(); if (!name) return;
     if (data.departments.includes(name)) { toast('Department exists', 'error'); return; }
     try { showLoading('Adding...'); await saveToFirebase(collections.departments, null, { name }); data.departments.push(name); document.getElementById('newDept').value = ''; renderDepartments(); await logTimeline('Added department', 'system', name); toast('Department added!'); }
-    catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function removeDepartment(name) {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
@@ -4082,7 +4066,7 @@ async function removeDepartment(name) {
         const deptDoc = await db.collection(collections.departments).where('name', '==', name).get();
         deptDoc.forEach(async doc => { await deleteFromFirebase(collections.departments, doc.id); });
         data.departments = data.departments.filter(d => d !== name); renderDepartments(); await logTimeline('Removed department', 'system', name); toast('Department removed!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderDepartments() {
     const list = document.getElementById('departmentsList'); if (!list) return;
@@ -4120,7 +4104,7 @@ async function clearAllData() {
         }
         await logTimeline('Cleared all data', 'system', 'All data wiped');
         toast('All data cleared!'); setTimeout(() => location.reload(), 1000);
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Dashboard
