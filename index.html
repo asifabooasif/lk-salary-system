@@ -12,6 +12,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 
 <!-- CONSOLE BLOCKER -->
@@ -323,7 +324,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .loan-info-banner p { font-size: 13px; color: #78350f; margin-bottom: 3px; }
 .advance-info-banner { background: linear-gradient(135deg, #fce7f3, #fbcfe8); padding: 15px; border-radius: 10px; border-left: 4px solid var(--pink); margin-bottom: 15px; }
 .advance-info-banner h4 { color: #9d174d; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-.advance-info-banner p { font-size: 13px; color: #831843; margin-bottom: 3px; }
+.advance-info-banner p { font-size: 13px; color: #831843; margin-bottom: 3px; } }
 .whatsapp-banner { background: linear-gradient(135deg, #dcfce7, #bbf7d0); padding: 15px; border-radius: 10px; border-left: 4px solid var(--whatsapp); margin-bottom: 15px; }
 .whatsapp-banner h4 { color: #166534; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
 .whatsapp-banner p { font-size: 13px; color: #14532d; margin-bottom: 3px; }
@@ -436,9 +437,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .tab-filter-bar { display: flex; gap: 10px; flex-wrap: wrap; padding: 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); }
 .tab-filter-bar select, .tab-filter-bar input { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 12px; background: white; }
 .tab-filter-bar label { font-size: 11px; font-weight: 600; color: var(--gray); text-transform: uppercase; }
-.whatsapp-preview { background: #e5ddd5; padding: 15px; border-radius: 10px; margin-top: 15px; font-family: 'Segoe UI', sans-serif; }
-.whatsapp-bubble { background: white; padding: 12px; border-radius: 8px; max-width: 80%; margin-left: auto; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
-.whatsapp-bubble::after { content: ''; position: absolute; right: -8px; top: 10px; border: 6px solid transparent; border-left-color: white; }
 @media (max-width: 1024px) { .myla-split-container { grid-template-columns: 1fr; } }
 @media (max-width: 768px) {
 .login-container { grid-template-columns: 1fr; }
@@ -909,15 +907,15 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <div class="card-header"><h2><i class="fab fa-whatsapp" style="color:#25D366;"></i> WhatsApp Configuration</h2></div>
 <div class="whatsapp-banner">
 <h4><i class="fas fa-info-circle"></i> About WhatsApp Integration</h4>
-<p>• Send pay slips directly to workers' WhatsApp numbers</p>
-<p>• Uses WhatsApp Web (wa.me) for direct messaging</p>
+<p>• Send pay slips directly to workers' WhatsApp numbers with PDF attachment</p>
+<p>• PDF is uploaded to Firebase Storage and shared as download link</p>
 <p>• Worker WhatsApp numbers must be set in worker profiles</p>
-<p>• Messages include slip summary with net salary</p>
+<p>• Messages include slip summary with net salary and PDF download link</p>
 <p>• Can auto-send when slip is finalized (optional)</p>
 </div>
 <form onsubmit="saveWhatsappSettings(event)">
 <div class="form-grid">
-<div class="form-group"><label>Default Message Template</label>
+<div class="form-group full"><label>Default Message Template</label>
 <textarea id="waTemplate" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:#f8fafc;width:100%;min-height:150px;font-family:monospace;">*{{company_name}}* - Salary Slip
 
 Dear {{worker_name}},
@@ -931,6 +929,9 @@ Your salary slip for *{{month}}* is ready.
 • Total Deductions: {{total_deductions}}
 • *Net Salary: {{net_salary}}*
 
+📎 *Download your slip PDF:*
+{{pdf_link}}
+
 Please contact HR for any queries.
 
 Thank you!
@@ -940,8 +941,7 @@ Thank you!
 <input type="text" id="waCountryCode" value="+94" placeholder="+94">
 <div style="font-size:11px;color:var(--gray);margin-top:4px;">Used when worker number doesn't have country code</div>
 </div>
-<div class="form-group full"><label><input type="checkbox" id="waAutoSend" checked> Auto-send WhatsApp message when slip is finalized</label></div>
-<div class="form-group full"><label><input type="checkbox" id="waIncludePDF"> Attach PDF note (opens PDF download link in message)</label></div>
+<div class="form-group full"><label><input type="checkbox" id="waAutoSend" checked> Auto-send WhatsApp message with PDF when slip is finalized</label></div>
 <div class="form-group full"><button type="submit" class="btn btn-whatsapp" id="btnSaveWhatsapp"><i class="fab fa-whatsapp"></i> Save WhatsApp Settings</button></div>
 </div>
 </form>
@@ -1192,13 +1192,14 @@ appId: "1:855308990839:web:8816b4a7fd95377e21c972",
 measurementId: "G-64NXH3T93L"
 };
 
-let firebaseApp, db, auth;
+let firebaseApp, db, auth, storage;
 let firebaseReady = false;
 
 try {
     firebaseApp = firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
     auth = firebase.auth();
+    storage = firebase.storage();
     firebaseReady = true;
 } catch (initError) {
     alert('Firebase initialization failed. Please refresh the page.');
@@ -1256,6 +1257,7 @@ function applyRoleBasedUI() {
     if (menuDesign) menuDesign.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuSettings) menuSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuComponents) menuComponents.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
+    // 🔥 FIX: Hide Timeline for viewers (only admin can see it)
     if (menuTimeline) menuTimeline.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuEmailSettings) menuEmailSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuWhatsappSettings) menuWhatsappSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
@@ -1282,7 +1284,6 @@ function showLoading(msg = 'Loading...') {
 }
 function hideLoading() { try { const o = document.getElementById('loadingOverlay'); if (o) o.classList.remove('show'); } catch(e) {} }
 
-// ============ TIMELINE LOGGING ============
 async function logTimeline(action, type, details, workerId = null, extraData = {}) {
     if (!firebaseReady) return;
     try {
@@ -1457,7 +1458,6 @@ async function loadData() {
         if (snaps[7].exists) data.company = snaps[7].data();
         if (snaps[8].exists) data.salarySettings = snaps[8].data();
         if (snaps[9].exists) data.payslipDesign = snaps[9].data();
-        // Ensure all loans/advances have history array
         data.loans.forEach(l => { if (!l.history) l.history = []; });
         data.advances.forEach(a => { if (!a.history) a.history = []; });
         if (!data.salaryComponents.length) {
@@ -1482,10 +1482,9 @@ async function loadData() {
         }
         if (!data.whatsappSettings || Object.keys(data.whatsappSettings).length === 0) {
             data.whatsappSettings = {
-                template: `*{{company_name}}* - Salary Slip\n\nDear {{worker_name}},\n\nYour salary slip for *{{month}}* is ready.\n\n📋 *Slip Details:*\n• Slip #: {{slip_number}}\n• Basic Salary: {{basic_salary}}\n• Total Additions: {{total_additions}}\n• Total Deductions: {{total_deductions}}\n• *Net Salary: {{net_salary}}*\n\nPlease contact HR for any queries.\n\nThank you!\n{{company_name}}`,
+                template: `*{{company_name}}* - Salary Slip\n\nDear {{worker_name}},\n\nYour salary slip for *{{month}}* is ready.\n\n📋 *Slip Details:*\n• Slip #: {{slip_number}}\n• Basic Salary: {{basic_salary}}\n• Total Additions: {{total_additions}}\n• Total Deductions: {{total_deductions}}\n• *Net Salary: {{net_salary}}*\n\n📎 *Download your slip PDF:*\n{{pdf_link}}\n\nPlease contact HR for any queries.\n\nThank you!\n{{company_name}}`,
                 countryCode: '+94',
-                autoSend: true,
-                includePDF: false
+                autoSend: true
             };
         }
         if (!data.company || Object.keys(data.company).length === 0) {
@@ -1515,7 +1514,11 @@ document.querySelectorAll('.menu-item[data-section]').forEach(item => {
 });
 
 function showSection(sec, title=null) {
-    if (sec === 'timeline' && !hasPermission(USER_ROLES.ADMIN)) { toast('Admin access required', 'error'); return; }
+    // 🔥 FIX: Block timeline access for viewers
+    if (sec === 'timeline' && !hasPermission(USER_ROLES.ADMIN)) {
+        toast('Admin access required for Timeline', 'error');
+        return;
+    }
     document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     const menuItem = document.querySelector(`.menu-item[data-section="${sec}"]`);
@@ -2806,10 +2809,10 @@ async function deleteComponent(id) {
     catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ PAY SLIP - FIXED FOR EDIT WITH LOAN/ADVANCE LOADING ============
+// Pay Slip
 let currentSlipData = null;
 let currentSlipViewSlip = null;
-let editingSlipId = null; // Track which slip is being edited
+let editingSlipId = null;
 
 function loadSlipDefaults() {
     const workerId = document.getElementById('slipWorker').value;
@@ -2820,18 +2823,13 @@ function loadSlipDefaults() {
     if (!workerId || !month) { container.innerHTML = ''; loanBanner.innerHTML = ''; advanceBanner.innerHTML = ''; editingSlipId = null; return; }
     const w = data.workers.find(x => x.id === workerId); if (!w) return;
 
-    // 🔥 Check if we're editing an existing slip
     const existingSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month && s.status !== 'Reversed');
-    if (existingSlip) {
-        editingSlipId = existingSlip.id;
-    } else {
-        editingSlipId = null;
-    }
+    if (existingSlip) editingSlipId = existingSlip.id;
+    else editingSlipId = null;
 
     const workerLoans = data.loans.filter(l => {
         if (l.workerId !== workerId || l.status !== 'Active') return false;
         if ((l.startMonth || month) > month) return false;
-        // 🔥 If editing, don't exclude loans already in the slip's paidMonths (we'll re-add them)
         if (!editingSlipId && (l.paidMonths || []).includes(month)) return false;
         return true;
     });
@@ -2988,7 +2986,6 @@ async function finalizeSlip(status) {
     const cu = auth.currentUser;
     const w = data.workers.find(x => x.id === workerId);
 
-    // 🔥 CRITICAL FIX: If editing a paid slip, reverse old loan/advance deductions first
     if (existingSlip && existingSlip.status === 'Paid') {
         await reverseSlipDeductions(existingSlip);
     }
@@ -3018,7 +3015,6 @@ async function finalizeSlip(status) {
         else await saveToFirebase(collections.salarySlips, null, slipData);
 
         if (status === 'Paid') {
-            // Apply new loan deductions
             for (const ld of slipData.loansDeducted) {
                 const loan = data.loans.find(l => l.id === ld.loanId);
                 if (loan && !(loan.paidMonths||[]).includes(month)) {
@@ -3030,7 +3026,6 @@ async function finalizeSlip(status) {
                     await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths });
                 }
             }
-            // Apply new advance deductions
             for (const ad of slipData.advancesDeducted) {
                 const adv = data.advances.find(a => a.id === ad.advanceId);
                 if (adv && !(adv.paidMonths||[]).includes(month)) {
@@ -3043,7 +3038,7 @@ async function finalizeSlip(status) {
                 }
             }
 
-            // 🔥 NEW: Save additions and deductions to worker's records
+            // 🔥 Save additions/deductions to worker's records
             await saveSlipAdditionsDeductionsToWorkerRecords(slipData, w, cu);
 
             await logTimeline('Finalized pay slip', 'slip', `${w?.name||'Worker'} #${slipData.slipNo}: Net ${fmt(slipData.net)} (${month})`, workerId);
@@ -3053,7 +3048,7 @@ async function finalizeSlip(status) {
             if (es.autoSend !== false && es.emailjsServiceId && es.emailjsTemplateId && w?.email) {
                 try { await sendSlipEmail(slipData, w); } catch(emailErr) {}
             }
-            // Auto-send WhatsApp
+            // 🔥 Auto-send WhatsApp with PDF
             const ws = data.whatsappSettings || {};
             if (ws.autoSend !== false && w?.whatsapp) {
                 try { await sendSlipWhatsapp(slipData, w); } catch(waErr) {}
@@ -3071,16 +3066,14 @@ async function finalizeSlip(status) {
     } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// 🔥 NEW: Save additions/deductions from slip to worker's records
+// 🔥 Save additions/deductions from slip to worker's records
 async function saveSlipAdditionsDeductionsToWorkerRecords(slipData, worker, currentUser) {
     if (!worker) return;
     const slipId = slipData.slipNo;
     const month = slipData.month;
 
-    // Process earnings (additions) - skip basic and allowances (they're from profile)
     for (const earning of (slipData.earnings || [])) {
         if (earning.id === 'basic' || earning.id === 'allowances') continue;
-        // Check if this addition already exists for this worker+month+component
         const existingAddition = data.additions.find(a =>
             a.workerId === worker.id &&
             a.month === month &&
@@ -3109,7 +3102,6 @@ async function saveSlipAdditionsDeductionsToWorkerRecords(slipData, worker, curr
         }
     }
 
-    // Process deductions - skip loans and advances (they're tracked separately)
     for (const deduction of (slipData.deductions || [])) {
         if (deduction.kind === 'loan' || deduction.kind === 'advance') continue;
         const existingDeduction = data.deductions.find(d =>
@@ -3213,8 +3205,6 @@ function viewSlip(id) {
     document.getElementById('viewSlipDownloadBtn').onclick = () => downloadSlipPDF(slip);
     openModal('viewSlipModal');
 }
-
-// 🔥 FIXED: editSlip now loads loan/advance deductions from existing slip
 async function editSlip(id) {
     if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
     const slip = data.salarySlips.find(s => s.id === id); if (!slip) return;
@@ -3224,26 +3214,17 @@ async function editSlip(id) {
     document.getElementById('slipWorker').value = slip.workerId;
     document.getElementById('slipMonth').value = slip.month;
     document.getElementById('slipNotes').value = slip.notes || '';
-
-    // 🔥 Set editing mode - this will load loans/advances even if already paid this month
     editingSlipId = slip.id;
-
     loadSlipDefaults();
     await new Promise(r => setTimeout(r, 300));
-
-    // 🔥 Load earnings from the existing slip
     slip.earnings.forEach(e => {
         const row = document.querySelector(`#earningsContainer .slip-row[data-id="${e.id}"]`);
         if (row) { const inp = row.querySelector('.row-amount'); if (inp) inp.value = e.amount; const tog = row.querySelector('.row-toggle'); if (tog) tog.checked = true; }
     });
-
-    // 🔥 Load deductions from the existing slip (including loans and advances)
     slip.deductions.forEach(d => {
         const row = document.querySelector(`#deductionsContainer .slip-row[data-id="${d.id}"]`);
         if (row) { const inp = row.querySelector('.row-amount'); if (inp) inp.value = d.amount; const tog = row.querySelector('.row-toggle'); if (tog) tog.checked = true; }
     });
-
-    // Uncheck rows not in the slip
     document.querySelectorAll('#earningsContainer .slip-row, #deductionsContainer .slip-row').forEach(row => {
         const id = row.dataset.id;
         if (!slip.earnings.find(e => e.id === id) && !slip.deductions.find(d => d.id === id)) {
@@ -3251,9 +3232,8 @@ async function editSlip(id) {
         }
     });
     updateSlipSummary();
-    toast('Slip loaded for editing. Previous loan/advance deductions included. Make changes and finalize.');
+    toast('Slip loaded for editing. Previous loan/advance deductions included.');
 }
-
 async function reverseSlip(id) {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
     const slip = data.salarySlips.find(s => s.id === id); if (!slip) return;
@@ -3286,7 +3266,8 @@ async function deleteSlip(id) {
             if (slip.status === 'Paid') await reverseSlipDeductions(slip);
             await deleteFromFirebase(collections.salarySlips, id);
             await logTimeline('Deleted slip', 'slip', `#${slip.slipNo} for ${w?.name||'Worker'} (${slip.month})`, slip.workerId);
-            await loadData(); toast('Slip deleted!');
+            await loadData();
+            toast('Slip deleted!');
         } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
     });
 }
@@ -3327,99 +3308,225 @@ ${d.showFooter!==false ? `<p style="text-align:center;margin-top:20px;font-size:
 </div>`;
 }
 
-function downloadSlipPDF(slip) {
-    if (!slip) return;
-    const w = data.workers.find(x => x.id === slip.workerId); if (!w) return;
-    const c = data.company || {};
-    const d = data.payslipDesign || {};
-    const hex = (d.primaryColor||'#1e40af').replace('#','');
-    const r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
-    const eHex = (d.earningsColor||'#059669').replace('#','');
-    const er = parseInt(eHex.substr(0,2),16), eg = parseInt(eHex.substr(2,2),16), eb = parseInt(eHex.substr(4,2),16);
-    const dHex = (d.deductionsColor||'#dc2626').replace('#','');
-    const dr = parseInt(dHex.substr(0,2),16), dg = parseInt(dHex.substr(2,2),16), db = parseInt(dHex.substr(4,2),16);
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: d.paperSize || 'a4' });
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const fontSize = d.fontSize === 'small' ? 9 : d.fontSize === 'large' ? 12 : 10;
-    const marginX = 14;
-    const contentWidth = pageWidth - (marginX * 2);
-    if (d.border !== 'none') { doc.setDrawColor(r, g, b); doc.setLineWidth(d.border === 'thick' ? 2 : 0.5); doc.rect(5, 5, pageWidth - 10, pageHeight - 10); if (d.border === 'double') doc.rect(7, 7, pageWidth - 14, pageHeight - 14); }
-    let y = 15;
-    if (d.headerStyle === 'full') {
-        doc.setFillColor(r, g, b); doc.rect(0, 0, pageWidth, 40, 'F');
-        doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.setFont('helvetica', 'bold');
-        doc.text(c.name || 'LANKA SHOE', pageWidth/2, 18, { align: 'center' });
-        doc.setFontSize(9); doc.setFont('helvetica', 'normal');
-        doc.text(c.address || '', pageWidth/2, 26, { align: 'center' });
-        doc.text(`Phone: ${c.phone||'-'} | Email: ${c.email||'-'}`, pageWidth/2, 32, { align: 'center' });
-        y = 48;
-    } else if (d.headerStyle === 'centered') {
-        doc.setTextColor(r, g, b); doc.setFontSize(22); doc.setFont('helvetica', 'bold');
-        doc.text(c.name || 'LANKA SHOE', pageWidth/2, y, { align: 'center' }); y += 7;
-        doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
-        doc.text(c.address || '', pageWidth/2, y, { align: 'center' }); y += 5;
-        doc.text(`Phone: ${c.phone||'-'} | Email: ${c.email||'-'}`, pageWidth/2, y, { align: 'center' }); y += 8;
-    } else {
-        doc.setTextColor(r, g, b); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
-        doc.text(c.name || 'LANKA SHOE', marginX, y); y += 10;
-    }
-    doc.setTextColor(r, g, b); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
-    doc.text(d.slipTitle || 'SALARY PAY SLIP', pageWidth/2, y, { align: 'center' }); y += 6;
-    doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
-    doc.text(`Slip #${slip.slipNo} • Month: ${slip.month} • Status: ${slip.status}`, pageWidth/2, y, { align: 'center' }); y += 8;
-    doc.setDrawColor(r, g, b); doc.setLineWidth(0.5); doc.line(marginX, y, pageWidth - marginX, y); y += 8;
-    doc.setFontSize(fontSize); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 41, 59);
-    doc.text('Employee Details', marginX, y); y += 6;
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(fontSize - 1);
-    const col1X = marginX, col2X = pageWidth / 2 + 5, labelWidth = 30;
-    doc.text('Name:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.name, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-    doc.text('Join Date:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.joinDate || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); y += 5;
-    doc.text('Emp ID:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.empId, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-    if (d.showBank !== false) { doc.text('Bank:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.bank || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 5;
-    doc.text('Position:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.position, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-    if (d.showBank !== false) { doc.text('Account:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.account || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 5;
-    doc.text('Dept:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.department, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-    if (d.showTax !== false) { doc.text('Tax ID:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.taxId || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 8;
-    const grossTotal = (slip.basic||0) + (slip.totalAdditions||0);
-    doc.setFont('helvetica', 'bold'); doc.setTextColor(er, eg, eb); doc.setFontSize(fontSize);
-    doc.text('EARNINGS', marginX, y); y += 3;
-    const earningsBody = (slip.earnings||[]).map(e => [e.name, fmt(e.amount)]);
-    earningsBody.push([{ content: 'TOTAL EARNINGS', styles: { fontStyle: 'bold', fillColor: [209, 250, 229] } }, { content: fmt(grossTotal), styles: { fontStyle: 'bold', fillColor: [209, 250, 229], halign: 'right' } }]);
-    doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: earningsBody, theme: 'grid', headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
-    y = doc.lastAutoTable.finalY + 8;
-    doc.setFont('helvetica', 'bold'); doc.setTextColor(dr, dg, db); doc.setFontSize(fontSize);
-    doc.text('DEDUCTIONS', marginX, y); y += 3;
-    const deductionsBody = (slip.deductions||[]).length ? slip.deductions.map(x => [x.name, fmt(x.amount)]) : [['No deductions', '-']];
-    deductionsBody.push([{ content: 'TOTAL DEDUCTIONS', styles: { fontStyle: 'bold', fillColor: [254, 226, 226] } }, { content: fmt(slip.totalDeductions||0), styles: { fontStyle: 'bold', fillColor: [254, 226, 226], halign: 'right' } }]);
-    doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: deductionsBody, theme: 'grid', headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
-    y = doc.lastAutoTable.finalY + 8;
-    doc.setFillColor(r, g, b); doc.roundedRect(marginX, y, contentWidth, 22, 3, 3, 'F');
-    doc.setTextColor(255, 255, 255); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
-    doc.text(`Gross: ${fmt(grossTotal)}`, marginX + 5, y + 9);
-    doc.text(`Deductions: ${fmt(slip.totalDeductions||0)}`, marginX + 5, y + 16);
-    doc.setFontSize(16); doc.text(`NET PAY: ${fmt(slip.net||0)}`, pageWidth - marginX - 5, y + 13, { align: 'right' });
-    y += 30;
-    if (d.showSignatures !== false) {
-        doc.setTextColor(30, 41, 59); doc.setDrawColor(30, 41, 59); doc.setLineWidth(0.5);
-        doc.line(marginX + 5, 265, marginX + 55, 265); doc.line(pageWidth - marginX - 55, 265, pageWidth - marginX - 5, 265);
-        doc.setFontSize(9); doc.text(d.sign1Label || 'Employee Signature', marginX + 30, 270, { align: 'center' });
-        doc.text(d.sign2Label || 'Authorized Signature', pageWidth - marginX - 30, 270, { align: 'center' });
-    }
-    if (d.showFooter !== false && d.footerText) { doc.setFontSize(8); doc.setTextColor(100, 116, 139); doc.text(d.footerText, pageWidth/2, 282, { align: 'center' }); }
-    doc.setFontSize(8); doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
-    doc.save(`PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf`);
-    toast('PDF downloaded!');
+// 🔥 Generate PDF as Blob (for upload to Firebase Storage)
+function generateSlipPDFBlob(slip) {
+    return new Promise((resolve, reject) => {
+        try {
+            const w = data.workers.find(x => x.id === slip.workerId);
+            if (!w) { reject(new Error('Worker not found')); return; }
+            const c = data.company || {};
+            const d = data.payslipDesign || {};
+            const hex = (d.primaryColor||'#1e40af').replace('#','');
+            const r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
+            const eHex = (d.earningsColor||'#059669').replace('#','');
+            const er = parseInt(eHex.substr(0,2),16), eg = parseInt(eHex.substr(2,2),16), eb = parseInt(eHex.substr(4,2),16);
+            const dHex = (d.deductionsColor||'#dc2626').replace('#','');
+            const dr = parseInt(dHex.substr(0,2),16), dg = parseInt(dHex.substr(2,2),16), db = parseInt(dHex.substr(4,2),16);
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'mm', format: d.paperSize || 'a4' });
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const fontSize = d.fontSize === 'small' ? 9 : d.fontSize === 'large' ? 12 : 10;
+            const marginX = 14;
+            const contentWidth = pageWidth - (marginX * 2);
+            if (d.border !== 'none') { doc.setDrawColor(r, g, b); doc.setLineWidth(d.border === 'thick' ? 2 : 0.5); doc.rect(5, 5, pageWidth - 10, pageHeight - 10); if (d.border === 'double') doc.rect(7, 7, pageWidth - 14, pageHeight - 14); }
+            let y = 15;
+            if (d.headerStyle === 'full') {
+                doc.setFillColor(r, g, b); doc.rect(0, 0, pageWidth, 40, 'F');
+                doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.setFont('helvetica', 'bold');
+                doc.text(c.name || 'LANKA SHOE', pageWidth/2, 18, { align: 'center' });
+                doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+                doc.text(c.address || '', pageWidth/2, 26, { align: 'center' });
+                doc.text(`Phone: ${c.phone||'-'} | Email: ${c.email||'-'}`, pageWidth/2, 32, { align: 'center' });
+                y = 48;
+            } else if (d.headerStyle === 'centered') {
+                doc.setTextColor(r, g, b); doc.setFontSize(22); doc.setFont('helvetica', 'bold');
+                doc.text(c.name || 'LANKA SHOE', pageWidth/2, y, { align: 'center' }); y += 7;
+                doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
+                doc.text(c.address || '', pageWidth/2, y, { align: 'center' }); y += 5;
+                doc.text(`Phone: ${c.phone||'-'} | Email: ${c.email||'-'}`, pageWidth/2, y, { align: 'center' }); y += 8;
+            } else {
+                doc.setTextColor(r, g, b); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+                doc.text(c.name || 'LANKA SHOE', marginX, y); y += 10;
+            }
+            doc.setTextColor(r, g, b); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+            doc.text(d.slipTitle || 'SALARY PAY SLIP', pageWidth/2, y, { align: 'center' }); y += 6;
+            doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
+            doc.text(`Slip #${slip.slipNo} • Month: ${slip.month} • Status: ${slip.status}`, pageWidth/2, y, { align: 'center' }); y += 8;
+            doc.setDrawColor(r, g, b); doc.setLineWidth(0.5); doc.line(marginX, y, pageWidth - marginX, y); y += 8;
+            doc.setFontSize(fontSize); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 41, 59);
+            doc.text('Employee Details', marginX, y); y += 6;
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(fontSize - 1);
+            const col1X = marginX, col2X = pageWidth / 2 + 5, labelWidth = 30;
+            doc.text('Name:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.name, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+            doc.text('Join Date:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.joinDate || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); y += 5;
+            doc.text('Emp ID:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.empId, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+            if (d.showBank !== false) { doc.text('Bank:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.bank || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 5;
+            doc.text('Position:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.position, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+            if (d.showBank !== false) { doc.text('Account:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.account || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 5;
+            doc.text('Dept:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.department, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+            if (d.showTax !== false) { doc.text('Tax ID:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.taxId || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 8;
+            const grossTotal = (slip.basic||0) + (slip.totalAdditions||0);
+            doc.setFont('helvetica', 'bold'); doc.setTextColor(er, eg, eb); doc.setFontSize(fontSize);
+            doc.text('EARNINGS', marginX, y); y += 3;
+            const earningsBody = (slip.earnings||[]).map(e => [e.name, fmt(e.amount)]);
+            earningsBody.push([{ content: 'TOTAL EARNINGS', styles: { fontStyle: 'bold', fillColor: [209, 250, 229] } }, { content: fmt(grossTotal), styles: { fontStyle: 'bold', fillColor: [209, 250, 229], halign: 'right' } }]);
+            doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: earningsBody, theme: 'grid', headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
+            y = doc.lastAutoTable.finalY + 8;
+            doc.setFont('helvetica', 'bold'); doc.setTextColor(dr, dg, db); doc.setFontSize(fontSize);
+            doc.text('DEDUCTIONS', marginX, y); y += 3;
+            const deductionsBody = (slip.deductions||[]).length ? slip.deductions.map(x => [x.name, fmt(x.amount)]) : [['No deductions', '-']];
+            deductionsBody.push([{ content: 'TOTAL DEDUCTIONS', styles: { fontStyle: 'bold', fillColor: [254, 226, 226] } }, { content: fmt(slip.totalDeductions||0), styles: { fontStyle: 'bold', fillColor: [254, 226, 226], halign: 'right' } }]);
+            doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: deductionsBody, theme: 'grid', headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
+            y = doc.lastAutoTable.finalY + 8;
+            doc.setFillColor(r, g, b); doc.roundedRect(marginX, y, contentWidth, 22, 3, 3, 'F');
+            doc.setTextColor(255, 255, 255); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+            doc.text(`Gross: ${fmt(grossTotal)}`, marginX + 5, y + 9);
+            doc.text(`Deductions: ${fmt(slip.totalDeductions||0)}`, marginX + 5, y + 16);
+            doc.setFontSize(16); doc.text(`NET PAY: ${fmt(slip.net||0)}`, pageWidth - marginX - 5, y + 13, { align: 'right' });
+            y += 30;
+            if (d.showSignatures !== false) {
+                doc.setTextColor(30, 41, 59); doc.setDrawColor(30, 41, 59); doc.setLineWidth(0.5);
+                doc.line(marginX + 5, 265, marginX + 55, 265); doc.line(pageWidth - marginX - 55, 265, pageWidth - marginX - 5, 265);
+                doc.setFontSize(9); doc.text(d.sign1Label || 'Employee Signature', marginX + 30, 270, { align: 'center' });
+                doc.text(d.sign2Label || 'Authorized Signature', pageWidth - marginX - 30, 270, { align: 'center' });
+            }
+            if (d.showFooter !== false && d.footerText) { doc.setFontSize(8); doc.setTextColor(100, 116, 139); doc.text(d.footerText, pageWidth/2, 282, { align: 'center' }); }
+            doc.setFontSize(8); doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
+            
+            // Get the PDF as blob
+            const pdfBlob = doc.output('blob');
+            resolve({ blob: pdfBlob, filename: `PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf` });
+        } catch(error) {
+            reject(error);
+        }
+    });
 }
 
-// ============ WHATSAPP INTEGRATION ============
+// 🔥 Upload PDF to Firebase Storage and return download URL
+async function uploadSlipPDFToStorage(slip) {
+    try {
+        const { blob, filename } = await generateSlipPDFBlob(slip);
+        const w = data.workers.find(x => x.id === slip.workerId);
+        // Path: paySlips/{workerId}/{month}/{filename}
+        const storagePath = `paySlips/${slip.workerId}/${slip.month}/${filename}`;
+        const storageRef = storage.ref(storagePath);
+        await storageRef.put(blob);
+        const downloadURL = await storageRef.getDownloadURL();
+        return downloadURL;
+    } catch(error) {
+        throw error;
+    }
+}
+
+function downloadSlipPDF(slip) {
+    generateSlipPDFBlob(slip).then(({ blob, filename }) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast('PDF downloaded!');
+    }).catch(error => {
+        toast('PDF generation failed: ' + error.message, 'error');
+    });
+}
+
+// Reports
+let currentReport = 'payroll';
+function selectReport(type, el) { currentReport = type; document.querySelectorAll('#reports .toggle-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
+function generateReport() {
+    const month = document.getElementById('rMonth').value;
+    const dept = document.getElementById('rDept').value;
+    const workerId = document.getElementById('rWorker').value;
+    let reportData = [], title = '', columns = [];
+    switch(currentReport) {
+        case 'payroll':
+            title = 'Payroll Report'; columns = ['Slip #','Month','Employee','Basic','Additions','Deductions','Net','Status'];
+            let slips = data.salarySlips.filter(s => s.status !== 'Reversed');
+            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); slips = slips.filter(s => wIds.includes(s.workerId)); }
+            if (month) slips = slips.filter(s => s.month === month);
+            if (workerId) slips = slips.filter(s => s.workerId === workerId);
+            if (dept) slips = slips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dept; });
+            reportData = slips.map(s => { const w = data.workers.find(x => x.id === s.workerId); return [s.slipNo, s.month, w?.name||'-', fmt(s.basic), fmt(s.totalAdditions), fmt(s.totalDeductions), fmt(s.net), s.status]; });
+            break;
+        case 'worker':
+            title = 'Worker Report'; columns = ['Emp ID','Name','Position','Department','Basic','Total Paid','Loans','Advances','WhatsApp'];
+            let workers = data.workers;
+            if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
+            if (dept) workers = workers.filter(w => w.department === dept);
+            reportData = workers.map(w => {
+                const paid = data.salarySlips.filter(s => s.workerId === w.id && s.status === 'Paid').reduce((s,p) => s + (p.net||0), 0);
+                const loan = data.loans.filter(l => l.workerId === w.id && l.status === 'Active').reduce((s,l) => s + (l.remaining||0), 0);
+                const adv = data.advances.filter(a => a.workerId === w.id && a.status === 'Active').reduce((s,a) => s + (a.remaining||0), 0);
+                return [w.empId, w.name, w.position, w.department, fmt(w.salary), fmt(paid), fmt(loan), fmt(adv), w.whatsapp||'-'];
+            }); break;
+        case 'department':
+            title = 'Department Report'; columns = ['Department','Workers','Total Basic','Total Paid'];
+            const depts = dept ? [dept] : data.departments;
+            reportData = depts.map(dp => {
+                const ws = data.workers.filter(w => w.department === dp);
+                const totalBasic = ws.reduce((s,w) => s + (w.salary||0), 0);
+                const paid = data.salarySlips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dp && s.status === 'Paid' && (!month || s.month === month); }).reduce((s,p) => s + (p.net||0), 0);
+                return [dp, ws.length, fmt(totalBasic), fmt(paid)];
+            }); break;
+        case 'loan':
+            title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History'];
+            let loans = data.loans;
+            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); loans = loans.filter(l => wIds.includes(l.workerId)); }
+            if (workerId) loans = loans.filter(l => l.workerId === workerId);
+            reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid||0), fmt(l.remaining||0), l.startMonth, l.status, (l.history||[]).length]; }); break;
+        case 'advance':
+            title = 'Advance Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History'];
+            let advs = data.advances;
+            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); advs = advs.filter(a => wIds.includes(a.workerId)); }
+            if (workerId) advs = advs.filter(a => a.workerId === workerId);
+            reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.installment), fmt(a.paid||0), fmt(a.remaining||0), a.startMonth, a.status, (a.history||[]).length]; }); break;
+        case 'addition':
+            title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount','Source'];
+            let adds = data.additions;
+            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); adds = adds.filter(a => wIds.includes(a.workerId)); }
+            if (workerId) adds = adds.filter(a => a.workerId === workerId);
+            if (month) adds = adds.filter(a => a.month === month);
+            reportData = adds.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount), a.source||'manual']; }); break;
+        case 'deduction':
+            title = 'Deductions Report'; columns = ['Date','Employee','Type','Month','Amount','Source'];
+            let deds = data.deductions;
+            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); deds = deds.filter(d => wIds.includes(d.workerId)); }
+            if (workerId) deds = deds.filter(d => d.workerId === workerId);
+            if (month) deds = deds.filter(d => d.month === month);
+            reportData = deds.map(d => { const w = data.workers.find(x => x.id === d.workerId); return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount), d.source||'manual']; }); break;
+    }
+    const output = document.getElementById('reportOutput');
+    if (!reportData.length) { output.innerHTML = '<div class="card"><div class="empty-state"><h3>No data</h3></div></div>'; return; }
+    output.innerHTML = `<div class="card"><div class="card-header"><h2><i class="fas fa-file-alt"></i> ${title}</h2><span class="badge badge-primary">${reportData.length} records</span></div>
+<div class="table-container"><table><thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+<tbody>${reportData.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+}
+function exportReport(format) {
+    const table = document.querySelector('#reportOutput table');
+    if (!table) { toast('Generate report first', 'error'); return; }
+    const rows = Array.from(table.querySelectorAll('tr'));
+    const rData = rows.map(r => Array.from(r.querySelectorAll('th,td')).map(c => c.textContent));
+    if (format === 'csv') {
+        const csv = rData.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = `${currentReport}_${today()}.csv`; a.click(); toast('CSV exported!');
+    } else {
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
+        doc.setFontSize(16); doc.text(currentReport.toUpperCase() + ' REPORT', 14, 20);
+        doc.autoTable({ startY: 35, head: [rData[0]], body: rData.slice(1), theme: 'grid', headStyles: { fillColor: [30, 64, 175] }, styles: { fontSize: 8 } });
+        doc.save(`${currentReport}_${today()}.pdf`); toast('PDF exported!');
+    }
+}
+
+// ============ WHATSAPP INTEGRATION WITH PDF ============
 function loadWhatsappSettings() {
     const ws = data.whatsappSettings || {};
-    document.getElementById('waTemplate').value = ws.template || `*{{company_name}}* - Salary Slip\n\nDear {{worker_name}},\n\nYour salary slip for *{{month}}* is ready.\n\n📋 *Slip Details:*\n• Slip #: {{slip_number}}\n• Basic Salary: {{basic_salary}}\n• Total Additions: {{total_additions}}\n• Total Deductions: {{total_deductions}}\n• *Net Salary: {{net_salary}}*\n\nPlease contact HR for any queries.\n\nThank you!\n{{company_name}}`;
+    document.getElementById('waTemplate').value = ws.template || `*{{company_name}}* - Salary Slip\n\nDear {{worker_name}},\n\nYour salary slip for *{{month}}* is ready.\n\n📋 *Slip Details:*\n• Slip #: {{slip_number}}\n• Basic Salary: {{basic_salary}}\n• Total Additions: {{total_additions}}\n• Total Deductions: {{total_deductions}}\n• *Net Salary: {{net_salary}}*\n\n📎 *Download your slip PDF:*\n{{pdf_link}}\n\nPlease contact HR for any queries.\n\nThank you!\n{{company_name}}`;
     document.getElementById('waCountryCode').value = ws.countryCode || '+94';
     document.getElementById('waAutoSend').checked = ws.autoSend !== false;
-    document.getElementById('waIncludePDF').checked = ws.includePDF === true;
 }
 
 async function saveWhatsappSettings(e) {
@@ -3429,7 +3536,6 @@ async function saveWhatsappSettings(e) {
         template: document.getElementById('waTemplate').value,
         countryCode: document.getElementById('waCountryCode').value.trim(),
         autoSend: document.getElementById('waAutoSend').checked,
-        includePDF: document.getElementById('waIncludePDF').checked,
         modifiedAt: today(),
         modifiedBy: auth.currentUser.displayName || auth.currentUser.email
     };
@@ -3442,30 +3548,24 @@ async function saveWhatsappSettings(e) {
     } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// 🔥 Format phone number for WhatsApp
 function formatWhatsappNumber(phone, countryCode) {
     if (!phone) return null;
     let cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
-    // If starts with 0, remove it and add country code
     if (cleanPhone.startsWith('0')) {
         cleanPhone = (countryCode || '+94').replace('+', '') + cleanPhone.substring(1);
     }
-    // If starts with +, remove the +
     if (cleanPhone.startsWith('+')) {
         cleanPhone = cleanPhone.substring(1);
     }
-    // Validate it's mostly digits
     if (!/^\d{8,15}$/.test(cleanPhone)) return null;
     return cleanPhone;
 }
 
-// 🔥 Build WhatsApp message from template
-function buildWhatsappMessage(slip, worker) {
+function buildWhatsappMessage(slip, worker, pdfLink) {
     const ws = data.whatsappSettings || {};
     const c = data.company || {};
-    let message = ws.template || `*${c.name || 'Company'}* - Salary Slip\n\nDear ${worker.name},\n\nYour salary slip for *${slip.month}* is ready.\n\n📋 *Slip Details:*\n• Slip #: ${slip.slipNo}\n• Basic Salary: ${fmt(slip.basic || 0)}\n• Total Additions: ${fmt(slip.totalAdditions || 0)}\n• Total Deductions: ${fmt(slip.totalDeductions || 0)}\n• *Net Salary: ${fmt(slip.net || 0)}*\n\nThank you!`;
+    let message = ws.template || `*${c.name || 'Company'}* - Salary Slip\n\nDear ${worker.name},\n\nYour salary slip for *${slip.month}* is ready.\n\n📋 *Slip Details:*\n• Slip #: ${slip.slipNo}\n• Basic Salary: ${fmt(slip.basic || 0)}\n• Total Additions: ${fmt(slip.totalAdditions || 0)}\n• Total Deductions: ${fmt(slip.totalDeductions || 0)}\n• *Net Salary: ${fmt(slip.net || 0)}*\n\n📎 *Download your slip PDF:*\n${pdfLink || 'PDF not available'}\n\nThank you!\n${c.name || 'Company'}`;
 
-    // Replace placeholders
     message = message.replace(/\{\{company_name\}\}/g, c.name || 'Company');
     message = message.replace(/\{\{worker_name\}\}/g, worker.name || '');
     message = message.replace(/\{\{month\}\}/g, slip.month || '');
@@ -3477,11 +3577,12 @@ function buildWhatsappMessage(slip, worker) {
     message = message.replace(/\{\{employee_id\}\}/g, worker.empId || '');
     message = message.replace(/\{\{position\}\}/g, worker.position || '');
     message = message.replace(/\{\{department\}\}/g, worker.department || '');
+    message = message.replace(/\{\{pdf_link\}\}/g, pdfLink || 'PDF not available');
 
     return message;
 }
 
-// 🔥 Send WhatsApp message (opens wa.me link)
+// 🔥 FIXED: Send WhatsApp with PDF upload to Firebase Storage
 async function sendSlipWhatsapp(slip, worker) {
     const ws = data.whatsappSettings || {};
     if (!worker?.whatsapp) return false;
@@ -3490,20 +3591,33 @@ async function sendSlipWhatsapp(slip, worker) {
         toast('Invalid WhatsApp number for ' + worker.name, 'error');
         return false;
     }
-    const message = buildWhatsappMessage(slip, worker);
+
+    let pdfLink = '';
+    try {
+        showLoading('Uploading PDF to cloud...');
+        pdfLink = await uploadSlipPDFToStorage(slip);
+        // Save PDF link to slip record
+        await updateInFirebase(collections.salarySlips, slip.id, {
+            pdfLink: pdfLink,
+            pdfUploadedAt: new Date().toISOString()
+        });
+    } catch(uploadErr) {
+        toast('PDF upload failed: ' + uploadErr.message + '. Sending message without PDF link.', 'error');
+        pdfLink = '';
+    }
+
+    const message = buildWhatsappMessage(slip, worker, pdfLink);
     const encodedMessage = encodeURIComponent(message);
     const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-    // Log the send attempt
-    await logTimeline('Sent WhatsApp message', 'slip', `WhatsApp sent to ${worker.name} (${worker.whatsapp}) for slip #${slip.slipNo}`, worker.id);
+    await logTimeline('Sent WhatsApp message', 'slip', `WhatsApp sent to ${worker.name} (${worker.whatsapp}) for slip #${slip.slipNo}${pdfLink ? ' with PDF' : ''}`, worker.id);
 
-    // Open WhatsApp in new tab (user must click send)
-    // We don't auto-open to avoid popup blockers - just log it
-    // Return the URL for manual opening
-    return { url: waUrl, phoneNumber, message };
+    // Open WhatsApp in new tab
+    window.open(waUrl, '_blank');
+
+    return { url: waUrl, phoneNumber, message, pdfLink };
 }
 
-// 🔥 Manual WhatsApp send from slip preview
 async function whatsappCurrentSlip() {
     if (!currentSlipViewSlip) { toast('No slip to send', 'error'); return; }
     await whatsappSlipById(currentSlipViewSlip.id);
@@ -3519,17 +3633,11 @@ async function whatsappSlipById(id) {
     const phoneNumber = formatWhatsappNumber(w.whatsapp, ws.countryCode);
     if (!phoneNumber) { toast('Invalid WhatsApp number', 'error'); return; }
 
-    const message = buildWhatsappMessage(slip, w);
-
-    if (!confirm(`Send WhatsApp message to ${w.name} (${w.whatsapp})?\n\nThis will open WhatsApp Web/App with the message pre-filled. Click Send in WhatsApp to deliver.`)) return;
+    if (!confirm(`Send WhatsApp message with PDF to ${w.name} (${w.whatsapp})?\n\nThis will:\n1. Upload PDF to cloud storage\n2. Open WhatsApp with the message and PDF link\n\nContinue?`)) return;
 
     try {
-        const result = await sendSlipWhatsapp(slip, w);
-        if (result) {
-            // Open WhatsApp
-            window.open(result.url, '_blank');
-            toast('WhatsApp opened! Click Send in WhatsApp to deliver the message.');
-        }
+        await sendSlipWhatsapp(slip, w);
+        toast('WhatsApp opened with PDF link!');
     } catch(error) { toast('Error: ' + error.message, 'error'); }
 }
 
@@ -3555,15 +3663,20 @@ async function testWhatsapp() {
         department: 'Test',
         whatsapp: testPhone
     };
-    const message = buildWhatsappMessage(testSlip, testWorker);
-    const encodedMessage = encodeURIComponent(message);
-    const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-    if (confirm('This will open WhatsApp with a test message. Continue?')) {
+    if (!confirm('This will upload a test PDF and open WhatsApp. Continue?')) return;
+
+    try {
+        showLoading('Uploading test PDF...');
+        // For test, we don't have a real slip to upload, so just use a placeholder link
+        const pdfLink = 'https://example.com/test-slip.pdf';
+        const message = buildWhatsappMessage(testSlip, testWorker, pdfLink);
+        const encodedMessage = encodeURIComponent(message);
+        const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
         window.open(waUrl, '_blank');
         await logTimeline('Sent test WhatsApp', 'system', `Test WhatsApp to ${testPhone}`);
         toast('Test WhatsApp opened!');
-    }
+    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Email
@@ -3664,95 +3777,7 @@ async function testEmail() {
     } catch(error) { toast('Email failed: ' + (error.text || error.message), 'error'); } finally { hideLoading(); }
 }
 
-// Reports
-let currentReport = 'payroll';
-function selectReport(type, el) { currentReport = type; document.querySelectorAll('#reports .toggle-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
-function generateReport() {
-    const month = document.getElementById('rMonth').value;
-    const dept = document.getElementById('rDept').value;
-    const workerId = document.getElementById('rWorker').value;
-    let reportData = [], title = '', columns = [];
-    switch(currentReport) {
-        case 'payroll':
-            title = 'Payroll Report'; columns = ['Slip #','Month','Employee','Basic','Additions','Deductions','Net','Status'];
-            let slips = data.salarySlips.filter(s => s.status !== 'Reversed');
-            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); slips = slips.filter(s => wIds.includes(s.workerId)); }
-            if (month) slips = slips.filter(s => s.month === month);
-            if (workerId) slips = slips.filter(s => s.workerId === workerId);
-            if (dept) slips = slips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dept; });
-            reportData = slips.map(s => { const w = data.workers.find(x => x.id === s.workerId); return [s.slipNo, s.month, w?.name||'-', fmt(s.basic), fmt(s.totalAdditions), fmt(s.totalDeductions), fmt(s.net), s.status]; });
-            break;
-        case 'worker':
-            title = 'Worker Report'; columns = ['Emp ID','Name','Position','Department','Basic','Total Paid','Loans','Advances','WhatsApp'];
-            let workers = data.workers;
-            if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
-            if (dept) workers = workers.filter(w => w.department === dept);
-            reportData = workers.map(w => {
-                const paid = data.salarySlips.filter(s => s.workerId === w.id && s.status === 'Paid').reduce((s,p) => s + (p.net||0), 0);
-                const loan = data.loans.filter(l => l.workerId === w.id && l.status === 'Active').reduce((s,l) => s + (l.remaining||0), 0);
-                const adv = data.advances.filter(a => a.workerId === w.id && a.status === 'Active').reduce((s,a) => s + (a.remaining||0), 0);
-                return [w.empId, w.name, w.position, w.department, fmt(w.salary), fmt(paid), fmt(loan), fmt(adv), w.whatsapp||'-'];
-            }); break;
-        case 'department':
-            title = 'Department Report'; columns = ['Department','Workers','Total Basic','Total Paid'];
-            const depts = dept ? [dept] : data.departments;
-            reportData = depts.map(dp => {
-                const ws = data.workers.filter(w => w.department === dp);
-                const totalBasic = ws.reduce((s,w) => s + (w.salary||0), 0);
-                const paid = data.salarySlips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dp && s.status === 'Paid' && (!month || s.month === month); }).reduce((s,p) => s + (p.net||0), 0);
-                return [dp, ws.length, fmt(totalBasic), fmt(paid)];
-            }); break;
-        case 'loan':
-            title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History'];
-            let loans = data.loans;
-            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); loans = loans.filter(l => wIds.includes(l.workerId)); }
-            if (workerId) loans = loans.filter(l => l.workerId === workerId);
-            reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid||0), fmt(l.remaining||0), l.startMonth, l.status, (l.history||[]).length]; }); break;
-        case 'advance':
-            title = 'Advance Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History'];
-            let advs = data.advances;
-            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); advs = advs.filter(a => wIds.includes(a.workerId)); }
-            if (workerId) advs = advs.filter(a => a.workerId === workerId);
-            reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.installment), fmt(a.paid||0), fmt(a.remaining||0), a.startMonth, a.status, (a.history||[]).length]; }); break;
-        case 'addition':
-            title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount','Source'];
-            let adds = data.additions;
-            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); adds = adds.filter(a => wIds.includes(a.workerId)); }
-            if (workerId) adds = adds.filter(a => a.workerId === workerId);
-            if (month) adds = adds.filter(a => a.month === month);
-            reportData = adds.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount), a.source||'manual']; }); break;
-        case 'deduction':
-            title = 'Deductions Report'; columns = ['Date','Employee','Type','Month','Amount','Source'];
-            let deds = data.deductions;
-            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); deds = deds.filter(d => wIds.includes(d.workerId)); }
-            if (workerId) deds = deds.filter(d => d.workerId === workerId);
-            if (month) deds = deds.filter(d => d.month === month);
-            reportData = deds.map(d => { const w = data.workers.find(x => x.id === d.workerId); return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount), d.source||'manual']; }); break;
-    }
-    const output = document.getElementById('reportOutput');
-    if (!reportData.length) { output.innerHTML = '<div class="card"><div class="empty-state"><h3>No data</h3></div></div>'; return; }
-    output.innerHTML = `<div class="card"><div class="card-header"><h2><i class="fas fa-file-alt"></i> ${title}</h2><span class="badge badge-primary">${reportData.length} records</span></div>
-<div class="table-container"><table><thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>
-<tbody>${reportData.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
-}
-function exportReport(format) {
-    const table = document.querySelector('#reportOutput table');
-    if (!table) { toast('Generate report first', 'error'); return; }
-    const rows = Array.from(table.querySelectorAll('tr'));
-    const rData = rows.map(r => Array.from(r.querySelectorAll('th,td')).map(c => c.textContent));
-    if (format === 'csv') {
-        const csv = rData.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = `${currentReport}_${today()}.csv`; a.click(); toast('CSV exported!');
-    } else {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.setFontSize(16); doc.text(currentReport.toUpperCase() + ' REPORT', 14, 20);
-        doc.autoTable({ startY: 35, head: [rData[0]], body: rData.slice(1), theme: 'grid', headStyles: { fillColor: [30, 64, 175] }, styles: { fontSize: 8 } });
-        doc.save(`${currentReport}_${today()}.pdf`); toast('PDF exported!');
-    }
-}
-
-// ============ TIMELINE - FIXED RESTORE ============
+// Timeline
 function renderTimeline() {
     if (!hasPermission(USER_ROLES.ADMIN)) {
         document.getElementById('timelineContent').innerHTML = '<div class="empty-state"><h3>Admin access required</h3></div>';
@@ -3822,23 +3847,16 @@ ${canRestore ? `<div class="tl-actions">
 </div>`;
     }).join('');
 }
-
-// 🔥 FIXED: Restore Timeline Entry - Actually performs the restore
 async function restoreTimelineEntry(id) {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
     const entry = data.timeline.find(e => e.id === id);
     if (!entry) { toast('Entry not found', 'error'); return; }
-
     const action = (entry.action || '').toLowerCase();
     const type = entry.type || '';
     const workerId = entry.workerId;
-
-    // 🔥 Determine what kind of restore is needed
     let restoreDescription = '';
     let canRestore = false;
-
     if (type === 'slip' && action.includes('reversed')) {
-        // Find the reversed slip
         const monthMatch = (entry.details || '').match(/\d{4}-\d{2}/);
         const month = monthMatch ? monthMatch[0] : null;
         if (workerId && month) {
@@ -3864,26 +3882,19 @@ async function restoreTimelineEntry(id) {
         toast(`This type of action (${entry.action}) cannot be automatically restored.`, 'error');
         return;
     }
-
     if (!canRestore) {
         toast('Unable to determine what to restore.', 'error');
         return;
     }
-
     requestSecurityVerification(`Restore: ${restoreDescription.substring(0, 100)}...`, async () => {
         if (!confirm(restoreDescription + '\n\nContinue?')) return;
-
         try {
             showLoading('Restoring...');
-
-            // 🔥 Actually perform the restore
             if (type === 'slip' && action.includes('reversed')) {
                 const monthMatch = (entry.details || '').match(/\d{4}-\d{2}/);
                 const month = monthMatch ? monthMatch[0] : null;
                 const slip = data.salarySlips.find(s => s.workerId === workerId && s.month === month && s.status === 'Reversed');
-
                 if (slip) {
-                    // 🔥 Re-apply loan deductions
                     for (const ld of (slip.loansDeducted || [])) {
                         const loan = data.loans.find(l => l.id === ld.loanId);
                         if (loan) {
@@ -3901,7 +3912,6 @@ async function restoreTimelineEntry(id) {
                             });
                         }
                     }
-                    // 🔥 Re-apply advance deductions
                     for (const ad of (slip.advancesDeducted || [])) {
                         const adv = data.advances.find(a => a.id === ad.advanceId);
                         if (adv) {
@@ -3919,7 +3929,6 @@ async function restoreTimelineEntry(id) {
                             });
                         }
                     }
-                    // 🔥 Change slip status back to Paid
                     await updateInFirebase(collections.salarySlips, slip.id, {
                         status: 'Paid',
                         restoredAt: new Date().toISOString(),
@@ -3927,11 +3936,8 @@ async function restoreTimelineEntry(id) {
                     });
                 }
             }
-
-            // 🔥 Log the restore action
             const w = workerId ? data.workers.find(x => x.id === workerId) : null;
             await logTimeline('Restored action', 'system', `Restored: ${entry.action} - ${entry.details||''}`, workerId);
-
             await loadData();
             toast('✅ Successfully restored! All calculations updated.');
             renderTimeline();
@@ -3942,7 +3948,6 @@ async function restoreTimelineEntry(id) {
         }
     });
 }
-
 async function deleteTimelineEntry(id) {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
     if (!confirm('Delete this timeline entry?')) return;
@@ -4148,11 +4153,8 @@ function refreshDashboard() {
     document.getElementById('statDeductions').textContent = fmt(periodDeductions);
     document.getElementById('statAdditions').textContent = fmt(periodAdditions);
     document.getElementById('statSlips').textContent = filteredSlips.length;
-
-    // 🔥 Count WhatsApp messages sent
     const whatsappSent = data.timeline.filter(e => e.type === 'slip' && /whatsapp/i.test(e.action||'')).length;
     document.getElementById('statWhatsapp').textContent = whatsappSent;
-
     Object.values(charts).forEach(c => { if (c && c.destroy) c.destroy(); });
     const months = [], payrollData = [];
     if (selectedYear === 'all') {
