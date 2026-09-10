@@ -5,22 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LANKA SHOE - Salary Management System</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 
-<!-- CONSOLE BLOCKER -->
+<!-- ============ ULTRA CONSOLE BLOCKER - ENHANCED FOR MAC BRAVE ============ -->
 <script>
 (function(){
 'use strict';
 if(window.__consoleBlockerLoaded) return;
 window.__consoleBlockerLoaded = true;
+
+// 1. Override all console methods IMMEDIATELY
 const noop = function(){};
 const blockedMethods = ['log','debug','info','warn','error','table','trace','dir','dirxml','group','groupCollapsed','groupEnd','time','timeEnd','timeLog','assert','clear','count','countReset','profile','profileEnd','memory','context'];
 try {
@@ -29,11 +29,29 @@ try {
         catch(e) { try { console[m] = noop; } catch(err){} }
     });
     try { Object.freeze(console); } catch(e) {}
+    try { Object.seal(console); } catch(e) {}
 } catch(e) {}
+
+// 2. Override Brave detection
+try {
+    if (navigator.brave) {
+        try {
+            Object.defineProperty(navigator, 'brave', {
+                value: { isBrave: async function(){ return false; } },
+                writable: false, configurable: false
+            });
+        } catch(e) {}
+    }
+} catch(e) {}
+
+// 3. Block error display
 window.addEventListener('error', function(e){ try { e.preventDefault(); } catch(err){} return true; }, true);
 window.addEventListener('unhandledrejection', function(e){ try { e.preventDefault(); } catch(err){} return true; }, true);
+
 let devtoolsDetected = false;
 let warningShown = false;
+let reloadCount = 0;
+
 function showDevToolsWarning() {
     if (warningShown) return;
     warningShown = true;
@@ -44,7 +62,7 @@ function showDevToolsWarning() {
     overlay.id = 'devtoolsWarningOverlay';
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 50%,#7c3aed 100%);z-index:9999999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:Inter,sans-serif;';
     overlay.innerHTML = `<div style="text-align:center;max-width:650px;padding:40px;">
-        <div style="font-size:100px;margin-bottom:20px;">🔒</div>
+        <div style="font-size:100px;margin-bottom:20px;"></div>
         <h1 style="font-size:36px;margin-bottom:15px;font-weight:800;">Access Restricted</h1>
         <p style="font-size:17px;opacity:0.95;margin-bottom:25px;">Developer tools detected. Please close and reload.</p>
         <div style="background:rgba(255,255,255,0.1);padding:25px;border-radius:16px;margin-bottom:25px;text-align:left;">
@@ -57,7 +75,18 @@ function showDevToolsWarning() {
     </div>`;
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
+    
+    // Auto-reload after 5 seconds if DevTools still open
+    setTimeout(() => {
+        if (devtoolsDetected) {
+            reloadCount++;
+            if (reloadCount < 3) {
+                location.reload();
+            }
+        }
+    }, 5000);
 }
+
 function hideDevToolsWarning() {
     if (!warningShown) return;
     warningShown = false;
@@ -66,19 +95,75 @@ function hideDevToolsWarning() {
     if (ov) ov.remove();
     document.body.style.overflow = '';
 }
-(function debuggerTrap(){
+
+// 🔥 ENHANCED: Multiple debugger traps running simultaneously
+(function debuggerTrap1(){
     const start = performance.now();
     try { (function(){ return false; })['constructor']('debugger')['call'](); } catch(e) {}
     const end = performance.now();
-    if (end - start > 150) showDevToolsWarning();
+    if (end - start > 100) showDevToolsWarning();
     else if (devtoolsDetected && end - start < 50) hideDevToolsWarning();
-    setTimeout(debuggerTrap, 800);
+    setTimeout(debuggerTrap1, 500);
 })();
+
+(function debuggerTrap2(){
+    const start = Date.now();
+    try { debugger; } catch(e) {}
+    const end = Date.now();
+    if (end - start > 100) showDevToolsWarning();
+    setTimeout(debuggerTrap2, 700);
+})();
+
+(function debuggerTrap3(){
+    const start = performance.now();
+    try { 
+        const x = {};
+        Object.defineProperty(x, 'id', {
+            get: function() { showDevToolsWarning(); return 'devtools'; }
+        });
+        console.log('%c', x);
+    } catch(e) {}
+    const end = performance.now();
+    setTimeout(debuggerTrap3, 600);
+})();
+
+// 🔥 ENHANCED: Window size detection with lower threshold
 setInterval(function(){
     const widthDiff = window.outerWidth - window.innerWidth;
     const heightDiff = window.outerHeight - window.innerHeight;
-    if (widthDiff > 160 || heightDiff > 160) showDevToolsWarning();
-}, 600);
+    if (widthDiff > 120 || heightDiff > 120) showDevToolsWarning();
+}, 400);
+
+// 🔥 ENHANCED: Performance timing detection
+let lastFrameTime = performance.now();
+(function frameTrap(){
+    const now = performance.now();
+    const diff = now - lastFrameTime;
+    lastFrameTime = now;
+    if (diff > 300 && !devtoolsDetected) {
+        showDevToolsWarning();
+    }
+    requestAnimationFrame(frameTrap);
+})();
+
+// 🔥 ENHANCED: Visibility change detection
+let lastVisible = Date.now();
+document.addEventListener('visibilitychange', function(){
+    if (document.hidden) {
+        lastVisible = Date.now();
+    } else {
+        const gap = Date.now() - lastVisible;
+        if (gap > 2000) {
+            const widthDiff = window.outerWidth - window.innerWidth;
+            const heightDiff = window.outerHeight - window.innerHeight;
+            if (widthDiff > 100 || heightDiff > 100) {
+                showDevToolsWarning();
+            }
+        }
+    }
+});
+
+// 🔥 ENHANCED: Block ALL keyboard shortcuts with capture phase
 function blockShortcuts(e) {
     const key = (e.key || '').toLowerCase();
     const code = e.code || '';
@@ -86,39 +171,188 @@ function blockShortcuts(e) {
     const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
     const tag = (e.target.tagName || '').toUpperCase();
     const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable;
-    if (e.key === 'F12' || e.keyCode === 123 || code === 'F12') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (e.key === 'PrintScreen' || e.keyCode === 44 || code === 'PrintScreen') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && e.altKey) { if (['i','j','c','k','u','s','p','e','r'].includes(key)) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; } }
-    if (ctrlOrCmd && e.shiftKey) { if (['i','j','c','k'].includes(key)) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; } }
-    if (ctrlOrCmd && key === 'i' && !e.shiftKey && !e.altKey) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && key === 'j' && !e.shiftKey && !e.altKey) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && key === 'k' && !e.shiftKey && !e.altKey) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && key === 'c' && !e.shiftKey && !e.altKey) { if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; } }
-    if (ctrlOrCmd && key === 'u') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && key === 's') { if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; } }
-    if (ctrlOrCmd && key === 'p') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && key === 'f') { if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; } }
-    if (ctrlOrCmd && key === 'g') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && key === 'h') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && key === 'd') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && key === ',') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && e.shiftKey && (key === 'delete' || e.keyCode === 46)) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && e.shiftKey && key === 'r') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    if (ctrlOrCmd && key === 'a') { if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; } }
-    if (key === 'escape' && devtoolsDetected) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+
+    // F12 (all browsers)
+    if (e.key === 'F12' || e.keyCode === 123 || code === 'F12') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // PrintScreen
+    if (e.key === 'PrintScreen' || e.keyCode === 44 || code === 'PrintScreen') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Mac: Cmd+Option+I/J/C/K/U/S/P/E/R (Brave/Chrome DevTools)
+    if (ctrlOrCmd && e.altKey) {
+        if (['i','j','c','k','u','s','p','e','r'].includes(key)) {
+            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+        }
+    }
+    // 🔥 Cmd+Shift+I/J/C/K (DevTools on both Mac & Windows)
+    if (ctrlOrCmd && e.shiftKey) {
+        if (['i','j','c','k'].includes(key)) {
+            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+        }
+    }
+    //  Cmd+I alone (Mac Inspect)
+    if (ctrlOrCmd && key === 'i' && !e.shiftKey && !e.altKey) {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+J alone (Mac Downloads/Console)
+    if (ctrlOrCmd && key === 'j' && !e.shiftKey && !e.altKey) {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+K alone (Mac Console)
+    if (ctrlOrCmd && key === 'k' && !e.shiftKey && !e.altKey) {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+C (copy) - only in inputs
+    if (ctrlOrCmd && key === 'c' && !e.shiftKey && !e.altKey) {
+        if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    }
+    // 🔥 Cmd+U (View Source)
+    if (ctrlOrCmd && key === 'u') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+S (Save) - only in inputs
+    if (ctrlOrCmd && key === 's') {
+        if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    }
+    // 🔥 Cmd+P (Print)
+    if (ctrlOrCmd && key === 'p') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+F (Find) - only in inputs
+    if (ctrlOrCmd && key === 'f') {
+        if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    }
+    // 🔥 Cmd+G (Find Next)
+    if (ctrlOrCmd && key === 'g') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+H (History)
+    if (ctrlOrCmd && key === 'h') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+D (Bookmark)
+    if (ctrlOrCmd && key === 'd') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+, (Preferences)
+    if (ctrlOrCmd && key === ',') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+Shift+Delete (Clear Data)
+    if (ctrlOrCmd && e.shiftKey && (key === 'delete' || e.keyCode === 46)) {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+Shift+R (Hard Reload)
+    if (ctrlOrCmd && e.shiftKey && key === 'r') {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
+    // 🔥 Cmd+A (Select All) - only in inputs
+    if (ctrlOrCmd && key === 'a') {
+        if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    }
+    // 🔥 Escape when devtools detected
+    if (key === 'escape' && devtoolsDetected) {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
+    }
 }
+
 document.addEventListener('keydown', blockShortcuts, true);
 document.addEventListener('keyup', blockShortcuts, true);
 document.addEventListener('keypress', blockShortcuts, true);
+
+// Block right-click
 document.addEventListener('contextmenu', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, true);
-document.addEventListener('selectstart', function(e){ const tag = (e.target.tagName || '').toUpperCase(); if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) { e.preventDefault(); return false; } }, true);
-['copy','cut'].forEach(function(evt){ document.addEventListener(evt, function(e){ const tag = (e.target.tagName || '').toUpperCase(); if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) { e.preventDefault(); e.stopPropagation(); return false; } }, true); });
+
+// Block text selection outside inputs
+document.addEventListener('selectstart', function(e){
+    const tag = (e.target.tagName || '').toUpperCase();
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) {
+        e.preventDefault(); return false;
+    }
+}, true);
+
+// Block copy/cut outside inputs
+['copy','cut'].forEach(function(evt){
+    document.addEventListener(evt, function(e){
+        const tag = (e.target.tagName || '').toUpperCase();
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) {
+            e.preventDefault(); e.stopPropagation(); return false;
+        }
+    }, true);
+});
+
+// Block drag
 document.addEventListener('dragstart', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, true);
-if (window.top !== window.self) { try { window.top.location = window.self.location; } catch(e) { document.body.innerHTML = '<div style="padding:50px;text-align:center;"><h1>Access Denied</h1></div>'; } }
-setInterval(function(){ try { blockedMethods.forEach(m => { if (console[m] !== noop) { try { console[m] = noop; } catch(e){} } }); } catch(e){} }, 1000);
-const observer = new MutationObserver(function(mutations){ mutations.forEach(function(m){ if (m.type === 'childList') { m.removedNodes.forEach(function(node){ if (node.id === 'devtoolsWarningOverlay') { setTimeout(showDevToolsWarning, 50); } }); } }); });
+
+// Block iframe
+if (window.top !== window.self) {
+    try { window.top.location = window.self.location; }
+    catch(e) { document.body.innerHTML = '<div style="padding:50px;text-align:center;"><h1>Access Denied</h1></div>'; }
+}
+
+// 🔥 ENHANCED: Re-freeze console periodically
+setInterval(function(){
+    try {
+        blockedMethods.forEach(m => {
+            if (console[m] !== noop) {
+                try { console[m] = noop; } catch(e){}
+            }
+        });
+    } catch(e){}
+}, 800);
+
+// 🔥 ENHANCED: MutationObserver to re-show warning if removed
+const observer = new MutationObserver(function(mutations){
+    mutations.forEach(function(m){
+        if (m.type === 'childList') {
+            m.removedNodes.forEach(function(node){
+                if (node.id === 'devtoolsWarningOverlay') {
+                    setTimeout(showDevToolsWarning, 50);
+                }
+            });
+        }
+    });
+});
 if (document.body) observer.observe(document.body, { childList: true, subtree: true });
 else document.addEventListener('DOMContentLoaded', function(){ observer.observe(document.body, { childList: true, subtree: true }); });
+
+// 🔥 ENHANCED: Function constructor proxy to block debugger injection
+try {
+    const origFunc = Function;
+    const handler = {
+        construct: function(target, args) {
+            const code = args[0] || '';
+            if (code.includes('debugger') || code.includes('console')) {
+                throw new Error('Blocked');
+            }
+            return new target(...args);
+        },
+        apply: function(target, thisArg, args) {
+            const code = args[0] || '';
+            if (typeof code === 'string' && (code.includes('debugger') || code.includes('console'))) {
+                return noop;
+            }
+            return target.apply(thisArg, args);
+        }
+    };
+    window.Function = new Proxy(origFunc, handler);
+} catch(e) {}
+
+// 🔥 ENHANCED: Detect via timing discrepancies
+(function timingTrap(){
+    let lastTime = Date.now();
+    setInterval(function(){
+        const now = Date.now();
+        const diff = now - lastTime;
+        lastTime = now;
+        if (diff > 1500 && !devtoolsDetected) {
+            showDevToolsWarning();
+        }
+    }, 500);
+})();
+
 })();
 </script>
 
@@ -324,7 +558,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .loan-info-banner p { font-size: 13px; color: #78350f; margin-bottom: 3px; }
 .advance-info-banner { background: linear-gradient(135deg, #fce7f3, #fbcfe8); padding: 15px; border-radius: 10px; border-left: 4px solid var(--pink); margin-bottom: 15px; }
 .advance-info-banner h4 { color: #9d174d; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-.advance-info-banner p { font-size: 13px; color: #831843; margin-bottom: 3px; } }
+.advance-info-banner p { font-size: 13px; color: #831843; margin-bottom: 3px; }
 .whatsapp-banner { background: linear-gradient(135deg, #dcfce7, #bbf7d0); padding: 15px; border-radius: 10px; border-left: 4px solid var(--whatsapp); margin-bottom: 15px; }
 .whatsapp-banner h4 { color: #166534; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
 .whatsapp-banner p { font-size: 13px; color: #14532d; margin-bottom: 3px; }
@@ -437,6 +671,61 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .tab-filter-bar { display: flex; gap: 10px; flex-wrap: wrap; padding: 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); }
 .tab-filter-bar select, .tab-filter-bar input { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 12px; background: white; }
 .tab-filter-bar label { font-size: 11px; font-weight: 600; color: var(--gray); text-transform: uppercase; }
+
+/* 🔥 FLOATING WHATSAPP CHAT BUTTON */
+.floating-whatsapp {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+.floating-whatsapp-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(37,211,102,0.4);
+    transition: all 0.3s;
+    animation: whatsappPulse 2s infinite;
+}
+.floating-whatsapp-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 30px rgba(37,211,102,0.5);
+}
+@keyframes whatsappPulse {
+    0%, 100% { box-shadow: 0 8px 25px rgba(37,211,102,0.4); }
+    50% { box-shadow: 0 8px 25px rgba(37,211,102,0.7), 0 0 0 10px rgba(37,211,102,0.1); }
+}
+.floating-whatsapp-tooltip {
+    background: white;
+    padding: 10px 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    font-size: 13px;
+    color: var(--dark);
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+}
+.floating-whatsapp:hover .floating-whatsapp-tooltip {
+    opacity: 1;
+    transform: translateX(0);
+}
+
 @media (max-width: 1024px) { .myla-split-container { grid-template-columns: 1fr; } }
 @media (max-width: 768px) {
 .login-container { grid-template-columns: 1fr; }
@@ -450,6 +739,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .slip-row { grid-template-columns: 1fr; }
 .setting-row { grid-template-columns: 1fr; }
 .myla-card-amounts { grid-template-columns: 1fr; }
+.floating-whatsapp-btn { width: 50px; height: 50px; font-size: 24px; bottom: 15px; right: 15px; }
 }
 .menu-toggle { display: none; background: none; border: none; font-size: 22px; cursor: pointer; }
 @media (max-width: 768px) { .menu-toggle { display: block; } }
@@ -771,7 +1061,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <div class="section" id="design">
 <div class="card">
 <div class="card-header">
-<h2><i class="fas fa-paint-brush"></i> Pay Slip Design</h2>
+<h2><i class="fas fa-paint-brush"></i> Pay Slip Design - Full Customization</h2>
 <div style="display:flex;gap:8px;">
 <button class="btn btn-secondary" onclick="previewDesign()"><i class="fas fa-eye"></i> Preview</button>
 <button class="btn btn-primary" id="btnSaveDesign" onclick="saveDesign()"><i class="fas fa-save"></i> Save Design</button>
@@ -780,7 +1070,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <div class="settings-section">
 <h3><i class="fas fa-palette" style="color:var(--primary);"></i> Color Scheme</h3>
 <div class="setting-row">
-<div><label>Primary Color</label><div class="setting-desc">Header & net box</div></div>
+<div><label>Primary Color (Header/Net Box)</label><div class="setting-desc">Used for header banner and net salary box</div></div>
 <div class="color-picker-row" id="primaryColorPicker">
 <div class="color-swatch active" style="background:#1e40af;" data-color="#1e40af"></div>
 <div class="color-swatch" style="background:#059669;" data-color="#059669"></div>
@@ -788,48 +1078,100 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <div class="color-swatch" style="background:#7c3aed;" data-color="#7c3aed"></div>
 <div class="color-swatch" style="background:#0891b2;" data-color="#0891b2"></div>
 <div class="color-swatch" style="background:#0f172a;" data-color="#0f172a"></div>
+<div class="color-swatch" style="background:#db2777;" data-color="#db2777"></div>
+<div class="color-swatch" style="background:#ea580c;" data-color="#ea580c"></div>
 <input type="color" id="customPrimaryColor" value="#1e40af" style="width:40px;height:35px;border:none;cursor:pointer;">
 </div>
 </div>
 <div class="setting-row">
-<div><label>Earnings Color</label></div>
+<div><label>Earnings Section Color</label><div class="setting-desc">Header color for earnings table</div></div>
 <div class="color-picker-row" id="earningsColorPicker">
 <div class="color-swatch active" style="background:#059669;" data-color="#059669"></div>
 <div class="color-swatch" style="background:#1e40af;" data-color="#1e40af"></div>
+<div class="color-swatch" style="background:#0891b2;" data-color="#0891b2"></div>
+<div class="color-swatch" style="background:#7c3aed;" data-color="#7c3aed"></div>
 <input type="color" id="customEarningsColor" value="#059669" style="width:40px;height:35px;border:none;cursor:pointer;">
 </div>
 </div>
 <div class="setting-row">
-<div><label>Deductions Color</label></div>
+<div><label>Deductions Section Color</label><div class="setting-desc">Header color for deductions table</div></div>
 <div class="color-picker-row" id="deductionsColorPicker">
 <div class="color-swatch active" style="background:#dc2626;" data-color="#dc2626"></div>
 <div class="color-swatch" style="background:#d97706;" data-color="#d97706"></div>
+<div class="color-swatch" style="background:#7c3aed;" data-color="#7c3aed"></div>
+<div class="color-swatch" style="background:#db2777;" data-color="#db2777"></div>
 <input type="color" id="customDeductionsColor" value="#dc2626" style="width:40px;height:35px;border:none;cursor:pointer;">
+</div>
+</div>
+<div class="setting-row">
+<div><label>Background Color</label><div class="setting-desc">Page background color</div></div>
+<div class="color-picker-row" id="bgColorPicker">
+<div class="color-swatch active" style="background:#ffffff;" data-color="#ffffff"></div>
+<div class="color-swatch" style="background:#f8fafc;" data-color="#f8fafc"></div>
+<div class="color-swatch" style="background:#fef3c7;" data-color="#fef3c7"></div>
+<input type="color" id="customBgColor" value="#ffffff" style="width:40px;height:35px;border:none;cursor:pointer;">
 </div>
 </div>
 </div>
 <div class="settings-section">
 <h3><i class="fas fa-th-large" style="color:var(--primary);"></i> Layout & Format</h3>
-<div class="setting-row"><div><label>Paper Size</label></div><select id="designPaperSize"><option value="a4">A4</option><option value="letter">Letter</option><option value="a5">A5</option></select></div>
-<div class="setting-row"><div><label>Font Size</label></div><select id="designFontSize"><option value="small">Small</option><option value="medium" selected>Medium</option><option value="large">Large</option></select></div>
-<div class="setting-row"><div><label>Header Style</label></div><select id="designHeaderStyle"><option value="full">Full Banner</option><option value="centered">Centered</option><option value="minimal">Minimal</option></select></div>
-<div class="setting-row"><div><label>Border Style</label></div><select id="designBorder"><option value="none">None</option><option value="thin">Thin</option><option value="thick">Thick</option><option value="double">Double</option></select></div>
+<div class="setting-row">
+<div><label>Paper Size</label><div class="setting-desc">Output PDF page size</div></div>
+<select id="designPaperSize"><option value="a4">A4 (210 × 297 mm)</option><option value="letter">Letter (216 × 279 mm)</option><option value="a5">A5 (148 × 210 mm)</option><option value="legal">Legal (216 × 356 mm)</option></select>
+</div>
+<div class="setting-row">
+<div><label>Font Family</label><div class="setting-desc">Font used in pay slip</div></div>
+<select id="designFontFamily"><option value="helvetica">Helvetica (Default)</option><option value="times">Times New Roman</option><option value="courier">Courier</option><option value="arial">Arial</option></select>
+</div>
+<div class="setting-row">
+<div><label>Font Size</label><div class="setting-desc">Text size on pay slip</div></div>
+<select id="designFontSize"><option value="small">Small (9pt)</option><option value="medium" selected>Medium (10pt)</option><option value="large">Large (12pt)</option><option value="xlarge">Extra Large (14pt)</option></select>
+</div>
+<div class="setting-row">
+<div><label>Header Style</label><div class="setting-desc">Company header design</div></div>
+<select id="designHeaderStyle"><option value="full">Full Width Banner</option><option value="centered">Centered Logo + Text</option><option value="minimal">Minimal (Text Only)</option><option value="gradient">Gradient Banner</option></select>
+</div>
+<div class="setting-row">
+<div><label>Border Style</label><div class="setting-desc">Page border design</div></div>
+<select id="designBorder"><option value="none">No Border</option><option value="thin">Thin Border</option><option value="thick">Thick Border</option><option value="double">Double Border</option><option value="dashed">Dashed Border</option></select>
+</div>
+<div class="setting-row">
+<div><label>Layout Template</label><div class="setting-desc">Overall slip layout</div></div>
+<select id="designLayout"><option value="classic">Classic (Two Column)</option><option value="modern">Modern (Full Width)</option><option value="compact">Compact (Single Column)</option></select>
+</div>
 </div>
 <div class="settings-section">
-<h3><i class="fas fa-eye" style="color:var(--primary);"></i> Show / Hide</h3>
-<div class="setting-row"><div><label>Show Bank Details</label></div><label><input type="checkbox" id="designShowBank" checked> Enable</label></div>
-<div class="setting-row"><div><label>Show Tax ID</label></div><label><input type="checkbox" id="designShowTax" checked> Enable</label></div>
-<div class="setting-row"><div><label>Show Signatures</label></div><label><input type="checkbox" id="designShowSignatures" checked> Enable</label></div>
-<div class="setting-row"><div><label>Show Footer</label></div><label><input type="checkbox" id="designShowFooter" checked> Enable</label></div>
+<h3><i class="fas fa-eye" style="color:var(--primary);"></i> Show / Hide Sections</h3>
+<div class="setting-row"><div><label>Show Company Logo</label><div class="setting-desc">Display logo in header</div></div><label><input type="checkbox" id="designShowLogo" checked> Enable</label></div>
+<div class="setting-row"><div><label>Show Bank Details</label><div class="setting-desc">Bank name & account number</div></div><label><input type="checkbox" id="designShowBank" checked> Enable</label></div>
+<div class="setting-row"><div><label>Show Tax ID</label><div class="setting-desc">Employee tax ID / NIC</div></div><label><input type="checkbox" id="designShowTax" checked> Enable</label></div>
+<div class="setting-row"><div><label>Show Salary Analysis</label><div class="setting-desc">Percentage breakdown</div></div><label><input type="checkbox" id="designShowAnalysis" checked> Enable</label></div>
+<div class="setting-row"><div><label>Show Signatures</label><div class="setting-desc">Employee & authorized signatures</div></div><label><input type="checkbox" id="designShowSignatures" checked> Enable</label></div>
+<div class="setting-row"><div><label>Show Footer</label><div class="setting-desc">Footer text at bottom</div></div><label><input type="checkbox" id="designShowFooter" checked> Enable</label></div>
+<div class="setting-row"><div><label>Show Watermark</label><div class="setting-desc">Company name as watermark</div></div><label><input type="checkbox" id="designShowWatermark"> Enable</label></div>
+<div class="setting-row"><div><label>Show Generated Date</label><div class="setting-desc">Date slip was generated</div></div><label><input type="checkbox" id="designShowGenDate" checked> Enable</label></div>
+<div class="setting-row"><div><label>Show Finalized Info</label><div class="setting-desc">Who finalized and when</div></div><label><input type="checkbox" id="designShowFinalized" checked> Enable</label></div>
 </div>
 <div class="settings-section">
 <h3><i class="fas fa-font" style="color:var(--primary);"></i> Custom Text</h3>
-<div class="setting-row"><div><label>Currency Symbol</label></div><input type="text" id="designCurrency" value="Rs" maxlength="5" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-<div class="setting-row"><div><label>Currency Position</label></div><select id="designCurrencyPosition"><option value="before">Before</option><option value="after">After</option></select></div>
-<div class="setting-row"><div><label>Slip Title</label></div><input type="text" id="designSlipTitle" value="SALARY PAY SLIP" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-<div class="setting-row"><div><label>Footer Text</label></div><textarea id="designFooterText" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;min-height:60px;">This is a computer-generated document.</textarea></div>
-<div class="setting-row"><div><label>Signature 1 Label</label></div><input type="text" id="designSign1Label" value="Employee Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
-<div class="setting-row"><div><label>Signature 2 Label</label></div><input type="text" id="designSign2Label" value="Authorized Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Currency Symbol</label><div class="setting-desc">Currency symbol used in amounts</div></div><input type="text" id="designCurrency" value="Rs" maxlength="5" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Currency Position</label><div class="setting-desc">Where to place currency symbol</div></div><select id="designCurrencyPosition"><option value="before">Before (Rs 1,000)</option><option value="after">After (1,000 Rs)</option></select></div>
+<div class="setting-row"><div><label>Slip Title</label><div class="setting-desc">Main title of the pay slip</div></div><input type="text" id="designSlipTitle" value="SALARY PAY SLIP" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Header Subtitle</label><div class="setting-desc">Text below company name</div></div><input type="text" id="designHeaderSubtitle" value="Professional Salary Management" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Company Tagline</label><div class="setting-desc">Tagline shown in header</div></div><input type="text" id="designTagline" value="Excellence in Every Step" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Footer Text</label><div class="setting-desc">Appears at bottom of slip</div></div><textarea id="designFooterText" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;min-height:60px;">This is a computer-generated document. Thank you for your valuable contribution to LANKA SHOE.</textarea></div>
+<div class="setting-row"><div><label>Watermark Text</label><div class="setting-desc">Text shown as watermark</div></div><input type="text" id="designWatermarkText" value="LANKA SHOE - CONFIDENTIAL" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Signature 1 Label</label><div class="setting-desc">Left signature label</div></div><input type="text" id="designSign1Label" value="Employee Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Signature 2 Label</label><div class="setting-desc">Right signature label</div></div><input type="text" id="designSign2Label" value="Authorized Signature" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Signature 3 Label (Optional)</label><div class="setting-desc">Middle signature label</div></div><input type="text" id="designSign3Label" value="HR Manager" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Date Format</label><div class="setting-desc">How dates are displayed</div></div><select id="designDateFormat"><option value="DD/MM/YYYY">DD/MM/YYYY</option><option value="MM/DD/YYYY">MM/DD/YYYY</option><option value="YYYY-MM-DD">YYYY-MM-DD</option><option value="DD-Mon-YYYY">DD-Mon-YYYY</option></select></div>
+<div class="setting-row"><div><label>Number Format</label><div class="setting-desc">How numbers are formatted</div></div><select id="designNumberFormat"><option value="1,000.00">1,000.00 (Default)</option><option value="1000.00">1000.00</option><option value="1 000.00">1 000.00</option></select></div>
+</div>
+<div class="settings-section">
+<h3><i class="fas fa-image" style="color:var(--primary);"></i> Logo & Branding</h3>
+<div class="setting-row"><div><label>Company Logo URL</label><div class="setting-desc">URL to company logo image</div></div><input type="text" id="designLogoUrl" placeholder="https://..." style="padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;"></div>
+<div class="setting-row"><div><label>Logo Size</label><div class="setting-desc">Size of logo in header</div></div><select id="designLogoSize"><option value="small">Small (30mm)</option><option value="medium" selected>Medium (40mm)</option><option value="large">Large (50mm)</option></select></div>
+<div class="setting-row"><div><label>Logo Position</label><div class="setting-desc">Where to place logo</div></div><select id="designLogoPosition"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></div>
 </div>
 </div>
 </div>
@@ -846,6 +1188,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <div class="form-group"><label>Phone</label><input type="tel" id="cPhone"></div>
 <div class="form-group"><label>Email</label><input type="email" id="cEmail"></div>
 <div class="form-group"><label>Website</label><input type="text" id="cWeb"></div>
+<div class="form-group"><label>Company Logo URL</label><input type="text" id="cLogo" placeholder="https://..."></div>
 <div class="form-group"><label>Bank Name</label><input type="text" id="cBank"></div>
 <div class="form-group"><label>Bank Account No.</label><input type="text" id="cBankAccount"></div>
 <div class="form-group full"><label>Address</label><textarea id="cAddress"></textarea></div>
@@ -907,10 +1250,10 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <div class="card-header"><h2><i class="fab fa-whatsapp" style="color:#25D366;"></i> WhatsApp Configuration</h2></div>
 <div class="whatsapp-banner">
 <h4><i class="fas fa-info-circle"></i> About WhatsApp Integration</h4>
-<p>• Send pay slips directly to workers' WhatsApp numbers with PDF attachment</p>
-<p>• PDF is uploaded to Firebase Storage and shared as download link</p>
+<p>• Send pay slips directly to workers' WhatsApp numbers (text-only, instant)</p>
+<p>• Floating WhatsApp chat button for quick HR communication</p>
 <p>• Worker WhatsApp numbers must be set in worker profiles</p>
-<p>• Messages include slip summary with net salary and PDF download link</p>
+<p>• Messages include slip summary with all details</p>
 <p>• Can auto-send when slip is finalized (optional)</p>
 </div>
 <form onsubmit="saveWhatsappSettings(event)">
@@ -929,9 +1272,6 @@ Your salary slip for *{{month}}* is ready.
 • Total Deductions: {{total_deductions}}
 • *Net Salary: {{net_salary}}*
 
-📎 *Download your slip PDF:*
-{{pdf_link}}
-
 Please contact HR for any queries.
 
 Thank you!
@@ -941,7 +1281,12 @@ Thank you!
 <input type="text" id="waCountryCode" value="+94" placeholder="+94">
 <div style="font-size:11px;color:var(--gray);margin-top:4px;">Used when worker number doesn't have country code</div>
 </div>
-<div class="form-group full"><label><input type="checkbox" id="waAutoSend" checked> Auto-send WhatsApp message with PDF when slip is finalized</label></div>
+<div class="form-group"><label>HR WhatsApp Number (for floating chat)</label>
+<input type="text" id="waHrNumber" placeholder="771234567">
+<div style="font-size:11px;color:var(--gray);margin-top:4px;">Used for floating chat button (bottom-right)</div>
+</div>
+<div class="form-group full"><label><input type="checkbox" id="waAutoSend" checked> Auto-send WhatsApp message when slip is finalized</label></div>
+<div class="form-group full"><label><input type="checkbox" id="waShowFloating" checked> Show floating WhatsApp chat button</label></div>
 <div class="form-group full"><button type="submit" class="btn btn-whatsapp" id="btnSaveWhatsapp"><i class="fab fa-whatsapp"></i> Save WhatsApp Settings</button></div>
 </div>
 </form>
@@ -970,6 +1315,14 @@ Thank you!
 <!-- WORKER DETAIL -->
 <div class="section" id="workerDetail"><div id="workerDetailContent"></div></div>
 </div>
+</div>
+
+<!-- 🔥 FLOATING WHATSAPP CHAT BUTTON -->
+<div class="floating-whatsapp" id="floatingWhatsapp" style="display:none;">
+<div class="floating-whatsapp-tooltip">Chat with HR on WhatsApp</div>
+<button class="floating-whatsapp-btn" onclick="openFloatingWhatsapp()" title="Chat with HR">
+<i class="fab fa-whatsapp"></i>
+</button>
 </div>
 
 <!-- MODALS -->
@@ -1107,7 +1460,7 @@ Thank you!
 <div class="form-group"><label>Reason</label><input type="text" id="heReason"></div>
 </div>
 <div style="margin-top:15px;padding:12px;background:#fef3c7;border-radius:8px;border-left:4px solid var(--warning);font-size:12px;color:#78350f;">
-<strong>⚠️ Note:</strong> Editing this entry will recalculate totals. Paid slips will also be adjusted automatically.
+<strong>️ Note:</strong> Editing this entry will recalculate totals. Paid slips will also be adjusted automatically.
 </div>
 </div>
 <div class="modal-footer">
@@ -1192,14 +1545,13 @@ appId: "1:855308990839:web:8816b4a7fd95377e21c972",
 measurementId: "G-64NXH3T93L"
 };
 
-let firebaseApp, db, auth, storage;
+let firebaseApp, db, auth;
 let firebaseReady = false;
 
 try {
     firebaseApp = firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
     auth = firebase.auth();
-    storage = firebase.storage();
     firebaseReady = true;
 } catch (initError) {
     alert('Firebase initialization failed. Please refresh the page.');
@@ -1257,7 +1609,6 @@ function applyRoleBasedUI() {
     if (menuDesign) menuDesign.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuSettings) menuSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuComponents) menuComponents.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
-    // 🔥 FIX: Hide Timeline for viewers (only admin can see it)
     if (menuTimeline) menuTimeline.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuEmailSettings) menuEmailSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
     if (menuWhatsappSettings) menuWhatsappSettings.style.display = hasPermission(USER_ROLES.ADMIN) ? 'flex' : 'none';
@@ -1269,6 +1620,7 @@ function applyRoleBasedUI() {
     });
     const roleBadge = document.getElementById('userRoleBadge');
     if (roleBadge) { roleBadge.textContent = currentUserRole.toUpperCase(); roleBadge.className = 'user-role-badge ' + currentUserRole; }
+    updateFloatingWhatsapp();
 }
 function sanitizeForFirestore(obj) {
     if (obj === null || obj === undefined) return null;
@@ -1347,7 +1699,7 @@ async function signInWithGoogle() {
         }
         let role = result.user.email === DEFAULT_ADMIN_EMAIL ? USER_ROLES.ADMIN : getUserRole(result.user.email);
         toast(`Welcome ${result.user.displayName || result.user.email}! Role: ${role.toUpperCase()}`);
-    } catch(error) {
+    } catch (error) {
         let msg = 'Google Sign-In failed. ';
         if (error.code === 'auth/popup-blocked') msg = 'Popup blocked. Please allow popups.';
         else if (error.code === 'auth/popup-closed-by-user') msg = 'Popup was closed.';
@@ -1378,7 +1730,7 @@ async function signInWithEmail(e) {
         const email = document.getElementById('loginEmail').value;
         if (!isAuthorizedUser(email)) { toast('Access denied.', 'error'); hideLoading(); return; }
         await auth.signInWithEmailAndPassword(email, document.getElementById('loginPassword').value);
-    } catch(error) {
+    } catch (error) {
         if (error.message && error.message.includes('before initialization')) {
             toast('Auth still initializing. Please wait and retry.', 'error');
         } else {
@@ -1394,7 +1746,7 @@ async function resetPassword() {
         await ensureAuthReady();
         await auth.sendPasswordResetEmail(email);
         toast('Reset email sent!');
-    } catch(error) { toast('Failed: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 async function logout() {
@@ -1416,7 +1768,11 @@ const collections = {
 };
 const fmt = (n) => {
     const d = data.payslipDesign || {};
-    const num = Number(n||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    const numFmt = d.numberFormat || '1,000.00';
+    let num;
+    if (numFmt === '1000.00') num = Number(n||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}).replace(/,/g, '');
+    else if (numFmt === '1 000.00') num = Number(n||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}).replace(/,/g, ' ');
+    else num = Number(n||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
     const cur = d.currency || 'Rs';
     const pos = d.currencyPosition || 'before';
     return pos === 'after' ? `${num} ${cur}` : `${cur} ${num}`;
@@ -1471,20 +1827,22 @@ async function loadData() {
         }
         if (!data.payslipDesign || Object.keys(data.payslipDesign).length === 0) {
             data.payslipDesign = {
-                primaryColor: '#1e40af', earningsColor: '#059669', deductionsColor: '#dc2626',
-                paperSize: 'a4', fontSize: 'medium', headerStyle: 'full', border: 'none',
+                primaryColor: '#1e40af', earningsColor: '#059669', deductionsColor: '#dc2626', bgColor: '#ffffff',
+                paperSize: 'a4', fontFamily: 'helvetica', fontSize: 'medium', headerStyle: 'full', border: 'none', layout: 'classic',
                 showLogo: true, showBank: true, showTax: true, showAnalysis: true,
-                showSignatures: true, showFooter: true, showWatermark: false,
-                currency: 'Rs', currencyPosition: 'before', slipTitle: 'SALARY PAY SLIP',
-                footerText: 'This is a computer-generated document.',
-                sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature'
+                showSignatures: true, showFooter: true, showWatermark: false, showGenDate: true, showFinalized: true,
+                currency: 'Rs', currencyPosition: 'before', numberFormat: '1,000.00', dateFormat: 'DD/MM/YYYY',
+                slipTitle: 'SALARY PAY SLIP', headerSubtitle: 'Professional Salary Management', tagline: 'Excellence in Every Step',
+                footerText: 'This is a computer-generated document. Thank you for your valuable contribution to LANKA SHOE.',
+                watermarkText: 'LANKA SHOE - CONFIDENTIAL',
+                sign1Label: 'Employee Signature', sign2Label: 'Authorized Signature', sign3Label: 'HR Manager',
+                logoUrl: '', logoSize: 'medium', logoPosition: 'left'
             };
         }
         if (!data.whatsappSettings || Object.keys(data.whatsappSettings).length === 0) {
             data.whatsappSettings = {
-                template: `*{{company_name}}* - Salary Slip\n\nDear {{worker_name}},\n\nYour salary slip for *{{month}}* is ready.\n\n📋 *Slip Details:*\n• Slip #: {{slip_number}}\n• Basic Salary: {{basic_salary}}\n• Total Additions: {{total_additions}}\n• Total Deductions: {{total_deductions}}\n• *Net Salary: {{net_salary}}*\n\n📎 *Download your slip PDF:*\n{{pdf_link}}\n\nPlease contact HR for any queries.\n\nThank you!\n{{company_name}}`,
-                countryCode: '+94',
-                autoSend: true
+                template: `*{{company_name}}* - Salary Slip\n\nDear {{worker_name}},\n\nYour salary slip for *{{month}}* is ready.\n\n📋 *Slip Details:*\n• Slip #: {{slip_number}}\n• Basic Salary: {{basic_salary}}\n• Total Additions: {{total_additions}}\n• Total Deductions: {{total_deductions}}\n• *Net Salary: {{net_salary}}*\n\nPlease contact HR for any queries.\n\nThank you!\n{{company_name}}`,
+                countryCode: '+94', hrNumber: '', autoSend: true, showFloating: true
             };
         }
         if (!data.company || Object.keys(data.company).length === 0) {
@@ -1495,7 +1853,7 @@ async function loadData() {
         if (deptFilter) deptFilter.innerHTML = '<option value="">All Depts</option>' + data.departments.map(d => `<option>${d}</option>`).join('');
         hideLoading();
         showSection('dashboard');
-    } catch(error) { hideLoading(); toast('Error: ' + error.message, 'error'); }
+    } catch (error) { hideLoading(); toast('Error: ' + error.message, 'error'); }
 }
 
 async function saveToFirebase(collection, docId, dataObj) {
@@ -1514,11 +1872,7 @@ document.querySelectorAll('.menu-item[data-section]').forEach(item => {
 });
 
 function showSection(sec, title=null) {
-    // 🔥 FIX: Block timeline access for viewers
-    if (sec === 'timeline' && !hasPermission(USER_ROLES.ADMIN)) {
-        toast('Admin access required for Timeline', 'error');
-        return;
-    }
+    if (sec === 'timeline' && !hasPermission(USER_ROLES.ADMIN)) { toast('Admin access required for Timeline', 'error'); return; }
     document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     const menuItem = document.querySelector(`.menu-item[data-section="${sec}"]`);
@@ -1564,20 +1918,6 @@ function toggleActionMenu(btn) {
     if (!isOpen) dropdown.classList.add('show');
 }
 
-function requestSecurityVerification(actionDesc, callback) {
-    pendingSecurityAction = callback;
-    document.getElementById('securityActionDesc').textContent = actionDesc;
-    document.getElementById('securityCode').value = '';
-    openModal('securityModal');
-}
-function verifySecurityCode() {
-    const code = document.getElementById('securityCode').value.trim();
-    if (code === ADMIN_REF_CODE) {
-        closeModal('securityModal');
-        if (pendingSecurityAction) { const cb = pendingSecurityAction; pendingSecurityAction = null; cb(); }
-    } else { toast('Invalid reference code!', 'error'); document.getElementById('securityCode').value = ''; }
-}
-
 // User Management
 function openAddUserModal() {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin role required.', 'error'); return; }
@@ -1598,7 +1938,7 @@ async function saveUserRole() {
         toast(`User role: ${role.toUpperCase()}`);
         closeModal('addUserModal');
         renderUsers();
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function renderUsers() {
     if (!hasPermission(USER_ROLES.ADMIN)) return;
@@ -1622,13 +1962,13 @@ async function renderUsers() {
         });
         tbody.innerHTML = html;
         hideLoading();
-    } catch(error) { toast('Error: ' + error.message, 'error'); hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); hideLoading(); }
 }
 function editUserRole(email, role) { document.getElementById('userEmail').value = email; document.getElementById('userRole').value = role; openModal('addUserModal'); }
 async function deleteUserRole(email) {
     if (!confirm(`Remove ${email}?`)) return;
     try { showLoading('Removing...'); await db.collection(usersCollection).doc(email).delete(); delete ROLE_CONFIG[email]; await logTimeline('Removed user role', 'system', email); toast('Removed'); renderUsers(); }
-    catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Workers
@@ -1689,7 +2029,7 @@ async function saveWorker(e) {
         await loadData();
         toast(editId ? 'Worker updated!' : 'Worker added!');
         closeModal('addWorkerModal');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderWorkers() {
     const search = (document.getElementById('searchWorker')?.value || '').toLowerCase();
@@ -1737,7 +2077,7 @@ async function deleteWorker(id) {
         await deleteFromFirebase(collections.workers, id);
         await logTimeline('Deleted worker', 'worker', `${w?.name || id}`);
         await loadData(); toast('Deleted!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Worker Detail
@@ -2122,7 +2462,7 @@ async function saveTransaction() {
         toast(editId ? 'Updated!' : 'Added!');
         closeModal('addTransactionModal');
         if (currentWorkerDetailId === workerId) openWorkerDetail(workerId);
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function deleteTransaction(id, type) {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
@@ -2138,7 +2478,7 @@ async function deleteTransaction(id, type) {
         await loadData();
         toast('Deleted!');
         if (tr) openWorkerDetail(tr.workerId);
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // My Loans & Advances
@@ -2172,26 +2512,82 @@ ${data.workers.map(w => `<option value="${w.id}" ${w.id === currentWorkerFilter 
         const fw = document.getElementById('mylaFilterWorker')?.value || 'all';
         if (fw !== 'all') visibleWorkers = visibleWorkers.filter(w => w.id === fw);
     }
+    
     const fy = document.getElementById('mylaFilterYear')?.value || 'all';
     const fm = document.getElementById('mylaFilterMonth')?.value || 'all';
     const fs = document.getElementById('mylaFilterStatus')?.value || 'all';
     const sb = document.getElementById('mylaSortBy')?.value || 'dateDesc';
+    
     let loans = data.loans.filter(l => visibleWorkers.some(w => w.id === l.workerId));
     let advances = data.advances.filter(a => visibleWorkers.some(w => w.id === a.workerId));
-    if (fy !== 'all') { loans = loans.filter(l => l.startMonth && l.startMonth.startsWith(fy)); advances = advances.filter(a => a.startMonth && a.startMonth.startsWith(fy)); }
-    if (fm !== 'all') { loans = loans.filter(l => l.startMonth && l.startMonth.endsWith('-' + fm)); advances = advances.filter(a => a.startMonth && a.startMonth.endsWith('-' + fm)); }
-    if (fs !== 'all') { loans = loans.filter(l => l.status === fs); advances = advances.filter(a => a.status === fs); }
-    if (sb === 'dateDesc') { loans.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||'')); advances.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||'')); }
-    else if (sb === 'dateAsc') { loans.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||'')); advances.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||'')); }
-    else if (sb === 'amountDesc') { loans.sort((a,b) => (b.amount||0) - (a.amount||0)); advances.sort((a,b) => (b.amount||0) - (a.amount||0)); }
-    else if (sb === 'amountAsc') { loans.sort((a,b) => (a.amount||0) - (b.amount||0)); advances.sort((a,b) => (a.amount||0) - (b.amount||0)); }
-    else if (sb === 'remainingDesc') { loans.sort((a,b) => (b.remaining||0) - (a.remaining||0)); advances.sort((a,b) => (b.remaining||0) - (a.remaining||0)); }
+    
+    // LOAN filter: show from issue date onwards
+    if (fy !== 'all') {
+        loans = loans.filter(l => {
+            const loanYear = parseInt((l.startMonth || '').substring(0, 4));
+            return loanYear <= parseInt(fy);
+        });
+    }
+    if (fm !== 'all') {
+        if (fy !== 'all') {
+            const filterMonthStr = `${fy}-${fm}`;
+            loans = loans.filter(l => (l.startMonth || '') <= filterMonthStr);
+        } else {
+            loans = loans.filter(l => {
+                const loanMonth = parseInt((l.startMonth || '').substring(5, 7));
+                return loanMonth <= parseInt(fm);
+            });
+        }
+    }
+    
+    // ADVANCE filter: show only in exact issued month
+    if (fy !== 'all') {
+        advances = advances.filter(a => {
+            const advYear = parseInt((a.startMonth || '').substring(0, 4));
+            return advYear === parseInt(fy);
+        });
+    }
+    if (fm !== 'all') {
+        if (fy !== 'all') {
+            const filterMonthStr = `${fy}-${fm}`;
+            advances = advances.filter(a => (a.startMonth || '') === filterMonthStr);
+        } else {
+            advances = advances.filter(a => {
+                const advMonth = parseInt((a.startMonth || '').substring(5, 7));
+                return advMonth === parseInt(fm);
+            });
+        }
+    }
+    
+    if (fs !== 'all') {
+        loans = loans.filter(l => l.status === fs);
+        advances = advances.filter(a => a.status === fs);
+    }
+    
+    if (sb === 'dateDesc') {
+        loans.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
+        advances.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
+    } else if (sb === 'dateAsc') {
+        loans.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
+        advances.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
+    } else if (sb === 'amountDesc') {
+        loans.sort((a,b) => (b.amount||0) - (a.amount||0));
+        advances.sort((a,b) => (b.amount||0) - (a.amount||0));
+    } else if (sb === 'amountAsc') {
+        loans.sort((a,b) => (a.amount||0) - (b.amount||0));
+        advances.sort((a,b) => (a.amount||0) - (b.amount||0));
+    } else if (sb === 'remainingDesc') {
+        loans.sort((a,b) => (b.remaining||0) - (a.remaining||0));
+        advances.sort((a,b) => (b.remaining||0) - (a.remaining||0));
+    }
+    
     const totalLoanAmount = loans.reduce((s,l) => s + (l.amount||0), 0);
     const totalLoanPaid = loans.reduce((s,l) => s + (l.paid||0), 0);
     const totalLoanRemaining = loans.reduce((s,l) => s + (l.remaining||0), 0);
     const totalAdvAmount = advances.reduce((s,a) => s + (a.amount||0), 0);
     const totalAdvPaid = advances.reduce((s,a) => s + (a.paid||0), 0);
     const totalAdvRemaining = advances.reduce((s,a) => s + (a.remaining||0), 0);
+    
     document.getElementById('mylaSummaryStats').innerHTML = `
 <div class="stat-card orange"><div class="icon"><i class="fas fa-hand-holding-usd"></i></div><h3>Loans Total</h3><div class="value">${fmt(totalLoanAmount)}</div></div>
 <div class="stat-card green"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>Loans Paid</h3><div class="value">${fmt(totalLoanPaid)}</div></div>
@@ -2201,11 +2597,14 @@ ${data.workers.map(w => `<option value="${w.id}" ${w.id === currentWorkerFilter 
 <div class="stat-card red"><div class="icon"><i class="fas fa-exclamation-circle"></i></div><h3>Advances Remaining</h3><div class="value">${fmt(totalAdvRemaining)}</div></div>
 <div class="stat-card blue"><div class="icon"><i class="fas fa-coins"></i></div><h3>Grand Total</h3><div class="value">${fmt(totalLoanAmount + totalAdvAmount)}</div></div>
 <div class="stat-card purple"><div class="icon"><i class="fas fa-bolt"></i></div><h3>Active Items</h3><div class="value">${loans.filter(l=>l.status==='Active').length + advances.filter(a=>a.status==='Active').length}</div></div>`;
+    
     document.getElementById('loansCountBadge').textContent = loans.length;
     document.getElementById('advancesCountBadge').textContent = advances.length;
+    
     const canAdmin = hasPermission(USER_ROLES.ADMIN);
     const loansContainer = document.getElementById('mylaLoansContainer');
     const advancesContainer = document.getElementById('mylaAdvancesContainer');
+    
     if (!loans.length) loansContainer.innerHTML = `<div class="myla-empty"><i class="fas fa-hand-holding-usd"></i><h4>No loans</h4></div>`;
     else loansContainer.innerHTML = loans.map(l => renderMylaCard(l, 'loan', canAdmin)).join('');
     if (!advances.length) advancesContainer.innerHTML = `<div class="myla-empty"><i class="fas fa-money-check-alt"></i><h4>No advances</h4></div>`;
@@ -2387,7 +2786,7 @@ async function saveHistoryEntryEdit() {
         if (document.getElementById('loans')?.classList.contains('active')) renderLoans();
         if (document.getElementById('advances')?.classList.contains('active')) renderAdvances();
         if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 async function adjustPaidSlipsForEntityEdit(kind, entity, amountDiff, installmentDiff, oldEntry) {
@@ -2462,7 +2861,7 @@ async function deleteHistoryEntry(kind, entityId, entryId) {
             if (document.getElementById('loans')?.classList.contains('active')) renderLoans();
             if (document.getElementById('advances')?.classList.contains('active')) renderAdvances();
             if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
-        } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+        } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
     });
 }
 
@@ -2532,7 +2931,7 @@ async function addLoan(e) {
         await saveToFirebase(collections.loans, null, loanData);
         await logTimeline('Issued loan', 'loan', `${w?.name||'Worker'}: ${fmt(total)} (${loanType})`, wId);
         await loadData(); toast('Loan issued!'); closeModal('addLoanModal');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderLoans() {
     const tbody = document.getElementById('loansTable');
@@ -2542,8 +2941,23 @@ function renderLoans() {
     const fm = document.getElementById('loanFilterMonth')?.value || 'all';
     const fs = document.getElementById('loanFilterStatus')?.value || 'all';
     const sb = document.getElementById('loanSortBy')?.value || 'dateDesc';
-    if (fy !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.startsWith(fy));
-    if (fm !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.endsWith('-' + fm));
+    if (fy !== 'all') {
+        loans = loans.filter(l => {
+            const loanYear = parseInt((l.startMonth || '').substring(0, 4));
+            return loanYear <= parseInt(fy);
+        });
+    }
+    if (fm !== 'all') {
+        if (fy !== 'all') {
+            const filterMonthStr = `${fy}-${fm}`;
+            loans = loans.filter(l => (l.startMonth || '') <= filterMonthStr);
+        } else {
+            loans = loans.filter(l => {
+                const loanMonth = parseInt((l.startMonth || '').substring(5, 7));
+                return loanMonth <= parseInt(fm);
+            });
+        }
+    }
     if (fs !== 'all') loans = loans.filter(l => l.status === fs);
     if (sb === 'dateDesc') loans.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
     else if (sb === 'dateAsc') loans.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
@@ -2601,7 +3015,7 @@ async function deleteLoan(id) {
         await loadData(); toast('Loan deleted & slips recalculated!');
         if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
         if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Advances
@@ -2656,7 +3070,7 @@ async function addAdvance(e) {
             toast('Advance issued!');
         }
         await loadData(); closeModal('addAdvanceModal');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderAdvances() {
     const tbody = document.getElementById('advancesTable');
@@ -2666,8 +3080,23 @@ function renderAdvances() {
     const fm = document.getElementById('advFilterMonth')?.value || 'all';
     const fs = document.getElementById('advFilterStatus')?.value || 'all';
     const sb = document.getElementById('advSortBy')?.value || 'dateDesc';
-    if (fy !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.startsWith(fy));
-    if (fm !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.endsWith('-' + fm));
+    if (fy !== 'all') {
+        advances = advances.filter(a => {
+            const advYear = parseInt((a.startMonth || '').substring(0, 4));
+            return advYear === parseInt(fy);
+        });
+    }
+    if (fm !== 'all') {
+        if (fy !== 'all') {
+            const filterMonthStr = `${fy}-${fm}`;
+            advances = advances.filter(a => (a.startMonth || '') === filterMonthStr);
+        } else {
+            advances = advances.filter(a => {
+                const advMonth = parseInt((a.startMonth || '').substring(5, 7));
+                return advMonth === parseInt(fm);
+            });
+        }
+    }
     if (fs !== 'all') advances = advances.filter(a => a.status === fs);
     if (sb === 'dateDesc') advances.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
     else if (sb === 'dateAsc') advances.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
@@ -2725,7 +3154,7 @@ async function deleteAdvance(id) {
         await loadData(); toast('Advance deleted & slips recalculated!');
         if (currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
         if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Components
@@ -2800,13 +3229,13 @@ async function saveComponent() {
         if (editId) { await updateInFirebase(collections.salaryComponents, editId, compData); await logTimeline('Updated component', 'component', `${name} (${compData.type})`); }
         else { compData.createdAt = today(); compData.createdBy = auth.currentUser.displayName || auth.currentUser.email; await saveToFirebase(collections.salaryComponents, null, compData); await logTimeline('Added component', 'component', `${name} (${compData.type})`); }
         await loadData(); toast(editId ? 'Updated!' : 'Added!'); closeModal('addComponentModal');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function deleteComponent(id) {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
     if (!confirm('Delete?')) return;
     try { showLoading('Deleting...'); const c = data.salaryComponents.find(x => x.id === id); await deleteFromFirebase(collections.salaryComponents, id); await logTimeline('Deleted component', 'component', c?.name || id); await loadData(); toast('Deleted!'); }
-    catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Pay Slip
@@ -3038,17 +3467,14 @@ async function finalizeSlip(status) {
                 }
             }
 
-            // 🔥 Save additions/deductions to worker's records
             await saveSlipAdditionsDeductionsToWorkerRecords(slipData, w, cu);
 
             await logTimeline('Finalized pay slip', 'slip', `${w?.name||'Worker'} #${slipData.slipNo}: Net ${fmt(slipData.net)} (${month})`, workerId);
 
-            // Auto-send email
             const es = data.emailSettings || {};
             if (es.autoSend !== false && es.emailjsServiceId && es.emailjsTemplateId && w?.email) {
                 try { await sendSlipEmail(slipData, w); } catch(emailErr) {}
             }
-            // 🔥 Auto-send WhatsApp with PDF
             const ws = data.whatsappSettings || {};
             if (ws.autoSend !== false && w?.whatsapp) {
                 try { await sendSlipWhatsapp(slipData, w); } catch(waErr) {}
@@ -3063,10 +3489,9 @@ async function finalizeSlip(status) {
             const savedSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month && s.status === 'Paid');
             if (savedSlip) downloadSlipPDF(savedSlip);
         }
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// 🔥 Save additions/deductions from slip to worker's records
 async function saveSlipAdditionsDeductionsToWorkerRecords(slipData, worker, currentUser) {
     if (!worker) return;
     const slipId = slipData.slipNo;
@@ -3074,24 +3499,11 @@ async function saveSlipAdditionsDeductionsToWorkerRecords(slipData, worker, curr
 
     for (const earning of (slipData.earnings || [])) {
         if (earning.id === 'basic' || earning.id === 'allowances') continue;
-        const existingAddition = data.additions.find(a =>
-            a.workerId === worker.id &&
-            a.month === month &&
-            a.componentId === earning.id &&
-            a.slipNo === slipId
-        );
+        const existingAddition = data.additions.find(a => a.workerId === worker.id && a.month === month && a.componentId === earning.id && a.slipNo === slipId);
         const additionData = {
-            workerId: worker.id,
-            type: earning.name,
-            amount: earning.amount,
-            month: month,
-            date: today(),
-            reason: `Auto-recorded from slip #${slipId}`,
-            componentId: earning.id,
-            slipNo: slipId,
-            source: 'pay_slip',
-            modifiedAt: today(),
-            modifiedBy: currentUser.displayName || currentUser.email
+            workerId: worker.id, type: earning.name, amount: earning.amount, month: month, date: today(),
+            reason: `Auto-recorded from slip #${slipId}`, componentId: earning.id, slipNo: slipId, source: 'pay_slip',
+            modifiedAt: today(), modifiedBy: currentUser.displayName || currentUser.email
         };
         if (existingAddition) {
             await updateInFirebase(collections.additions, existingAddition.id, additionData);
@@ -3104,24 +3516,11 @@ async function saveSlipAdditionsDeductionsToWorkerRecords(slipData, worker, curr
 
     for (const deduction of (slipData.deductions || [])) {
         if (deduction.kind === 'loan' || deduction.kind === 'advance') continue;
-        const existingDeduction = data.deductions.find(d =>
-            d.workerId === worker.id &&
-            d.month === month &&
-            d.componentId === deduction.id &&
-            d.slipNo === slipId
-        );
+        const existingDeduction = data.deductions.find(d => d.workerId === worker.id && d.month === month && d.componentId === deduction.id && d.slipNo === slipId);
         const deductionData = {
-            workerId: worker.id,
-            type: deduction.name,
-            amount: deduction.amount,
-            month: month,
-            date: today(),
-            reason: `Auto-recorded from slip #${slipId}`,
-            componentId: deduction.id,
-            slipNo: slipId,
-            source: 'pay_slip',
-            modifiedAt: today(),
-            modifiedBy: currentUser.displayName || currentUser.email
+            workerId: worker.id, type: deduction.name, amount: deduction.amount, month: month, date: today(),
+            reason: `Auto-recorded from slip #${slipId}`, componentId: deduction.id, slipNo: slipId, source: 'pay_slip',
+            modifiedAt: today(), modifiedBy: currentUser.displayName || currentUser.email
         };
         if (existingDeduction) {
             await updateInFirebase(collections.deductions, existingDeduction.id, deductionData);
@@ -3209,12 +3608,12 @@ async function editSlip(id) {
     if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
     const slip = data.salarySlips.find(s => s.id === id); if (!slip) return;
     if (slip.status === 'Reversed') { toast('Cannot edit reversed slip.', 'error'); return; }
+    editingSlipId = slip.id;
     showSection('slips');
     await new Promise(r => setTimeout(r, 200));
     document.getElementById('slipWorker').value = slip.workerId;
     document.getElementById('slipMonth').value = slip.month;
     document.getElementById('slipNotes').value = slip.notes || '';
-    editingSlipId = slip.id;
     loadSlipDefaults();
     await new Promise(r => setTimeout(r, 300));
     slip.earnings.forEach(e => {
@@ -3307,376 +3706,90 @@ ${d.showSignatures!==false ? `<div style="display:flex;justify-content:space-bet
 ${d.showFooter!==false ? `<p style="text-align:center;margin-top:20px;font-size:11px;color:#64748b;font-style:italic;">${d.footerText||''}</p>` : ''}
 </div>`;
 }
-
-// 🔥 Generate PDF as Blob (for upload to Firebase Storage)
-function generateSlipPDFBlob(slip) {
-    return new Promise((resolve, reject) => {
-        try {
-            const w = data.workers.find(x => x.id === slip.workerId);
-            if (!w) { reject(new Error('Worker not found')); return; }
-            const c = data.company || {};
-            const d = data.payslipDesign || {};
-            const hex = (d.primaryColor||'#1e40af').replace('#','');
-            const r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
-            const eHex = (d.earningsColor||'#059669').replace('#','');
-            const er = parseInt(eHex.substr(0,2),16), eg = parseInt(eHex.substr(2,2),16), eb = parseInt(eHex.substr(4,2),16);
-            const dHex = (d.deductionsColor||'#dc2626').replace('#','');
-            const dr = parseInt(dHex.substr(0,2),16), dg = parseInt(dHex.substr(2,2),16), db = parseInt(dHex.substr(4,2),16);
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ unit: 'mm', format: d.paperSize || 'a4' });
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const pageHeight = doc.internal.pageSize.getHeight();
-            const fontSize = d.fontSize === 'small' ? 9 : d.fontSize === 'large' ? 12 : 10;
-            const marginX = 14;
-            const contentWidth = pageWidth - (marginX * 2);
-            if (d.border !== 'none') { doc.setDrawColor(r, g, b); doc.setLineWidth(d.border === 'thick' ? 2 : 0.5); doc.rect(5, 5, pageWidth - 10, pageHeight - 10); if (d.border === 'double') doc.rect(7, 7, pageWidth - 14, pageHeight - 14); }
-            let y = 15;
-            if (d.headerStyle === 'full') {
-                doc.setFillColor(r, g, b); doc.rect(0, 0, pageWidth, 40, 'F');
-                doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.setFont('helvetica', 'bold');
-                doc.text(c.name || 'LANKA SHOE', pageWidth/2, 18, { align: 'center' });
-                doc.setFontSize(9); doc.setFont('helvetica', 'normal');
-                doc.text(c.address || '', pageWidth/2, 26, { align: 'center' });
-                doc.text(`Phone: ${c.phone||'-'} | Email: ${c.email||'-'}`, pageWidth/2, 32, { align: 'center' });
-                y = 48;
-            } else if (d.headerStyle === 'centered') {
-                doc.setTextColor(r, g, b); doc.setFontSize(22); doc.setFont('helvetica', 'bold');
-                doc.text(c.name || 'LANKA SHOE', pageWidth/2, y, { align: 'center' }); y += 7;
-                doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
-                doc.text(c.address || '', pageWidth/2, y, { align: 'center' }); y += 5;
-                doc.text(`Phone: ${c.phone||'-'} | Email: ${c.email||'-'}`, pageWidth/2, y, { align: 'center' }); y += 8;
-            } else {
-                doc.setTextColor(r, g, b); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
-                doc.text(c.name || 'LANKA SHOE', marginX, y); y += 10;
-            }
-            doc.setTextColor(r, g, b); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
-            doc.text(d.slipTitle || 'SALARY PAY SLIP', pageWidth/2, y, { align: 'center' }); y += 6;
-            doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
-            doc.text(`Slip #${slip.slipNo} • Month: ${slip.month} • Status: ${slip.status}`, pageWidth/2, y, { align: 'center' }); y += 8;
-            doc.setDrawColor(r, g, b); doc.setLineWidth(0.5); doc.line(marginX, y, pageWidth - marginX, y); y += 8;
-            doc.setFontSize(fontSize); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 41, 59);
-            doc.text('Employee Details', marginX, y); y += 6;
-            doc.setFont('helvetica', 'normal'); doc.setFontSize(fontSize - 1);
-            const col1X = marginX, col2X = pageWidth / 2 + 5, labelWidth = 30;
-            doc.text('Name:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.name, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-            doc.text('Join Date:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.joinDate || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); y += 5;
-            doc.text('Emp ID:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.empId, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-            if (d.showBank !== false) { doc.text('Bank:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.bank || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 5;
-            doc.text('Position:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.position, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-            if (d.showBank !== false) { doc.text('Account:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.account || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 5;
-            doc.text('Dept:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.department, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-            if (d.showTax !== false) { doc.text('Tax ID:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.taxId || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 8;
-            const grossTotal = (slip.basic||0) + (slip.totalAdditions||0);
-            doc.setFont('helvetica', 'bold'); doc.setTextColor(er, eg, eb); doc.setFontSize(fontSize);
-            doc.text('EARNINGS', marginX, y); y += 3;
-            const earningsBody = (slip.earnings||[]).map(e => [e.name, fmt(e.amount)]);
-            earningsBody.push([{ content: 'TOTAL EARNINGS', styles: { fontStyle: 'bold', fillColor: [209, 250, 229] } }, { content: fmt(grossTotal), styles: { fontStyle: 'bold', fillColor: [209, 250, 229], halign: 'right' } }]);
-            doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: earningsBody, theme: 'grid', headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
-            y = doc.lastAutoTable.finalY + 8;
-            doc.setFont('helvetica', 'bold'); doc.setTextColor(dr, dg, db); doc.setFontSize(fontSize);
-            doc.text('DEDUCTIONS', marginX, y); y += 3;
-            const deductionsBody = (slip.deductions||[]).length ? slip.deductions.map(x => [x.name, fmt(x.amount)]) : [['No deductions', '-']];
-            deductionsBody.push([{ content: 'TOTAL DEDUCTIONS', styles: { fontStyle: 'bold', fillColor: [254, 226, 226] } }, { content: fmt(slip.totalDeductions||0), styles: { fontStyle: 'bold', fillColor: [254, 226, 226], halign: 'right' } }]);
-            doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: deductionsBody, theme: 'grid', headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
-            y = doc.lastAutoTable.finalY + 8;
-            doc.setFillColor(r, g, b); doc.roundedRect(marginX, y, contentWidth, 22, 3, 3, 'F');
-            doc.setTextColor(255, 255, 255); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
-            doc.text(`Gross: ${fmt(grossTotal)}`, marginX + 5, y + 9);
-            doc.text(`Deductions: ${fmt(slip.totalDeductions||0)}`, marginX + 5, y + 16);
-            doc.setFontSize(16); doc.text(`NET PAY: ${fmt(slip.net||0)}`, pageWidth - marginX - 5, y + 13, { align: 'right' });
-            y += 30;
-            if (d.showSignatures !== false) {
-                doc.setTextColor(30, 41, 59); doc.setDrawColor(30, 41, 59); doc.setLineWidth(0.5);
-                doc.line(marginX + 5, 265, marginX + 55, 265); doc.line(pageWidth - marginX - 55, 265, pageWidth - marginX - 5, 265);
-                doc.setFontSize(9); doc.text(d.sign1Label || 'Employee Signature', marginX + 30, 270, { align: 'center' });
-                doc.text(d.sign2Label || 'Authorized Signature', pageWidth - marginX - 30, 270, { align: 'center' });
-            }
-            if (d.showFooter !== false && d.footerText) { doc.setFontSize(8); doc.setTextColor(100, 116, 139); doc.text(d.footerText, pageWidth/2, 282, { align: 'center' }); }
-            doc.setFontSize(8); doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
-            
-            // Get the PDF as blob
-            const pdfBlob = doc.output('blob');
-            resolve({ blob: pdfBlob, filename: `PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf` });
-        } catch(error) {
-            reject(error);
-        }
-    });
-}
-
-// 🔥 Upload PDF to Firebase Storage and return download URL
-async function uploadSlipPDFToStorage(slip) {
-    try {
-        const { blob, filename } = await generateSlipPDFBlob(slip);
-        const w = data.workers.find(x => x.id === slip.workerId);
-        // Path: paySlips/{workerId}/{month}/{filename}
-        const storagePath = `paySlips/${slip.workerId}/${slip.month}/${filename}`;
-        const storageRef = storage.ref(storagePath);
-        await storageRef.put(blob);
-        const downloadURL = await storageRef.getDownloadURL();
-        return downloadURL;
-    } catch(error) {
-        throw error;
-    }
-}
-
 function downloadSlipPDF(slip) {
-    generateSlipPDFBlob(slip).then(({ blob, filename }) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast('PDF downloaded!');
-    }).catch(error => {
-        toast('PDF generation failed: ' + error.message, 'error');
-    });
-}
-
-// Reports
-let currentReport = 'payroll';
-function selectReport(type, el) { currentReport = type; document.querySelectorAll('#reports .toggle-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
-function generateReport() {
-    const month = document.getElementById('rMonth').value;
-    const dept = document.getElementById('rDept').value;
-    const workerId = document.getElementById('rWorker').value;
-    let reportData = [], title = '', columns = [];
-    switch(currentReport) {
-        case 'payroll':
-            title = 'Payroll Report'; columns = ['Slip #','Month','Employee','Basic','Additions','Deductions','Net','Status'];
-            let slips = data.salarySlips.filter(s => s.status !== 'Reversed');
-            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); slips = slips.filter(s => wIds.includes(s.workerId)); }
-            if (month) slips = slips.filter(s => s.month === month);
-            if (workerId) slips = slips.filter(s => s.workerId === workerId);
-            if (dept) slips = slips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dept; });
-            reportData = slips.map(s => { const w = data.workers.find(x => x.id === s.workerId); return [s.slipNo, s.month, w?.name||'-', fmt(s.basic), fmt(s.totalAdditions), fmt(s.totalDeductions), fmt(s.net), s.status]; });
-            break;
-        case 'worker':
-            title = 'Worker Report'; columns = ['Emp ID','Name','Position','Department','Basic','Total Paid','Loans','Advances','WhatsApp'];
-            let workers = data.workers;
-            if (currentUserRole === USER_ROLES.VIEWER) workers = workers.filter(w => w.email === currentUserEmail);
-            if (dept) workers = workers.filter(w => w.department === dept);
-            reportData = workers.map(w => {
-                const paid = data.salarySlips.filter(s => s.workerId === w.id && s.status === 'Paid').reduce((s,p) => s + (p.net||0), 0);
-                const loan = data.loans.filter(l => l.workerId === w.id && l.status === 'Active').reduce((s,l) => s + (l.remaining||0), 0);
-                const adv = data.advances.filter(a => a.workerId === w.id && a.status === 'Active').reduce((s,a) => s + (a.remaining||0), 0);
-                return [w.empId, w.name, w.position, w.department, fmt(w.salary), fmt(paid), fmt(loan), fmt(adv), w.whatsapp||'-'];
-            }); break;
-        case 'department':
-            title = 'Department Report'; columns = ['Department','Workers','Total Basic','Total Paid'];
-            const depts = dept ? [dept] : data.departments;
-            reportData = depts.map(dp => {
-                const ws = data.workers.filter(w => w.department === dp);
-                const totalBasic = ws.reduce((s,w) => s + (w.salary||0), 0);
-                const paid = data.salarySlips.filter(s => { const w = data.workers.find(x => x.id === s.workerId); return w && w.department === dp && s.status === 'Paid' && (!month || s.month === month); }).reduce((s,p) => s + (p.net||0), 0);
-                return [dp, ws.length, fmt(totalBasic), fmt(paid)];
-            }); break;
-        case 'loan':
-            title = 'Loan Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History'];
-            let loans = data.loans;
-            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); loans = loans.filter(l => wIds.includes(l.workerId)); }
-            if (workerId) loans = loans.filter(l => l.workerId === workerId);
-            reportData = loans.map(l => { const w = data.workers.find(x => x.id === l.workerId); return [w?.name||'-', l.type, fmt(l.amount), fmt(l.installment), fmt(l.paid||0), fmt(l.remaining||0), l.startMonth, l.status, (l.history||[]).length]; }); break;
-        case 'advance':
-            title = 'Advance Report'; columns = ['Employee','Type','Total','Installment','Paid','Remaining','Start','Status','History'];
-            let advs = data.advances;
-            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); advs = advs.filter(a => wIds.includes(a.workerId)); }
-            if (workerId) advs = advs.filter(a => a.workerId === workerId);
-            reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.installment), fmt(a.paid||0), fmt(a.remaining||0), a.startMonth, a.status, (a.history||[]).length]; }); break;
-        case 'addition':
-            title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount','Source'];
-            let adds = data.additions;
-            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); adds = adds.filter(a => wIds.includes(a.workerId)); }
-            if (workerId) adds = adds.filter(a => a.workerId === workerId);
-            if (month) adds = adds.filter(a => a.month === month);
-            reportData = adds.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount), a.source||'manual']; }); break;
-        case 'deduction':
-            title = 'Deductions Report'; columns = ['Date','Employee','Type','Month','Amount','Source'];
-            let deds = data.deductions;
-            if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); deds = deds.filter(d => wIds.includes(d.workerId)); }
-            if (workerId) deds = deds.filter(d => d.workerId === workerId);
-            if (month) deds = deds.filter(d => d.month === month);
-            reportData = deds.map(d => { const w = data.workers.find(x => x.id === d.workerId); return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount), d.source||'manual']; }); break;
-    }
-    const output = document.getElementById('reportOutput');
-    if (!reportData.length) { output.innerHTML = '<div class="card"><div class="empty-state"><h3>No data</h3></div></div>'; return; }
-    output.innerHTML = `<div class="card"><div class="card-header"><h2><i class="fas fa-file-alt"></i> ${title}</h2><span class="badge badge-primary">${reportData.length} records</span></div>
-<div class="table-container"><table><thead><tr>${columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>
-<tbody>${reportData.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
-}
-function exportReport(format) {
-    const table = document.querySelector('#reportOutput table');
-    if (!table) { toast('Generate report first', 'error'); return; }
-    const rows = Array.from(table.querySelectorAll('tr'));
-    const rData = rows.map(r => Array.from(r.querySelectorAll('th,td')).map(c => c.textContent));
-    if (format === 'csv') {
-        const csv = rData.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = `${currentReport}_${today()}.csv`; a.click(); toast('CSV exported!');
-    } else {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.setFontSize(16); doc.text(currentReport.toUpperCase() + ' REPORT', 14, 20);
-        doc.autoTable({ startY: 35, head: [rData[0]], body: rData.slice(1), theme: 'grid', headStyles: { fillColor: [30, 64, 175] }, styles: { fontSize: 8 } });
-        doc.save(`${currentReport}_${today()}.pdf`); toast('PDF exported!');
-    }
-}
-
-// ============ WHATSAPP INTEGRATION WITH PDF ============
-function loadWhatsappSettings() {
-    const ws = data.whatsappSettings || {};
-    document.getElementById('waTemplate').value = ws.template || `*{{company_name}}* - Salary Slip\n\nDear {{worker_name}},\n\nYour salary slip for *{{month}}* is ready.\n\n📋 *Slip Details:*\n• Slip #: {{slip_number}}\n• Basic Salary: {{basic_salary}}\n• Total Additions: {{total_additions}}\n• Total Deductions: {{total_deductions}}\n• *Net Salary: {{net_salary}}*\n\n📎 *Download your slip PDF:*\n{{pdf_link}}\n\nPlease contact HR for any queries.\n\nThank you!\n{{company_name}}`;
-    document.getElementById('waCountryCode').value = ws.countryCode || '+94';
-    document.getElementById('waAutoSend').checked = ws.autoSend !== false;
-}
-
-async function saveWhatsappSettings(e) {
-    e.preventDefault();
-    if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
-    const ws = {
-        template: document.getElementById('waTemplate').value,
-        countryCode: document.getElementById('waCountryCode').value.trim(),
-        autoSend: document.getElementById('waAutoSend').checked,
-        modifiedAt: today(),
-        modifiedBy: auth.currentUser.displayName || auth.currentUser.email
-    };
-    try {
-        showLoading('Saving...');
-        await saveToFirebase(collections.whatsappSettings, 'config', ws);
-        data.whatsappSettings = ws;
-        await logTimeline('Updated WhatsApp settings', 'system', 'WhatsApp configuration updated');
-        toast('WhatsApp settings saved!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-
-function formatWhatsappNumber(phone, countryCode) {
-    if (!phone) return null;
-    let cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
-    if (cleanPhone.startsWith('0')) {
-        cleanPhone = (countryCode || '+94').replace('+', '') + cleanPhone.substring(1);
-    }
-    if (cleanPhone.startsWith('+')) {
-        cleanPhone = cleanPhone.substring(1);
-    }
-    if (!/^\d{8,15}$/.test(cleanPhone)) return null;
-    return cleanPhone;
-}
-
-function buildWhatsappMessage(slip, worker, pdfLink) {
-    const ws = data.whatsappSettings || {};
-    const c = data.company || {};
-    let message = ws.template || `*${c.name || 'Company'}* - Salary Slip\n\nDear ${worker.name},\n\nYour salary slip for *${slip.month}* is ready.\n\n📋 *Slip Details:*\n• Slip #: ${slip.slipNo}\n• Basic Salary: ${fmt(slip.basic || 0)}\n• Total Additions: ${fmt(slip.totalAdditions || 0)}\n• Total Deductions: ${fmt(slip.totalDeductions || 0)}\n• *Net Salary: ${fmt(slip.net || 0)}*\n\n📎 *Download your slip PDF:*\n${pdfLink || 'PDF not available'}\n\nThank you!\n${c.name || 'Company'}`;
-
-    message = message.replace(/\{\{company_name\}\}/g, c.name || 'Company');
-    message = message.replace(/\{\{worker_name\}\}/g, worker.name || '');
-    message = message.replace(/\{\{month\}\}/g, slip.month || '');
-    message = message.replace(/\{\{slip_number\}\}/g, slip.slipNo || '');
-    message = message.replace(/\{\{basic_salary\}\}/g, fmt(slip.basic || 0));
-    message = message.replace(/\{\{total_additions\}\}/g, fmt(slip.totalAdditions || 0));
-    message = message.replace(/\{\{total_deductions\}\}/g, fmt(slip.totalDeductions || 0));
-    message = message.replace(/\{\{net_salary\}\}/g, fmt(slip.net || 0));
-    message = message.replace(/\{\{employee_id\}\}/g, worker.empId || '');
-    message = message.replace(/\{\{position\}\}/g, worker.position || '');
-    message = message.replace(/\{\{department\}\}/g, worker.department || '');
-    message = message.replace(/\{\{pdf_link\}\}/g, pdfLink || 'PDF not available');
-
-    return message;
-}
-
-// 🔥 FIXED: Send WhatsApp with PDF upload to Firebase Storage
-async function sendSlipWhatsapp(slip, worker) {
-    const ws = data.whatsappSettings || {};
-    if (!worker?.whatsapp) return false;
-    const phoneNumber = formatWhatsappNumber(worker.whatsapp, ws.countryCode);
-    if (!phoneNumber) {
-        toast('Invalid WhatsApp number for ' + worker.name, 'error');
-        return false;
-    }
-
-    let pdfLink = '';
-    try {
-        showLoading('Uploading PDF to cloud...');
-        pdfLink = await uploadSlipPDFToStorage(slip);
-        // Save PDF link to slip record
-        await updateInFirebase(collections.salarySlips, slip.id, {
-            pdfLink: pdfLink,
-            pdfUploadedAt: new Date().toISOString()
-        });
-    } catch(uploadErr) {
-        toast('PDF upload failed: ' + uploadErr.message + '. Sending message without PDF link.', 'error');
-        pdfLink = '';
-    }
-
-    const message = buildWhatsappMessage(slip, worker, pdfLink);
-    const encodedMessage = encodeURIComponent(message);
-    const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-
-    await logTimeline('Sent WhatsApp message', 'slip', `WhatsApp sent to ${worker.name} (${worker.whatsapp}) for slip #${slip.slipNo}${pdfLink ? ' with PDF' : ''}`, worker.id);
-
-    // Open WhatsApp in new tab
-    window.open(waUrl, '_blank');
-
-    return { url: waUrl, phoneNumber, message, pdfLink };
-}
-
-async function whatsappCurrentSlip() {
-    if (!currentSlipViewSlip) { toast('No slip to send', 'error'); return; }
-    await whatsappSlipById(currentSlipViewSlip.id);
-}
-
-async function whatsappSlipById(id) {
-    const slip = data.salarySlips.find(s => s.id === id);
     if (!slip) return;
-    const w = data.workers.find(x => x.id === slip.workerId);
-    if (!w?.whatsapp) { toast('Worker has no WhatsApp number. Please add it in worker profile.', 'error'); return; }
-
-    const ws = data.whatsappSettings || {};
-    const phoneNumber = formatWhatsappNumber(w.whatsapp, ws.countryCode);
-    if (!phoneNumber) { toast('Invalid WhatsApp number', 'error'); return; }
-
-    if (!confirm(`Send WhatsApp message with PDF to ${w.name} (${w.whatsapp})?\n\nThis will:\n1. Upload PDF to cloud storage\n2. Open WhatsApp with the message and PDF link\n\nContinue?`)) return;
-
-    try {
-        await sendSlipWhatsapp(slip, w);
-        toast('WhatsApp opened with PDF link!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); }
-}
-
-async function testWhatsapp() {
-    const ws = data.whatsappSettings || {};
-    const testPhone = prompt('Enter test WhatsApp number (with country code, e.g., +94771234567):');
-    if (!testPhone) return;
-    const phoneNumber = formatWhatsappNumber(testPhone, ws.countryCode);
-    if (!phoneNumber) { toast('Invalid phone number', 'error'); return; }
-
-    const testSlip = {
-        slipNo: 'TEST-001',
-        month: currentMonth(),
-        basic: 10000,
-        totalAdditions: 2000,
-        totalDeductions: 1500,
-        net: 10500
-    };
-    const testWorker = {
-        name: 'Test User',
-        empId: 'TEST',
-        position: 'Test',
-        department: 'Test',
-        whatsapp: testPhone
-    };
-
-    if (!confirm('This will upload a test PDF and open WhatsApp. Continue?')) return;
-
-    try {
-        showLoading('Uploading test PDF...');
-        // For test, we don't have a real slip to upload, so just use a placeholder link
-        const pdfLink = 'https://example.com/test-slip.pdf';
-        const message = buildWhatsappMessage(testSlip, testWorker, pdfLink);
-        const encodedMessage = encodeURIComponent(message);
-        const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-        window.open(waUrl, '_blank');
-        await logTimeline('Sent test WhatsApp', 'system', `Test WhatsApp to ${testPhone}`);
-        toast('Test WhatsApp opened!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    const w = data.workers.find(x => x.id === slip.workerId); if (!w) return;
+    const c = data.company || {};
+    const d = data.payslipDesign || {};
+    const hex = (d.primaryColor||'#1e40af').replace('#','');
+    const r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
+    const eHex = (d.earningsColor||'#059669').replace('#','');
+    const er = parseInt(eHex.substr(0,2),16), eg = parseInt(eHex.substr(2,2),16), eb = parseInt(eHex.substr(4,2),16);
+    const dHex = (d.deductionsColor||'#dc2626').replace('#','');
+    const dr = parseInt(dHex.substr(0,2),16), dg = parseInt(dHex.substr(2,2),16), db = parseInt(dHex.substr(4,2),16);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: d.paperSize || 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const fontSize = d.fontSize === 'small' ? 9 : d.fontSize === 'large' ? 12 : 10;
+    const marginX = 14;
+    const contentWidth = pageWidth - (marginX * 2);
+    if (d.border !== 'none') { doc.setDrawColor(r, g, b); doc.setLineWidth(d.border === 'thick' ? 2 : 0.5); doc.rect(5, 5, pageWidth - 10, pageHeight - 10); if (d.border === 'double') doc.rect(7, 7, pageWidth - 14, pageHeight - 14); }
+    let y = 15;
+    if (d.headerStyle === 'full') {
+        doc.setFillColor(r, g, b); doc.rect(0, 0, pageWidth, 40, 'F');
+        doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.setFont('helvetica', 'bold');
+        doc.text(c.name || 'LANKA SHOE', pageWidth/2, 18, { align: 'center' });
+        doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+        doc.text(c.address || '', pageWidth/2, 26, { align: 'center' });
+        doc.text(`Phone: ${c.phone||'-'} | Email: ${c.email||'-'}`, pageWidth/2, 32, { align: 'center' });
+        y = 48;
+    } else if (d.headerStyle === 'centered') {
+        doc.setTextColor(r, g, b); doc.setFontSize(22); doc.setFont('helvetica', 'bold');
+        doc.text(c.name || 'LANKA SHOE', pageWidth/2, y, { align: 'center' }); y += 7;
+        doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
+        doc.text(c.address || '', pageWidth/2, y, { align: 'center' }); y += 5;
+        doc.text(`Phone: ${c.phone||'-'} | Email: ${c.email||'-'}`, pageWidth/2, y, { align: 'center' }); y += 8;
+    } else {
+        doc.setTextColor(r, g, b); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+        doc.text(c.name || 'LANKA SHOE', marginX, y); y += 10;
+    }
+    doc.setTextColor(r, g, b); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+    doc.text(d.slipTitle || 'SALARY PAY SLIP', pageWidth/2, y, { align: 'center' }); y += 6;
+    doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
+    doc.text(`Slip #${slip.slipNo} • Month: ${slip.month} • Status: ${slip.status}`, pageWidth/2, y, { align: 'center' }); y += 8;
+    doc.setDrawColor(r, g, b); doc.setLineWidth(0.5); doc.line(marginX, y, pageWidth - marginX, y); y += 8;
+    doc.setFontSize(fontSize); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 41, 59);
+    doc.text('Employee Details', marginX, y); y += 6;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(fontSize - 1);
+    const col1X = marginX, col2X = pageWidth / 2 + 5, labelWidth = 30;
+    doc.text('Name:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.name, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+    doc.text('Join Date:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.joinDate || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); y += 5;
+    doc.text('Emp ID:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.empId, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+    if (d.showBank !== false) { doc.text('Bank:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.bank || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 5;
+    doc.text('Position:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.position, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+    if (d.showBank !== false) { doc.text('Account:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.account || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 5;
+    doc.text('Dept:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.department, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
+    if (d.showTax !== false) { doc.text('Tax ID:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.taxId || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 8;
+    const grossTotal = (slip.basic||0) + (slip.totalAdditions||0);
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(er, eg, eb); doc.setFontSize(fontSize);
+    doc.text('EARNINGS', marginX, y); y += 3;
+    const earningsBody = (slip.earnings||[]).map(e => [e.name, fmt(e.amount)]);
+    earningsBody.push([{ content: 'TOTAL EARNINGS', styles: { fontStyle: 'bold', fillColor: [209, 250, 229] } }, { content: fmt(grossTotal), styles: { fontStyle: 'bold', fillColor: [209, 250, 229], halign: 'right' } }]);
+    doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: earningsBody, theme: 'grid', headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
+    y = doc.lastAutoTable.finalY + 8;
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(dr, dg, db); doc.setFontSize(fontSize);
+    doc.text('DEDUCTIONS', marginX, y); y += 3;
+    const deductionsBody = (slip.deductions||[]).length ? slip.deductions.map(x => [x.name, fmt(x.amount)]) : [['No deductions', '-']];
+    deductionsBody.push([{ content: 'TOTAL DEDUCTIONS', styles: { fontStyle: 'bold', fillColor: [254, 226, 226] } }, { content: fmt(slip.totalDeductions||0), styles: { fontStyle: 'bold', fillColor: [254, 226, 226], halign: 'right' } }]);
+    doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: deductionsBody, theme: 'grid', headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
+    y = doc.lastAutoTable.finalY + 8;
+    doc.setFillColor(r, g, b); doc.roundedRect(marginX, y, contentWidth, 22, 3, 3, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+    doc.text(`Gross: ${fmt(grossTotal)}`, marginX + 5, y + 9);
+    doc.text(`Deductions: ${fmt(slip.totalDeductions||0)}`, marginX + 5, y + 16);
+    doc.setFontSize(16); doc.text(`NET PAY: ${fmt(slip.net||0)}`, pageWidth - marginX - 5, y + 13, { align: 'right' });
+    y += 30;
+    if (d.showSignatures !== false) {
+        doc.setTextColor(30, 41, 59); doc.setDrawColor(30, 41, 59); doc.setLineWidth(0.5);
+        doc.line(marginX + 5, 265, marginX + 55, 265); doc.line(pageWidth - marginX - 55, 265, pageWidth - marginX - 5, 265);
+        doc.setFontSize(9); doc.text(d.sign1Label || 'Employee Signature', marginX + 30, 270, { align: 'center' });
+        doc.text(d.sign2Label || 'Authorized Signature', pageWidth - marginX - 30, 270, { align: 'center' });
+    }
+    if (d.showFooter !== false && d.footerText) { doc.setFontSize(8); doc.setTextColor(100, 116, 139); doc.text(d.footerText, pageWidth/2, 282, { align: 'center' }); }
+    doc.setFontSize(8); doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
+    doc.save(`PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf`);
+    toast('PDF downloaded!');
 }
 
 // Email
@@ -3709,7 +3822,7 @@ async function saveEmailSettings(e) {
         if (es.emailjsPublicKey) { try { emailjs.init(es.emailjsPublicKey); } catch(e) {} }
         await logTimeline('Updated email settings', 'system', 'Email configuration updated');
         toast('Email settings saved!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function sendSlipEmail(slip, worker) {
     const es = data.emailSettings || {};
@@ -3733,7 +3846,7 @@ async function sendSlipEmail(slip, worker) {
         await emailjs.send(es.emailjsServiceId, es.emailjsTemplateId, templateParams);
         await logTimeline('Sent slip email', 'slip', `Email sent to ${worker.email} for slip #${slip.slipNo}`, worker.id);
         return true;
-    } catch(error) {
+    } catch (error) {
         toast('Email send failed: ' + (error.text || error.message || 'Unknown error'), 'error');
         return false;
     }
@@ -3749,7 +3862,7 @@ async function emailSlipById(id) {
         showLoading('Sending email...');
         const success = await sendSlipEmail(slip, w);
         if (success) toast('Email sent successfully!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function emailCurrentSlip() {
     if (!currentSlipViewSlip) { toast('No slip to email', 'error'); return; }
@@ -3774,7 +3887,154 @@ async function testEmail() {
         });
         await logTimeline('Sent test email', 'system', `Test email to ${testEmail}`);
         toast('Test email sent!');
-    } catch(error) { toast('Email failed: ' + (error.text || error.message), 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Email failed: ' + (error.text || error.message), 'error'); } finally { hideLoading(); }
+}
+
+// WhatsApp
+function loadWhatsappSettings() {
+    const ws = data.whatsappSettings || {};
+    document.getElementById('waTemplate').value = ws.template || `*{{company_name}}* - Salary Slip\n\nDear {{worker_name}},\n\nYour salary slip for *{{month}}* is ready.\n\n📋 *Slip Details:*\n• Slip #: {{slip_number}}\n• Basic Salary: {{basic_salary}}\n• Total Additions: {{total_additions}}\n• Total Deductions: {{total_deductions}}\n• *Net Salary: {{net_salary}}*\n\nPlease contact HR for any queries.\n\nThank you!\n{{company_name}}`;
+    document.getElementById('waCountryCode').value = ws.countryCode || '+94';
+    document.getElementById('waHrNumber').value = ws.hrNumber || '';
+    document.getElementById('waAutoSend').checked = ws.autoSend !== false;
+    document.getElementById('waShowFloating').checked = ws.showFloating !== false;
+}
+async function saveWhatsappSettings(e) {
+    e.preventDefault();
+    if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
+    const ws = {
+        template: document.getElementById('waTemplate').value,
+        countryCode: document.getElementById('waCountryCode').value.trim(),
+        hrNumber: document.getElementById('waHrNumber').value.trim(),
+        autoSend: document.getElementById('waAutoSend').checked,
+        showFloating: document.getElementById('waShowFloating').checked,
+        modifiedAt: today(),
+        modifiedBy: auth.currentUser.displayName || auth.currentUser.email
+    };
+    try {
+        showLoading('Saving...');
+        await saveToFirebase(collections.whatsappSettings, 'config', ws);
+        data.whatsappSettings = ws;
+        await logTimeline('Updated WhatsApp settings', 'system', 'WhatsApp configuration updated');
+        toast('WhatsApp settings saved!');
+        updateFloatingWhatsapp();
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+}
+
+function formatWhatsappNumber(phone, countryCode) {
+    if (!phone) return null;
+    let cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+    if (cleanPhone.startsWith('0')) {
+        cleanPhone = (countryCode || '+94').replace('+', '') + cleanPhone.substring(1);
+    }
+    if (cleanPhone.startsWith('+')) {
+        cleanPhone = cleanPhone.substring(1);
+    }
+    if (!/^\d{8,15}$/.test(cleanPhone)) return null;
+    return cleanPhone;
+}
+
+function buildWhatsappMessage(slip, worker) {
+    const ws = data.whatsappSettings || {};
+    const c = data.company || {};
+    let message = ws.template || `*${c.name || 'Company'}* - Salary Slip\n\nDear ${worker.name},\n\nYour salary slip for *${slip.month}* is ready.\n\n📋 *Slip Details:*\n• Slip #: ${slip.slipNo}\n• Basic Salary: ${fmt(slip.basic || 0)}\n• Total Additions: ${fmt(slip.totalAdditions || 0)}\n• Total Deductions: ${fmt(slip.totalDeductions || 0)}\n• *Net Salary: ${fmt(slip.net || 0)}*\n\nThank you!\n${c.name || 'Company'}`;
+
+    message = message.replace(/\{\{company_name\}\}/g, c.name || 'Company');
+    message = message.replace(/\{\{worker_name\}\}/g, worker.name || '');
+    message = message.replace(/\{\{month\}\}/g, slip.month || '');
+    message = message.replace(/\{\{slip_number\}\}/g, slip.slipNo || '');
+    message = message.replace(/\{\{basic_salary\}\}/g, fmt(slip.basic || 0));
+    message = message.replace(/\{\{total_additions\}\}/g, fmt(slip.totalAdditions || 0));
+    message = message.replace(/\{\{total_deductions\}\}/g, fmt(slip.totalDeductions || 0));
+    message = message.replace(/\{\{net_salary\}\}/g, fmt(slip.net || 0));
+    message = message.replace(/\{\{employee_id\}\}/g, worker.empId || '');
+    message = message.replace(/\{\{position\}\}/g, worker.position || '');
+    message = message.replace(/\{\{department\}\}/g, worker.department || '');
+
+    return message;
+}
+
+async function sendSlipWhatsapp(slip, worker) {
+    const ws = data.whatsappSettings || {};
+    if (!worker?.whatsapp) return false;
+    const phoneNumber = formatWhatsappNumber(worker.whatsapp, ws.countryCode);
+    if (!phoneNumber) {
+        toast('Invalid WhatsApp number for ' + worker.name, 'error');
+        return false;
+    }
+    const message = buildWhatsappMessage(slip, worker);
+    const encodedMessage = encodeURIComponent(message);
+    const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+
+    await logTimeline('Sent WhatsApp message', 'slip', `WhatsApp sent to ${worker.name} (${worker.whatsapp}) for slip #${slip.slipNo}`, worker.id);
+
+    window.open(waUrl, '_blank');
+
+    return { url: waUrl, phoneNumber, message };
+}
+
+async function whatsappSlipById(id) {
+    const slip = data.salarySlips.find(s => s.id === id); if (!slip) return;
+    const w = data.workers.find(x => x.id === slip.workerId);
+    if (!w?.whatsapp) { toast('Worker has no WhatsApp number. Please add it in worker profile.', 'error'); return; }
+    const ws = data.whatsappSettings || {};
+    const phoneNumber = formatWhatsappNumber(w.whatsapp, ws.countryCode);
+    if (!phoneNumber) { toast('Invalid WhatsApp number', 'error'); return; }
+    if (!confirm(`Send WhatsApp message to ${w.name} (${w.whatsapp})?\n\nThis will open WhatsApp with the message pre-filled.\n\nContinue?`)) return;
+    try {
+        await sendSlipWhatsapp(slip, w);
+        toast('WhatsApp opened! Click Send in WhatsApp to deliver.');
+    } catch (error) { toast('Error: ' + error.message, 'error'); }
+}
+async function whatsappCurrentSlip() {
+    if (!currentSlipViewSlip) { toast('No slip to send', 'error'); return; }
+    await whatsappSlipById(currentSlipViewSlip.id);
+}
+async function testWhatsapp() {
+    const ws = data.whatsappSettings || {};
+    const testPhone = prompt('Enter test WhatsApp number (with country code, e.g., +94771234567):');
+    if (!testPhone) return;
+    const phoneNumber = formatWhatsappNumber(testPhone, ws.countryCode);
+    if (!phoneNumber) { toast('Invalid phone number', 'error'); return; }
+    const testSlip = { slipNo: 'TEST-001', month: currentMonth(), basic: 10000, totalAdditions: 2000, totalDeductions: 1500, net: 10500 };
+    const testWorker = { name: 'Test User', empId: 'TEST', position: 'Test', department: 'Test', whatsapp: testPhone };
+    if (!confirm('This will open WhatsApp with a test message. Continue?')) return;
+    try {
+        const message = buildWhatsappMessage(testSlip, testWorker);
+        const encodedMessage = encodeURIComponent(message);
+        const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+        window.open(waUrl, '_blank');
+        await logTimeline('Sent test WhatsApp', 'system', `Test WhatsApp to ${testPhone}`);
+        toast('Test WhatsApp opened!');
+    } catch (error) { toast('Error: ' + error.message, 'error'); }
+}
+
+function updateFloatingWhatsapp() {
+    const ws = data.whatsappSettings || {};
+    const floatingEl = document.getElementById('floatingWhatsapp');
+    if (!floatingEl) return;
+    if (ws.showFloating !== false && ws.hrNumber) {
+        floatingEl.style.display = 'flex';
+    } else {
+        floatingEl.style.display = 'none';
+    }
+}
+function openFloatingWhatsapp() {
+    const ws = data.whatsappSettings || {};
+    if (!ws.hrNumber) {
+        toast('HR WhatsApp number not configured. Go to WhatsApp Settings.', 'error');
+        return;
+    }
+    const phoneNumber = formatWhatsappNumber(ws.hrNumber, ws.countryCode);
+    if (!phoneNumber) {
+        toast('Invalid HR WhatsApp number', 'error');
+        return;
+    }
+    const c = data.company || {};
+    const defaultMessage = `Hello ${c.name || 'LANKA SHOE'} HR,\n\nI have a query regarding my salary.`;
+    const encodedMessage = encodeURIComponent(defaultMessage);
+    const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    window.open(waUrl, '_blank');
 }
 
 // Timeline
@@ -3865,18 +4125,15 @@ async function restoreTimelineEntry(id) {
                 canRestore = true;
                 restoreDescription = `Restore reversed slip #${slip.slipNo} for ${data.workers.find(w=>w.id===workerId)?.name||'worker'} (${month}).\n\nThis will:\n• Re-apply all loan/advance deductions\n• Change slip status back to Paid\n• Update loan/advance balances`;
             } else {
-                toast('Cannot find the reversed slip to restore. It may have been deleted.', 'error');
+                toast('Cannot find the reversed slip to restore.', 'error');
                 return;
             }
         }
     } else if (type === 'slip' && action.includes('deleted')) {
-        toast('Deleted slips cannot be restored (data permanently removed). Only reversed slips can be restored.', 'error');
+        toast('Deleted slips cannot be restored.', 'error');
         return;
-    } else if (type === 'loan' && action.includes('deleted')) {
-        toast('Deleted loans cannot be restored. Please create a new loan.', 'error');
-        return;
-    } else if (type === 'advance' && action.includes('deleted')) {
-        toast('Deleted advances cannot be restored. Please create a new advance.', 'error');
+    } else if ((type === 'loan' || type === 'advance') && action.includes('deleted')) {
+        toast('Deleted loans/advances cannot be restored. Please create a new one.', 'error');
         return;
     } else {
         toast(`This type of action (${entry.action}) cannot be automatically restored.`, 'error');
@@ -3906,10 +4163,7 @@ async function restoreTimelineEntry(id) {
                             loan.remaining = Math.max(0, (loan.remaining||0) - ld.amount);
                             if (loan.remaining <= 0.01) { loan.remaining = 0; loan.status = 'Completed'; }
                             else loan.status = 'Active';
-                            await updateInFirebase(collections.loans, loan.id, {
-                                paid: loan.paid, remaining: loan.remaining,
-                                status: loan.status, paidMonths: loan.paidMonths
-                            });
+                            await updateInFirebase(collections.loans, loan.id, { paid: loan.paid, remaining: loan.remaining, status: loan.status, paidMonths: loan.paidMonths });
                         }
                     }
                     for (const ad of (slip.advancesDeducted || [])) {
@@ -3923,10 +4177,7 @@ async function restoreTimelineEntry(id) {
                             adv.remaining = Math.max(0, (adv.remaining||0) - ad.amount);
                             if (adv.remaining <= 0.01) { adv.remaining = 0; adv.status = 'Completed'; }
                             else adv.status = 'Active';
-                            await updateInFirebase(collections.advances, adv.id, {
-                                paid: adv.paid, remaining: adv.remaining,
-                                status: adv.status, paidMonths: adv.paidMonths
-                            });
+                            await updateInFirebase(collections.advances, adv.id, { paid: adv.paid, remaining: adv.remaining, status: adv.status, paidMonths: adv.paidMonths });
                         }
                     }
                     await updateInFirebase(collections.salarySlips, slip.id, {
@@ -3941,7 +4192,7 @@ async function restoreTimelineEntry(id) {
             await loadData();
             toast('✅ Successfully restored! All calculations updated.');
             renderTimeline();
-        } catch(error) {
+        } catch (error) {
             toast('Error during restore: ' + error.message, 'error');
         } finally {
             hideLoading();
@@ -3957,7 +4208,7 @@ async function deleteTimelineEntry(id) {
         await loadData();
         toast('Timeline entry deleted!');
         renderTimeline();
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function exportTimeline() {
     const entries = data.timeline || [];
@@ -3979,23 +4230,41 @@ function loadDesignSettings() {
     document.getElementById('customPrimaryColor').value = d.primaryColor || '#1e40af';
     document.getElementById('customEarningsColor').value = d.earningsColor || '#059669';
     document.getElementById('customDeductionsColor').value = d.deductionsColor || '#dc2626';
+    document.getElementById('customBgColor').value = d.bgColor || '#ffffff';
     setActiveSwatch('primaryColorPicker', d.primaryColor || '#1e40af');
     setActiveSwatch('earningsColorPicker', d.earningsColor || '#059669');
     setActiveSwatch('deductionsColorPicker', d.deductionsColor || '#dc2626');
+    setActiveSwatch('bgColorPicker', d.bgColor || '#ffffff');
     document.getElementById('designPaperSize').value = d.paperSize || 'a4';
+    document.getElementById('designFontFamily').value = d.fontFamily || 'helvetica';
     document.getElementById('designFontSize').value = d.fontSize || 'medium';
     document.getElementById('designHeaderStyle').value = d.headerStyle || 'full';
     document.getElementById('designBorder').value = d.border || 'none';
+    document.getElementById('designLayout').value = d.layout || 'classic';
+    document.getElementById('designShowLogo').checked = d.showLogo !== false;
     document.getElementById('designShowBank').checked = d.showBank !== false;
     document.getElementById('designShowTax').checked = d.showTax !== false;
+    document.getElementById('designShowAnalysis').checked = d.showAnalysis !== false;
     document.getElementById('designShowSignatures').checked = d.showSignatures !== false;
     document.getElementById('designShowFooter').checked = d.showFooter !== false;
+    document.getElementById('designShowWatermark').checked = d.showWatermark === true;
+    document.getElementById('designShowGenDate').checked = d.showGenDate !== false;
+    document.getElementById('designShowFinalized').checked = d.showFinalized !== false;
     document.getElementById('designCurrency').value = d.currency || 'Rs';
     document.getElementById('designCurrencyPosition').value = d.currencyPosition || 'before';
+    document.getElementById('designNumberFormat').value = d.numberFormat || '1,000.00';
+    document.getElementById('designDateFormat').value = d.dateFormat || 'DD/MM/YYYY';
     document.getElementById('designSlipTitle').value = d.slipTitle || 'SALARY PAY SLIP';
+    document.getElementById('designHeaderSubtitle').value = d.headerSubtitle || 'Professional Salary Management';
+    document.getElementById('designTagline').value = d.tagline || 'Excellence in Every Step';
     document.getElementById('designFooterText').value = d.footerText || '';
+    document.getElementById('designWatermarkText').value = d.watermarkText || 'LANKA SHOE - CONFIDENTIAL';
     document.getElementById('designSign1Label').value = d.sign1Label || 'Employee Signature';
     document.getElementById('designSign2Label').value = d.sign2Label || 'Authorized Signature';
+    document.getElementById('designSign3Label').value = d.sign3Label || 'HR Manager';
+    document.getElementById('designLogoUrl').value = d.logoUrl || '';
+    document.getElementById('designLogoSize').value = d.logoSize || 'medium';
+    document.getElementById('designLogoPosition').value = d.logoPosition || 'left';
 }
 function setActiveSwatch(pickerId, color) { document.querySelectorAll(`#${pickerId} .color-swatch`).forEach(s => s.classList.toggle('active', s.dataset.color === color)); }
 document.addEventListener('click', (e) => {
@@ -4013,27 +4282,43 @@ async function saveDesign() {
         primaryColor: document.getElementById('customPrimaryColor').value,
         earningsColor: document.getElementById('customEarningsColor').value,
         deductionsColor: document.getElementById('customDeductionsColor').value,
+        bgColor: document.getElementById('customBgColor').value,
         paperSize: document.getElementById('designPaperSize').value,
+        fontFamily: document.getElementById('designFontFamily').value,
         fontSize: document.getElementById('designFontSize').value,
         headerStyle: document.getElementById('designHeaderStyle').value,
         border: document.getElementById('designBorder').value,
-        showLogo: true, showBank: document.getElementById('designShowBank').checked,
-        showTax: document.getElementById('designShowTax').checked, showAnalysis: true,
+        layout: document.getElementById('designLayout').value,
+        showLogo: document.getElementById('designShowLogo').checked,
+        showBank: document.getElementById('designShowBank').checked,
+        showTax: document.getElementById('designShowTax').checked,
+        showAnalysis: document.getElementById('designShowAnalysis').checked,
         showSignatures: document.getElementById('designShowSignatures').checked,
         showFooter: document.getElementById('designShowFooter').checked,
-        showWatermark: false,
+        showWatermark: document.getElementById('designShowWatermark').checked,
+        showGenDate: document.getElementById('designShowGenDate').checked,
+        showFinalized: document.getElementById('designShowFinalized').checked,
         currency: document.getElementById('designCurrency').value,
         currencyPosition: document.getElementById('designCurrencyPosition').value,
+        numberFormat: document.getElementById('designNumberFormat').value,
+        dateFormat: document.getElementById('designDateFormat').value,
         slipTitle: document.getElementById('designSlipTitle').value,
+        headerSubtitle: document.getElementById('designHeaderSubtitle').value,
+        tagline: document.getElementById('designTagline').value,
         footerText: document.getElementById('designFooterText').value,
+        watermarkText: document.getElementById('designWatermarkText').value,
         sign1Label: document.getElementById('designSign1Label').value,
-        sign2Label: document.getElementById('designSign2Label').value
+        sign2Label: document.getElementById('designSign2Label').value,
+        sign3Label: document.getElementById('designSign3Label').value,
+        logoUrl: document.getElementById('designLogoUrl').value,
+        logoSize: document.getElementById('designLogoSize').value,
+        logoPosition: document.getElementById('designLogoPosition').value
     };
     try {
         showLoading('Saving design...');
         await saveToFirebase(collections.payslipDesign, 'config', dd);
         data.payslipDesign = dd; toast('Design saved!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function previewDesign() {
     if (!data.salarySlips.length) { toast('Create a pay slip first', 'error'); return; }
@@ -4049,6 +4334,7 @@ function loadCompanySettings() {
     document.getElementById('cPhone').value = c.phone || '';
     document.getElementById('cEmail').value = c.email || '';
     document.getElementById('cWeb').value = c.web || '';
+    document.getElementById('cLogo').value = c.logo || '';
     document.getElementById('cBank').value = c.bank || '';
     document.getElementById('cBankAccount').value = c.bankAccount || '';
     document.getElementById('cAddress').value = c.address || '';
@@ -4061,18 +4347,19 @@ async function saveCompany(e) {
         name: document.getElementById('cName').value, reg: document.getElementById('cReg').value || '',
         tax: document.getElementById('cTax').value || '', phone: document.getElementById('cPhone').value || '',
         email: document.getElementById('cEmail').value || '', web: document.getElementById('cWeb').value || '',
+        logo: document.getElementById('cLogo').value || '',
         bank: document.getElementById('cBank').value || '',
         bankAccount: document.getElementById('cBankAccount').value || '', address: document.getElementById('cAddress').value || ''
     };
     try { showLoading('Saving...'); await saveToFirebase(collections.company, 'config', cd); data.company = cd; await logTimeline('Updated company info', 'system', cd.name); toast('Company info saved!'); }
-    catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function addDepartment() {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
     const name = document.getElementById('newDept').value.trim(); if (!name) return;
     if (data.departments.includes(name)) { toast('Department exists', 'error'); return; }
     try { showLoading('Adding...'); await saveToFirebase(collections.departments, null, { name }); data.departments.push(name); document.getElementById('newDept').value = ''; renderDepartments(); await logTimeline('Added department', 'system', name); toast('Department added!'); }
-    catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 async function removeDepartment(name) {
     if (!hasPermission(USER_ROLES.ADMIN)) { toast('Admin required.', 'error'); return; }
@@ -4082,7 +4369,7 @@ async function removeDepartment(name) {
         const deptDoc = await db.collection(collections.departments).where('name', '==', name).get();
         deptDoc.forEach(async doc => { await deleteFromFirebase(collections.departments, doc.id); });
         data.departments = data.departments.filter(d => d !== name); renderDepartments(); await logTimeline('Removed department', 'system', name); toast('Department removed!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 function renderDepartments() {
     const list = document.getElementById('departmentsList'); if (!list) return;
@@ -4120,7 +4407,7 @@ async function clearAllData() {
         }
         await logTimeline('Cleared all data', 'system', 'All data wiped');
         toast('All data cleared!'); setTimeout(() => location.reload(), 1000);
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch (error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
 // Dashboard
@@ -4201,6 +4488,7 @@ function refreshDashboard() {
 
 window.addEventListener('load', () => {
     if (data.emailSettings?.emailjsPublicKey) { try { emailjs.init(data.emailSettings.emailjsPublicKey); } catch(e) {} }
+    updateFloatingWhatsapp();
 });
 </script>
 </body>
