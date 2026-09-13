@@ -13,15 +13,14 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
-<!-- 🔒 ADVANCED CONSOLE BLOCKER - ALL BROWSERS WINDOWS/MAC -->
+<!-- 🔒 ADVANCED CONSOLE BLOCKER -->
 <script>
 (function(){
 'use strict';
 if(window.__consoleBlockerLoaded) return;
 window.__consoleBlockerLoaded = true;
-
-// 1. Override ALL console methods
 const noop = function(){};
 const blockedMethods = ['log','debug','info','warn','error','table','trace','dir','dirxml','group','groupCollapsed','groupEnd','time','timeEnd','timeLog','assert','clear','count','countReset','profile','profileEnd','memory','context'];
 try {
@@ -31,15 +30,10 @@ try {
     });
     try { Object.freeze(console); } catch(e) {}
 } catch(e) {}
-
-// 2. Block errors from showing
 window.addEventListener('error', function(e){ try { e.preventDefault(); } catch(err){} return true; }, true);
 window.addEventListener('unhandledrejection', function(e){ try { e.preventDefault(); } catch(err){} return true; }, true);
-
-// 3. DevTools detection
 let devtoolsDetected = false;
 let warningShown = false;
-
 function showDevToolsWarning() {
     if (warningShown) return;
     warningShown = true;
@@ -49,24 +43,15 @@ function showDevToolsWarning() {
     const overlay = document.createElement('div');
     overlay.id = 'devtoolsWarningOverlay';
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 50%,#7c3aed 100%);z-index:9999999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:Inter,sans-serif;';
-    overlay.innerHTML = `
-        <div style="text-align:center;max-width:650px;padding:40px;">
-            <div style="font-size:100px;margin-bottom:20px;">🔒</div>
-            <h1 style="font-size:36px;margin-bottom:15px;font-weight:800;">Access Restricted</h1>
-            <p style="font-size:17px;opacity:0.95;margin-bottom:25px;">Developer tools detected. Please close and reload.</p>
-            <div style="background:rgba(255,255,255,0.1);padding:25px;border-radius:16px;margin-bottom:25px;text-align:left;">
-                <p style="margin-bottom:12px;font-weight:600;"><strong>Close DevTools:</strong></p>
-                <p style="margin-bottom:8px;"><strong>Windows:</strong> Press F12 or Ctrl+Shift+I</p>
-                <p style="margin-bottom:8px;"><strong>Mac:</strong> Press Cmd+Option+I</p>
-                <p><strong>Brave/Chrome:</strong> Menu → More Tools → Developer Tools</p>
-            </div>
-            <button onclick="location.reload()" style="padding:14px 40px;background:white;color:#1e40af;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;">🔄 Reload Page</button>
-        </div>
-    `;
+    overlay.innerHTML = `<div style="text-align:center;max-width:650px;padding:40px;">
+        <div style="font-size:100px;margin-bottom:20px;">🔒</div>
+        <h1 style="font-size:36px;margin-bottom:15px;font-weight:800;">Access Restricted</h1>
+        <p style="font-size:17px;opacity:0.95;margin-bottom:25px;">Developer tools detected. Please close and reload.</p>
+        <button onclick="location.reload()" style="padding:14px 40px;background:white;color:#1e40af;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;">🔄 Reload Page</button>
+    </div>`;
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
 }
-
 function hideDevToolsWarning() {
     if (!warningShown) return;
     warningShown = false;
@@ -75,8 +60,6 @@ function hideDevToolsWarning() {
     if (ov) ov.remove();
     document.body.style.overflow = '';
 }
-
-// Debugger trap
 (function debuggerTrap(){
     const start = performance.now();
     try { (function(){ return false; })['constructor']('debugger')['call'](); } catch(e) {}
@@ -85,223 +68,58 @@ function hideDevToolsWarning() {
     else if (devtoolsDetected && end - start < 50) hideDevToolsWarning();
     setTimeout(debuggerTrap, 800);
 })();
-
-// Window size detection
 setInterval(function(){
     const widthDiff = window.outerWidth - window.innerWidth;
     const heightDiff = window.outerHeight - window.innerHeight;
     if (widthDiff > 160 || heightDiff > 160) showDevToolsWarning();
 }, 600);
-
-// 4. 🔥 BLOCK ALL KEYBOARD SHORTCUTS (Windows + Mac + All Browsers)
 function blockShortcuts(e) {
     const key = (e.key || '').toLowerCase();
-    const code = e.code || '';
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
     const tag = (e.target.tagName || '').toUpperCase();
     const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable;
-
-    // F12 (all browsers)
-    if (e.key === 'F12' || e.keyCode === 123 || code === 'F12') {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-    }
-    // PrintScreen
-    if (e.key === 'PrintScreen' || e.keyCode === 44 || code === 'PrintScreen') {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-    }
-    // 🔥 Ctrl/Cmd + Shift + I/J/C/K (DevTools - Windows & Mac)
-    if (ctrlOrCmd && e.shiftKey) {
-        if (['i','j','c','k'].includes(key)) {
-            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-        }
-    }
-    // 🔥 Ctrl/Cmd + Alt/Option + I/J/C/K/U/S/P/E/R (Mac DevTools + Brave)
-    if (ctrlOrCmd && e.altKey) {
-        if (['i','j','c','k','u','s','p','e','r'].includes(key)) {
-            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-        }
-    }
-    // 🔥 Cmd+I/J/K alone (Mac Inspect/Downloads/Console)
-    if (ctrlOrCmd && !e.shiftKey && !e.altKey) {
-        if (['i','j','k'].includes(key)) {
-            e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-        }
-    }
-    // 🔥 Ctrl/Cmd + U (View Source)
-    if (ctrlOrCmd && key === 'u') {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-    }
-    // 🔥 Ctrl/Cmd + S (Save Page) - block outside inputs
-    if (ctrlOrCmd && key === 's') {
-        if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    }
-    // 🔥 Ctrl/Cmd + P (Print)
-    if (ctrlOrCmd && key === 'p') {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-    }
-    // 🔥 Ctrl/Cmd + F (Find) - block outside inputs
-    if (ctrlOrCmd && key === 'f') {
-        if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    }
-    // 🔥 Ctrl/Cmd + G (Find Next)
-    if (ctrlOrCmd && key === 'g') {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-    }
-    // 🔥 Ctrl/Cmd + H (History)
-    if (ctrlOrCmd && key === 'h') {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-    }
-    // 🔥 Ctrl/Cmd + D (Bookmark)
-    if (ctrlOrCmd && key === 'd') {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-    }
-    // 🔥 Ctrl/Cmd + , (Preferences)
-    if (ctrlOrCmd && key === ',') {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-    }
-    // 🔥 Ctrl/Cmd + Shift + Delete (Clear Data)
-    if (ctrlOrCmd && e.shiftKey && (key === 'delete' || e.keyCode === 46)) {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-    }
-    // 🔥 Ctrl/Cmd + Shift + R (Hard Reload)
-    if (ctrlOrCmd && e.shiftKey && key === 'r') {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-    }
-    // 🔥 Ctrl/Cmd + A (Select All) - block outside inputs
-    if (ctrlOrCmd && key === 'a') {
-        if (!isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
-    }
-    // 🔥 Escape when devtools detected
-    if (key === 'escape' && devtoolsDetected) {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false;
-    }
+    if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (e.key === 'PrintScreen' || e.keyCode === 44) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && e.shiftKey && ['i','j','c','k'].includes(key)) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && e.altKey && ['i','j','c','k','u','s','p','e','r'].includes(key)) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && !e.shiftKey && !e.altKey && ['i','j','k'].includes(key)) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && key === 'u') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && key === 's' && !isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && key === 'p') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && key === 'f' && !isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && key === 'g') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && key === 'h') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && key === 'd') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && key === ',') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && e.shiftKey && (key === 'delete' || e.keyCode === 46)) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && e.shiftKey && key === 'r') { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
+    if (ctrlOrCmd && key === 'a' && !isInput) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return false; }
 }
-
-// 🔥 CAPTURE phase (third parameter = true) - blocks before browser handles
 document.addEventListener('keydown', blockShortcuts, true);
 document.addEventListener('keyup', blockShortcuts, true);
 document.addEventListener('keypress', blockShortcuts, true);
-
-// 5. Block right-click context menu
-document.addEventListener('contextmenu', function(e){
-    e.preventDefault(); e.stopPropagation(); return false;
-}, true);
-
-// 6. Block text selection outside inputs
-document.addEventListener('selectstart', function(e){
-    const tag = (e.target.tagName || '').toUpperCase();
-    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) {
-        e.preventDefault(); return false;
-    }
-}, true);
-
-// 7. Block copy/cut outside inputs
-['copy','cut'].forEach(function(evt){
-    document.addEventListener(evt, function(e){
-        const tag = (e.target.tagName || '').toUpperCase();
-        if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) {
-            e.preventDefault(); e.stopPropagation(); return false;
-        }
-    }, true);
-});
-
-// 8. Block drag
+document.addEventListener('contextmenu', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, true);
+document.addEventListener('selectstart', function(e){ const tag = (e.target.tagName || '').toUpperCase(); if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) { e.preventDefault(); return false; } }, true);
+['copy','cut'].forEach(function(evt){ document.addEventListener(evt, function(e){ const tag = (e.target.tagName || '').toUpperCase(); if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) { e.preventDefault(); e.stopPropagation(); return false; } }, true); });
 document.addEventListener('dragstart', function(e){ e.preventDefault(); e.stopPropagation(); return false; }, true);
-
-// 9. Block iframe injection
-if (window.top !== window.self) {
-    try { window.top.location = window.self.location; }
-    catch(e) { document.body.innerHTML = '<div style="padding:50px;text-align:center;"><h1>Access Denied</h1></div>'; }
-}
-
-// 10. Periodic console re-freeze
-setInterval(function(){
-    try {
-        blockedMethods.forEach(m => {
-            if (console[m] !== noop) { try { console[m] = noop; } catch(e){} }
-        });
-    } catch(e){}
-}, 1000);
-
-// 11. MutationObserver - re-show warning if removed
-const observer = new MutationObserver(function(mutations){
-    mutations.forEach(function(m){
-        if (m.type === 'childList') {
-            m.removedNodes.forEach(function(node){
-                if (node.id === 'devtoolsWarningOverlay') {
-                    setTimeout(showDevToolsWarning, 50);
-                }
-            });
-        }
-    });
-});
+if (window.top !== window.self) { try { window.top.location = window.self.location; } catch(e) { document.body.innerHTML = '<div style="padding:50px;text-align:center;"><h1>Access Denied</h1></div>'; } }
+setInterval(function(){ try { blockedMethods.forEach(m => { if (console[m] !== noop) { try { console[m] = noop; } catch(e){} } }); } catch(e){} }, 1000);
+const observer = new MutationObserver(function(mutations){ mutations.forEach(function(m){ if (m.type === 'childList') { m.removedNodes.forEach(function(node){ if (node.id === 'devtoolsWarningOverlay') { setTimeout(showDevToolsWarning, 50); } }); } }); });
 if (document.body) observer.observe(document.body, { childList: true, subtree: true });
 else document.addEventListener('DOMContentLoaded', function(){ observer.observe(document.body, { childList: true, subtree: true }); });
-
-// 12. Block Function constructor bypass
-try {
-    const origFunc = Function;
-    const handler = {
-        construct: function(target, args) {
-            const code = args[0] || '';
-            if (code.includes('debugger') || code.includes('console')) {
-                throw new Error('Blocked');
-            }
-            return new target(...args);
-        },
-        apply: function(target, thisArg, args) {
-            const code = args[0] || '';
-            if (typeof code === 'string' && (code.includes('debugger') || code.includes('console'))) {
-                return noop;
-            }
-            return target.apply(thisArg, args);
-        }
-    };
-    window.Function = new Proxy(origFunc, handler);
-} catch(e) {}
-
-// 13. Block window.open for devtools URLs
-const origOpen = window.open;
-window.open = function(){
-    const url = arguments[0] || '';
-    if (url && (url.includes('devtools') || url.includes('inspect') || url === 'about:blank' || url === 'chrome://')) {
-        return null;
-    }
-    try { return origOpen.apply(window, arguments); } catch(e) { return null; }
-};
-
-// 14. Detect focus loss (user switching to devtools)
-let lastFocus = Date.now();
-window.addEventListener('blur', function(){ lastFocus = Date.now(); }, true);
-window.addEventListener('focus', function(){
-    const gap = Date.now() - lastFocus;
-    if (gap > 3000 && !devtoolsDetected) {
-        const widthDiff = window.outerWidth - window.innerWidth;
-        const heightDiff = window.outerHeight - window.innerHeight;
-        if (widthDiff > 160 || heightDiff > 160) showDevToolsWarning();
-    }
-}, true);
-
 })();
 </script>
 
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
-html, body, div, span, p, a, h1, h2, h3, h4, h5, h6, img, table, tr, td, li, ul, ol {
-    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-    -webkit-touch-callout: none;
-}
-input, textarea, select, [contenteditable="true"] {
-    -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text; user-select: text;
-}
-img { -webkit-user-drag: none; pointer-events: none; }
 :root {
 --primary: #1e40af; --primary-dark: #1e3a8a; --primary-light: #3b82f6;
 --secondary: #0891b2; --success: #059669; --danger: #dc2626;
 --warning: #d97706; --purple: #7c3aed; --pink: #db2777; --dark: #0f172a; --light: #f8fafc;
---gray: #64748b; --border: #e2e8f0; --whatsapp: #25D366; --whatsapp-dark: #128C7E;
---shadow: 0 4px 6px -1px rgba(0,0,0,0.1); --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.15);
+--gray: #64748b; --border: #e2e8f0;
+--shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+--shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.15);
 }
 html, body { width: 100%; min-height: 100vh; overflow-x: hidden; }
 .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 99999; flex-direction: column; }
@@ -330,7 +148,7 @@ html, body { width: 100%; min-height: 100vh; overflow-x: hidden; }
 .divider span { padding: 0 15px; }
 .email-form { display: flex; flex-direction: column; gap: 15px; }
 .form-input { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 14px; background: #f8fafc; }
-.form-input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(30,64,175,0.1); }
+.form-input:focus { outline: none; border-color: var(--primary); background: white; }
 .login-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #1e40af, #0891b2); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
 .main-app { display: none; }
 .main-app.show { display: block; }
@@ -389,7 +207,6 @@ body { background: #f1f5f9; color: #1e293b; display: flex; min-height: 100vh; }
 .btn-secondary { background: #e2e8f0; color: var(--dark); }
 .btn-info { background: linear-gradient(135deg, var(--secondary), #0e7490); color: white; }
 .btn-whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); color: white; }
-.btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(37,211,102,0.4); }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
 .btn-lg { padding: 14px 28px; font-size: 15px; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -566,7 +383,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .myla-card-amounts .amt-value.remaining { color: var(--danger); }
 .myla-card-progress { margin-top: 10px; }
 .myla-card-progress .progress-info { display: flex; justify-content: space-between; font-size: 11px; color: var(--gray); margin-bottom: 4px; }
-.myla-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); flex-wrap: wrap; gap: 8px; }
+.myla-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
 .myla-card-footer .status-badge { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
 .myla-card-footer .status-badge.active { background: #fef3c7; color: #92400e; }
 .myla-card-footer .status-badge.completed { background: #d1fae5; color: #065f46; }
@@ -574,11 +391,13 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .myla-card-actions button { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; transition: all 0.2s; }
 .myla-card-actions button:hover { background: var(--primary); color: white; border-color: var(--primary); }
 .myla-card-actions button.danger:hover { background: var(--danger); border-color: var(--danger); }
-.myla-card-actions button.history-btn { background: var(--purple); color: white; border-color: var(--purple); }
+.myla-empty { text-align: center; padding: 30px 15px; color: var(--gray); }
+.myla-empty i { font-size: 40px; opacity: 0.3; margin-bottom: 10px; }
 .history-panel { margin-top: 12px; padding: 12px; background: white; border-radius: 8px; border: 1px solid var(--border); }
 .history-panel h5 { font-size: 13px; color: var(--dark); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
 .history-entry { padding: 10px; background: #f8fafc; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--purple); }
 .history-entry-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; flex-wrap: wrap; gap: 8px; }
+.history-entry-info { flex: 1; min-width: 200px; }
 .history-entry-info .he-type { font-size: 12px; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
 .history-entry-info .he-meta { font-size: 11px; color: var(--gray); }
 .history-entry-amounts { display: flex; gap: 15px; margin-top: 6px; font-size: 12px; flex-wrap: wrap; }
@@ -587,71 +406,24 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .history-entry-amounts .val { font-weight: 700; }
 .history-entry-actions { display: flex; gap: 5px; }
 .history-entry-actions button { padding: 4px 10px; font-size: 11px; border-radius: 5px; border: 1px solid var(--border); background: white; cursor: pointer; }
-.history-entry-actions button:hover { background: var(--primary); color: white; }
-.history-entry-actions button.danger:hover { background: var(--danger); }
-.tab-filter-bar { display: flex; gap: 10px; flex-wrap: wrap; padding: 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); }
-.tab-filter-bar select, .tab-filter-bar input { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 12px; background: white; }
-.tab-filter-bar label { font-size: 11px; font-weight: 600; color: var(--gray); text-transform: uppercase; }
+.history-entry-actions button:hover { background: var(--primary); color: white; border-color: var(--primary); }
+.history-entry-actions button.danger:hover { background: var(--danger); border-color: var(--danger); }
 .logo-upload-area { border: 2px dashed var(--border); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f8fafc; }
 .logo-upload-area:hover { border-color: var(--primary); background: #f0f9ff; }
 .logo-upload-area.has-logo { border-style: solid; border-color: var(--success); }
-.logo-preview-container { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
 .logo-preview-img { max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid var(--border); object-fit: contain; background: white; padding: 5px; }
 .logo-size-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
 .logo-size-controls label { font-size: 12px; color: var(--gray); }
 .logo-size-controls input[type="range"] { width: 150px; }
 .template-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
 .template-card { border: 2px solid var(--border); border-radius: 10px; padding: 15px; cursor: pointer; transition: all 0.3s; background: white; text-align: center; }
-.template-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.template-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: var(--shadow); }
 .template-card.active { border-color: var(--primary); background: linear-gradient(135deg, rgba(30,64,175,0.05), rgba(8,145,178,0.05)); }
 .template-card .template-icon { font-size: 32px; margin-bottom: 10px; }
 .template-card h4 { font-size: 14px; color: var(--dark); margin-bottom: 5px; }
 .template-card p { font-size: 11px; color: var(--gray); }
 
-/* ============ FLOATING WHATSAPP ============ */
-.whatsapp-fab { position: fixed; bottom: 30px; right: 30px; z-index: 9998; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-.whatsapp-fab-btn { width: 65px; height: 65px; border-radius: 50%; background: linear-gradient(135deg, #25D366, #128C7E); color: white; border: none; cursor: pointer; font-size: 30px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(37,211,102,0.5); transition: all 0.3s; position: relative; }
-.whatsapp-fab-btn:hover { transform: scale(1.1); box-shadow: 0 12px 30px rgba(37,211,102,0.6); }
-.whatsapp-fab-btn .unread-badge { position: absolute; top: -5px; right: -5px; background: #dc2626; color: white; border-radius: 50%; min-width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; padding: 0 6px; border: 2px solid white; }
-.whatsapp-fab-menu { display: none; flex-direction: column; gap: 8px; align-items: flex-end; }
-.whatsapp-fab-menu.show { display: flex; animation: slideUp 0.3s; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.whatsapp-fab-menu-item { background: white; color: var(--dark); padding: 10px 18px; border-radius: 25px; display: flex; align-items: center; gap: 10px; cursor: pointer; box-shadow: var(--shadow-lg); font-size: 13px; font-weight: 600; white-space: nowrap; transition: all 0.2s; }
-.whatsapp-fab-menu-item:hover { transform: translateX(-5px); background: #f0fdf4; }
-.whatsapp-fab-menu-item i { color: var(--whatsapp); }
-
-/* ============ WHATSAPP WINDOW ============ */
-.whatsapp-window { position: fixed; bottom: 110px; right: 30px; width: 420px; height: 600px; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 9999; display: none; flex-direction: column; overflow: hidden; }
-.whatsapp-window.show { display: flex; animation: slideUp 0.3s; }
-.whatsapp-window-header { background: linear-gradient(135deg, #075E54, #128C7E); color: white; padding: 15px 20px; display: flex; align-items: center; gap: 12px; }
-.whatsapp-window-header .wa-avatar { width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; }
-.whatsapp-window-header .wa-info { flex: 1; }
-.whatsapp-window-header .wa-info h4 { font-size: 15px; font-weight: 600; }
-.whatsapp-window-header .wa-info p { font-size: 11px; opacity: 0.8; }
-.whatsapp-window-header .wa-actions { display: flex; gap: 10px; }
-.whatsapp-window-header .wa-actions button { background: none; border: none; color: white; cursor: pointer; font-size: 18px; opacity: 0.9; }
-.whatsapp-window-header .wa-actions button:hover { opacity: 1; }
-.whatsapp-tabs { display: flex; background: #f0f2f5; border-bottom: 1px solid var(--border); }
-.whatsapp-tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--gray); border-bottom: 3px solid transparent; transition: all 0.2s; }
-.whatsapp-tab.active { color: var(--whatsapp-dark); border-bottom-color: var(--whatsapp-dark); background: white; }
-.whatsapp-tab:hover { background: rgba(0,0,0,0.03); }
-.whatsapp-body { flex: 1; overflow-y: auto; background: #e5ddd5; padding: 15px; }
-.whatsapp-chat-list { display: flex; flex-direction: column; gap: 2px; }
-.whatsapp-chat-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-.whatsapp-chat-item:hover { background: #f5f5f5; }
-.whatsapp-chat-item.active { background: #f0f2f5; }
-.whatsapp-chat-item .chat-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; flex-shrink: 0; }
-.whatsapp-chat-item .chat-info { flex: 1; min-width: 0; }
-.whatsapp-chat-item .chat-info h5 { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.whatsapp-chat-item .chat-info p { font-size: 12px; color: var(--gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.whatsapp-chat-item .chat-meta { text-align: right; flex-shrink: 0; }
-.whatsapp-chat-item .chat-meta .time { font-size: 11px; color: var(--gray); }
-.whatsapp-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--gray); text-align: center; padding: 30px; }
-.whatsapp-empty i { font-size: 60px; margin-bottom: 15px; opacity: 0.3; }
-.whatsapp-empty h4 { font-size: 16px; margin-bottom: 5px; color: var(--dark); }
-.whatsapp-empty p { font-size: 12px; }
-
-/* ============ CHAT SECTION ============ */
+/* ============ CHAT SYSTEM ============ */
 .chat-container { display: grid; grid-template-columns: 320px 1fr; gap: 0; height: calc(100vh - 200px); background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
 .chat-sidebar { background: white; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
 .chat-sidebar-header { padding: 15px; background: #f8fafc; border-bottom: 1px solid var(--border); }
@@ -662,8 +434,9 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .chat-list-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid var(--border); }
 .chat-list-item:hover { background: #f5f5f5; }
 .chat-list-item.active { background: #e7f3ff; }
-.chat-list-item .chat-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; flex-shrink: 0; position: relative; }
+.chat-list-item .chat-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; flex-shrink: 0; }
 .chat-list-item .chat-avatar.group { background: linear-gradient(135deg, var(--purple), var(--pink)); }
+.chat-list-item .chat-avatar.announcement { background: linear-gradient(135deg, var(--warning), var(--pink)); }
 .chat-list-item .chat-info { flex: 1; min-width: 0; }
 .chat-list-item .chat-info h5 { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .chat-list-item .chat-info p { font-size: 12px; color: var(--gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -674,6 +447,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .chat-main-header { background: white; padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .chat-main-header .chat-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
 .chat-main-header .chat-avatar.group { background: linear-gradient(135deg, var(--purple), var(--pink)); }
+.chat-main-header .chat-avatar.announcement { background: linear-gradient(135deg, var(--warning), var(--pink)); }
 .chat-main-header .chat-info { flex: 1; }
 .chat-main-header .chat-info h4 { font-size: 15px; font-weight: 600; color: var(--dark); }
 .chat-main-header .chat-info p { font-size: 11px; color: var(--gray); }
@@ -708,8 +482,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .chat-empty p { font-size: 13px; max-width: 300px; }
 .date-separator { text-align: center; margin: 15px 0; }
 .date-separator span { background: rgba(255,255,255,0.9); padding: 5px 12px; border-radius: 6px; font-size: 11px; color: #555; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
-
-.new-chat-options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+.new-chat-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px; }
 .new-chat-option { border: 2px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; }
 .new-chat-option:hover { border-color: var(--primary); background: #f0f9ff; }
 .new-chat-option.active { border-color: var(--primary); background: #e0f2fe; }
@@ -721,7 +494,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .worker-select-item:hover { background: #f5f5f5; }
 .worker-select-item.selected { background: #e0f2fe; }
 .worker-select-item input { accent-color: var(--primary); }
-
 @media (max-width: 1024px) { .myla-split-container { grid-template-columns: 1fr; } .chat-container { grid-template-columns: 1fr; height: auto; } .chat-sidebar { display: none; } .chat-sidebar.show-mobile { display: flex; } }
 @media (max-width: 768px) {
 .login-container { grid-template-columns: 1fr; }
@@ -735,7 +507,6 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 .slip-row { grid-template-columns: 1fr; }
 .setting-row { grid-template-columns: 1fr; }
 .myla-card-amounts { grid-template-columns: 1fr; }
-.whatsapp-window { width: calc(100vw - 20px); right: 10px; bottom: 100px; height: 70vh; }
 }
 .menu-toggle { display: none; background: none; border: none; font-size: 22px; cursor: pointer; }
 @media (max-width: 768px) { .menu-toggle { display: block; } }
@@ -744,10 +515,10 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 </style>
 </head>
-<body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
+<body>
 <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div class="loading-text">Loading...</div></div>
 
-<!-- LOGIN -->
+<!-- LOGIN SCREEN -->
 <div class="login-wrapper" id="loginScreen">
 <div class="login-container">
 <div class="login-illustration">
@@ -881,17 +652,13 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <div class="card" style="margin-bottom:20px;">
 <div class="card-header">
 <h2><i class="fas fa-wallet"></i> <span id="myloansTitle">My Loans & Advances</span></h2>
-</div>
-<div class="filter-bar" style="padding:12px;background:#f8fafc;border-radius:8px;margin-bottom:15px;border:1px solid var(--border);">
-<label style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;">Year:</label>
-<select id="mylaFilterYear" onchange="applyMyLoansFilters()" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:white;"><option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select>
-<label style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;">Month:</label>
-<select id="mylaFilterMonth" onchange="applyMyLoansFilters()" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:white;"><option value="all">All Months</option><option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select>
-<label style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;">Status:</label>
-<select id="mylaFilterStatus" onchange="applyMyLoansFilters()" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:white;"><option value="all">All Status</option><option value="Active">Active</option><option value="Completed">Completed</option></select>
-<label style="font-size:11px;font-weight:600;color:var(--gray);text-transform:uppercase;">Sort:</label>
-<select id="mylaSortBy" onchange="applyMyLoansFilters()" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;background:white;"><option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option><option value="amountDesc">Highest Amount</option><option value="amountAsc">Lowest Amount</option><option value="remainingDesc">Highest Remaining</option></select>
+<div class="filter-bar" style="padding:0;">
+<select id="mylaFilterYear" onchange="renderMyLoansAdvances()"><option value="all">All Years</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option></select>
+<select id="mylaFilterMonth" onchange="renderMyLoansAdvances()"><option value="all">All Months</option><option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select>
+<select id="mylaFilterStatus" onchange="renderMyLoansAdvances()"><option value="all">All Status</option><option value="Active">Active</option><option value="Completed">Completed</option></select>
+<select id="mylaSortBy" onchange="renderMyLoansAdvances()"><option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option><option value="amountDesc">Highest Amount</option><option value="amountAsc">Lowest Amount</option><option value="remainingDesc">Highest Remaining</option></select>
 <button class="btn btn-sm btn-secondary" onclick="resetMyLoansFilters()"><i class="fas fa-redo"></i> Reset</button>
+</div>
 </div>
 <div id="mylaWorkerSelector" style="margin-bottom:15px;"></div>
 <div id="mylaSummaryStats" class="stats-grid" style="margin-bottom:20px;"></div>
@@ -1004,7 +771,7 @@ table tbody tr.clickable:hover { background: #f8fafc; }
 <div class="tab active" onclick="switchChatFilter('all',this)" style="padding:8px;font-size:11px;">All</div>
 <div class="tab" onclick="switchChatFilter('direct',this)" style="padding:8px;font-size:11px;">Direct</div>
 <div class="tab" onclick="switchChatFilter('group',this)" style="padding:8px;font-size:11px;">Groups</div>
-<div class="tab" onclick="switchChatFilter('announce',this)" style="padding:8px;font-size:11px;">📢</div>
+<div class="tab" onclick="switchChatFilter('announcement',this)" style="padding:8px;font-size:11px;">📢</div>
 </div>
 </div>
 <div class="chat-list" id="chatList"></div>
@@ -1383,44 +1150,6 @@ Thank you!
 </div>
 </div>
 
-<!-- FLOATING WHATSAPP WIDGET -->
-<div class="whatsapp-fab" id="whatsappFab">
-<div class="whatsapp-fab-menu" id="whatsappFabMenu">
-<div class="whatsapp-fab-menu-item" onclick="openWhatsappWindow('chats')"><i class="fas fa-comments"></i> Open Chats</div>
-<div class="whatsapp-fab-menu-item" onclick="openWhatsappWindow('broadcast')"><i class="fas fa-bullhorn"></i> Broadcast Message</div>
-<div class="whatsapp-fab-menu-item" onclick="openWhatsappWindow('announcements')"><i class="fas fa-bell"></i> Announcements</div>
-</div>
-<button class="whatsapp-fab-btn" onclick="toggleWhatsappFab()" title="WhatsApp">
-<i class="fab fa-whatsapp"></i>
-<span class="unread-badge" id="whatsappUnreadBadge" style="display:none;">0</span>
-</button>
-</div>
-
-<!-- WHATSAPP FLOATING WINDOW -->
-<div class="whatsapp-window" id="whatsappWindow">
-<div class="whatsapp-window-header">
-<div class="wa-avatar"><i class="fab fa-whatsapp"></i></div>
-<div class="wa-info">
-<h4 id="waWindowTitle">LANKA SHOE Chat</h4>
-<p id="waWindowSubtitle">Quick messaging</p>
-</div>
-<div class="wa-actions">
-<button onclick="minimizeWhatsappWindow()" title="Minimize"><i class="fas fa-minus"></i></button>
-<button onclick="closeWhatsappWindow()" title="Close"><i class="fas fa-times"></i></button>
-</div>
-</div>
-<div class="whatsapp-tabs" id="waTabs">
-<div class="whatsapp-tab active" onclick="switchWhatsappTab('chats',this)">Chats</div>
-<div class="whatsapp-tab" onclick="switchWhatsappTab('broadcast',this)">Broadcast</div>
-<div class="whatsapp-tab" onclick="switchWhatsappTab('announcements',this)">Announcements</div>
-</div>
-<div class="whatsapp-body" id="waBody">
-<div id="waChatsView"></div>
-<div id="waBroadcastView" style="display:none;"></div>
-<div id="waAnnouncementsView" style="display:none;"></div>
-</div>
-</div>
-
 <!-- MODALS -->
 <div class="modal" id="addUserModal">
 <div class="modal-content">
@@ -1429,7 +1158,11 @@ Thank you!
 <div class="form-grid">
 <div class="form-group full"><label>User Email *</label><input type="email" id="userEmail" placeholder="user@example.com" required></div>
 <div class="form-group full"><label>Role *</label>
-<select id="userRole"><option value="admin">Admin (Full Access)</option><option value="editor">Editor (Can Add/Edit)</option><option value="viewer">Viewer (Own Data Only)</option></select>
+<select id="userRole">
+<option value="admin">Admin (Full Access)</option>
+<option value="editor">Editor (Can Add/Edit)</option>
+<option value="viewer">Viewer (Own Data Only)</option>
+</select>
 </div>
 </div>
 </div>
@@ -1499,7 +1232,9 @@ Thank you!
 <form id="loanForm" onsubmit="addLoan(event)">
 <div class="form-grid">
 <div class="form-group"><label>Worker *</label><select id="lWorker" required><option value="">Select Worker</option></select></div>
-<div class="form-group"><label>Loan Type *</label><select id="lType" required><option value="">Select Type</option><option>Personal Loan</option><option>Equipment Loan</option><option>Emergency Loan</option><option>Vehicle Loan</option><option>Other</option></select></div>
+<div class="form-group"><label>Loan Type *</label>
+<select id="lType" required><option value="">Select Type</option><option>Personal Loan</option><option>Equipment Loan</option><option>Emergency Loan</option><option>Vehicle Loan</option><option>Other</option></select>
+</div>
 <div class="form-group"><label>Total Loan Amount (Rs) *</label><input type="number" id="lAmount" step="0.01" required></div>
 <div class="form-group"><label>Monthly Installment (Rs) *</label><input type="number" id="lInstallment" step="0.01" required></div>
 <div class="form-group"><label>Loan Issue Date *</label><input type="date" id="lIssueDate" required></div>
@@ -1528,7 +1263,9 @@ Thank you!
 <form id="advanceForm" onsubmit="addAdvance(event)">
 <div class="form-grid">
 <div class="form-group"><label>Worker *</label><select id="aWorker" required><option value="">Select Worker</option></select></div>
-<div class="form-group"><label>Advance Type *</label><select id="aType" required><option value="">Select Type</option><option>Salary Advance</option><option>Festival Advance</option><option>Emergency Cash</option><option>Transport Advance</option><option>Other</option></select></div>
+<div class="form-group"><label>Advance Type *</label>
+<select id="aType" required><option value="">Select Type</option><option>Salary Advance</option><option>Festival Advance</option><option>Emergency Cash</option><option>Transport Advance</option><option>Other</option></select>
+</div>
 <div class="form-group"><label>Advance Amount (Rs) *</label><input type="number" id="aAmount" step="0.01" required></div>
 <div class="form-group"><label>Monthly Installment (Rs) *</label><input type="number" id="aInstallment" step="0.01" required></div>
 <div class="form-group"><label>Issue Date *</label><input type="date" id="aIssueDate" required></div>
@@ -1548,7 +1285,9 @@ Thank you!
 <div class="modal-content" style="max-width:600px;">
 <div class="modal-header"><h2 id="historyEntryModalTitle"><i class="fas fa-edit"></i> Edit History Entry</h2><button class="close-btn" onclick="closeModal('editHistoryEntryModal')">&times;</button></div>
 <div class="modal-body">
-<input type="hidden" id="heEntityType"><input type="hidden" id="heEntityId"><input type="hidden" id="heEntryId">
+<input type="hidden" id="heEntityType">
+<input type="hidden" id="heEntityId">
+<input type="hidden" id="heEntryId">
 <div class="form-grid">
 <div class="form-group"><label>Amount (Rs) *</label><input type="number" id="heAmount" step="0.01" required></div>
 <div class="form-group"><label>Installment (Rs) *</label><input type="number" id="heInstallment" step="0.01" required></div>
@@ -1556,7 +1295,7 @@ Thank you!
 <div class="form-group"><label>Reason</label><input type="text" id="heReason"></div>
 </div>
 <div style="margin-top:15px;padding:12px;background:#fef3c7;border-radius:8px;border-left:4px solid var(--warning);font-size:12px;color:#78350f;">
-<strong>⚠️ Note:</strong> Editing this entry will recalculate totals. Paid slips will also be adjusted automatically.
+<strong>⚠️ Note:</strong> Editing this entry will recalculate the total amount, installment, and remaining balance. Any paid slips that deducted from this advance/loan will also be adjusted automatically.
 </div>
 </div>
 <div class="modal-footer">
@@ -1574,7 +1313,9 @@ Thank you!
 <div class="form-grid">
 <div class="form-group"><label>Component Name *</label><input type="text" id="compName" placeholder="e.g., Transport Allowance"></div>
 <div class="form-group"><label>Type *</label><select id="compType"><option value="earning">Earning</option><option value="deduction">Deduction</option></select></div>
-<div class="form-group"><label>Calculation Method *</label><select id="compCalcType"><option value="fixed">Fixed Amount</option><option value="percentage">% of Basic Salary</option><option value="perHour">Per Hour Rate</option><option value="manual">Manual Entry</option></select></div>
+<div class="form-group"><label>Calculation Method *</label>
+<select id="compCalcType"><option value="fixed">Fixed Amount</option><option value="percentage">% of Basic Salary</option><option value="perHour">Per Hour Rate</option><option value="manual">Manual Entry</option></select>
+</div>
 <div class="form-group"><label>Default Value</label><input type="number" id="compValue" step="0.01"></div>
 <div class="form-group full"><label>Description</label><textarea id="compDesc"></textarea></div>
 <div class="form-group full">
@@ -1598,7 +1339,9 @@ Thank you!
 <div class="modal-content">
 <div class="modal-header"><h2 id="transactionModalTitle"><i class="fas fa-plus-circle"></i> Add Transaction</h2><button class="close-btn" onclick="closeModal('addTransactionModal')">&times;</button></div>
 <div class="modal-body">
-<input type="hidden" id="trEditId"><input type="hidden" id="trWorkerId"><input type="hidden" id="trType">
+<input type="hidden" id="trEditId">
+<input type="hidden" id="trWorkerId">
+<input type="hidden" id="trType">
 <div class="form-grid">
 <div class="form-group"><label>Transaction Type *</label><select id="trTransactionType" required><option value="">Select Type</option></select></div>
 <div class="form-group"><label>Amount (Rs) *</label><input type="number" id="trAmount" step="0.01" required></div>
@@ -1629,7 +1372,7 @@ Thank you!
 
 <!-- NEW CHAT MODAL -->
 <div class="modal" id="newChatModal">
-<div class="modal-content" style="max-width:600px;">
+<div class="modal-content" style="max-width:700px;">
 <div class="modal-header"><h2><i class="fas fa-plus"></i> New Chat</h2><button class="close-btn" onclick="closeModal('newChatModal')">&times;</button></div>
 <div class="modal-body">
 <div class="new-chat-options">
@@ -1642,6 +1385,11 @@ Thank you!
 <i class="fas fa-users"></i>
 <h4>Group Chat</h4>
 <p>Chat with multiple workers</p>
+</div>
+<div class="new-chat-option" onclick="selectNewChatType('announcement',this)">
+<i class="fas fa-bullhorn"></i>
+<h4>Announcement</h4>
+<p>Broadcast to all workers</p>
 </div>
 </div>
 <div id="newChatDirectView">
@@ -1657,6 +1405,16 @@ Thank you!
 <label style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:10px;display:block;">Select Members:</label>
 <input type="text" id="newChatSearchGroup" placeholder="Search workers..." oninput="filterNewChatGroupWorkers()" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:10px;">
 <div class="worker-select-list" id="newChatGroupWorkerList"></div>
+</div>
+<div id="newChatAnnouncementView" style="display:none;">
+<div class="form-group" style="margin-bottom:15px;">
+<label>Announcement Title *</label>
+<input type="text" id="newChatAnnouncementTitle" placeholder="e.g., Important Notice">
+</div>
+<div class="form-group">
+<label>Announcement Message *</label>
+<textarea id="newChatAnnouncementMessage" placeholder="Type your announcement..." style="min-height:100px;"></textarea>
+</div>
 </div>
 </div>
 <div class="modal-footer">
@@ -1715,19 +1473,8 @@ try {
     db = firebase.firestore();
     auth = firebase.auth();
     firebaseReady = true;
-} catch (initError) { alert('Firebase initialization failed. Please refresh.'); }
-
-function ensureAuthReady() {
-    return new Promise((resolve, reject) => {
-        if (!firebaseReady) { reject(new Error('Firebase not initialized')); return; }
-        try { if (auth && typeof auth.signInWithPopup === 'function') { resolve(auth); return; } } catch (e) {}
-        let attempts = 0;
-        const checkInterval = setInterval(() => {
-            attempts++;
-            try { if (auth && typeof auth.signInWithPopup === 'function') { clearInterval(checkInterval); resolve(auth); return; } } catch (e) {}
-            if (attempts >= 50) { clearInterval(checkInterval); reject(new Error('Auth timeout')); }
-        }, 100);
-    });
+} catch (initError) {
+    console.error('Firebase init error:', initError);
 }
 
 const ADMIN_REF_CODE = '7860';
@@ -1794,7 +1541,7 @@ async function logTimeline(action, type, details, workerId = null, extraData = {
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             dateStr: new Date().toISOString(), ...extraData };
         await db.collection('timeline').add(sanitizeForFirestore(entry));
-    } catch(e) {}
+    } catch(e) { console.error('Timeline log error:', e); }
 }
 
 async function loadUserRoles() {
@@ -1802,7 +1549,7 @@ async function loadUserRoles() {
     try {
         const snapshot = await db.collection(usersCollection).get();
         snapshot.forEach(doc => { const d = doc.data(); ROLE_CONFIG[d.email] = d.role; });
-    } catch(e) {}
+    } catch(e) { console.error('Error loading user roles:', e); }
 }
 
 if (firebaseReady) {
@@ -1837,10 +1584,8 @@ async function signInWithGoogle() {
         btn.disabled = true;
         btnText.textContent = 'Initializing...';
         showLoading('Initializing Firebase Auth...');
-        await ensureAuthReady();
-        btnText.textContent = 'Connecting to Google...';
-        if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
         await loadUserRoles();
+        btnText.textContent = 'Connecting to Google...';
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
         const result = await auth.signInWithPopup(provider);
@@ -1863,12 +1608,11 @@ async function signInWithGoogle() {
         toast(msg, 'error');
     } finally { btn.disabled = false; btnText.textContent = originalText; hideLoading(); }
 }
+
 async function signInWithEmail(e) {
     e.preventDefault();
     try {
         showLoading('Signing in...');
-        await ensureAuthReady();
-        if (typeof ROLE_CONFIG === 'undefined') ROLE_CONFIG = {};
         await loadUserRoles();
         const email = document.getElementById('loginEmail').value;
         if (!isAuthorizedUser(email)) { toast('Access denied.', 'error'); hideLoading(); return; }
@@ -1878,11 +1622,13 @@ async function signInWithEmail(e) {
         else toast('Sign-in failed: ' + error.message, 'error');
     } finally { hideLoading(); }
 }
+
 async function resetPassword() {
     const email = prompt('Enter your email:'); if (!email) return;
-    try { showLoading('Sending email...'); await ensureAuthReady(); await auth.sendPasswordResetEmail(email); toast('Reset email sent!'); }
+    try { showLoading('Sending email...'); await auth.sendPasswordResetEmail(email); toast('Reset email sent!'); }
     catch(error) { toast('Failed: ' + error.message, 'error'); } finally { hideLoading(); }
 }
+
 async function logout() {
     if (!confirm('Logout?')) return;
     try { await logTimeline('User logged out', 'auth', `${currentUserName} logged out`); await auth.signOut(); toast('Logged out'); }
@@ -1980,7 +1726,7 @@ async function loadData() {
         hideLoading();
         showSection('dashboard');
         initializeChat();
-    } catch (error) { hideLoading(); toast('Error: ' + error.message, 'error'); }
+    } catch (error) { console.error('Error:', error); hideLoading(); toast('Error: ' + error.message, 'error'); }
 }
 
 async function saveToFirebase(collection, docId, dataObj) {
@@ -2539,8 +2285,11 @@ function openAddTransaction(workerId, type) {
     document.getElementById('trWorkerId').value = workerId;
     document.getElementById('trType').value = type;
     const typeSelect = document.getElementById('trTransactionType');
-    if (type === 'addition') typeSelect.innerHTML = '<option value="">Select Type</option><option>Bonus</option><option>Overtime</option><option>Commission</option><option>Allowance</option><option>Arrears</option><option>Other</option>';
-    else typeSelect.innerHTML = '<option value="">Select Type</option><option>Late Penalty</option><option>Absence</option><option>Damage</option><option>Tax</option><option>Other</option>';
+    if (type === 'addition') {
+        typeSelect.innerHTML = '<option value="">Select Type</option><option>Bonus</option><option>Overtime</option><option>Commission</option><option>Allowance</option><option>Arrears</option><option>Other</option>';
+    } else {
+        typeSelect.innerHTML = '<option value="">Select Type</option><option>Late Penalty</option><option>Absence</option><option>Damage</option><option>Tax</option><option>Other</option>';
+    }
     document.getElementById('trAmount').value = '';
     document.getElementById('trMonth').value = currentMonth();
     document.getElementById('trDate').value = today();
@@ -2556,8 +2305,11 @@ function editTransaction(id, type) {
     document.getElementById('trWorkerId').value = tr.workerId;
     document.getElementById('trType').value = type;
     const typeSelect = document.getElementById('trTransactionType');
-    if (type === 'addition') typeSelect.innerHTML = '<option value="">Select Type</option><option>Bonus</option><option>Overtime</option><option>Commission</option><option>Allowance</option><option>Arrears</option><option>Other</option>';
-    else typeSelect.innerHTML = '<option value="">Select Type</option><option>Late Penalty</option><option>Absence</option><option>Damage</option><option>Tax</option><option>Other</option>';
+    if (type === 'addition') {
+        typeSelect.innerHTML = '<option value="">Select Type</option><option>Bonus</option><option>Overtime</option><option>Commission</option><option>Allowance</option><option>Arrears</option><option>Other</option>';
+    } else {
+        typeSelect.innerHTML = '<option value="">Select Type</option><option>Late Penalty</option><option>Absence</option><option>Damage</option><option>Tax</option><option>Other</option>';
+    }
     typeSelect.value = tr.type;
     document.getElementById('trAmount').value = tr.amount;
     document.getElementById('trMonth').value = tr.month;
@@ -2585,9 +2337,7 @@ async function saveTransaction() {
         showLoading('Saving...');
         if (editId) { await updateInFirebase(collection, editId, trData); await logTimeline(`Updated ${type}`, type, `${w?.name||'Worker'}: ${fmt(trData.amount)} (${trData.type})`, workerId); }
         else { trData.createdAt = today(); trData.createdBy = auth.currentUser.displayName || auth.currentUser.email; await saveToFirebase(collection, null, trData); await logTimeline(`Added ${type}`, type, `${w?.name||'Worker'}: ${fmt(trData.amount)} (${trData.type})`, workerId); }
-        await loadData();
-        toast(editId ? 'Updated!' : 'Added!');
-        closeModal('addTransactionModal');
+        await loadData(); toast(editId ? 'Updated!' : 'Added!'); closeModal('addTransactionModal');
         if (currentWorkerDetailId === workerId) openWorkerDetail(workerId);
     } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
@@ -2602,13 +2352,12 @@ async function deleteTransaction(id, type) {
         await deleteFromFirebase(collection, id);
         const w = data.workers.find(x => x.id === tr?.workerId);
         await logTimeline(`Deleted ${type}`, type, `${w?.name||'Worker'}: ${tr?.type||''} - ${fmt(tr?.amount||0)}`, tr?.workerId);
-        await loadData();
-        toast('Deleted!');
+        await loadData(); toast('Deleted!');
         if (tr) openWorkerDetail(tr.workerId);
     } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ MY LOANS & ADVANCES ============
+// My Loans & Advances
 function applyMyLoansFilters() { renderMyLoansAdvances(); }
 function resetMyLoansFilters() {
     document.getElementById('mylaFilterYear').value = 'all';
@@ -2642,21 +2391,11 @@ ${data.workers.map(w => `<option value="${w.id}" ${w.id === currentWorkerFilter 
     const fm = document.getElementById('mylaFilterMonth')?.value || 'all';
     const fs = document.getElementById('mylaFilterStatus')?.value || 'all';
     const sb = document.getElementById('mylaSortBy')?.value || 'dateDesc';
-    // 🔥 My Loans/Advances: Filter by ISSUE month (startMonth)
     let loans = data.loans.filter(l => visibleWorkers.some(w => w.id === l.workerId));
     let advances = data.advances.filter(a => visibleWorkers.some(w => w.id === a.workerId));
-    if (fy !== 'all') {
-        loans = loans.filter(l => l.startMonth && l.startMonth.startsWith(fy));
-        advances = advances.filter(a => a.startMonth && a.startMonth.startsWith(fy));
-    }
-    if (fm !== 'all') {
-        loans = loans.filter(l => l.startMonth && l.startMonth.endsWith('-' + fm));
-        advances = advances.filter(a => a.startMonth && a.startMonth.endsWith('-' + fm));
-    }
-    if (fs !== 'all') {
-        loans = loans.filter(l => l.status === fs);
-        advances = advances.filter(a => a.status === fs);
-    }
+    if (fy !== 'all') { loans = loans.filter(l => l.startMonth && l.startMonth.startsWith(fy)); advances = advances.filter(a => a.startMonth && a.startMonth.startsWith(fy)); }
+    if (fm !== 'all') { loans = loans.filter(l => l.startMonth && l.startMonth.endsWith('-' + fm)); advances = advances.filter(a => a.startMonth && a.startMonth.endsWith('-' + fm)); }
+    if (fs !== 'all') { loans = loans.filter(l => l.status === fs); advances = advances.filter(a => a.status === fs); }
     if (sb === 'dateDesc') { loans.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||'')); advances.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||'')); }
     else if (sb === 'dateAsc') { loans.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||'')); advances.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||'')); }
     else if (sb === 'amountDesc') { loans.sort((a,b) => (b.amount||0) - (a.amount||0)); advances.sort((a,b) => (b.amount||0) - (a.amount||0)); }
@@ -2834,9 +2573,7 @@ async function saveHistoryEntryEdit() {
         await updateInFirebase(collection, entityId, { amount: newTotalAmount, installment: newTotalInstallment, paid: newPaid, remaining: newRemaining, status: newStatus, history: entity.history, modifiedAt: today(), modifiedBy: auth.currentUser.displayName || auth.currentUser.email });
         const w = data.workers.find(x => x.id === entity.workerId);
         await logTimeline(`Edited ${kind} history entry`, kind, `${w?.name||'Worker'}: ${fmt(amountDiff)} amount change, ${fmt(installmentDiff)} installment change`, entity.workerId);
-        await loadData();
-        toast('History entry updated! All calculations recalculated.');
-        closeModal('editHistoryEntryModal');
+        await loadData(); toast('History entry updated! All calculations recalculated.'); closeModal('editHistoryEntryModal');
         if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
         if (document.getElementById('loans')?.classList.contains('active')) renderLoans();
         if (document.getElementById('advances')?.classList.contains('active')) renderAdvances();
@@ -2901,8 +2638,7 @@ async function deleteHistoryEntry(kind, entityId, entryId) {
                 await updateInFirebase(collection, entityId, { amount: newTotalAmount, installment: newTotalInstallment, paid: newPaid, remaining: newRemaining, status: newStatus, history: entity.history, modifiedAt: today(), modifiedBy: auth.currentUser.displayName || auth.currentUser.email });
             }
             await logTimeline(`Deleted ${kind} history entry`, kind, `${w?.name||'Worker'}: ${entry.type} - ${fmt(amountToRemove)}`, entity.workerId);
-            await loadData();
-            toast('History entry deleted! All calculations recalculated.');
+            await loadData(); toast('History entry deleted! All calculations recalculated.');
             if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
             if (document.getElementById('loans')?.classList.contains('active')) renderLoans();
             if (document.getElementById('advances')?.classList.contains('active')) renderAdvances();
@@ -2942,7 +2678,7 @@ async function reverseHistoryEntryFromPaidSlips(kind, entity, entry) {
     }
 }
 
-// ============ LOANS (FIXED FILTER - Shows loans ACTIVE during filter month) ============
+// Loans
 function openAddLoanModal() {
     if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
     populateWorkerSelect('lWorker'); document.getElementById('loanForm').reset();
@@ -2974,58 +2710,16 @@ async function addLoan(e) {
         await loadData(); toast('Loan issued!'); closeModal('addLoanModal');
     } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
-
-// 🔥 FIXED: A loan is shown if it's ACTIVE during the filter month
-// Logic: startMonth <= filterMonth AND (status === 'Active' OR paidMonths includes filterMonth)
-function isLoanActiveInMonth(loan, year, month) {
-    if (!loan.startMonth) return false;
-    const filterMonth = `${year}-${month}`;
-    // Loan must have started on or before the filter month
-    if (loan.startMonth > filterMonth) return false;
-    // Loan is active if: still Active OR has a paid entry for this month
-    if (loan.status === 'Active') return true;
-    if ((loan.paidMonths || []).includes(filterMonth)) return true;
-    return false;
-}
-
 function renderLoans() {
     const tbody = document.getElementById('loansTable');
     let loans = data.loans;
-    if (currentUserRole === USER_ROLES.VIEWER) {
-        const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-        loans = loans.filter(l => wIds.includes(l.workerId));
-    }
+    if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); loans = loans.filter(l => wIds.includes(l.workerId)); }
     const fy = document.getElementById('loanFilterYear')?.value || 'all';
     const fm = document.getElementById('loanFilterMonth')?.value || 'all';
     const fs = document.getElementById('loanFilterStatus')?.value || 'all';
     const sb = document.getElementById('loanSortBy')?.value || 'dateDesc';
-
-    // 🔥 FIXED FILTER: If year+month selected, show loans ACTIVE during that month
-    if (fy !== 'all' && fm !== 'all') {
-        loans = loans.filter(l => isLoanActiveInMonth(l, fy, fm));
-    } else if (fy !== 'all') {
-        // Year only: show loans that started in that year OR are active during any month of that year
-        loans = loans.filter(l => {
-            if (l.startMonth && l.startMonth.startsWith(fy)) return true;
-            for (let m = 1; m <= 12; m++) {
-                const monthStr = `${fy}-${String(m).padStart(2, '0')}`;
-                if (isLoanActiveInMonth(l, fy, String(m).padStart(2, '0'))) return true;
-            }
-            return false;
-        });
-    } else if (fm !== 'all') {
-        // Month only (any year): show loans active during that month in any year
-        loans = loans.filter(l => {
-            if (!l.startMonth) return false;
-            const startMonthNum = l.startMonth.split('-')[1];
-            if (startMonthNum !== fm) return false;
-            // Check if loan is active in any year for this month
-            if (l.status === 'Active') return true;
-            const paidMonths = l.paidMonths || [];
-            return paidMonths.some(pm => pm.endsWith('-' + fm));
-        });
-    }
-
+    if (fy !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.startsWith(fy));
+    if (fm !== 'all') loans = loans.filter(l => l.startMonth && l.startMonth.endsWith('-' + fm));
     if (fs !== 'all') loans = loans.filter(l => l.status === fs);
     if (sb === 'dateDesc') loans.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
     else if (sb === 'dateAsc') loans.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
@@ -3068,11 +2762,7 @@ async function deleteLoan(id) {
                         slip.totalDeductions = Math.max(0, (slip.totalDeductions||0) - dedAmt);
                         slip.net = (slip.net||0) + dedAmt;
                         slip.deductions = (slip.deductions||[]).filter(d => d.id !== 'loan_' + id);
-                        await updateInFirebase(collections.salarySlips, slip.id, {
-                            loansDeducted: slip.loansDeducted, totalDeductions: slip.totalDeductions,
-                            net: slip.net, deductions: slip.deductions,
-                            modifiedAt: today(), modifiedBy: auth.currentUser.displayName || auth.currentUser.email
-                        });
+                        await updateInFirebase(collections.salarySlips, slip.id, { loansDeducted: slip.loansDeducted, totalDeductions: slip.totalDeductions, net: slip.net, deductions: slip.deductions, modifiedAt: today(), modifiedBy: auth.currentUser.displayName || auth.currentUser.email });
                     }
                 }
             }
@@ -3086,7 +2776,7 @@ async function deleteLoan(id) {
     } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ ADVANCES (FIXED FILTER) ============
+// Advances
 function openAddAdvanceModal() {
     if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
     populateWorkerSelect('aWorker'); document.getElementById('advanceForm').reset();
@@ -3117,12 +2807,7 @@ async function addAdvance(e) {
                 existingHistory.push({ id: genId(), date: existingAdvance.createdAt || today(), type: existingAdvance.type.split(' + ')[0], amountAdded: existingAdvance.amount - addAmount, installmentAdded: existingAdvance.installment - addInstallment, reason: existingAdvance.reason || 'Initial advance (before history tracking)', addedBy: existingAdvance.createdByEmail || 'system', addedByName: existingAdvance.createdBy || 'System', migrated: true });
             }
             existingHistory.push(newHistoryEntry);
-            await updateInFirebase(collections.advances, existingAdvance.id, {
-                amount: newTotal, installment: newInstallment, remaining: newRemaining,
-                type: updatedType, history: existingHistory,
-                reason: (existingAdvance.reason || '') + ' | ' + (reason || advType + ' added ' + today()),
-                modifiedAt: today(), modifiedBy: cu.displayName || cu.email
-            });
+            await updateInFirebase(collections.advances, existingAdvance.id, { amount: newTotal, installment: newInstallment, remaining: newRemaining, type: updatedType, history: existingHistory, reason: (existingAdvance.reason || '') + ' | ' + (reason || advType + ' added ' + today()), modifiedAt: today(), modifiedBy: cu.displayName || cu.email });
             await logTimeline('Added to advance', 'advance', `${w?.name||'Worker'}: +${fmt(addAmount)} (Total: ${fmt(newTotal)})`, wId);
             toast(`Advance merged! New total: ${fmt(newTotal)}. History entry added.`);
         } else {
@@ -3140,51 +2825,16 @@ async function addAdvance(e) {
         await loadData(); closeModal('addAdvanceModal');
     } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
-
-// 🔥 FIXED: An advance is shown if it's ACTIVE during the filter month
-function isAdvanceActiveInMonth(advance, year, month) {
-    if (!advance.startMonth) return false;
-    const filterMonth = `${year}-${month}`;
-    if (advance.startMonth > filterMonth) return false;
-    if (advance.status === 'Active') return true;
-    if ((advance.paidMonths || []).includes(filterMonth)) return true;
-    return false;
-}
-
 function renderAdvances() {
     const tbody = document.getElementById('advancesTable');
     let advances = data.advances;
-    if (currentUserRole === USER_ROLES.VIEWER) {
-        const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-        advances = advances.filter(a => wIds.includes(a.workerId));
-    }
+    if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); advances = advances.filter(a => wIds.includes(a.workerId)); }
     const fy = document.getElementById('advFilterYear')?.value || 'all';
     const fm = document.getElementById('advFilterMonth')?.value || 'all';
     const fs = document.getElementById('advFilterStatus')?.value || 'all';
     const sb = document.getElementById('advSortBy')?.value || 'dateDesc';
-
-    // 🔥 FIXED FILTER: If year+month selected, show advances ACTIVE during that month
-    if (fy !== 'all' && fm !== 'all') {
-        advances = advances.filter(a => isAdvanceActiveInMonth(a, fy, fm));
-    } else if (fy !== 'all') {
-        advances = advances.filter(a => {
-            if (a.startMonth && a.startMonth.startsWith(fy)) return true;
-            for (let m = 1; m <= 12; m++) {
-                if (isAdvanceActiveInMonth(a, fy, String(m).padStart(2, '0'))) return true;
-            }
-            return false;
-        });
-    } else if (fm !== 'all') {
-        advances = advances.filter(a => {
-            if (!a.startMonth) return false;
-            const startMonthNum = a.startMonth.split('-')[1];
-            if (startMonthNum !== fm) return false;
-            if (a.status === 'Active') return true;
-            const paidMonths = a.paidMonths || [];
-            return paidMonths.some(pm => pm.endsWith('-' + fm));
-        });
-    }
-
+    if (fy !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.startsWith(fy));
+    if (fm !== 'all') advances = advances.filter(a => a.startMonth && a.startMonth.endsWith('-' + fm));
     if (fs !== 'all') advances = advances.filter(a => a.status === fs);
     if (sb === 'dateDesc') advances.sort((a,b) => (b.startMonth||'').localeCompare(a.startMonth||''));
     else if (sb === 'dateAsc') advances.sort((a,b) => (a.startMonth||'').localeCompare(b.startMonth||''));
@@ -3227,11 +2877,7 @@ async function deleteAdvance(id) {
                         slip.totalDeductions = Math.max(0, (slip.totalDeductions||0) - dedAmt);
                         slip.net = (slip.net||0) + dedAmt;
                         slip.deductions = (slip.deductions||[]).filter(d => d.id !== 'advance_' + id);
-                        await updateInFirebase(collections.salarySlips, slip.id, {
-                            advancesDeducted: slip.advancesDeducted, totalDeductions: slip.totalDeductions,
-                            net: slip.net, deductions: slip.deductions,
-                            modifiedAt: today(), modifiedBy: auth.currentUser.displayName || auth.currentUser.email
-                        });
+                        await updateInFirebase(collections.salarySlips, slip.id, { advancesDeducted: slip.advancesDeducted, totalDeductions: slip.totalDeductions, net: slip.net, deductions: slip.deductions, modifiedAt: today(), modifiedBy: auth.currentUser.displayName || auth.currentUser.email });
                     }
                 }
             }
@@ -3326,11 +2972,10 @@ async function deleteComponent(id) {
     catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
 
-// ============ PAY SLIP ============
+// Pay Slip
 let currentSlipData = null;
 let currentSlipViewSlip = null;
 let editingSlipId = null;
-
 function loadSlipDefaults() {
     const workerId = document.getElementById('slipWorker').value;
     const month = document.getElementById('slipMonth').value;
@@ -3478,10 +3123,9 @@ function updateSlipSummary() {
         document.getElementById('sumNet').textContent = fmt(net);
         currentSlipData = { workerId, month: document.getElementById('slipMonth').value || '', notes: document.getElementById('slipNotes').value || '',
             earnings, deductions, loansDeducted, advancesDeducted, basic, totalAdditions: totalE - basic, totalDeductions: totalD, net };
-    } catch(err) {}
+    } catch(err) { console.error('updateSlipSummary error:', err); }
 }
 function previewSlip() { if (!currentSlipData) { toast('Select worker and month', 'error'); return; } viewSlipPreview(currentSlipData); openModal('viewSlipModal'); }
-
 async function finalizeSlip(status) {
     if (!currentSlipData) { toast('Select worker and month', 'error'); return; }
     const workerId = currentSlipData.workerId;
@@ -3552,13 +3196,11 @@ async function finalizeSlip(status) {
         toast(status === 'Draft' ? 'Saved as draft!' : 'Finalized!');
         if (status === 'Paid') {
             await loadData();
-            editingSlipId = null;
             const savedSlip = data.salarySlips.find(s => s.workerId === workerId && s.month === month && s.status === 'Paid');
             if (savedSlip) downloadSlipPDF(savedSlip);
         }
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
+    } catch(error) { console.error('Finalize error:', error); toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
 }
-
 async function saveSlipAdditionsDeductionsToWorkerRecords(slipData, worker, currentUser) {
     if (!worker) return;
     const slipId = slipData.slipNo;
@@ -3578,7 +3220,6 @@ async function saveSlipAdditionsDeductionsToWorkerRecords(slipData, worker, curr
         else { deductionData.createdAt = today(); deductionData.createdBy = currentUser.displayName || currentUser.email; await saveToFirebase(collections.deductions, null, deductionData); }
     }
 }
-
 async function reverseSlipDeductions(slip) {
     if (!slip || slip.status !== 'Paid') return;
     for (const ld of (slip.loansDeducted || [])) {
@@ -3607,10 +3248,7 @@ async function reverseSlipDeductions(slip) {
 function renderHistory() {
     const tbody = document.getElementById('historyTable');
     let slips = data.salarySlips;
-    if (currentUserRole === USER_ROLES.VIEWER) {
-        const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id);
-        slips = slips.filter(s => wIds.includes(s.workerId));
-    }
+    if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); slips = slips.filter(s => wIds.includes(s.workerId)); }
     const sm = document.getElementById('historySortMonth')?.value || 'all';
     const sy = document.getElementById('historySortYear')?.value || 'all';
     const ss = document.getElementById('historySortStatus')?.value || 'all';
@@ -3717,7 +3355,7 @@ async function deleteSlip(id) {
     });
 }
 
-// ============ SLIP PREVIEW WITH LOGO, STAMP, QR ============
+// Slip Preview & PDF
 function viewSlipPreview(slip) {
     const w = data.workers.find(x => x.id === slip.workerId);
     const d = data.payslipDesign || {};
@@ -3745,6 +3383,7 @@ ${logoHtml ? `<div>${logoHtml}</div>` : ''}
 ${logoHtml ? `<div style="margin-bottom:10px;">${logoHtml}</div>` : ''}
 <h1 style="font-size:24px;color:${d.primaryColor||'#1e40af'};margin-bottom:5px;font-family:serif;">${c.name||'LANKA SHOE'}</h1>
 <p style="font-size:12px;color:#666;">${c.address || ''}</p>
+<p style="font-size:11px;color:#888;">${c.phone||''} | ${c.email||''}</p>
 </div>`;
     } else if (template === 'minimal') {
         headerHtml = `<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:15px;margin-bottom:20px;border-bottom:1px solid #eee;">
@@ -3752,6 +3391,9 @@ ${logoHtml ? `<div style="margin-bottom:10px;">${logoHtml}</div>` : ''}
 ${logoHtml ? `<div style="margin-bottom:8px;">${logoHtml}</div>` : ''}
 <h1 style="font-size:20px;color:${d.primaryColor||'#1e40af'};margin-bottom:3px;">${c.name||'LANKA SHOE'}</h1>
 <p style="font-size:11px;color:#888;">${c.address || ''}</p>
+</div>
+<div style="text-align:right;font-size:11px;color:#888;">
+<p>${c.phone||''}</p><p>${c.email||''}</p>
 </div></div>`;
     } else if (template === 'corporate') {
         headerHtml = `<div style="background:${d.primaryColor||'#1e40af'};color:white;padding:20px;margin:-30px -30px 20px -30px;display:flex;align-items:center;gap:20px;${d.logoPosition==='center'?'justify-content:center;flex-direction:column;':d.logoPosition==='right'?'flex-direction:row-reverse;':''}">
@@ -3759,14 +3401,14 @@ ${logoHtml ? `<div style="background:white;padding:8px;border-radius:6px;">${log
 <div style="flex:1;${d.logoPosition==='center'?'text-align:center;':''}">
 <h1 style="font-size:24px;margin-bottom:3px;letter-spacing:1px;">${c.name||'LANKA SHOE'}</h1>
 <p style="font-size:11px;opacity:0.9;">${c.address || ''}</p>
+<p style="font-size:10px;opacity:0.8;">${c.phone||''} | ${c.email||''} | ${c.web||''}</p>
 </div></div>`;
     } else if (template === 'elegant') {
         headerHtml = `<div style="text-align:center;padding:25px 20px;margin:-30px -30px 20px -30px;background:linear-gradient(135deg,#f8fafc,#e2e8f0);border-bottom:3px solid ${d.primaryColor||'#1e40af'};">
 ${logoHtml ? `<div style="margin-bottom:10px;">${logoHtml}</div>` : ''}
 <h1 style="font-size:28px;color:${d.primaryColor||'#1e40af'};margin-bottom:5px;font-family:Georgia,serif;letter-spacing:2px;">${c.name||'LANKA SHOE'}</h1>
 <div style="width:60px;height:2px;background:${d.primaryColor||'#1e40af'};margin:8px auto;"></div>
-<p style="font-size:12px;color:#666;font-style:italic;">${c.address || ''}</p>
-</div>`;
+<p style="font-size:12px;color:#666;font-style:italic;">${c.address || ''}</p></div>`;
     }
     document.getElementById('viewSlipBody').innerHTML = `
 <div style="border:2px solid ${d.primaryColor||'#1e40af'};border-radius:10px;padding:30px;background:white;position:relative;overflow:hidden;">
@@ -3788,14 +3430,12 @@ ${d.showBank!==false ? `<p><strong>Bank:</strong> ${w?.bank||'-'}</p><p><strong>
 ${d.showSignatures!==false ? `<div style="display:flex;justify-content:space-between;margin-top:40px;padding-top:20px;align-items:flex-end;">
 <div style="text-align:center;">
 ${stampHtml ? `<div style="margin-bottom:10px;">${stampHtml}</div>` : ''}
-<div style="border-top:1px solid #333;width:150px;margin-top:10px;padding-top:5px;font-size:11px;">${d.sign1Label||'Employee Signature'}</div>
-</div>
+<div style="border-top:1px solid #333;width:150px;margin-top:10px;padding-top:5px;font-size:11px;">${d.sign1Label||'Employee Signature'}</div></div>
 <div style="text-align:center;"><div style="border-top:1px solid #333;width:150px;margin-top:50px;padding-top:5px;font-size:11px;">${d.sign2Label||'Authorized Signature'}</div></div></div>` : ''}
 ${d.showFooter!==false ? `<p style="text-align:center;margin-top:20px;font-size:11px;color:#64748b;font-style:italic;">${d.footerText||''}</p>` : ''}
+${slip.finalizedBy ? `<p style="text-align:center;margin-top:8px;font-size:10px;color:#94a3b8;">Finalized by: ${slip.finalizedBy} on ${new Date(slip.finalizedAt).toLocaleString()}</p>` : ''}
 </div>`;
 }
-
-// 🔥 FIXED: PDF generation with proper logo handling
 function downloadSlipPDF(slip) {
     const w = data.workers.find(x => x.id === slip.workerId); if (!w) return;
     const c = data.company || {};
@@ -3814,16 +3454,9 @@ function downloadSlipPDF(slip) {
     const fontSize = d.fontSize === 'small' ? 9 : d.fontSize === 'large' ? 12 : 10;
     const marginX = 14;
     const contentWidth = pageWidth - (marginX * 2);
-
-    if (d.border !== 'none') {
-        doc.setDrawColor(r, g, b); doc.setLineWidth(d.border === 'thick' ? 2 : 0.5);
-        doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
-        if (d.border === 'double') doc.rect(7, 7, pageWidth - 14, pageHeight - 14);
-    }
-
+    if (d.border !== 'none') { doc.setDrawColor(r, g, b); doc.setLineWidth(d.border === 'thick' ? 2 : 0.5); doc.rect(5, 5, pageWidth - 10, pageHeight - 10); if (d.border === 'double') doc.rect(7, 7, pageWidth - 14, pageHeight - 14); }
     let y = 15;
-
-    // 🔥 FIXED: Add logo to PDF - convert base64 to proper format
+    // Logo handling
     let logoAdded = false;
     if (d.logo) {
         try {
@@ -3831,228 +3464,113 @@ function downloadSlipPDF(slip) {
             let logoX = marginX;
             if (d.logoPosition === 'center') logoX = (pageWidth - logoSizeMM) / 2;
             else if (d.logoPosition === 'right') logoX = pageWidth - marginX - logoSizeMM;
-            // 🔥 CRITICAL FIX: jsPDF needs proper image format
-            // Convert base64 data URL to proper format
             let imgData = d.logo;
             let imgFormat = 'PNG';
-            if (imgData.indexOf('data:image/jpeg') === 0 || imgData.indexOf('data:image/jpg') === 0) {
-                imgFormat = 'JPEG';
-            } else if (imgData.indexOf('data:image/png') === 0) {
-                imgFormat = 'PNG';
-            } else if (imgData.indexOf('data:image/') === 0) {
-                // Extract format from data URL
-                const match = imgData.match(/data:image\/([a-zA-Z+]+);/);
-                if (match) imgFormat = match[1].toUpperCase();
-            }
+            if (imgData.indexOf('data:image/jpeg') === 0 || imgData.indexOf('data:image/jpg') === 0) imgFormat = 'JPEG';
+            else if (imgData.indexOf('data:image/') === 0) { const match = imgData.match(/data:image\/([a-zA-Z+]+);/); if (match) imgFormat = match[1].toUpperCase(); }
             doc.addImage(imgData, imgFormat, logoX, y, logoSizeMM, logoSizeMM, undefined, 'FAST');
             logoAdded = true;
-        } catch(e) {
-            // Silently fail if logo can't be added
-        }
+        } catch(e) {}
     }
-
-    // Template-specific header
     if (template === 'modern') {
-        doc.setFillColor(r, g, b);
-        doc.rect(0, 0, pageWidth, 45, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
+        doc.setFillColor(r, g, b); doc.rect(0, 0, pageWidth, 45, 'F');
+        doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.setFont('helvetica', 'bold');
         const headerTextX = logoAdded && d.logoPosition === 'left' ? marginX + (d.logoSize || 80) * 0.264583 + 5 : pageWidth/2;
         doc.text(c.name || 'LANKA SHOE', headerTextX, y + 10, { align: logoAdded && d.logoPosition === 'left' ? 'left' : 'center' });
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9); doc.setFont('helvetica', 'normal');
         doc.text(c.address || '', headerTextX, y + 18, { align: logoAdded && d.logoPosition === 'left' ? 'left' : 'center' });
         doc.text(`Phone: ${c.phone||'-'} | Email: ${c.email||'-'}`, headerTextX, y + 24, { align: logoAdded && d.logoPosition === 'left' ? 'left' : 'center' });
         y = 55;
     } else if (template === 'classic') {
         if (logoAdded) y += (d.logoSize || 80) * 0.264583 + 5;
-        doc.setTextColor(r, g, b);
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
-        doc.text(c.name || 'LANKA SHOE', pageWidth/2, y, { align: 'center' });
-        y += 7;
-        doc.setDrawColor(r, g, b);
-        doc.setLineWidth(0.5);
-        doc.line(marginX, y, pageWidth - marginX, y);
-        doc.line(marginX, y + 2, pageWidth - marginX, y + 2);
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(100, 100, 100);
-        doc.text(c.address || '', pageWidth/2, y + 8, { align: 'center' });
-        y += 18;
+        doc.setTextColor(r, g, b); doc.setFontSize(22); doc.setFont('helvetica', 'bold');
+        doc.text(c.name || 'LANKA SHOE', pageWidth/2, y, { align: 'center' }); y += 7;
+        doc.setDrawColor(r, g, b); doc.setLineWidth(0.5);
+        doc.line(marginX, y, pageWidth - marginX, y); doc.line(marginX, y + 2, pageWidth - marginX, y + 2);
+        doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
+        doc.text(c.address || '', pageWidth/2, y + 8, { align: 'center' }); y += 18;
     } else if (template === 'minimal') {
         if (logoAdded) y += (d.logoSize || 80) * 0.264583 + 5;
-        doc.setTextColor(r, g, b);
-        doc.setFontSize(18);
-        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(r, g, b); doc.setFontSize(18); doc.setFont('helvetica', 'bold');
         doc.text(c.name || 'LANKA SHOE', marginX, y);
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(100, 100, 100);
+        doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
         doc.text(c.address || '', marginX, y + 6);
         doc.text(`${c.phone||''} | ${c.email||''}`, pageWidth - marginX, y, { align: 'right' });
-        doc.setDrawColor(200, 200, 200);
-        doc.line(marginX, y + 12, pageWidth - marginX, y + 12);
-        y += 20;
+        doc.setDrawColor(200, 200, 200); doc.line(marginX, y + 12, pageWidth - marginX, y + 12); y += 20;
     } else if (template === 'corporate') {
-        doc.setFillColor(r, g, b);
-        doc.rect(0, 0, pageWidth, 40, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
+        doc.setFillColor(r, g, b); doc.rect(0, 0, pageWidth, 40, 'F');
+        doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.setFont('helvetica', 'bold');
         const headerTextX = logoAdded && d.logoPosition === 'left' ? marginX + (d.logoSize || 80) * 0.264583 + 5 : pageWidth/2;
         doc.text(c.name || 'LANKA SHOE', headerTextX, y + 8, { align: logoAdded && d.logoPosition === 'left' ? 'left' : 'center' });
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9); doc.setFont('helvetica', 'normal');
         doc.text(`${c.address || ''}`, headerTextX, y + 16, { align: logoAdded && d.logoPosition === 'left' ? 'left' : 'center' });
         doc.text(`${c.phone||''} | ${c.email||''} | ${c.web||''}`, headerTextX, y + 22, { align: logoAdded && d.logoPosition === 'left' ? 'left' : 'center' });
         y = 50;
     } else if (template === 'elegant') {
         if (logoAdded) y += (d.logoSize || 80) * 0.264583 + 5;
-        doc.setFillColor(248, 250, 252);
-        doc.rect(0, 0, pageWidth, y + 30, 'F');
-        doc.setDrawColor(r, g, b);
-        doc.setLineWidth(1);
-        doc.line(marginX, y + 30, pageWidth - marginX, y + 30);
-        doc.setLineWidth(0.3);
-        doc.line(marginX, y + 31, pageWidth - marginX, y + 31);
-        doc.setTextColor(r, g, b);
-        doc.setFontSize(26);
-        doc.setFont('helvetica', 'bold');
+        doc.setFillColor(248, 250, 252); doc.rect(0, 0, pageWidth, y + 30, 'F');
+        doc.setDrawColor(r, g, b); doc.setLineWidth(1); doc.line(marginX, y + 30, pageWidth - marginX, y + 30);
+        doc.setLineWidth(0.3); doc.line(marginX, y + 31, pageWidth - marginX, y + 31);
+        doc.setTextColor(r, g, b); doc.setFontSize(26); doc.setFont('helvetica', 'bold');
         doc.text(c.name || 'LANKA SHOE', pageWidth/2, y + 10, { align: 'center' });
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'italic');
-        doc.setTextColor(100, 100, 100);
-        doc.text(c.address || '', pageWidth/2, y + 20, { align: 'center' });
-        y += 35;
+        doc.setFontSize(9); doc.setFont('helvetica', 'italic'); doc.setTextColor(100, 100, 100);
+        doc.text(c.address || '', pageWidth/2, y + 20, { align: 'center' }); y += 35;
     }
-
-    doc.setTextColor(r, g, b);
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text(d.slipTitle || 'SALARY PAY SLIP', pageWidth/2, y, { align: 'center' });
-    y += 6;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Slip #${slip.slipNo} • Month: ${slip.month} • Status: ${slip.status}`, pageWidth/2, y, { align: 'center' });
-    y += 8;
-    doc.setDrawColor(r, g, b);
-    doc.setLineWidth(0.5);
-    doc.line(marginX, y, pageWidth - marginX, y);
-    y += 8;
-
-    doc.setFontSize(fontSize);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(30, 41, 59);
-    doc.text('Employee Details', marginX, y);
-    y += 6;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(fontSize - 1);
+    doc.setTextColor(r, g, b); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+    doc.text(d.slipTitle || 'SALARY PAY SLIP', pageWidth/2, y, { align: 'center' }); y += 6;
+    doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
+    doc.text(`Slip #${slip.slipNo} • Month: ${slip.month} • Status: ${slip.status}`, pageWidth/2, y, { align: 'center' }); y += 8;
+    doc.setDrawColor(r, g, b); doc.setLineWidth(0.5); doc.line(marginX, y, pageWidth - marginX, y); y += 8;
+    doc.setFontSize(fontSize); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 41, 59);
+    doc.text('Employee Details', marginX, y); y += 6;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(fontSize - 1);
     const col1X = marginX, col2X = pageWidth / 2 + 5, labelWidth = 30;
     doc.text('Name:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.name, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-    doc.text('Join Date:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.joinDate || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal');
-    y += 5;
+    doc.text('Join Date:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.joinDate || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); y += 5;
     doc.text('Emp ID:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.empId, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-    if (d.showBank !== false) { doc.text('Bank:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.bank || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
-    y += 5;
+    if (d.showBank !== false) { doc.text('Bank:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.bank || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 5;
     doc.text('Position:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.position, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-    if (d.showBank !== false) { doc.text('Account:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.account || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
-    y += 5;
+    if (d.showBank !== false) { doc.text('Account:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.account || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 5;
     doc.text('Dept:', col1X, y); doc.setFont('helvetica', 'bold'); doc.text(w.department, col1X + labelWidth, y); doc.setFont('helvetica', 'normal');
-    if (d.showTax !== false) { doc.text('Tax ID:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.taxId || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); }
-    y += 8;
-
+    if (d.showTax !== false) { doc.text('Tax ID:', col2X, y); doc.setFont('helvetica', 'bold'); doc.text(w.taxId || '-', col2X + labelWidth, y); doc.setFont('helvetica', 'normal'); } y += 8;
     const grossTotal = (slip.basic||0) + (slip.totalAdditions||0);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(er, eg, eb);
-    doc.setFontSize(fontSize);
-    doc.text('EARNINGS', marginX, y);
-    y += 3;
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(er, eg, eb); doc.setFontSize(fontSize);
+    doc.text('EARNINGS', marginX, y); y += 3;
     const earningsBody = (slip.earnings||[]).map(e => [e.name, fmt(e.amount)]);
     earningsBody.push([{ content: 'TOTAL EARNINGS', styles: { fontStyle: 'bold', fillColor: [209, 250, 229] } }, { content: fmt(grossTotal), styles: { fontStyle: 'bold', fillColor: [209, 250, 229], halign: 'right' } }]);
     doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: earningsBody, theme: 'grid', headStyles: { fillColor: [er, eg, eb], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
     y = doc.lastAutoTable.finalY + 8;
-
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(dr, dg, db);
-    doc.setFontSize(fontSize);
-    doc.text('DEDUCTIONS', marginX, y);
-    y += 3;
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(dr, dg, db); doc.setFontSize(fontSize);
+    doc.text('DEDUCTIONS', marginX, y); y += 3;
     const deductionsBody = (slip.deductions||[]).length ? slip.deductions.map(x => [x.name, fmt(x.amount)]) : [['No deductions', '-']];
     deductionsBody.push([{ content: 'TOTAL DEDUCTIONS', styles: { fontStyle: 'bold', fillColor: [254, 226, 226] } }, { content: fmt(slip.totalDeductions||0), styles: { fontStyle: 'bold', fillColor: [254, 226, 226], halign: 'right' } }]);
     doc.autoTable({ startY: y, head: [['Description', 'Amount']], body: deductionsBody, theme: 'grid', headStyles: { fillColor: [dr, dg, db], textColor: 255, fontSize: fontSize - 1, halign: 'center' }, styles: { fontSize: fontSize - 1, cellPadding: 3 }, columnStyles: { 0: { cellWidth: contentWidth - 45 }, 1: { halign: 'right', cellWidth: 40 } }, margin: { left: marginX, right: marginX } });
     y = doc.lastAutoTable.finalY + 8;
-
-    doc.setFillColor(r, g, b);
-    doc.roundedRect(marginX, y, contentWidth, 22, 3, 3, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
+    doc.setFillColor(r, g, b); doc.roundedRect(marginX, y, contentWidth, 22, 3, 3, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
     doc.text(`Gross: ${fmt(grossTotal)}`, marginX + 5, y + 9);
     doc.text(`Deductions: ${fmt(slip.totalDeductions||0)}`, marginX + 5, y + 16);
-    doc.setFontSize(16);
-    doc.text(`NET PAY: ${fmt(slip.net||0)}`, pageWidth - marginX - 5, y + 13, { align: 'right' });
+    doc.setFontSize(16); doc.text(`NET PAY: ${fmt(slip.net||0)}`, pageWidth - marginX - 5, y + 13, { align: 'right' });
     y += 30;
-
     if (d.showSignatures !== false) {
-        doc.setTextColor(30, 41, 59);
-        doc.setDrawColor(30, 41, 59);
-        doc.setLineWidth(0.5);
-        doc.line(marginX + 5, 265, marginX + 55, 265);
-        doc.line(pageWidth - marginX - 55, 265, pageWidth - marginX - 5, 265);
+        doc.setTextColor(30, 41, 59); doc.setDrawColor(30, 41, 59); doc.setLineWidth(0.5);
+        doc.line(marginX + 5, 265, marginX + 55, 265); doc.line(pageWidth - marginX - 55, 265, pageWidth - marginX - 5, 265);
         doc.setFontSize(9);
         doc.text(d.sign1Label || 'Employee Signature', marginX + 30, 270, { align: 'center' });
         doc.text(d.sign2Label || 'Authorized Signature', pageWidth - marginX - 30, 270, { align: 'center' });
-        // Add stamp image if available
         if (d.stamp) {
             try {
                 const stampSizeMM = (d.stampSize || 80) * 0.264583;
                 let stampImgData = d.stamp;
                 let stampFormat = 'PNG';
                 if (stampImgData.indexOf('data:image/jpeg') === 0 || stampImgData.indexOf('data:image/jpg') === 0) stampFormat = 'JPEG';
-                else if (stampImgData.indexOf('data:image/') === 0) {
-                    const match = stampImgData.match(/data:image\/([a-zA-Z+]+);/);
-                    if (match) stampFormat = match[1].toUpperCase();
-                }
+                else if (stampImgData.indexOf('data:image/') === 0) { const match = stampImgData.match(/data:image\/([a-zA-Z+]+);/); if (match) stampFormat = match[1].toUpperCase(); }
                 doc.addImage(stampImgData, stampFormat, marginX + 15, 240, stampSizeMM, stampSizeMM, undefined, 'FAST');
             } catch(e) {}
         }
     }
-
     if (d.showFooter !== false && d.footerText) { doc.setFontSize(8); doc.setTextColor(100, 116, 139); doc.text(d.footerText, pageWidth/2, 282, { align: 'center' }); }
-
-    // Add QR code if enabled
-    if (d.showQR) {
-        try {
-            // Generate QR code as canvas then convert to data URL
-            const qrData = `SLIP:${slip.slipNo}|WORKER:${w.empId}|MONTH:${slip.month}|NET:${slip.net}|DATE:${slip.finalizedAt||today()}`;
-            // Use simple QR generation via canvas
-            const qrCanvas = document.createElement('canvas');
-            // Simple QR placeholder - using text representation
-            const qrSize = 20; // mm
-            // Add QR code as image if QRCode library is available
-            if (typeof QRCode !== 'undefined') {
-                QRCode.toDataURL(qrData, { width: 200, margin: 1 }, (err, url) => {
-                    if (!err) {
-                        try {
-                            doc.addImage(url, 'PNG', pageWidth - marginX - qrSize, 275, qrSize, qrSize, undefined, 'FAST');
-                        } catch(e) {}
-                        doc.save(`PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf`);
-                        toast('PDF downloaded!');
-                    } else {
-                        doc.save(`PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf`);
-                        toast('PDF downloaded!');
-                    }
-                });
-                return;
-            }
-        } catch(e) {}
-    }
-
-    doc.setFontSize(8);
-    doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
+    doc.setFontSize(8); doc.text(`Generated: ${today()} | Slip #${slip.slipNo}`, pageWidth/2, 290, { align: 'center' });
     if (slip.finalizedBy) doc.text(`Finalized by: ${slip.finalizedBy} on ${new Date(slip.finalizedAt).toLocaleString()}`, pageWidth/2, 295, { align: 'center' });
     doc.save(`PaySlip_${w.empId}_${slip.month}_${slip.slipNo}.pdf`);
     toast('PDF downloaded!');
@@ -4109,19 +3627,19 @@ function generateReport() {
             if (workerId) advs = advs.filter(a => a.workerId === workerId);
             reportData = advs.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [w?.name||'-', a.type, fmt(a.amount), fmt(a.installment), fmt(a.paid||0), fmt(a.remaining||0), a.startMonth, a.status, (a.history||[]).length]; }); break;
         case 'addition':
-            title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount','Source'];
+            title = 'Additions Report'; columns = ['Date','Employee','Type','Month','Amount'];
             let adds = data.additions;
             if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); adds = adds.filter(a => wIds.includes(a.workerId)); }
             if (workerId) adds = adds.filter(a => a.workerId === workerId);
             if (month) adds = adds.filter(a => a.month === month);
-            reportData = adds.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount), a.source||'manual']; }); break;
+            reportData = adds.map(a => { const w = data.workers.find(x => x.id === a.workerId); return [a.date, w?.name||'-', a.type, a.month, fmt(a.amount)]; }); break;
         case 'deduction':
-            title = 'Deductions Report'; columns = ['Date','Employee','Type','Month','Amount','Source'];
+            title = 'Deductions Report'; columns = ['Date','Employee','Type','Month','Amount'];
             let deds = data.deductions;
             if (currentUserRole === USER_ROLES.VIEWER) { const wIds = data.workers.filter(w => w.email === currentUserEmail).map(w => w.id); deds = deds.filter(d => wIds.includes(d.workerId)); }
             if (workerId) deds = deds.filter(d => d.workerId === workerId);
             if (month) deds = deds.filter(d => d.month === month);
-            reportData = deds.map(d => { const w = data.workers.find(x => x.id === d.workerId); return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount), d.source||'manual']; }); break;
+            reportData = deds.map(d => { const w = data.workers.find(x => x.id === d.workerId); return [d.date, w?.name||'-', d.type, d.month, fmt(d.amount)]; }); break;
     }
     const output = document.getElementById('reportOutput');
     if (!reportData.length) { output.innerHTML = '<div class="card"><div class="empty-state"><h3>No data</h3></div></div>'; return; }
@@ -4193,7 +3711,8 @@ function renderTimeline() {
 <div class="stat-card cyan"><div class="icon"><i class="fas fa-edit"></i></div><h3>Updated</h3><div class="value">${counts.updated}</div></div>
 <div class="stat-card red"><div class="icon"><i class="fas fa-trash"></i></div><h3>Deleted</h3><div class="value">${counts.deleted}</div></div>
 <div class="stat-card orange"><div class="icon"><i class="fas fa-undo"></i></div><h3>Reversed</h3><div class="value">${counts.reversed}</div></div>
-<div class="stat-card purple"><div class="icon"><i class="fas fa-history"></i></div><h3>Restored</h3><div class="value">${counts.restored}</div></div>`;
+<div class="stat-card purple"><div class="icon"><i class="fas fa-history"></i></div><h3>Restored</h3><div class="value">${counts.restored}</div></div>
+<div class="stat-card whatsapp"><div class="icon"><i class="fas fa-sign-in-alt"></i></div><h3>Logins</h3><div class="value">${counts.logins}</div></div>`;
     if (!entries.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-stream"></i><h3>No activities</h3></div>'; return; }
     const colorMap = { slip: 'success', loan: 'warning', advance: 'pink', worker: '', component: 'purple', addition: 'success', deduction: 'danger', auth: 'purple', system: 'danger' };
     container.innerHTML = entries.slice(0, 200).map(e => {
@@ -4321,7 +3840,7 @@ function loadDesignSettings() {
     document.getElementById('designSign1Label').value = d.sign1Label || 'Employee Signature';
     document.getElementById('designSign2Label').value = d.sign2Label || 'Authorized Signature';
     const template = d.template || 'modern';
-    document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.template-card').forEach(t => t.classList.remove('active'));
     const activeTemplate = document.querySelector(`.template-card[data-template="${template}"]`);
     if (activeTemplate) activeTemplate.classList.add('active');
     if (d.logo) {
@@ -4357,8 +3876,7 @@ function selectTemplate(template) {
     data.payslipDesign.template = template;
 }
 function handleLogoUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+    const file = event.target.files[0]; if (!file) return;
     if (file.size > 2 * 1024 * 1024) { toast('Logo file too large (max 2MB)', 'error'); return; }
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -4384,8 +3902,7 @@ function removeLogo() {
     document.getElementById('logoFileInput').value = '';
 }
 function handleStampUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+    const file = event.target.files[0]; if (!file) return;
     if (file.size > 2 * 1024 * 1024) { toast('Stamp file too large (max 2MB)', 'error'); return; }
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -4406,7 +3923,7 @@ function updateStampSize() {
 function removeStamp() {
     data.payslipDesign.stamp = '';
     document.getElementById('stampUploadArea').classList.remove('has-logo');
-    document.getElementById('stampUploadContent').innerHTML = `<i class="fas fa-stamp" style="font-size:30px;color:var(--gray);margin-bottom:10px;"></i><p style="color:var(--gray);font-size:13px;">Upload company stamp or signature</p>`;
+    document.getElementById('stampUploadContent').innerHTML = `<img src="fas fa-stamp" style="font-size:30px;color:var(--gray);margin-bottom:10px;"></i><p style="color:var(--gray);font-size:13px;">Upload company stamp or signature</p>`;
     document.getElementById('stampControls').style.display = 'none';
     document.getElementById('stampFileInput').value = '';
 }
@@ -4584,6 +4101,7 @@ async function sendSlipEmail(slip, worker) {
         await logTimeline('Sent slip email', 'slip', `Email sent to ${worker.email} for slip #${slip.slipNo}`, worker.id);
         return true;
     } catch(error) {
+        console.error('Email send error:', error);
         toast('Email send failed: ' + (error.text || error.message || 'Unknown error'), 'error');
         return false;
     }
@@ -4686,13 +4204,8 @@ async function sendSlipWhatsapp(slip, worker) {
     const encodedMessage = encodeURIComponent(message);
     const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
     await logTimeline('Sent WhatsApp message', 'slip', `WhatsApp sent to ${worker.name} (${worker.whatsapp}) for slip #${slip.slipNo}`, worker.id);
-    // Open WhatsApp in new tab
     window.open(waUrl, '_blank');
     return { url: waUrl, phoneNumber, message };
-}
-async function whatsappCurrentSlip() {
-    if (!currentSlipViewSlip) { toast('No slip to send', 'error'); return; }
-    await whatsappSlipById(currentSlipViewSlip.id);
 }
 async function whatsappSlipById(id) {
     const slip = data.salarySlips.find(s => s.id === id); if (!slip) return;
@@ -4707,6 +4220,10 @@ async function whatsappSlipById(id) {
         const result = await sendSlipWhatsapp(slip, w);
         if (result) toast('WhatsApp opened! Click Send in WhatsApp to deliver.');
     } catch(error) { toast('Error: ' + error.message, 'error'); }
+}
+async function whatsappCurrentSlip() {
+    if (!currentSlipViewSlip) { toast('No slip to send', 'error'); return; }
+    await whatsappSlipById(currentSlipViewSlip.id);
 }
 async function testWhatsapp() {
     const ws = data.whatsappSettings || {};
@@ -4777,117 +4294,20 @@ async function sendBulkWhatsapp() {
     closeModal('bulkWhatsappModal');
 }
 
-// ============ FLOATING WHATSAPP WIDGET ============
-function toggleWhatsappFab() {
-    const menu = document.getElementById('whatsappFabMenu');
-    menu.classList.toggle('show');
-}
-function openWhatsappWindow(tab) {
-    document.getElementById('whatsappFabMenu').classList.remove('show');
-    const window = document.getElementById('whatsappWindow');
-    window.classList.add('show');
-    if (tab === 'chats') switchWhatsappTab('chats', document.querySelector('#waTabs .whatsapp-tab:nth-child(1)'));
-    else if (tab === 'broadcast') switchWhatsappTab('broadcast', document.querySelector('#waTabs .whatsapp-tab:nth-child(2)'));
-    else if (tab === 'announcements') switchWhatsappTab('announcements', document.querySelector('#waTabs .whatsapp-tab:nth-child(3)'));
-}
-function closeWhatsappWindow() { document.getElementById('whatsappWindow').classList.remove('show'); }
-function minimizeWhatsappWindow() { document.getElementById('whatsappWindow').classList.remove('show'); }
-function switchWhatsappTab(tab, el) {
-    document.querySelectorAll('#waTabs .whatsapp-tab').forEach(t => t.classList.remove('active'));
-    if (el) el.classList.add('active');
-    document.getElementById('waChatsView').style.display = tab === 'chats' ? 'block' : 'none';
-    document.getElementById('waBroadcastView').style.display = tab === 'broadcast' ? 'block' : 'none';
-    document.getElementById('waAnnouncementsView').style.display = tab === 'announcements' ? 'block' : 'none';
-    if (tab === 'chats') renderWhatsappChats();
-    else if (tab === 'broadcast') renderWhatsappBroadcast();
-    else if (tab === 'announcements') renderWhatsappAnnouncements();
-}
-function renderWhatsappChats() {
-    const view = document.getElementById('waChatsView');
-    const chats = data.chatRooms || [];
-    const userChats = chats.filter(c => c.type === 'direct' ? (c.participants || []).includes(currentUserId) : true);
-    if (!userChats.length) {
-        view.innerHTML = `<div class="whatsapp-empty"><i class="fas fa-comments"></i><h4>No chats yet</h4><p>Start a new chat from the Chat section</p></div>`;
-        return;
-    }
-    view.innerHTML = `<div class="whatsapp-chat-list">${userChats.map(c => {
-        const lastMsg = (data.chatMessages[c.id] || [])[0];
-        const isGroup = c.type === 'group';
-        const title = isGroup ? c.name : data.workers.find(w => w.id === (c.participants || []).find(p => p !== currentUserId))?.name || 'Unknown';
-        return `<div class="whatsapp-chat-item" onclick="openWhatsappChatRoom('${c.id}')">
-<div class="chat-avatar" ${isGroup?'style="background:linear-gradient(135deg,var(--purple),var(--pink));"':''}>${isGroup ? '<i class="fas fa-users" style="font-size:16px;"></i>' : title.charAt(0).toUpperCase()}</div>
-<div class="chat-info"><h5>${title}</h5><p>${lastMsg ? (lastMsg.text || '[File]').substring(0, 40) : 'No messages yet'}</p></div>
-<div class="chat-meta"><div class="time">${lastMsg ? new Date(lastMsg.timestamp?.toDate ? lastMsg.timestamp.toDate() : lastMsg.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : ''}</div></div>
-</div>`;
-    }).join('')}</div>`;
-}
-function renderWhatsappBroadcast() {
-    const view = document.getElementById('waBroadcastView');
-    view.innerHTML = `<div style="padding:15px;">
-<h4 style="margin-bottom:10px;">Broadcast Message</h4>
-<p style="font-size:12px;color:var(--gray);margin-bottom:15px;">Send a message to all workers via WhatsApp</p>
-<textarea id="waBroadcastMsg" style="width:100%;min-height:100px;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;resize:vertical;" placeholder="Type your broadcast message..."></textarea>
-<div style="margin-top:10px;display:flex;gap:10px;">
-<button class="btn btn-whatsapp" onclick="sendBroadcastWhatsapp()"><i class="fab fa-whatsapp"></i> Broadcast</button>
-</div>
-</div>`;
-}
-function renderWhatsappAnnouncements() {
-    const view = document.getElementById('waAnnouncementsView');
-    view.innerHTML = `<div style="padding:15px;">
-<h4 style="margin-bottom:10px;">Announcements</h4>
-<p style="font-size:12px;color:var(--gray);margin-bottom:15px;">Post announcements visible to all users</p>
-<textarea id="waAnnouncementMsg" style="width:100%;min-height:100px;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;resize:vertical;" placeholder="Type your announcement..."></textarea>
-<div style="margin-top:10px;"><button class="btn btn-primary" onclick="postAnnouncement()"><i class="fas fa-bullhorn"></i> Post Announcement</button></div>
-</div>`;
-}
-async function sendBroadcastWhatsapp() {
-    const msg = document.getElementById('waBroadcastMsg').value.trim();
-    if (!msg) { toast('Enter a message', 'error'); return; }
-    const workersWithWhatsapp = data.workers.filter(w => w.whatsapp);
-    if (!workersWithWhatsapp.length) { toast('No workers with WhatsApp numbers', 'error'); return; }
-    if (!confirm(`Send broadcast to ${workersWithWhatsapp.length} worker(s)?`)) return;
-    const ws = data.whatsappSettings || {};
-    const c = data.company || {};
-    const encodedMessage = encodeURIComponent(msg);
-    workersWithWhatsapp.forEach((worker, idx) => {
-        setTimeout(() => {
-            const phoneNumber = formatWhatsappNumber(worker.whatsapp, ws.countryCode);
-            if (phoneNumber) window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
-        }, idx * 500);
-    });
-    await logTimeline('Broadcast WhatsApp', 'system', `Broadcast to ${workersWithWhatsapp.length} workers`);
-    toast(`Broadcasting to ${workersWithWhatsapp.length} workers...`);
-}
-async function postAnnouncement() {
-    const msg = document.getElementById('waAnnouncementMsg').value.trim();
-    if (!msg) { toast('Enter announcement', 'error'); return; }
-    try {
-        await logTimeline('Posted announcement', 'system', msg);
-        document.getElementById('waAnnouncementMsg').value = '';
-        toast('Announcement posted!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); }
-}
-function openWhatsappChatRoom(roomId) {
-    showSection('chat');
-    setTimeout(() => { openChatRoom(roomId); }, 300);
-}
-
-// ============ CHAT SYSTEM ============
+// ============ CHAT SYSTEM - FIXED ============
 let currentChatRoomId = null;
 let currentChatFilter = 'all';
 let chatMessagesUnsubscribe = null;
 let chatRoomsUnsubscribe = null;
 
 function initializeChat() {
-    if (!firebaseReady || !currentUserId) return;
-    // 🔥 FIXED: Proper Firestore listener with error handling
+    if (!firebaseReady) return;
     try {
+        // Subscribe to chat rooms
         chatRoomsUnsubscribe = db.collection(collections.chatRooms)
             .onSnapshot(snapshot => {
                 data.chatRooms = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (document.getElementById('chat')?.classList.contains('active')) renderChatList();
-                if (document.getElementById('whatsappWindow')?.classList.contains('show')) renderWhatsappChats();
             }, error => {
                 console.error('Chat rooms listener error:', error);
             });
@@ -4906,69 +4326,79 @@ function switchChatFilter(filter, el) {
 function renderChatList() {
     const list = document.getElementById('chatList');
     const search = (document.getElementById('chatSearch')?.value || '').toLowerCase();
+    
     let rooms = data.chatRooms || [];
-
-    // 🔥 FIXED: Filter logic - show rooms user participates in
+    
+    // Filter by type
     if (currentChatFilter === 'direct') {
         rooms = rooms.filter(r => r.type === 'direct' && (r.participants || []).includes(currentUserId));
     } else if (currentChatFilter === 'group') {
         rooms = rooms.filter(r => r.type === 'group' && (r.participants || []).includes(currentUserId));
-    } else if (currentChatFilter === 'announce') {
+    } else if (currentChatFilter === 'announcement') {
         rooms = rooms.filter(r => r.type === 'announcement');
     } else {
         // All: show rooms user participates in OR announcements
         rooms = rooms.filter(r => (r.participants || []).includes(currentUserId) || r.type === 'announcement');
     }
-
+    
+    // Search filter
     if (search) {
         rooms = rooms.filter(r => {
-            if (r.type === 'group' || r.type === 'announcement') return (r.name || '').toLowerCase().includes(search);
+            if (r.type === 'group' || r.type === 'announcement') {
+                return (r.name || '').toLowerCase().includes(search);
+            }
             const otherUserId = (r.participants || []).find(p => p !== currentUserId);
             const otherWorker = data.workers.find(w => w.id === otherUserId);
             return (otherWorker?.name || '').toLowerCase().includes(search);
         });
     }
-
-    // 🔥 FIXED: Sort by last message time
-    rooms.sort((a,b) => {
+    
+    // Sort by last message time
+    rooms.sort((a, b) => {
         const aTime = a.lastMessageAt || a.createdAt || 0;
         const bTime = b.lastMessageAt || b.createdAt || 0;
         const aTs = typeof aTime === 'object' ? (aTime.toDate ? aTime.toDate().getTime() : 0) : aTime;
         const bTs = typeof bTime === 'object' ? (bTime.toDate ? bTime.toDate().getTime() : 0) : bTime;
         return bTs - aTs;
     });
-
+    
     if (!rooms.length) {
         list.innerHTML = `<div class="empty-state"><i class="fas fa-comments"></i><h3>No chats</h3><p>Start a new chat to begin messaging</p></div>`;
         return;
     }
-
+    
     list.innerHTML = rooms.map(r => {
         const isGroup = r.type === 'group';
         const isAnnouncement = r.type === 'announcement';
-        let title, avatar, subtitle = '';
+        let title, avatarClass, subtitle;
+        
         if (isGroup) {
             title = r.name || 'Group';
-            avatar = `<div class="chat-avatar group"><i class="fas fa-users" style="font-size:16px;"></i></div>`;
+            avatarClass = 'group';
             subtitle = `${(r.participants || []).length} members`;
         } else if (isAnnouncement) {
             title = r.name || 'Announcement';
-            avatar = `<div class="chat-avatar" style="background:linear-gradient(135deg,var(--warning),var(--pink));"><i class="fas fa-bullhorn" style="font-size:16px;"></i></div>`;
+            avatarClass = 'announcement';
             subtitle = 'Announcement';
         } else {
             const otherUserId = (r.participants || []).find(p => p !== currentUserId);
             const otherWorker = data.workers.find(w => w.id === otherUserId);
             title = otherWorker?.name || 'Unknown';
-            avatar = `<div class="chat-avatar">${title.charAt(0).toUpperCase()}</div>`;
+            avatarClass = '';
             subtitle = otherWorker?.position || '';
         }
+        
         const lastMsg = (data.chatMessages[r.id] || []).slice(-1)[0];
         const lastMsgText = lastMsg ? (lastMsg.text || '[File]').substring(0, 40) : 'No messages yet';
-        const lastMsgTime = lastMsg ? new Date(lastMsg.timestamp?.toDate ? lastMsg.timestamp.toDate() : lastMsg.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+        const lastMsgTime = lastMsg ? new Date(lastMsg.timestamp?.toDate ? new Date(lastMsg.timestamp.toDate()) : new Date(lastMsg.timestamp)).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+        
         const isActive = currentChatRoomId === r.id;
+        
         return `<div class="chat-list-item ${isActive?'active':''}" onclick="openChatRoom('${r.id}')">
-${avatar}
-<div class="chat-info"><h5>${title}</h5><p>${lastMsgText}</p></div>
+<div class="chat-avatar ${avatarClass}">${title.charAt(0).toUpperCase()}</div>
+<div class="chat-info">
+<h5>${title}</h5>
+<p>${lastMsgText}</p></div>
 <div class="chat-meta"><div class="time">${lastMsgTime}</div></div>
 </div>`;
     }).join('');
@@ -4977,18 +4407,22 @@ ${avatar}
 function openNewChatModal() {
     document.getElementById('newChatSearchWorker').value = '';
     document.getElementById('newChatGroupName').value = '';
-    document.getElementById('newChatSearchGroup').value = '';
-    renderNewChatWorkers();
-    renderNewChatGroupWorkers();
+    document.getElementById('newChatAnnouncementTitle').value = '';
+    document.getElementById('newChatAnnouncementMessage').value = '';
+    filterNewChatWorkers();
+    filterNewChatGroupWorkers();
     openModal('newChatModal');
 }
+
 function selectNewChatType(type, el) {
     document.querySelectorAll('.new-chat-option').forEach(o => o.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('newChatDirectView').style.display = type === 'direct' ? 'block' : 'none';
     document.getElementById('newChatGroupView').style.display = type === 'group' ? 'block' : 'none';
+    document.getElementById('newChatAnnouncementView').style.display = type === 'announcement' ? 'block' : 'none';
 }
-function renderNewChatWorkers() {
+
+function filterNewChatWorkers() {
     const search = (document.getElementById('newChatSearchWorker')?.value || '').toLowerCase();
     let workers = data.workers.filter(w => w.id !== currentUserId);
     if (search) workers = workers.filter(w => w.name.toLowerCase().includes(search));
@@ -4999,7 +4433,8 @@ function renderNewChatWorkers() {
 <div style="flex:1;"><strong>${w.name}</strong> <span style="color:var(--gray);font-size:11px;">(${w.empId} - ${w.department})</span></div>
 </div>`).join('') || '<p style="color:var(--gray);text-align:center;padding:10px;">No workers found</p>';
 }
-function renderNewChatGroupWorkers() {
+
+function filterNewChatGroupWorkers() {
     const search = (document.getElementById('newChatSearchGroup')?.value || '').toLowerCase();
     let workers = data.workers;
     if (search) workers = workers.filter(w => w.name.toLowerCase().includes(search));
@@ -5010,43 +4445,35 @@ function renderNewChatGroupWorkers() {
 <div style="flex:1;"><strong>${w.name}</strong> <span style="color:var(--gray);font-size:11px;">(${w.empId} - ${w.department})</span></div>
 </div>`).join('');
 }
+
 function selectNewChatWorker(workerId, el) {
     document.querySelectorAll('#newChatWorkerList .worker-select-item').forEach(i => i.classList.remove('selected'));
     el.classList.add('selected');
     el.querySelector('input').checked = true;
 }
+
 function toggleGroupWorker(workerId, el) {
     const cb = el.querySelector('input');
     cb.checked = !cb.checked;
     el.classList.toggle('selected', cb.checked);
 }
-function filterNewChatWorkers() { renderNewChatWorkers(); }
-function filterNewChatGroupWorkers() { renderNewChatGroupWorkers(); }
 
 async function createNewChat() {
-    const isGroup = document.getElementById('newChatGroupView').style.display !== 'none';
+    const activeOption = document.querySelector('.new-chat-option.active');
+    if (!activeOption) return;
+    
+    const type = activeOption.querySelector('h4').textContent.toLowerCase().includes('direct') ? 'direct' :
+                 activeOption.querySelector('h4').textContent.toLowerCase().includes('group') ? 'group' : 'announcement';
+    
     try {
         showLoading('Creating chat...');
-        if (isGroup) {
-            const groupName = document.getElementById('newChatGroupName').value.trim();
-            if (!groupName) { toast('Enter group name', 'error'); hideLoading(); return; }
-            const selected = Array.from(document.querySelectorAll('.group-worker-cb:checked')).map(cb => cb.value);
-            if (selected.length < 1) { toast('Select at least one member', 'error'); hideLoading(); return; }
-            const participants = [currentUserId, ...selected];
-            const roomData = {
-                type: 'group', name: groupName,
-                participants: [...new Set(participants)],
-                createdBy: currentUserId,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                lastMessageAt: Date.now()
-            };
-            await saveToFirebase(collections.chatRooms, null, roomData);
-            await logTimeline('Created group chat', 'system', `Group: ${groupName} (${participants.length} members)`);
-        } else {
+        
+        if (type === 'direct') {
             const selected = document.querySelector('input[name="newChatWorker"]:checked');
             if (!selected) { toast('Select a worker', 'error'); hideLoading(); return; }
             const otherUserId = selected.value;
-            const otherWorker = data.workers.find(x => x.id === otherUserId);
+            
+            // Check if chat already exists
             const existing = data.chatRooms.find(r => r.type === 'direct' && r.participants.includes(currentUserId) && r.participants.includes(otherUserId));
             if (existing) {
                 closeModal('newChatModal');
@@ -5054,6 +4481,7 @@ async function createNewChat() {
                 hideLoading();
                 return;
             }
+            
             const roomData = {
                 type: 'direct',
                 participants: [currentUserId, otherUserId],
@@ -5061,74 +4489,122 @@ async function createNewChat() {
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 lastMessageAt: Date.now()
             };
-            await saveToFirebase(collections.chatRooms, null, roomData);
-            await logTimeline('Started direct chat', 'system', `Chat with ${otherWorker?.name || 'worker'}`);
-        }
-        closeModal('newChatModal');
-        toast('Chat created!');
-    } catch(error) { toast('Error: ' + error.message, 'error'); } finally { hideLoading(); }
-}
-
-function startDirectChatWithWorker(workerId) {
-    showSection('chat');
-    setTimeout(async () => {
-        const existing = data.chatRooms.find(r => r.type === 'direct' && r.participants.includes(currentUserId) && r.participants.includes(workerId));
-        if (existing) { openChatRoom(existing.id); return; }
-        try {
+            
+            const roomId = await saveToFirebase(collections.chatRooms, null, roomData);
+            closeModal('newChatModal');
+            openChatRoom(roomId);
+            toast('Chat created!');
+            
+        } else if (type === 'group') {
+            const groupName = document.getElementById('newChatGroupName').value.trim();
+            if (!groupName) { toast('Enter group name', 'error'); hideLoading(); return; }
+            
+            const selected = Array.from(document.querySelectorAll('.group-worker-cb:checked')).map(cb => cb.value);
+            if (selected.length < 1) { toast('Select at least one member', 'error'); hideLoading(); return; }
+            
+            const participants = [currentUserId, ...selected];
+            
             const roomData = {
-                type: 'direct',
-                participants: [currentUserId, workerId],
+                type: 'group',
+                name: groupName,
+                participants: [...new Set(participants)],
                 createdBy: currentUserId,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 lastMessageAt: Date.now()
             };
+            
             const roomId = await saveToFirebase(collections.chatRooms, null, roomData);
-            setTimeout(() => openChatRoom(roomId), 300);
-        } catch(error) { toast('Error: ' + error.message, 'error'); }
-    }, 300);
+            closeModal('newChatModal');
+            openChatRoom(roomId);
+            toast('Group created!');
+            
+        } else if (type === 'announcement') {
+            const title = document.getElementById('newChatAnnouncementTitle').value.trim();
+            const message = document.getElementById('newChatAnnouncementMessage').value.trim();
+            
+            if (!title || !message) { toast('Enter title and message', 'error'); hideLoading(); return; }
+            
+            const roomData = {
+                type: 'announcement',
+                name: title,
+                message: message,
+                createdBy: currentUserId,
+                createdByName: currentUserName,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastMessageAt: Date.now()
+            };
+            
+            const roomId = await saveToFirebase(collections.chatRooms, null, roomData);
+            
+            // Also create a message in the announcement room
+            const msgData = {
+                roomId: roomId,
+                senderId: currentUserId,
+                senderName: currentUserName,
+                text: message,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                type: 'announcement'
+            };
+            
+            await saveToFirebase(collections.chatMessages, null, msgData);
+            
+            closeModal('newChatModal');
+            openChatRoom(roomId);
+            toast('Announcement posted!');
+        }
+    } catch(error) {
+        toast('Error: ' + error.message, 'error');
+    } finally {
+        hideLoading();
+    }
 }
 
-// 🔥 FIXED: Chat room with proper message loading and real-time updates
 async function openChatRoom(roomId) {
     currentChatRoomId = roomId;
     const room = data.chatRooms.find(r => r.id === roomId);
     if (!room) return;
-
+    
     // Unsubscribe previous messages listener
     if (chatMessagesUnsubscribe) {
         try { chatMessagesUnsubscribe(); } catch(e) {}
         chatMessagesUnsubscribe = null;
     }
-
+    
     document.getElementById('chatEmpty').style.display = 'none';
     document.getElementById('chatActiveView').style.display = 'flex';
-
+    
     // Header
     const header = document.getElementById('chatMainHeader');
     const isGroup = room.type === 'group';
     const isAnnouncement = room.type === 'announcement';
-    let title, avatar;
+    let title, avatarClass;
+    
     if (isGroup) {
         title = room.name || 'Group';
-        avatar = `<div class="chat-avatar group"><i class="fas fa-users" style="font-size:16px;"></i></div>`;
+        avatarClass = 'group';
     } else if (isAnnouncement) {
         title = room.name || 'Announcement';
-        avatar = `<div class="chat-avatar" style="background:linear-gradient(135deg,var(--warning),var(--pink));"><i class="fas fa-bullhorn" style="font-size:16px;"></i></div>`;
+        avatarClass = 'announcement';
     } else {
         const otherUserId = (room.participants || []).find(p => p !== currentUserId);
-        const otherWorker = data.workers.find(x => x.id === otherUserId);
+        const otherWorker = data.workers.find(w => w.id === otherUserId);
         title = otherWorker?.name || 'Unknown';
-        avatar = `<div class="chat-avatar">${title.charAt(0).toUpperCase()}</div>`;
+        avatarClass = '';
     }
-    header.innerHTML = `${avatar}
-<div class="chat-info"><h4>${title}</h4><p>${isGroup ? `${(room.participants||[]).length} members` : isAnnouncement ? 'Announcement' : 'Direct message'}</p></div>
+    
+    header.innerHTML = `
+<div class="chat-avatar ${avatarClass}">${title.charAt(0).toUpperCase()}</div>
+<div class="chat-info">
+<h4>${title}</h4>
+<p>${isGroup ? `${(room.participants||[]).length} members` : isAnnouncement ? 'Announcement' : 'Direct message'}</p>
+</div>
 <div class="chat-actions">
 ${!isAnnouncement ? `<button onclick="document.getElementById('chatFileInput').click()" title="Attach file"><i class="fas fa-paperclip"></i></button>
 <input type="file" id="chatFileInput" style="display:none" onchange="handleChatFileUpload(event)">` : ''}
 <button onclick="viewChatInfo('${roomId}')" title="Info"><i class="fas fa-info-circle"></i></button>
 </div>`;
-
-    // 🔥 FIXED: Subscribe to messages with real-time updates
+    
+    // Subscribe to messages with real-time updates
     try {
         chatMessagesUnsubscribe = db.collection(collections.chatMessages)
             .where('roomId', '==', roomId)
@@ -5151,42 +4627,52 @@ ${!isAnnouncement ? `<button onclick="document.getElementById('chatFileInput').c
     } catch(e) {
         console.error('Failed to subscribe to messages:', e);
     }
-
+    
     renderChatList();
 }
 
 function renderChatMessages(messages) {
     const container = document.getElementById('chatMessages');
     if (!container) return;
+    
     let html = '';
     let lastDate = '';
+    
     messages.forEach(msg => {
         const msgDate = msg.timestamp ? new Date(msg.timestamp.toDate ? msg.timestamp.toDate() : msg.timestamp).toLocaleDateString() : '';
         if (msgDate && msgDate !== lastDate) {
             html += `<div class="date-separator"><span>${msgDate}</span></div>`;
             lastDate = msgDate;
         }
+        
         const isMine = msg.senderId === currentUserId;
         const senderWorker = data.workers.find(x => x.id === msg.senderId);
         const time = msg.timestamp ? new Date(msg.timestamp.toDate ? msg.timestamp.toDate() : msg.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+        
         let contentHtml = '';
         if (msg.file) {
             contentHtml = `<div class="msg-file" onclick="window.open('${msg.fileUrl}','_blank')">
 <i class="fas ${msg.fileType?.startsWith('image') ? 'fa-image' : 'fa-file'}"></i>
-<div class="file-info"><div class="file-name">${msg.fileName || 'File'}</div><div class="file-size">${msg.fileSize || ''}</div></div>
+<div class="file-info">
+<div class="file-name">${msg.fileName || 'File'}</div>
+<div class="file-size">${msg.fileSize || ''}</div>
+</div>
 </div>`;
             if (msg.text) contentHtml += `<div class="msg-text">${msg.text}</div>`;
         } else {
             contentHtml = `<div class="msg-text">${msg.text}</div>`;
         }
+        
         const room = data.chatRooms.find(r => r.id === currentChatRoomId);
         const showSender = (room?.type === 'group' || room?.type === 'announcement') && !isMine;
+        
         html += `<div class="chat-message ${isMine?'sent':'received'}">
 ${showSender ? `<div class="msg-sender">${senderWorker?.name || msg.senderName || 'Unknown'}</div>` : ''}
 ${contentHtml}
 <div class="msg-time">${time} ${isMine ? '<i class="fas fa-check-double"></i>' : ''}</div>
 </div>`;
     });
+    
     container.innerHTML = html;
     container.scrollTop = container.scrollHeight;
 }
@@ -5195,7 +4681,9 @@ async function sendChatMessage() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
     if (!text || !currentChatRoomId) return;
+    
     input.value = '';
+    
     try {
         const msgData = {
             roomId: currentChatRoomId,
@@ -5206,20 +4694,34 @@ async function sendChatMessage() {
             createdAt: Date.now(),
             type: 'text'
         };
+        
         await saveToFirebase(collections.chatMessages, null, msgData);
-        await updateInFirebase(collections.chatRooms, currentChatRoomId, { lastMessage: text.substring(0, 100), lastMessageAt: Date.now() });
-    } catch(error) { toast('Error: ' + error.message, 'error'); }
+        
+        // Update room's last message time
+        await updateInFirebase(collections.chatRooms, currentChatRoomId, {
+            lastMessageAt: Date.now()
+        });
+    } catch(error) {
+        toast('Error: ' + error.message, 'error');
+    }
 }
 
 async function handleChatFileUpload(event) {
     const file = event.target.files[0];
     if (!file || !currentChatRoomId) return;
-    if (file.size > 5 * 1024 * 1024) { toast('File too large (max 5MB)', 'error'); return; }
+    
+    if (file.size > 5 * 1024 * 1024) {
+        toast('File too large (max 5MB)', 'error');
+        return;
+    }
+    
     try {
         showLoading('Uploading file...');
+        
         const reader = new FileReader();
         reader.onload = async function(e) {
             const fileData = e.target.result;
+            
             const msgData = {
                 roomId: currentChatRoomId,
                 senderId: currentUserId,
@@ -5234,19 +4736,30 @@ async function handleChatFileUpload(event) {
                 createdAt: Date.now(),
                 type: 'file'
             };
+            
             await saveToFirebase(collections.chatMessages, null, msgData);
-            await updateInFirebase(collections.chatRooms, currentChatRoomId, { lastMessage: `[File: ${file.name}]`, lastMessageAt: Date.now() });
+            
+            await updateInFirebase(collections.chatRooms, currentChatRoomId, {
+                lastMessageAt: Date.now()
+            });
+            
             hideLoading();
             toast('File sent!');
         };
+        
         reader.readAsDataURL(file);
-    } catch(error) { toast('Error: ' + error.message, 'error'); hideLoading(); }
+    } catch(error) {
+        toast('Error: ' + error.message, 'error');
+        hideLoading();
+    }
+    
     event.target.value = '';
 }
 
 function viewChatInfo(roomId) {
     const room = data.chatRooms.find(r => r.id === roomId);
     if (!room) return;
+    
     if (room.type === 'group') {
         const members = (room.participants || []).map(userId => {
             const worker = data.workers.find(x => x.id === userId);
@@ -5254,7 +4767,7 @@ function viewChatInfo(roomId) {
         });
         alert(`Group: ${room.name}\n\nMembers (${members.length}):\n${members.join('\n')}\n\nCreated by: ${room.createdBy === currentUserId ? 'You' : 'Admin'}`);
     } else if (room.type === 'announcement') {
-        alert(`Announcement: ${room.name || 'Announcement'}\n\nCreated by: ${room.createdBy === currentUserId ? 'You' : 'Admin'}`);
+        alert(`Announcement: ${room.name}\n\nCreated by: ${room.createdBy === currentUserId ? 'You' : 'Admin'}`);
     } else {
         const otherUserId = (room.participants || []).find(p => p !== currentUserId);
         const otherWorker = data.workers.find(x => x.id === otherUserId);
@@ -5301,48 +4814,33 @@ function refreshDashboard() {
     const payrollCanvas = document.getElementById('payrollChart');
     if (payrollCanvas) { charts.payroll = new Chart(payrollCanvas, { type: 'bar', data: { labels: months, datasets: [{ label: 'Net Payroll', data: payrollData, backgroundColor: 'rgba(30, 64, 175, 0.8)', borderRadius: 8 }] }, options: { responsive: true, plugins: { legend: { display: false } } } }); }
     const deptData = {};
-workers.forEach(w => { deptData[w.department] = (deptData[w.department] || 0) + 1; });
+    workers.forEach(w => { deptData[w.department] = (deptData[w.department] || 0) + 1; });
     const distCanvas = document.getElementById('distributionChart');
     if (distCanvas) { charts.distribution = new Chart(distCanvas, { type: 'doughnut', data: { labels: Object.keys(deptData), datasets: [{ data: Object.values(deptData), backgroundColor: ['#1e40af','#0891b2','#059669','#d97706','#dc2626','#7c3aed','#ec4899','#db2777'] }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } }); }
-
-    // 🔥 FIXED: Recent activities - hidden for viewers
+    const activities = data.timeline.slice(0, 8);
     const actDiv = document.getElementById('recentActivities');
-    if (currentUserRole === USER_ROLES.VIEWER) {
-        // 🔥 Viewers see only their own recent slips
-        const mySlips = filteredSlips.slice(-5).reverse();
-        if (!mySlips.length) actDiv.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><h3>No activities</h3></div>';
-        else actDiv.innerHTML = mySlips.map(s => {
+    if (!activities.length) {
+        const slipActivities = filteredSlips.slice(-5).reverse();
+        if (!slipActivities.length) actDiv.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><h3>No activities</h3></div>';
+        else actDiv.innerHTML = slipActivities.map(s => {
+            const w = data.workers.find(x => x.id === s.workerId);
             return `<div style="display:flex;align-items:center;gap:15px;padding:12px;border-bottom:1px solid var(--border);">
-<div style="width:40px;height:40px;border-radius:50%;background:rgba(5,150,105,0.1);color:var(--success);display:flex;align-items:center;justify-content:center;"><i class="fas fa-file-invoice"></i></div>
-<div style="flex:1;"><div style="font-size:14px;">Pay slip #${s.slipNo} - ${fmt(s.net)}</div>
-<div style="font-size:12px;color:var(--gray);">${s.modifiedAt || s.createdAt}</div></div></div>`;
-        }).join('');
-    } else {
-        // Admin/Editor see all activities
-        const activities = data.timeline.slice(0, 8);
-        if (!activities.length) {
-            const slipActivities = filteredSlips.slice(-5).reverse();
-            if (!slipActivities.length) actDiv.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><h3>No activities</h3></div>';
-            else actDiv.innerHTML = slipActivities.map(s => {
-                const w = data.workers.find(x => x.id === s.workerId);
-                return `<div style="display:flex;align-items:center;gap:15px;padding:12px;border-bottom:1px solid var(--border);">
 <div style="width:40px;height:40px;border-radius:50%;background:rgba(5,150,105,0.1);color:var(--success);display:flex;align-items:center;justify-content:center;"><i class="fas fa-file-invoice"></i></div>
 <div style="flex:1;"><div style="font-size:14px;">Pay slip #${s.slipNo} for ${w?.name||'worker'} - ${fmt(s.net)}</div>
 <div style="font-size:12px;color:var(--gray);">${s.modifiedAt || s.createdAt}</div></div></div>`;
-            }).join('');
-        } else {
-            const colorMap = { slip: 'var(--success)', loan: 'var(--warning)', advance: 'var(--pink)', worker: 'var(--primary)', system: 'var(--danger)', auth: 'var(--purple)', component: 'var(--purple)' };
-            const iconMap = { slip: 'fa-file-invoice', loan: 'fa-hand-holding-usd', advance: 'fa-money-check-alt', worker: 'fa-user', system: 'fa-cog', auth: 'fa-sign-in-alt', component: 'fa-puzzle-piece' };
-            actDiv.innerHTML = activities.map(a => {
-                const color = colorMap[a.type] || 'var(--gray)';
-                const icon = iconMap[a.type] || 'fa-info-circle';
-                const time = a.dateStr ? new Date(a.dateStr).toLocaleString() : '';
-                return `<div style="display:flex;align-items:center;gap:15px;padding:12px;border-bottom:1px solid var(--border);">
+        }).join('');
+    } else {
+        const colorMap = { slip: 'var(--success)', loan: 'var(--warning)', advance: 'var(--pink)', worker: 'var(--primary)', system: 'var(--danger)', auth: 'var(--purple)', component: 'var(--purple)' };
+        const iconMap = { slip: 'fa-file-invoice', loan: 'fa-hand-holding-usd', advance: 'fa-money-check-alt', worker: 'fa-user', system: 'fa-cog', auth: 'fa-sign-in-alt', component: 'fa-puzzle-piece' };
+        actDiv.innerHTML = activities.map(a => {
+            const color = colorMap[a.type] || 'var(--gray)';
+            const icon = iconMap[a.type] || 'fa-info-circle';
+            const time = a.dateStr ? new Date(a.dateStr).toLocaleString() : '';
+            return `<div style="display:flex;align-items:center;gap:15px;padding:12px;border-bottom:1px solid var(--border);">
 <div style="width:40px;height:40px;border-radius:50%;background:${color}22;color:${color};display:flex;align-items:center;justify-content:center;"><i class="fas ${icon}"></i></div>
 <div style="flex:1;"><div style="font-size:14px;"><strong>${a.action}</strong> — ${a.details||''}</div>
 <div style="font-size:12px;color:var(--gray);">${time} • ${a.userName||''}</div></div></div>`;
-            }).join('');
-        }
+        }).join('');
     }
 }
 
