@@ -4848,5 +4848,378 @@ window.addEventListener('load', () => {
     if (data.emailSettings?.emailjsPublicKey) { try { emailjs.init(data.emailSettings.emailjsPublicKey); } catch(e) {} }
 });
 </script>
+<!-- ═══════════════════════════════════════════════════════════════════
+     🔒 HARSH DEVTOOLS BLOCKER — v3
+     Appended at end of file. Runs alongside the existing console blocker.
+     Detection: 5 layers. Action: DOM wipe + navigate to about:blank.
+     Escape hatch: Ctrl+Shift+Alt+D  OR  ?safe=1  OR  #safe
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+'use strict';
+if(window.__harshGuardV3Loaded) return;
+window.__harshGuardV3Loaded = true;
+
+/* ─────────────────────────────────────────────────────────────────
+   CONFIG
+   ───────────────────────────────────────────────────────────────── */
+var CFG = {
+    ESCAPE_KEY: 'lksalary_dev_ok',
+    CHECK_INTERVAL_MS: 900,
+    DIM_THRESHOLD: 170,          // px delta to trigger docked-DevTools detection
+    DEBUGGER_THRESHOLD: 100,     // ms pause to trigger debugger detection
+    ACTION: 'wipe'               // 'wipe' = harsh | 'overlay' = soft
+};
+
+/* ─────────────────────────────────────────────────────────────────
+   ESCAPE HATCH — check before arming
+   ───────────────────────────────────────────────────────────────── */
+function isDevAllowed(){
+    try {
+        if (localStorage.getItem(CFG.ESCAPE_KEY) === '1') return true;
+        if (location.search.indexOf('safe=1') !== -1) return true;
+        if (location.hash === '#safe') return true;
+    } catch(e){}
+    return false;
+}
+
+if (isDevAllowed()) {
+    // Silently skip — developer mode is on
+    return;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   SILENCE ANY REMAINING CONSOLE OUTPUT
+   (Runs after the top blocker; belt-and-suspenders.)
+   ───────────────────────────────────────────────────────────────── */
+(function silenceConsole(){
+    var noop = function(){};
+    var blocked = ['log','debug','info','warn','error','table','trace','dir','dirxml',
+        'group','groupCollapsed','groupEnd','time','timeEnd','timeLog','assert',
+        'clear','count','countReset','profile','profileEnd','memory','context','exception'];
+    try {
+        blocked.forEach(function(m){
+            try { Object.defineProperty(console, m, { value: noop, writable: false, configurable: false }); }
+            catch(e){ try { console[m] = noop; } catch(x){} }
+        });
+        try { Object.freeze(console); } catch(e){}
+    } catch(e){}
+    setInterval(function(){
+        blocked.forEach(function(m){
+            if (console[m] !== noop) { try { console[m] = noop; } catch(e){} }
+        });
+    }, 1500);
+})();
+
+/* ─────────────────────────────────────────────────────────────────
+   ERROR SWALLOWERS
+   ───────────────────────────────────────────────────────────────── */
+window.addEventListener('error', function(e){ try { e.preventDefault(); } catch(err){} return true; }, true);
+window.addEventListener('unhandledrejection', function(e){ try { e.preventDefault(); } catch(err){} return true; }, true);
+
+/* ─────────────────────────────────────────────────────────────────
+   SOFT OVERLAY (fallback visual, also used in 'overlay' mode)
+   ───────────────────────────────────────────────────────────────── */
+function showOverlay(){
+    if (document.getElementById('__harshGuardV3Overlay')) return;
+    var ov = document.createElement('div');
+    ov.id = '__harshGuardV3Overlay';
+    ov.style.cssText = [
+        'position:fixed','inset:0','z-index:2147483647',
+        'background:radial-gradient(circle at 50% 50%,#1a0b3d 0%,#000 100%)',
+        'color:#fff','display:flex','align-items:center','justify-content:center',
+        'padding:40px','text-align:center',
+        'font-family:Inter,-apple-system,Segoe UI,Roboto,sans-serif'
+    ].join(';');
+    ov.innerHTML = ''
+        + '<div style="max-width:600px">'
+        +   '<div style="font-size:100px;margin-bottom:24px;filter:drop-shadow(0 0 24px rgba(168,85,247,.6))">🔒</div>'
+        +   '<h1 style="font-size:28px;font-weight:800;margin-bottom:14px;color:#fff">Session Locked</h1>'
+        +   '<p style="font-size:14.5px;line-height:1.7;color:rgba(255,255,255,.75)">Developer tools detected. The page is being reset.</p>'
+        +   '<button id="__harshGuardV3Reload" style="margin-top:28px;padding:13px 26px;border-radius:11px;border:none;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;font-weight:700;cursor:pointer;font-size:14px">Reload Page</button>'
+        + '</div>';
+    try { document.body.appendChild(ov); } catch(e){}
+    try { document.body.style.overflow = 'hidden'; } catch(e){}
+    var btn = document.getElementById('__harshGuardV3Reload');
+    if (btn) btn.onclick = function(){ location.reload(); };
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   HARSH LOCKDOWN — wipe DOM + navigate away
+   ───────────────────────────────────────────────────────────────── */
+var triggered = false;
+
+function wipeAndLock(){
+    if (triggered) return;
+    triggered = true;
+
+    /* 1. Wipe <script> tags */
+    try {
+        document.querySelectorAll('script').forEach(function(s){
+            try { if (s.textContent) s.textContent = ''; s.remove(); } catch(e){}
+        });
+    } catch(e){}
+
+    /* 2. Wipe <style> tags + external CSS */
+    try {
+        document.querySelectorAll('style').forEach(function(s){ try { s.textContent = ''; s.remove(); } catch(e){} });
+        document.querySelectorAll('link[rel="stylesheet"]').forEach(function(l){ try { l.remove(); } catch(e){} });
+    } catch(e){}
+
+    /* 3. Wipe title */
+    try { document.title = '🔒'; } catch(e){}
+
+    /* 4. Replace whole document with a locked shell */
+    try {
+        document.documentElement.innerHTML = '<head><title>🔒</title></head><body style="margin:0;background:#000"></body>';
+    } catch(e){}
+
+    /* 5. Show the lock overlay */
+    try { showOverlay(); } catch(e){}
+
+    /* 6. Clear inputs */
+    try {
+        document.querySelectorAll('input,textarea').forEach(function(el){ el.value = ''; });
+    } catch(e){}
+
+    /* 7. Wipe local storage (Firebase data stays in cloud) */
+    try { localStorage.removeItem('lankashoe_cache'); } catch(e){}
+    try { sessionStorage.clear(); } catch(e){}
+
+    /* 8. Rewrite history — block back button */
+    try {
+        history.replaceState(null, '', '/');
+        history.pushState(null, '', '#locked');
+        history.pushState(null, '', '#locked2');
+    } catch(e){}
+
+    window.addEventListener('popstate', function(){
+        try { window.location.replace('about:blank'); } catch(e){}
+    }, true);
+
+    /* 9. Navigate away after user sees the lock screen */
+    setTimeout(function(){
+        try { window.location.replace('about:blank'); }
+        catch(e){ try { window.location.href = 'about:blank'; } catch(x){} }
+    }, 2500);
+
+    /* 10. Kill all reachable timers */
+    try {
+        var maxId = setTimeout(function(){}, 0);
+        for (var i = 0; i <= maxId; i++) {
+            try { clearTimeout(i); clearInterval(i); } catch(e){}
+        }
+    } catch(e){}
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   DETECTION LAYERS
+   ───────────────────────────────────────────────────────────────── */
+
+/* Layer 1 — Window vs viewport delta (docked DevTools) */
+function sizeOpen(){
+    try {
+        var w = Math.abs((window.outerWidth  || 0) - (window.innerWidth  || 0));
+        var h = Math.abs((window.outerHeight || 0) - (window.innerHeight || 0));
+        return w > CFG.DIM_THRESHOLD || h > CFG.DIM_THRESHOLD;
+    } catch(e){ return false; }
+}
+
+/* Layer 2 — debugger timing (detached DevTools) */
+function debuggerOpen(){
+    try {
+        var t1 = performance.now();
+        (function(){ return false; })['constructor']('debugger')['call']();
+        var t2 = performance.now();
+        return (t2 - t1) > CFG.DEBUGGER_THRESHOLD;
+    } catch(e){ return false; }
+}
+
+/* Layer 3 — console toString probe */
+var consoleProbeFired = false;
+try {
+    var probe = /./;
+    probe.toString = function(){ consoleProbeFired = true; return 'x'; };
+    window.__guardV3Probe = probe;
+} catch(e){}
+function consoleOpen(){
+    try {
+        consoleProbeFired = false;
+        var nativeLog = Function.prototype.bind.call(window.console.log, window.console);
+        nativeLog.call(window.console, '%c', window.__guardV3Probe);
+        return consoleProbeFired;
+    } catch(e){ return false; }
+}
+
+/* Layer 4 — focus + size heuristic */
+var blurCount = 0;
+window.addEventListener('blur', function(){ blurCount++; }, true);
+function focusOpen(){
+    if (document.hasFocus()) { blurCount = 0; return false; }
+    return blurCount > 3 && sizeOpen();
+}
+
+/* Layer 5 — getter trap (element inspection) */
+try {
+    var trap = document.createElement('div');
+    Object.defineProperty(trap, '_', { get: function(){ return 1; } });
+    window.__guardV3Trap = trap;
+} catch(e){}
+
+/* ─────────────────────────────────────────────────────────────────
+   MASTER CHECK LOOP
+   ───────────────────────────────────────────────────────────────── */
+var lastCheck = 0;
+function checkAll(){
+    var now = Date.now();
+    if (now - lastCheck < 800) return;
+    lastCheck = now;
+    if (triggered) return;
+
+    var s1 = sizeOpen();
+    var s2 = debuggerOpen();
+    var s3 = consoleOpen();
+    var s4 = focusOpen();
+
+    if (s1 || s2 || s3 || s4) {
+        if (CFG.ACTION === 'wipe') wipeAndLock();
+        else showOverlay();
+    }
+}
+
+setInterval(function(){
+    if (triggered) return;
+    try { checkAll(); } catch(e){}
+}, CFG.CHECK_INTERVAL_MS);
+
+/* Instant check on window resize (catches docked DevTools instantly) */
+var resizeTimer;
+window.addEventListener('resize', function(){
+    if (triggered) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function(){
+        if (sizeOpen()) {
+            if (CFG.ACTION === 'wipe') wipeAndLock();
+            else showOverlay();
+        }
+    }, 300);
+});
+
+/* ─────────────────────────────────────────────────────────────────
+   KEYBOARD INTERCEPTION
+   ───────────────────────────────────────────────────────────────── */
+function blockShortcuts(e){
+    var key   = String(e.key || '').toLowerCase();
+    var ctrl  = e.ctrlKey || e.metaKey;
+    var shift = e.shiftKey;
+    var alt   = e.altKey;
+
+    function fire(){
+        if (CFG.ACTION === 'wipe') wipeAndLock();
+        else showOverlay();
+    }
+
+    // F12
+    if (key === 'f12' || e.keyCode === 123){
+        e.preventDefault(); e.stopImmediatePropagation(); fire(); return false;
+    }
+    // Ctrl+Shift+I / J / C / K / E / M
+    if (ctrl && shift && ['i','j','c','k','e','m'].indexOf(key) !== -1){
+        e.preventDefault(); e.stopImmediatePropagation(); fire(); return false;
+    }
+    // Cmd+Opt+I / J / C / U (macOS)
+    if (e.metaKey && alt && ['i','j','c','u'].indexOf(key) !== -1){
+        e.preventDefault(); e.stopImmediatePropagation(); fire(); return false;
+    }
+    // Ctrl+U — view source
+    if (ctrl && !shift && key === 'u'){
+        e.preventDefault(); e.stopImmediatePropagation(); fire(); return false;
+    }
+    // Ctrl+S / Ctrl+Shift+S — save page
+    if (ctrl && key === 's'){
+        e.preventDefault(); e.stopImmediatePropagation(); return false;
+    }
+    // Ctrl+P — print (remove this block if you want printing)
+    if (ctrl && key === 'p'){
+        e.preventDefault(); e.stopImmediatePropagation(); return false;
+    }
+}
+
+document.addEventListener('keydown', blockShortcuts, true);
+document.addEventListener('keyup',   blockShortcuts, true);
+document.addEventListener('keypress',blockShortcuts, true);
+
+/* ─────────────────────────────────────────────────────────────────
+   MOUSE / DRAG / SELECTION BLOCKERS
+   ───────────────────────────────────────────────────────────────── */
+document.addEventListener('contextmenu', function(e){
+    e.preventDefault(); e.stopPropagation(); return false;
+}, true);
+
+document.addEventListener('dragstart', function(e){
+    e.preventDefault(); e.stopPropagation(); return false;
+}, true);
+
+document.addEventListener('selectstart', function(e){
+    var tag = (e.target.tagName || '').toUpperCase();
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable){
+        e.preventDefault(); return false;
+    }
+}, true);
+
+['copy','cut'].forEach(function(evt){
+    document.addEventListener(evt, function(e){
+        var tag = (e.target.tagName || '').toUpperCase();
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable){
+            e.preventDefault(); e.stopPropagation(); return false;
+        }
+    }, true);
+});
+
+/* ─────────────────────────────────────────────────────────────────
+   IFRAME PROTECTION — break out of frames
+   ───────────────────────────────────────────────────────────────── */
+if (window.top !== window.self){
+    try { window.top.location = window.self.location; }
+    catch(e){
+        try { document.body.innerHTML = '<div style="padding:50px;text-align:center;"><h1>Access Denied</h1></div>'; } catch(x){}
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   HOTKEY TOGGLE — Ctrl + Shift + Alt + D
+   ───────────────────────────────────────────────────────────────── */
+window.addEventListener('keydown', function(e){
+    var k = String(e.key || '').toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey && k === 'd'){
+        e.preventDefault(); e.stopImmediatePropagation();
+        try {
+            if (localStorage.getItem(CFG.ESCAPE_KEY) === '1'){
+                localStorage.removeItem(CFG.ESCAPE_KEY);
+                alert('DevTools guard: ARMED.\nReload the page to apply.');
+            } else {
+                localStorage.setItem(CFG.ESCAPE_KEY, '1');
+                alert('DevTools guard: DISARMED.\nReload the page to apply.');
+            }
+        } catch(err){}
+        return false;
+    }
+}, true);
+
+/* ─────────────────────────────────────────────────────────────────
+   READY SIGNAL — invisible marker so you can verify it loaded
+   ───────────────────────────────────────────────────────────────── */
+try {
+    document.addEventListener('DOMContentLoaded', function(){
+        var el = document.createElement('div');
+        el.id = '__harshGuardV3Ready';
+        el.style.cssText = 'position:fixed;bottom:2px;right:2px;font-size:1px;color:transparent;pointer-events:none;z-index:1;user-select:none';
+        el.textContent = 'harsh-guard-v3-ready';
+        try { document.body.appendChild(el); } catch(e){}
+    });
+} catch(e){}
+
+})();
+</script>
 </body>
 </html>
