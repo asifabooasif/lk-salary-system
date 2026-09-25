@@ -1,6 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE DEVTOOLS GUARD SUPPRESSOR
+   Runs BEFORE all other scripts. On mobile/touch devices:
+     1. Sets the harsh guard's escape flag → it skips itself entirely
+     2. Fakes outer/inner dimensions → kills size-based detection
+     3. Warms up the debugger-JIT so timing checks don't false-fire
+   On desktop → does nothing, guards stay active.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+var ua = navigator.userAgent || '';
+var isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua) ||
+    (navigator.maxTouchPoints && navigator.maxTouchPoints > 1) ||
+    (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
+    window.innerWidth < 900;
+
+if(!isMobile) return;   /* leave desktop untouched */
+
+window.__MOBILE_GUARD_OFF__ = true;
+
+/* 1. Escape hatches — the harsh guard checks this at boot and skips itself */
+try {
+    localStorage.setItem('lksalary_dev_ok', '1');   /* harsh guard's key   */
+    localStorage.setItem('lankashoe_dev_ok', '1');  /* our key             */
+} catch(e){}
+
+/* 2. Make outerHeight/Width always equal innerHeight/Width
+      → Math.abs(outer - inner) === 0 → sizeOpen() can never be true */
+try {
+    Object.defineProperty(window, 'outerWidth',  { get: function(){ return window.innerWidth  || 0; }, configurable: true });
+    Object.defineProperty(window, 'outerHeight', { get: function(){ return window.innerHeight || 0; }, configurable: true });
+} catch(e){}
+
+/* 3. Pre-warm the Function-constructor JIT so the guard's
+      `Function('debugger')` timing check returns fast (no false positive) */
+try {
+    for(var i = 0; i < 3; i++){
+        var t = (function(){ return false; })['constructor']('debugger');
+        if(t) t.call();
+    }
+} catch(e){}
+
+/* 4. Kill the console-probe so consoleOpen() returns false */
+window.__guardV3Probe  = null;
+window.__consoleProbe  = null;
+
+/* 5. Safety net — if any overlay still manages to appear, remove it */
+function removeOverlays(){
+    ['__harshGuardV3Overlay','devtoolsWarningOverlay'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.remove();
+    });
+    var g = document.getElementById('dtGuard');
+    if(g) g.style.display = 'none';
+    try {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+    } catch(e){}
+}
+setInterval(removeOverlays, 500);
+})();
+</script>
+<meta charset="UTF-8">   ← existing line, unchanged
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LANKA SHOE - Salary Management System</title>
@@ -7612,147 +7677,6 @@ window.__LKX = {
     try { window.toast = toast; }                        catch(e){}
     try { window.showLoading = showLoading; }            catch(e){}
     try { window.hideLoading = hideLoading; }            catch(e){}
-})();
-/* ═══════════════════════════════════════════════════════════════════════════
-   SECTION 135 — DEVTOOLS GUARD V3 (root-cause fix)
-   ═══════════════════════════════════════════════════════════════════════════
-   The Part 12 guard's checkAll() runs every 1s and calls showGuard() based on
-   sizeOpen() / consoleOpen() / inspectionActive() — all of which false-fire
-   on normal setups (window size, extensions, screen readers).
-
-   V3 uses a MutationObserver to PERMANENTLY suppress any attempt by the
-   guard to show the overlay, UNLESS the user actually pressed a blocked
-   shortcut (F12, Ctrl+Shift+I/J/C/K/E, Ctrl+U, right-click).
-
-   Result:
-     • Load page        → no overlay (no false positive)
-     • Click sign-in    → works
-     • Press F12        → overlay appears (real trigger)
-     • Reload           → back to normal
-
-   Escape hatch:  ?safe=1  in URL  ·  #safe  in URL  ·  Ctrl+Shift+Alt+D
-   ═══════════════════════════════════════════════════════════════════════════ */
-(function devToolsGuardV3(){
-  const overlay = document.getElementById('dtGuard');
-  if(!overlay) return;
-
-  /* ── 1. Force-hide initial state ── */
-  overlay.style.display = 'none';
-  try {
-    document.documentElement.style.overflow = '';
-    document.body.style.overflow = '';
-  } catch(e){}
-
-  /* ── 2. Kill the two most common false-positive triggers ── */
-  try {
-    if(window.__devtoolsTrap){
-      try { window.__devtoolsTrap.remove(); } catch(e){}
-      window.__devtoolsTrap = null;
-    }
-  } catch(e){}
-  try { window.__consoleProbe = null; } catch(e){}
-
-  /* ── 3. "User really triggered it" window ──
-     When a blocked shortcut fires we set this timestamp to now+500ms.
-     During that window, the observer allows the overlay to display.
-     Outside that window, any display:'flex' gets force-reverted. */
-  let userTriggeredUntil = 0;
-
-  const forceHide = () => {
-    if(Date.now() < userTriggeredUntil) return;      /* user's own action */
-    if(overlay.style.display === 'flex'){
-      overlay.style.display = 'none';
-      try {
-        document.documentElement.style.overflow = '';
-        document.body.style.overflow = '';
-      } catch(e){}
-      if(window.__dbgWarn) window.__dbgWarn('Guard false-alarm suppressed', 'GUARD');
-    }
-  };
-
-  /* MutationObserver fires synchronously on style attr changes */
-  const obs = new MutationObserver(forceHide);
-  obs.observe(overlay, { attributes: true, attributeFilter: ['style'] });
-
-  /* Backup poll every 500ms as belt-and-suspenders */
-  setInterval(forceHide, 500);
-
-  /* ── 4. Keyboard: only these combos actually trigger the guard ── */
-  document.addEventListener('keydown', function(e){
-    const k = String(e.key || '').toLowerCase();
-    const ctrl  = e.ctrlKey || e.metaKey;
-    const shift = e.shiftKey;
-    const alt   = e.altKey;
-
-    let trigger = false;
-    if(k === 'f12') trigger = true;
-    else if(ctrl && shift && ['i','j','c','k','e','m'].indexOf(k) !== -1) trigger = true;
-    else if(e.metaKey && alt && ['i','j','c','u'].indexOf(k) !== -1) trigger = true;
-    else if(ctrl && !shift && k === 'u') trigger = true;
-
-    if(trigger){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      userTriggeredUntil = Date.now() + 500;
-      overlay.style.display = 'flex';
-      try {
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
-      } catch(err){}
-      return false;
-    }
-
-    /* Escape hatch — Ctrl+Shift+Alt+D toggles permanent disable */
-    if(ctrl && shift && alt && k === 'd'){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      try {
-        if(localStorage.getItem('lankashoe_dev_ok') === '1'){
-          localStorage.removeItem('lankashoe_dev_ok');
-          alert('DevTools guard: ARMED. Reload to apply.');
-        } else {
-          localStorage.setItem('lankashoe_dev_ok', '1');
-          alert('DevTools guard: DISARMED. Reload to apply.');
-        }
-      } catch(err){}
-      return false;
-    }
-  }, true);
-
-  /* ── 5. Right-click block ── */
-  document.addEventListener('contextmenu', function(e){
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    userTriggeredUntil = Date.now() + 500;
-    overlay.style.display = 'flex';
-    try {
-      document.documentElement.style.overflow = 'hidden';
-      document.body.style.overflow = 'hidden';
-    } catch(err){}
-    return false;
-  }, true);
-
-  /* ── 6. Public helpers ── */
-  window.disableDevToolsGuard = function(){
-    try { localStorage.setItem('lankashoe_dev_ok', '1'); } catch(e){}
-    overlay.style.display = 'none';
-    try {
-      document.documentElement.style.overflow = '';
-      document.body.style.overflow = '';
-    } catch(e){}
-    if(window.toast) toast('DevTools guard disabled permanently', 'info');
-  };
-
-  window.enableDevToolsGuard = function(){
-    try { localStorage.removeItem('lankashoe_dev_ok'); } catch(e){}
-    if(window.toast) toast('Guard will re-arm on next reload', 'info');
-  };
-
-  /* ── 7. Confirm to debug panel ── */
-  setTimeout(function(){
-    if(window.__dbgOk) window.__dbgOk('DevTools guard V3 active (startup-safe)', 'GUARD');
-    if(window.__dbgOk) window.__dbgOk('Escape hatch: ?safe=1 or Ctrl+Shift+Alt+D', 'GUARD');
-  }, 800);
 })();
 </script>
 </body>
