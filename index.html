@@ -7613,6 +7613,147 @@ window.__LKX = {
     try { window.showLoading = showLoading; }            catch(e){}
     try { window.hideLoading = hideLoading; }            catch(e){}
 })();
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION 135 — DEVTOOLS GUARD V3 (root-cause fix)
+   ═══════════════════════════════════════════════════════════════════════════
+   The Part 12 guard's checkAll() runs every 1s and calls showGuard() based on
+   sizeOpen() / consoleOpen() / inspectionActive() — all of which false-fire
+   on normal setups (window size, extensions, screen readers).
+
+   V3 uses a MutationObserver to PERMANENTLY suppress any attempt by the
+   guard to show the overlay, UNLESS the user actually pressed a blocked
+   shortcut (F12, Ctrl+Shift+I/J/C/K/E, Ctrl+U, right-click).
+
+   Result:
+     • Load page        → no overlay (no false positive)
+     • Click sign-in    → works
+     • Press F12        → overlay appears (real trigger)
+     • Reload           → back to normal
+
+   Escape hatch:  ?safe=1  in URL  ·  #safe  in URL  ·  Ctrl+Shift+Alt+D
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function devToolsGuardV3(){
+  const overlay = document.getElementById('dtGuard');
+  if(!overlay) return;
+
+  /* ── 1. Force-hide initial state ── */
+  overlay.style.display = 'none';
+  try {
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  } catch(e){}
+
+  /* ── 2. Kill the two most common false-positive triggers ── */
+  try {
+    if(window.__devtoolsTrap){
+      try { window.__devtoolsTrap.remove(); } catch(e){}
+      window.__devtoolsTrap = null;
+    }
+  } catch(e){}
+  try { window.__consoleProbe = null; } catch(e){}
+
+  /* ── 3. "User really triggered it" window ──
+     When a blocked shortcut fires we set this timestamp to now+500ms.
+     During that window, the observer allows the overlay to display.
+     Outside that window, any display:'flex' gets force-reverted. */
+  let userTriggeredUntil = 0;
+
+  const forceHide = () => {
+    if(Date.now() < userTriggeredUntil) return;      /* user's own action */
+    if(overlay.style.display === 'flex'){
+      overlay.style.display = 'none';
+      try {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+      } catch(e){}
+      if(window.__dbgWarn) window.__dbgWarn('Guard false-alarm suppressed', 'GUARD');
+    }
+  };
+
+  /* MutationObserver fires synchronously on style attr changes */
+  const obs = new MutationObserver(forceHide);
+  obs.observe(overlay, { attributes: true, attributeFilter: ['style'] });
+
+  /* Backup poll every 500ms as belt-and-suspenders */
+  setInterval(forceHide, 500);
+
+  /* ── 4. Keyboard: only these combos actually trigger the guard ── */
+  document.addEventListener('keydown', function(e){
+    const k = String(e.key || '').toLowerCase();
+    const ctrl  = e.ctrlKey || e.metaKey;
+    const shift = e.shiftKey;
+    const alt   = e.altKey;
+
+    let trigger = false;
+    if(k === 'f12') trigger = true;
+    else if(ctrl && shift && ['i','j','c','k','e','m'].indexOf(k) !== -1) trigger = true;
+    else if(e.metaKey && alt && ['i','j','c','u'].indexOf(k) !== -1) trigger = true;
+    else if(ctrl && !shift && k === 'u') trigger = true;
+
+    if(trigger){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      userTriggeredUntil = Date.now() + 500;
+      overlay.style.display = 'flex';
+      try {
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+      } catch(err){}
+      return false;
+    }
+
+    /* Escape hatch — Ctrl+Shift+Alt+D toggles permanent disable */
+    if(ctrl && shift && alt && k === 'd'){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      try {
+        if(localStorage.getItem('lankashoe_dev_ok') === '1'){
+          localStorage.removeItem('lankashoe_dev_ok');
+          alert('DevTools guard: ARMED. Reload to apply.');
+        } else {
+          localStorage.setItem('lankashoe_dev_ok', '1');
+          alert('DevTools guard: DISARMED. Reload to apply.');
+        }
+      } catch(err){}
+      return false;
+    }
+  }, true);
+
+  /* ── 5. Right-click block ── */
+  document.addEventListener('contextmenu', function(e){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    userTriggeredUntil = Date.now() + 500;
+    overlay.style.display = 'flex';
+    try {
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } catch(err){}
+    return false;
+  }, true);
+
+  /* ── 6. Public helpers ── */
+  window.disableDevToolsGuard = function(){
+    try { localStorage.setItem('lankashoe_dev_ok', '1'); } catch(e){}
+    overlay.style.display = 'none';
+    try {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    } catch(e){}
+    if(window.toast) toast('DevTools guard disabled permanently', 'info');
+  };
+
+  window.enableDevToolsGuard = function(){
+    try { localStorage.removeItem('lankashoe_dev_ok'); } catch(e){}
+    if(window.toast) toast('Guard will re-arm on next reload', 'info');
+  };
+
+  /* ── 7. Confirm to debug panel ── */
+  setTimeout(function(){
+    if(window.__dbgOk) window.__dbgOk('DevTools guard V3 active (startup-safe)', 'GUARD');
+    if(window.__dbgOk) window.__dbgOk('Escape hatch: ?safe=1 or Ctrl+Shift+Alt+D', 'GUARD');
+  }, 800);
+})();
 </script>
 </body>
 </html>
