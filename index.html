@@ -5221,5 +5221,143 @@ try {
 
 })();
 </script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE FALSE-POSITIVE FIX
+   Runs LAST, after all other guards. On mobile/touch devices:
+     • Kills size-based detection (the mobile keyboard was the trigger)
+     • Kills debugger-timing detection (JIT prewarm)
+     • Kills console-probe detection
+     • Continuously removes any leaked overlay
+     • Blocks about:blank navigation
+   On desktop: does absolutely nothing — all guards stay active.
+   ═══════════════════════════════════════════════════════════════════ */
+(function mobileDevToolsFalsePositiveFix(){
+'use strict';
+
+/* ── Only act on mobile / touch devices ── */
+var ua = navigator.userAgent || '';
+var isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua) ||
+    (navigator.maxTouchPoints && navigator.maxTouchPoints > 1) ||
+    (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
+    window.innerWidth < 900;
+
+if(!isMobile) return;
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 1 — Force outerWidth/outerHeight to equal inner values.
+   Both guards compute: Math.abs(outer - inner) > 160/170 → trigger.
+   Mobile keyboards shrink innerHeight → false positive.
+   Overriding these makes the diff always 0 → never triggers.
+   ═══════════════════════════════════════════════════════════════ */
+try {
+    Object.defineProperty(window, 'outerWidth',  { get: function(){ return window.innerWidth;  }, configurable: true });
+    Object.defineProperty(window, 'outerHeight', { get: function(){ return window.innerHeight; }, configurable: true });
+} catch(e){}
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 2 — Prewarm the debugger JIT.
+   Guards run Function('debugger')() and time it. Cold JIT =
+   150-300ms pause = false positive. Warm JIT = ~5ms = no trigger.
+   ═══════════════════════════════════════════════════════════════ */
+try {
+    for(var i = 0; i < 6; i++){
+        var warm = (function(){ return false; })['constructor']('debugger');
+        if(warm) warm.call();
+    }
+} catch(e){}
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 3 — Kill the console toString probe.
+   ═══════════════════════════════════════════════════════════════ */
+try { window.__guardV3Probe = null; } catch(e){}
+try { window.__consoleProbe  = null; } catch(e){}
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 4 — Remove the element-inspection trap.
+   ═══════════════════════════════════════════════════════════════ */
+try {
+    var trap = window.__guardV3Trap;
+    if(trap && trap.parentNode) trap.parentNode.removeChild(trap);
+    window.__guardV3Trap = null;
+} catch(e){}
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 5 — Set escape flags so next reload skips guards entirely.
+   ═══════════════════════════════════════════════════════════════ */
+try {
+    localStorage.setItem('lksalary_dev_ok', '1');   /* harsh guard V3  */
+    localStorage.setItem('lankashoe_dev_ok', '1');  /* other guard     */
+} catch(e){}
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 6 — Continuously remove any overlay that leaks through.
+   ═══════════════════════════════════════════════════════════════ */
+function cleanup(){
+    try {
+        var ids = ['__harshGuardV3Overlay', 'devtoolsWarningOverlay'];
+        for(var j = 0; j < ids.length; j++){
+            var el = document.getElementById(ids[j]);
+            if(el && el.parentNode) el.parentNode.removeChild(el);
+        }
+        var g = document.getElementById('dtGuard');
+        if(g) g.style.display = 'none';
+
+        if(document.documentElement.style.overflow === 'hidden')
+            document.documentElement.style.overflow = '';
+        if(document.body && document.body.style.overflow === 'hidden')
+            document.body.style.overflow = '';
+    } catch(e){}
+}
+
+cleanup();
+
+try {
+    var mo = new MutationObserver(cleanup);
+    mo.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+} catch(e){}
+
+setInterval(cleanup, 300);
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 7 — Block about:blank navigation attempts.
+   The harsh guard tries: window.location.replace('about:blank').
+   We intercept that specific call and swallow it.
+   ═══════════════════════════════════════════════════════════════ */
+try {
+    var loc = window.location;
+    if(loc && loc.replace){
+        var origReplace = loc.replace.bind(loc);
+        try {
+            Object.defineProperty(loc, 'replace', {
+                value: function(url){
+                    if(typeof url === 'string' && /^about:blank/i.test(url)) return;
+                    return origReplace(url);
+                },
+                configurable: true,
+                writable: true
+            });
+        } catch(e){}
+    }
+} catch(e){}
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYER 8 — Swallow contextmenu silently on mobile.
+   Mobile long-press fires contextmenu. The harsh guard treats it
+   as a DevTools trigger and shows the overlay for 500ms.
+   Our window-capture listener fires BEFORE the guard's document
+   listener → we block it silently without triggering the overlay.
+   ═══════════════════════════════════════════════════════════════ */
+window.addEventListener('contextmenu', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    return false;
+}, true);
+
+})();
+</script>
 </body>
 </html>
+
