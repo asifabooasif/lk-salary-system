@@ -7542,5 +7542,27 @@ window.__LKX = {
 
 })();
 </script>
+<script>
+/* ═══ EXPOSE ORIGINAL GLOBALS TO WINDOW ═══ */
+(function exposeGlobals(){
+    try { window.data = data; }                          catch(e){}
+    try { window.collections = collections; }            catch(e){}
+    try { window.db = db; }                              catch(e){}
+    try { window.auth = auth; }                          catch(e){}
+    try { window.fmt = fmt; }                            catch(e){}
+    try { window.today = today; }                        catch(e){}
+    try { window.currentMonth = currentMonth; }          catch(e){}
+    try { window.genId = genId; }                        catch(e){}
+    try { window.saveToFirebase = saveToFirebase; }      catch(e){}
+    try { window.updateInFirebase = updateInFirebase; }  catch(e){}
+    try { window.deleteFromFirebase = deleteFromFirebase;}catch(e){}
+    try { window.logTimeline = logTimeline; }            catch(e){}
+    try { window.hasPermission = hasPermission; }        catch(e){}
+    try { window.USER_ROLES = USER_ROLES; }              catch(e){}
+    try { window.toast = toast; }                        catch(e){}
+    try { window.showLoading = showLoading; }            catch(e){}
+    try { window.hideLoading = hideLoading; }            catch(e){}
+})();
+</script>
 </body>
 </html>
