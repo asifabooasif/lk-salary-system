@@ -5223,6 +5223,56 @@ try {
 </script>
 <script>
 /* ═══════════════════════════════════════════════════════════════════
+   EXPOSE ORIGINAL GLOBALS — MUST RUN BEFORE ANY EXTENSION SCRIPT
+   ═══════════════════════════════════════════════════════════════════ */
+(function exposeGlobals(){
+    // Variables
+    try { if (typeof data        !== 'undefined' && !window.data)        window.data        = data;        } catch(e){}
+    try { if (typeof collections !== 'undefined' && !window.collections) window.collections = collections; } catch(e){}
+    try { if (typeof db          !== 'undefined' && !window.db)          window.db          = db;          } catch(e){}
+    try { if (typeof auth        !== 'undefined' && !window.auth)        window.auth        = auth;        } catch(e){}
+    try { if (typeof USER_ROLES  !== 'undefined' && !window.USER_ROLES)  window.USER_ROLES  = USER_ROLES;  } catch(e){}
+
+    // Functions
+    try { if (typeof fmt                !== 'undefined' && !window.fmt)                window.fmt                = fmt;                } catch(e){}
+    try { if (typeof today              !== 'undefined' && !window.today)              window.today              = today;              } catch(e){}
+    try { if (typeof currentMonth       !== 'undefined' && !window.currentMonth)       window.currentMonth       = currentMonth;       } catch(e){}
+    try { if (typeof genId              !== 'undefined' && !window.genId)              window.genId              = genId;              } catch(e){}
+    try { if (typeof saveToFirebase     !== 'undefined' && !window.saveToFirebase)     window.saveToFirebase     = saveToFirebase;     } catch(e){}
+    try { if (typeof updateInFirebase   !== 'undefined' && !window.updateInFirebase)   window.updateInFirebase   = updateInFirebase;   } catch(e){}
+    try { if (typeof deleteFromFirebase !== 'undefined' && !window.deleteFromFirebase) window.deleteFromFirebase = deleteFromFirebase; } catch(e){}
+    try { if (typeof logTimeline        !== 'undefined' && !window.logTimeline)        window.logTimeline        = logTimeline;        } catch(e){}
+    try { if (typeof hasPermission      !== 'undefined' && !window.hasPermission)      window.hasPermission      = hasPermission;      } catch(e){}
+    try { if (typeof toast              !== 'undefined' && !window.toast)              window.toast              = toast;              } catch(e){}
+    try { if (typeof showLoading        !== 'undefined' && !window.showLoading)        window.showLoading        = showLoading;        } catch(e){}
+    try { if (typeof hideLoading        !== 'undefined' && !window.hideLoading)        window.hideLoading        = hideLoading;        } catch(e){}
+    try { if (typeof loadData           !== 'undefined' && !window.loadData)           window.loadData           = loadData;           } catch(e){}
+    try { if (typeof showSection        !== 'undefined' && !window.showSection)        window.showSection        = showSection;        } catch(e){}
+    try { if (typeof openModal          !== 'undefined' && !window.openModal)          window.openModal          = openModal;          } catch(e){}
+    try { if (typeof closeModal         !== 'undefined' && !window.closeModal)         window.closeModal         = closeModal;         } catch(e){}
+
+    // Collection defaults — so even if collections was empty, our keys exist
+    try {
+        var C = window.collections || {};
+        ['payrollRuns','salaryRevisions','workerVersions','archivedSlips','trash','archiveLog','payrollSettings','payrollEvents'].forEach(function(k){
+            if (!C[k]) C[k] = k;
+        });
+        window.collections = C;
+    } catch(e){}
+
+    // Data defaults — so we never call window.data.x on undefined
+    try {
+        var D = window.data || {};
+        ['payrollRuns','salaryRevisions','workerVersions','archivedSlips','trash','archiveLog','payrollEvents'].forEach(function(k){
+            if (!Array.isArray(D[k])) D[k] = [];
+        });
+        if (!D.payrollSettings || typeof D.payrollSettings !== 'object') D.payrollSettings = {};
+        window.data = D;
+    } catch(e){}
+})();
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════
    LK SALARY — ALL EXTENSIONS (Consolidated)
    ═══════════════════════════════════════════════════════════════════ */
 (function(){
