@@ -5221,5 +5221,339 @@ try {
 
 })();
 </script>
+<!-- ═══════════════════════════════════════════════════════════════════
+     🔧 LOAN MERGE FIX  v1.0
+     Detects an existing ACTIVE loan for the selected worker and asks
+     the user how the monthly deduction should be handled before
+     merging everything into a single combined loan with full history.
+     Falls back to original behavior when no active loan exists.
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+  if (window.__loanMergeFixLoaded) return;
+  window.__loanMergeFixLoaded = true;
+
+  const originalAddLoan        = window.addLoan;
+  const originalOpenAddLoanModal = window.openAddLoanModal;
+
+  /* ─────────────────────────────────────────────────────────────
+     OVERRIDE addLoan — merge if worker already has an active loan
+     ───────────────────────────────────────────────────────────── */
+  window.addLoan = async function (e) {
+    e.preventDefault();
+    if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
+
+    const wId = document.getElementById('lWorker').value;
+    if (!wId) { toast('Select a worker first.', 'error'); return; }
+
+    const activeLoans = data.loans.filter(l => l.workerId === wId && l.status === 'Active');
+
+    // ── No active loan → use original create behavior ──
+    if (activeLoans.length === 0) {
+      if (typeof originalAddLoan === 'function') return originalAddLoan.call(this, e);
+      toast('Loan module not ready.', 'error'); return;
+    }
+
+    // ── Active loan(s) exist → validate inputs, then show merge modal ──
+    const total       = parseFloat(document.getElementById('lAmount').value)      || 0;
+    const installment = parseFloat(document.getElementById('lInstallment').value) || 0;
+    if (total <= 0)       { toast('Enter a valid loan amount.', 'error');      return; }
+    if (installment <= 0) { toast('Enter a valid monthly installment.', 'error'); return; }
+
+    showLoanMergeModal(activeLoans[0], {
+      total, installment,
+      loanType : document.getElementById('lType').value,
+      reason   : document.getElementById('lReason').value || '',
+      wId,
+      w: data.workers.find(x => x.id === wId),
+      activeCount: activeLoans.length
+    });
+  };
+
+  /* ─────────────────────────────────────────────────────────────
+     MERGE MODAL
+     ───────────────────────────────────────────────────────────── */
+  function showLoanMergeModal(existingLoan, newLoan) {
+    const prev = document.getElementById('loanMergeModal');
+    if (prev) prev.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'loanMergeModal';
+    modal.className = 'modal show';
+
+    const multipleWarning = newLoan.activeCount > 1
+      ? `<div style="background:#fee2e2;padding:10px 14px;border-radius:8px;border-left:4px solid var(--danger);margin-bottom:15px;font-size:12.5px;color:#991b1b;">
+           <strong><i class="fas fa-exclamation-triangle"></i> Note:</strong>
+           This worker has <strong>${newLoan.activeCount} active loans</strong>.
+           The new amount will be merged into the first one &mdash; please review the others manually.
+         </div>` : '';
+
+    const baseInst = existingLoan.installment || 0;
+    const addInst  = baseInst + newLoan.installment;
+    const newTotal = (existingLoan.amount || 0) + newLoan.total;
+
+    modal.innerHTML = `
+<div class="modal-content" style="max-width:700px;">
+  <div class="modal-header">
+    <h2><i class="fas fa-code-branch" style="color:var(--warning);"></i> Merge with Existing Loan</h2>
+    <button class="close-btn" onclick="document.getElementById('loanMergeModal').remove()">&times;</button>
+  </div>
+  <div class="modal-body">
+
+    ${multipleWarning}
+
+    <div class="loan-info-banner" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">
+      <h4><i class="fas fa-exclamation-triangle"></i> Worker Already Has an Active Loan</h4>
+      <p><strong>${newLoan.w?.name || 'Worker'}</strong> currently has: <strong>${existingLoan.type}</strong></p>
+      <p>&bull; Total: <strong>${fmt(existingLoan.amount)}</strong>
+         &nbsp; &bull; Paid: ${fmt(existingLoan.paid || 0)}
+         &nbsp; &bull; Remaining: <strong>${fmt(existingLoan.remaining || 0)}</strong></p>
+      <p>&bull; Current installment: <strong>${fmt(baseInst)}/month</strong>
+         &nbsp; &bull; Start: ${existingLoan.startMonth || '-'}</p>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);padding:15px;border-radius:10px;border-left:4px solid var(--primary);margin-bottom:20px;">
+      <h4 style="color:#1e40af;margin-bottom:8px;"><i class="fas fa-plus-circle"></i> New Loan to Add</h4>
+      <p>Type: <strong>${newLoan.loanType}</strong>
+         &nbsp; &bull; Amount: <strong>${fmt(newLoan.total)}</strong>
+         &nbsp; &bull; Installment: <strong>${fmt(newLoan.installment)}/month</strong></p>
+      ${newLoan.reason ? `<p style="font-size:12px;margin-top:5px;color:#1e3a8a;">Reason: ${newLoan.reason}</p>` : ''}
+    </div>
+
+    <div style="background:#f8fafc;padding:15px;border-radius:10px;border:1px solid var(--border);margin-bottom:15px;">
+      <h4 style="margin-bottom:12px;color:var(--dark);">
+        <i class="fas fa-cog" style="color:var(--purple);"></i> How should the monthly deduction be handled?
+      </h4>
+      <div style="display:grid;gap:10px;">
+
+        <label style="display:flex;gap:10px;padding:12px;border:2px solid var(--primary);border-radius:8px;cursor:pointer;background:#eff6ff;">
+          <input type="radio" name="loanMergeOption" value="add" checked style="margin-top:3px;accent-color:var(--primary);">
+          <div style="flex:1;">
+            <strong>➕ Add installments together</strong>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">
+              New monthly: <strong>${fmt(addInst)}</strong>
+              (${fmt(baseInst)} + ${fmt(newLoan.installment)})
+            </div>
+          </div>
+        </label>
+
+        <label style="display:flex;gap:10px;padding:12px;border:2px solid var(--border);border-radius:8px;cursor:pointer;">
+          <input type="radio" name="loanMergeOption" value="keep" style="margin-top:3px;accent-color:var(--primary);">
+          <div style="flex:1;">
+            <strong>⏸️ Keep current installment</strong>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">
+              Stay at <strong>${fmt(baseInst)}/month</strong> &mdash; loan duration will extend
+            </div>
+          </div>
+        </label>
+
+        <label style="display:flex;gap:10px;padding:12px;border:2px solid var(--border);border-radius:8px;cursor:pointer;">
+          <input type="radio" name="loanMergeOption" value="replace" style="margin-top:3px;accent-color:var(--primary);">
+          <div style="flex:1;">
+            <strong>🔄 Replace with new installment</strong>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">
+              Change to <strong>${fmt(newLoan.installment)}/month</strong> (was ${fmt(baseInst)})
+            </div>
+          </div>
+        </label>
+
+        <label style="display:flex;gap:10px;padding:12px;border:2px solid var(--border);border-radius:8px;cursor:pointer;">
+          <input type="radio" name="loanMergeOption" value="custom" style="margin-top:3px;accent-color:var(--primary);">
+          <div style="flex:1;">
+            <strong>✏️ Enter custom installment</strong>
+            <input type="number" id="loanMergeCustomInstallment" step="0.01" min="0.01"
+                   placeholder="Enter monthly amount"
+                   style="margin-top:6px;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;width:100%;"
+                   onclick="event.stopPropagation();this.closest('label').querySelector('input[type=radio]').checked=true;">
+          </div>
+        </label>
+
+      </div>
+    </div>
+
+    <div id="loanMergePreview" style="background:#f0fdf4;padding:12px 14px;border-radius:8px;border-left:4px solid var(--success);font-size:13px;color:#14532d;"></div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="document.getElementById('loanMergeModal').remove()">Cancel</button>
+    <button class="btn btn-warning" id="loanMergeConfirmBtn"><i class="fas fa-code-branch"></i> Confirm & Merge Loan</button>
+  </div>
+</div>`;
+
+    document.body.appendChild(modal);
+
+    const paidBase   = existingLoan.paid || 0;
+    const remainBase = newTotal - paidBase;
+
+    const getInst = () => {
+      const sel = modal.querySelector('input[name="loanMergeOption"]:checked');
+      if (!sel) return baseInst;
+      switch (sel.value) {
+        case 'add':     return addInst;
+        case 'keep':    return baseInst;
+        case 'replace': return newLoan.installment;
+        case 'custom':
+          const v = parseFloat(modal.querySelector('#loanMergeCustomInstallment')?.value) || 0;
+          return v > 0 ? v : 0;
+      }
+      return baseInst;
+    };
+
+    const updatePreview = () => {
+      const inst    = getInst();
+      const months  = inst > 0 ? Math.ceil(remainBase / inst) : 0;
+      modal.querySelector('#loanMergePreview').innerHTML =
+        `<strong><i class="fas fa-check-circle" style="color:var(--success);"></i> Combined Result:</strong>
+         Total: <strong>${fmt(newTotal)}</strong> &nbsp;&bull;&nbsp;
+         Paid: ${fmt(paidBase)} &nbsp;&bull;&nbsp;
+         Remaining: <strong>${fmt(remainBase)}</strong> &nbsp;&bull;&nbsp;
+         Monthly: <strong>${fmt(inst)}</strong>
+         ${months > 0 ? ` &nbsp;&bull;&nbsp; ~${months} months left` : ''}`;
+    };
+
+    modal.querySelectorAll('input[name="loanMergeOption"]').forEach(r => {
+      r.addEventListener('change', () => {
+        modal.querySelectorAll('label').forEach(lb => {
+          const inp = lb.querySelector('input[type=radio]');
+          lb.style.borderColor = inp && inp.checked ? 'var(--primary)' : 'var(--border)';
+          lb.style.background  = inp && inp.checked ? '#eff6ff' : '';
+        });
+        updatePreview();
+      });
+    });
+    const customEl = modal.querySelector('#loanMergeCustomInstallment');
+    if (customEl) {
+      customEl.addEventListener('input', function () {
+        this.closest('label').querySelector('input[type=radio]').checked = true;
+        updatePreview();
+      });
+    }
+    updatePreview();
+
+    modal.querySelector('#loanMergeConfirmBtn').onclick = async function () {
+      const inst = getInst();
+      if (inst <= 0) { toast('Enter a valid monthly installment.', 'error'); return; }
+      this.disabled = true;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Merging...';
+      await executeLoanMerge(existingLoan, newLoan, inst);
+      modal.remove();
+    };
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     EXECUTE MERGE
+     ───────────────────────────────────────────────────────────── */
+  async function executeLoanMerge(existingLoan, newLoan, finalInstallment) {
+    const cu = auth.currentUser;
+    try {
+      showLoading('Merging loan...');
+
+      const history = existingLoan.history || [];
+
+      // If existing loan has no history (older data), seed it so we don't lose the trail
+      if (history.length === 0) {
+        history.push({
+          id: genId(),
+          date: existingLoan.createdAt || today(),
+          type: (existingLoan.type || 'Loan').split(' + ')[0],
+          amountAdded: existingLoan.amount,
+          installmentAdded: existingLoan.installment,
+          reason: existingLoan.reason || 'Initial loan (migrated)',
+          addedBy: existingLoan.createdByEmail || 'system',
+          addedByName: existingLoan.createdBy || 'System',
+          migrated: true
+        });
+      }
+
+      history.push({
+        id: genId(),
+        date: today(),
+        type: newLoan.loanType,
+        amountAdded: newLoan.total,
+        installmentAdded: newLoan.installment,
+        reason: newLoan.reason || '',
+        addedBy: cu.email,
+        addedByName: cu.displayName || cu.email
+      });
+
+      const newTotal     = (existingLoan.amount || 0) + newLoan.total;
+      const newPaid      = existingLoan.paid || 0;
+      const newRemaining = Math.max(0, newTotal - newPaid);
+      const updatedType  = existingLoan.type && !existingLoan.type.includes(newLoan.loanType)
+        ? existingLoan.type + ' + ' + newLoan.loanType
+        : existingLoan.type;
+
+      await updateInFirebase(collections.loans, existingLoan.id, {
+        amount:      newTotal,
+        installment: finalInstallment,
+        remaining:   newRemaining,
+        status:      newRemaining <= 0.01 ? 'Completed' : 'Active',
+        type:        updatedType,
+        history:     history,
+        reason:      (existingLoan.reason || '') + ' | Merged: ' +
+                     (newLoan.reason || newLoan.loanType + ' added ' + today()),
+        modifiedAt:  today(),
+        modifiedBy:  cu.displayName || cu.email
+      });
+
+      await logTimeline('Merged loan', 'loan',
+        `${newLoan.w?.name || 'Worker'}: +${fmt(newLoan.total)} merged into existing loan ` +
+        `(Total: ${fmt(newTotal)}, Installment: ${fmt(finalInstallment)}/mo)`,
+        newLoan.wId);
+
+      await loadData();
+      toast(`Loan merged! Total: ${fmt(newTotal)} &nbsp;|&nbsp; Monthly: ${fmt(finalInstallment)}`);
+      closeModal('addLoanModal');
+
+      if (typeof currentWorkerDetailId !== 'undefined' && currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
+      if (document.getElementById('myloans')?.classList.contains('active'))  renderMyLoansAdvances();
+      if (document.getElementById('loans')?.classList.contains('active'))    renderLoans();
+    } catch (err) {
+      toast('Merge failed: ' + err.message, 'error');
+    } finally {
+      hideLoading();
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     LIVE WARNING inside "Issue New Loan" modal
+     ───────────────────────────────────────────────────────────── */
+  window.openAddLoanModal = function () {
+    if (typeof originalOpenAddLoanModal === 'function') originalOpenAddLoanModal.call(this);
+
+    setTimeout(() => {
+      const sel = document.getElementById('lWorker');
+      if (!sel) return;
+
+      const old = document.getElementById('loanExistingWarning');
+      if (old) old.remove();
+
+      const warn = document.createElement('div');
+      warn.id = 'loanExistingWarning';
+      warn.style.cssText =
+        'display:none;margin-top:10px;padding:12px 14px;background:linear-gradient(135deg,#fef3c7,#fde68a);' +
+        'border-radius:8px;border-left:4px solid var(--warning);font-size:12.5px;color:#78350f;line-height:1.55;';
+      sel.parentElement.appendChild(warn);
+
+      const refresh = () => {
+        const active = data.loans.filter(l => l.workerId === sel.value && l.status === 'Active');
+        if (active.length === 0) { warn.style.display = 'none'; return; }
+        const l = active[0];
+        warn.style.display = 'block';
+        warn.innerHTML =
+          `<strong><i class="fas fa-exclamation-triangle"></i> Active Loan Detected:</strong> ` +
+          `${l.type} &mdash; ${fmt(l.remaining || 0)} remaining (${fmt(l.installment)}/mo).<br>` +
+          `<span style="font-size:11.5px;">This new loan will be <b>merged into it</b>. ` +
+          `You'll be asked how to handle the monthly deduction.</span>`;
+      };
+
+      sel.addEventListener('change', refresh);
+      refresh();
+    }, 120);
+  };
+
+})();
+</script>
 </body>
 </html>
