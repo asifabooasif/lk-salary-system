@@ -5555,5 +5555,432 @@ try {
 
 })();
 </script>
+<!-- ═══════════════════════════════════════════════════════════════════
+     🔧 PER-PORTION START-MONTH FIX  v2.0
+     Stores startMonth on every history entry and computes the
+     monthly deduction dynamically. Fixes the "previous month slip
+     deducts future portion" bug for both Loans and Advances.
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+'use strict';
+if (window.__startMonthFixV2Loaded) return;
+window.__startMonthFixV2Loaded = true;
+
+/* ─────────────────────────────────────────────────────────────
+   Helper: sum only the installment portions that START
+   on or before the given slip month.
+   ───────────────────────────────────────────────────────────── */
+function getApplicableInstallment(entity, slipMonth) {
+    const history = entity.history || [];
+    if (history.length === 0) {
+        const start = entity.startMonth || slipMonth;
+        return start <= slipMonth ? (entity.installment || 0) : 0;
+    }
+    let total = 0;
+    for (const h of history) {
+        const sm = h.startMonth || entity.startMonth;
+        if (!sm) { total += (h.installmentAdded || 0); continue; }
+        if (sm <= slipMonth) total += (h.installmentAdded || 0);
+    }
+    return total;
+}
+window.__getApplicableInstallment = getApplicableInstallment;
+
+/* ─────────────────────────────────────────────────────────────
+   OVERRIDE loadSlipDefaults — recompute row values & banners
+   based on per-month applicable installment.
+   ───────────────────────────────────────────────────────────── */
+const _origLoadSlipDefaults = window.loadSlipDefaults;
+
+window.loadSlipDefaults = function () {
+    _origLoadSlipDefaults.call(this);
+
+    const workerId = document.getElementById('slipWorker')?.value;
+    const month    = document.getElementById('slipMonth')?.value;
+    if (!workerId || !month) return;
+
+    // Adjust loan deduction rows
+    document.querySelectorAll('#deductionsContainer .slip-row[data-kind="loan"]').forEach(row => {
+        const loan = data.loans.find(l => l.id === row.dataset.loanId);
+        if (!loan) return;
+        const applicable = getApplicableInstallment(loan, month);
+        if (applicable <= 0) {
+            row.style.display = 'none';
+            const t = row.querySelector('.row-toggle'); if (t) t.checked = false;
+            return;
+        }
+        row.style.display = '';
+        const inp = row.querySelector('.row-amount');    if (inp) inp.value = applicable;
+        const def = row.querySelector('.default-amount'); if (def) def.textContent = `Default: ${fmt(applicable)}`;
+        const tog = row.querySelector('.row-toggle');    if (tog) tog.checked = true;
+    });
+
+    // Adjust advance deduction rows
+    document.querySelectorAll('#deductionsContainer .slip-row[data-kind="advance"]').forEach(row => {
+        const adv = data.advances.find(a => a.id === row.dataset.advanceId);
+        if (!adv) return;
+        const applicable = getApplicableInstallment(adv, month);
+        if (applicable <= 0) {
+            row.style.display = 'none';
+            const t = row.querySelector('.row-toggle'); if (t) t.checked = false;
+            return;
+        }
+        row.style.display = '';
+        const inp = row.querySelector('.row-amount');    if (inp) inp.value = applicable;
+        const def = row.querySelector('.default-amount'); if (def) def.textContent = `Default: ${fmt(applicable)}`;
+        const tog = row.querySelector('.row-toggle');    if (tog) tog.checked = true;
+    });
+
+    // Rebuild banners using per-month applicable amounts
+    const loanBanner = document.getElementById('loanBanner');
+    if (loanBanner) {
+        const list = data.loans.filter(l => {
+            if (l.workerId !== workerId || l.status !== 'Active') return false;
+            if (typeof editingSlipId !== 'undefined' && !editingSlipId && (l.paidMonths || []).includes(month)) return false;
+            return getApplicableInstallment(l, month) > 0;
+        });
+        loanBanner.innerHTML = list.length
+            ? `<div class="loan-info-banner"><h4><i class="fas fa-hand-holding-usd"></i> ${list.length} Loan(s) Auto-Deducting</h4>${list.map(l => {
+                const ap = getApplicableInstallment(l, month);
+                const future = (l.history || []).some(h => (h.startMonth || l.startMonth) > month);
+                return `<p>• <strong>${l.type}</strong>: ${fmt(ap)}/mo • Remaining: ${fmt(l.remaining||0)}${future ? ` <em style="font-size:11px;color:#92400e;">(future portion excluded)</em>` : ''}</p>`;
+            }).join('')}</div>` : '';
+    }
+
+    const advanceBanner = document.getElementById('advanceBanner');
+    if (advanceBanner) {
+        const list = data.advances.filter(a => {
+            if (a.workerId !== workerId || a.status !== 'Active') return false;
+            if (typeof editingSlipId !== 'undefined' && !editingSlipId && (a.paidMonths || []).includes(month)) return false;
+            return getApplicableInstallment(a, month) > 0;
+        });
+        advanceBanner.innerHTML = list.length
+            ? `<div class="advance-info-banner"><h4><i class="fas fa-money-check-alt"></i> ${list.length} Advance(s) Auto-Deducting</h4>${list.map(a => {
+                const ap = getApplicableInstallment(a, month);
+                const future = (a.history || []).some(h => (h.startMonth || a.startMonth) > month);
+                return `<p>• <strong>${a.type}</strong>: ${fmt(ap)}/mo • Remaining: ${fmt(a.remaining||0)}${future ? ` <em style="font-size:11px;color:#9d174d;">(future portion excluded)</em>` : ''}</p>`;
+            }).join('')}</div>` : '';
+    }
+
+    // Refresh totals with corrected row values
+    if (typeof updateSlipSummary === 'function') updateSlipSummary();
+};
+
+/* ─────────────────────────────────────────────────────────────
+   OVERRIDE addAdvance — store startMonth on every history entry
+   ───────────────────────────────────────────────────────────── */
+window.addAdvance = async function (e) {
+    e.preventDefault();
+    if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
+
+    const addAmount       = parseFloat(document.getElementById('aAmount').value) || 0;
+    const addInstallment  = parseFloat(document.getElementById('aInstallment').value) || 0;
+    const startMonthVal   = document.getElementById('aStartMonth').value;
+    const wId             = document.getElementById('aWorker').value;
+    const advType         = document.getElementById('aType').value;
+    const reason          = document.getElementById('aReason').value || '';
+    const issueDate       = document.getElementById('aIssueDate').value;
+    const cu              = auth.currentUser;
+    const w               = data.workers.find(x => x.id === wId);
+
+    if (addAmount <= 0)      { toast('Enter a valid amount.', 'error'); return; }
+    if (addInstallment <= 0) { toast('Enter a valid installment.', 'error'); return; }
+    if (!startMonthVal)      { toast('Select first deduction month.', 'error'); return; }
+
+    const newHistoryEntry = {
+        id: genId(), date: today(), type: advType,
+        amountAdded: addAmount, installmentAdded: addInstallment,
+        startMonth: startMonthVal,               // ← the fix
+        reason, addedBy: cu.email, addedByName: cu.displayName || cu.email
+    };
+
+    try {
+        showLoading('Processing advance...');
+        const existing = data.advances.find(a => a.workerId === wId && a.status === 'Active');
+        if (existing) {
+            const history = existing.history || [];
+            if (history.length === 0) {
+                history.push({
+                    id: genId(), date: existing.createdAt || today(),
+                    type: (existing.type || 'Advance').split(' + ')[0],
+                    amountAdded: Math.max(0, (existing.amount || 0) - addAmount),
+                    installmentAdded: Math.max(0, (existing.installment || 0) - addInstallment),
+                    startMonth: existing.startMonth,     // ← the fix
+                    reason: existing.reason || 'Initial advance (migrated)',
+                    addedBy: existing.createdByEmail || 'system',
+                    addedByName: existing.createdBy || 'System',
+                    migrated: true
+                });
+            }
+            history.push(newHistoryEntry);
+
+            await updateInFirebase(collections.advances, existing.id, {
+                amount:      (existing.amount || 0) + addAmount,
+                installment: (existing.installment || 0) + addInstallment,
+                remaining:   (existing.remaining || 0) + addAmount,
+                type:        existing.type + ' + ' + advType,
+                history,
+                reason:      (existing.reason || '') + ' | ' + (reason || advType + ' added ' + today()),
+                modifiedAt:  today(),
+                modifiedBy:  cu.displayName || cu.email
+            });
+            await logTimeline('Added to advance', 'advance',
+                `${w?.name || 'Worker'}: +${fmt(addAmount)} (from ${startMonthVal})`, wId);
+            toast(`Advance merged! New total: ${fmt((existing.amount||0) + addAmount)}`);
+        } else {
+            await saveToFirebase(collections.advances, null, {
+                workerId: wId, type: advType,
+                amount: addAmount, installment: addInstallment,
+                paid: 0, remaining: addAmount, issueDate,
+                startMonth: startMonthVal, reason,
+                status: 'Active', paidMonths: [], history: [newHistoryEntry],
+                createdAt: today(), createdBy: cu.displayName || cu.email, createdByEmail: cu.email
+            });
+            await logTimeline('Issued advance', 'advance', `${w?.name || 'Worker'}: ${fmt(addAmount)} (${advType})`, wId);
+            toast('Advance issued!');
+        }
+        await loadData(); closeModal('addAdvanceModal');
+    } catch (err) {
+        toast('Error: ' + err.message, 'error');
+    } finally {
+        hideLoading();
+    }
+};
+
+/* ─────────────────────────────────────────────────────────────
+   OVERRIDE addLoan — store startMonth on every history entry
+   (keeps the merge UX from the previous patch)
+   ───────────────────────────────────────────────────────────── */
+window.addLoan = async function (e) {
+    e.preventDefault();
+    if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
+
+    const wId           = document.getElementById('lWorker').value;
+    const total         = parseFloat(document.getElementById('lAmount').value) || 0;
+    const installment   = parseFloat(document.getElementById('lInstallment').value) || 0;
+    const loanType      = document.getElementById('lType').value;
+    const reason        = document.getElementById('lReason').value || '';
+    const startMonthVal = document.getElementById('lStartMonth').value;
+    const issueDate     = document.getElementById('lIssueDate').value;
+    const cu            = auth.currentUser;
+    const w             = data.workers.find(x => x.id === wId);
+
+    if (!wId)                { toast('Select a worker first.', 'error'); return; }
+    if (total <= 0)          { toast('Enter a valid loan amount.', 'error'); return; }
+    if (installment <= 0)    { toast('Enter a valid installment.', 'error'); return; }
+    if (!startMonthVal)      { toast('Select first deduction month.', 'error'); return; }
+
+    const newHistoryEntry = {
+        id: genId(), date: today(), type: loanType,
+        amountAdded: total, installmentAdded: installment,
+        startMonth: startMonthVal,                 // ← the fix
+        reason, addedBy: cu.email, addedByName: cu.displayName || cu.email
+    };
+
+    const activeLoans = data.loans.filter(l => l.workerId === wId && l.status === 'Active');
+
+    /* No active loan → create fresh */
+    if (activeLoans.length === 0) {
+        try {
+            showLoading('Issuing loan...');
+            await saveToFirebase(collections.loans, null, {
+                workerId: wId, type: loanType,
+                amount: total, installment,
+                paid: 0, remaining: total, issueDate,
+                startMonth: startMonthVal, reason,
+                status: 'Active', paidMonths: [], history: [newHistoryEntry],
+                createdAt: today(), createdBy: cu.displayName || cu.email, createdByEmail: cu.email
+            });
+            await logTimeline('Issued loan', 'loan', `${w?.name || 'Worker'}: ${fmt(total)} (${loanType})`, wId);
+            await loadData(); toast('Loan issued!'); closeModal('addLoanModal');
+        } catch (err) { toast('Error: ' + err.message, 'error'); }
+        finally { hideLoading(); }
+        return;
+    }
+
+    /* Active loan exists → merge modal */
+    showLoanMergeModalV4(activeLoans[0], {
+        total, installment, loanType, reason,
+        startMonth: startMonthVal, wId, w,
+        activeCount: activeLoans.length, historyEntry: newHistoryEntry
+    });
+};
+
+/* ─────────────────────────────────────────────────────────────
+   MERGE MODAL
+   ───────────────────────────────────────────────────────────── */
+function showLoanMergeModalV4(existing, nl) {
+    const prev = document.getElementById('loanMergeModal');
+    if (prev) prev.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'loanMergeModal';
+    modal.className = 'modal show';
+
+    const warn = nl.activeCount > 1
+        ? `<div style="background:#fee2e2;padding:10px 14px;border-radius:8px;border-left:4px solid var(--danger);margin-bottom:15px;font-size:12.5px;color:#991b1b;">
+             <strong><i class="fas fa-exclamation-triangle"></i></strong>
+             This worker has <strong>${nl.activeCount} active loans</strong>. The new amount merges into the first one.
+           </div>` : '';
+
+    const baseInst = existing.installment || 0;
+    const addInst  = baseInst + nl.installment;
+    const newTotal = (existing.amount || 0) + nl.total;
+
+    modal.innerHTML = `
+<div class="modal-content" style="max-width:700px;">
+  <div class="modal-header">
+    <h2><i class="fas fa-code-branch" style="color:var(--warning);"></i> Merge with Existing Loan</h2>
+    <button class="close-btn" onclick="document.getElementById('loanMergeModal').remove()">&times;</button>
+  </div>
+  <div class="modal-body">
+    ${warn}
+    <div class="loan-info-banner">
+      <h4><i class="fas fa-exclamation-triangle"></i> Worker Already Has an Active Loan</h4>
+      <p><strong>${nl.w?.name || 'Worker'}</strong> currently has: <strong>${existing.type}</strong></p>
+      <p>Total ${fmt(existing.amount)} &bull; Paid ${fmt(existing.paid||0)} &bull; Remaining <strong>${fmt(existing.remaining||0)}</strong></p>
+      <p>Current installment: <strong>${fmt(baseInst)}/mo</strong> &bull; Start: ${existing.startMonth||'-'}</p>
+    </div>
+    <div style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);padding:15px;border-radius:10px;border-left:4px solid var(--primary);margin-bottom:20px;">
+      <h4 style="color:#1e40af;margin-bottom:8px;"><i class="fas fa-plus-circle"></i> New Loan to Add</h4>
+      <p>${nl.loanType} &bull; <strong>${fmt(nl.total)}</strong> &bull; <strong>${fmt(nl.installment)}/mo</strong></p>
+      <p style="font-size:12px;color:#1e3a8a;">First deduction: <strong>${nl.startMonth}</strong> <em>(future slips before this month are NOT affected by the new portion)</em></p>
+    </div>
+    <div style="background:#f8fafc;padding:15px;border-radius:10px;border:1px solid var(--border);margin-bottom:15px;">
+      <h4 style="margin-bottom:12px;color:var(--dark);"><i class="fas fa-cog" style="color:var(--purple);"></i> Monthly Deduction Handling</h4>
+      <div style="display:grid;gap:10px;">
+        <label style="display:flex;gap:10px;padding:12px;border:2px solid var(--primary);border-radius:8px;cursor:pointer;background:#eff6ff;">
+          <input type="radio" name="loanMergeOption" value="add" checked style="margin-top:3px;accent-color:var(--primary);">
+          <div style="flex:1;"><strong>➕ Add installments together</strong>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">New monthly: <strong>${fmt(addInst)}</strong> (${fmt(baseInst)} + ${fmt(nl.installment)})</div>
+          </div>
+        </label>
+        <label style="display:flex;gap:10px;padding:12px;border:2px solid var(--border);border-radius:8px;cursor:pointer;">
+          <input type="radio" name="loanMergeOption" value="keep" style="margin-top:3px;accent-color:var(--primary);">
+          <div style="flex:1;"><strong>⏸️ Keep current installment</strong>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Stay at <strong>${fmt(baseInst)}/mo</strong></div>
+          </div>
+        </label>
+        <label style="display:flex;gap:10px;padding:12px;border:2px solid var(--border);border-radius:8px;cursor:pointer;">
+          <input type="radio" name="loanMergeOption" value="replace" style="margin-top:3px;accent-color:var(--primary);">
+          <div style="flex:1;"><strong>🔄 Replace with new installment</strong>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px;">Change to <strong>${fmt(nl.installment)}/mo</strong></div>
+          </div>
+        </label>
+        <label style="display:flex;gap:10px;padding:12px;border:2px solid var(--border);border-radius:8px;cursor:pointer;">
+          <input type="radio" name="loanMergeOption" value="custom" style="margin-top:3px;accent-color:var(--primary);">
+          <div style="flex:1;"><strong>✏️ Enter custom installment</strong>
+            <input type="number" id="loanMergeCustomInstallment" step="0.01" min="0.01" placeholder="Enter monthly amount"
+                   style="margin-top:6px;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;width:100%;"
+                   onclick="event.stopPropagation();this.closest('label').querySelector('input[type=radio]').checked=true;">
+          </div>
+        </label>
+      </div>
+    </div>
+    <div id="loanMergePreview" style="background:#f0fdf4;padding:12px 14px;border-radius:8px;border-left:4px solid var(--success);font-size:13px;color:#14532d;"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="document.getElementById('loanMergeModal').remove()">Cancel</button>
+    <button class="btn btn-warning" id="loanMergeConfirmBtn"><i class="fas fa-code-branch"></i> Confirm & Merge</button>
+  </div>
+</div>`;
+
+    document.body.appendChild(modal);
+
+    const paid   = existing.paid || 0;
+    const remain = newTotal - paid;
+
+    const getInst = () => {
+        const sel = modal.querySelector('input[name="loanMergeOption"]:checked');
+        if (!sel) return baseInst;
+        if (sel.value === 'add')     return addInst;
+        if (sel.value === 'keep')    return baseInst;
+        if (sel.value === 'replace') return nl.installment;
+        return parseFloat(modal.querySelector('#loanMergeCustomInstallment')?.value) || 0;
+    };
+
+    const update = () => {
+        const inst = getInst();
+        const months = inst > 0 ? Math.ceil(remain / inst) : 0;
+        modal.querySelector('#loanMergePreview').innerHTML =
+            `<strong><i class="fas fa-check-circle" style="color:var(--success);"></i> Combined:</strong>
+             Total <strong>${fmt(newTotal)}</strong> &bull; Paid ${fmt(paid)} &bull; Remaining <strong>${fmt(remain)}</strong> &bull;
+             Monthly <strong>${fmt(inst)}</strong>${months ? ` &bull; ~${months} mo` : ''}`;
+    };
+
+    modal.querySelectorAll('input[name="loanMergeOption"]').forEach(r => {
+        r.addEventListener('change', () => {
+            modal.querySelectorAll('label').forEach(lb => {
+                const i = lb.querySelector('input[type=radio]');
+                lb.style.borderColor = i && i.checked ? 'var(--primary)' : 'var(--border)';
+                lb.style.background  = i && i.checked ? '#eff6ff' : '';
+            });
+            update();
+        });
+    });
+    const custom = modal.querySelector('#loanMergeCustomInstallment');
+    if (custom) custom.addEventListener('input', function () {
+        this.closest('label').querySelector('input[type=radio]').checked = true;
+        update();
+    });
+    update();
+
+    modal.querySelector('#loanMergeConfirmBtn').onclick = async function () {
+        const inst = getInst();
+        if (inst <= 0) { toast('Enter a valid monthly installment.', 'error'); return; }
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Merging...';
+
+        try {
+            showLoading('Merging loan...');
+            const history = existing.history || [];
+            if (history.length === 0) {
+                history.push({
+                    id: genId(), date: existing.createdAt || today(),
+                    type: (existing.type || 'Loan').split(' + ')[0],
+                    amountAdded: existing.amount,
+                    installmentAdded: existing.installment,
+                    startMonth: existing.startMonth,   // ← the fix
+                    reason: existing.reason || 'Initial loan (migrated)',
+                    addedBy: existing.createdByEmail || 'system',
+                    addedByName: existing.createdBy || 'System',
+                    migrated: true
+                });
+            }
+            history.push(nl.historyEntry);
+
+            const newRem = Math.max(0, newTotal - paid);
+            await updateInFirebase(collections.loans, existing.id, {
+                amount: newTotal, installment: inst, remaining: newRem,
+                status: newRem <= 0.01 ? 'Completed' : 'Active',
+                type: existing.type && !existing.type.includes(nl.loanType)
+                    ? existing.type + ' + ' + nl.loanType : existing.type,
+                history,
+                reason: (existing.reason || '') + ' | Merged: ' + (nl.reason || nl.loanType + ' added ' + today()),
+                modifiedAt: today(), modifiedBy: auth.currentUser.displayName || auth.currentUser.email
+            });
+
+            await logTimeline('Merged loan', 'loan',
+                `${nl.w?.name || 'Worker'}: +${fmt(nl.total)} (from ${nl.startMonth}), merged into existing`,
+                nl.wId);
+
+            await loadData();
+            toast(`Loan merged! Total ${fmt(newTotal)} • ${fmt(inst)}/mo`);
+            closeModal('addLoanModal');
+            if (typeof currentWorkerDetailId !== 'undefined' && currentWorkerDetailId) openWorkerDetail(currentWorkerDetailId);
+            if (document.getElementById('myloans')?.classList.contains('active')) renderMyLoansAdvances();
+            if (document.getElementById('loans')?.classList.contains('active'))   renderLoans();
+        } catch (err) {
+            toast('Merge failed: ' + err.message, 'error');
+        } finally {
+            hideLoading();
+        }
+        modal.remove();
+    };
+}
+
+})();
+</script>
 </body>
 </html>
