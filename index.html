@@ -5982,5 +5982,173 @@ function showLoanMergeModalV4(existing, nl) {
 
 })();
 </script>
+<!-- ═══════════════════════════════════════════════════════════════════
+     🔧 ISSUE DATE HISTORY FIX v1.0
+     Fixes the bug where history entries were logged with today's date
+     instead of the actual user-selected Issue Date.
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+'use strict';
+if (window.__issueDateFixLoaded) return;
+window.__issueDateFixLoaded = true;
+
+/* ─────────────────────────────────────────────────────────────
+   OVERRIDE addAdvance — capture issueDate for history
+   ───────────────────────────────────────────────────────────── */
+window.addAdvance = async function (e) {
+    e.preventDefault();
+    if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
+
+    const addAmount       = parseFloat(document.getElementById('aAmount').value) || 0;
+    const addInstallment  = parseFloat(document.getElementById('aInstallment').value) || 0;
+    const startMonthVal   = document.getElementById('aStartMonth').value;
+    const wId             = document.getElementById('aWorker').value;
+    const advType         = document.getElementById('aType').value;
+    const reason          = document.getElementById('aReason').value || '';
+    const issueDate       = document.getElementById('aIssueDate').value; // ✅ GET ISSUE DATE
+    const cu              = auth.currentUser;
+    const w               = data.workers.find(x => x.id === wId);
+
+    if (addAmount <= 0)      { toast('Enter a valid amount.', 'error'); return; }
+    if (addInstallment <= 0) { toast('Enter a valid installment.', 'error'); return; }
+    if (!startMonthVal)      { toast('Select first deduction month.', 'error'); return; }
+
+    const newHistoryEntry = {
+        id: genId(), 
+        date: issueDate || today(), // ✅ USE ISSUE DATE
+        type: advType,
+        amountAdded: addAmount, 
+        installmentAdded: addInstallment,
+        startMonth: startMonthVal,
+        reason, 
+        addedBy: cu.email, 
+        addedByName: cu.displayName || cu.email
+    };
+
+    try {
+        showLoading('Processing advance...');
+        const existing = data.advances.find(a => a.workerId === wId && a.status === 'Active');
+        if (existing) {
+            const history = existing.history || [];
+            if (history.length === 0) {
+                history.push({
+                    id: genId(), 
+                    date: existing.issueDate || existing.createdAt || today(), // ✅ USE ORIGINAL ISSUE DATE
+                    type: (existing.type || 'Advance').split(' + ')[0],
+                    amountAdded: Math.max(0, (existing.amount || 0) - addAmount),
+                    installmentAdded: Math.max(0, (existing.installment || 0) - addInstallment),
+                    startMonth: existing.startMonth,
+                    reason: existing.reason || 'Initial advance (migrated)',
+                    addedBy: existing.createdByEmail || 'system',
+                    addedByName: existing.createdBy || 'System',
+                    migrated: true
+                });
+            }
+            history.push(newHistoryEntry);
+
+            await updateInFirebase(collections.advances, existing.id, {
+                amount:      (existing.amount || 0) + addAmount,
+                installment: (existing.installment || 0) + addInstallment,
+                remaining:   (existing.remaining || 0) + addAmount,
+                type:        existing.type + ' + ' + advType,
+                history,
+                reason:      (existing.reason || '') + ' | ' + (reason || advType + ' added ' + today()),
+                modifiedAt:  today(),
+                modifiedBy:  cu.displayName || cu.email
+            });
+            await logTimeline('Added to advance', 'advance',
+                `${w?.name || 'Worker'}: +${fmt(addAmount)} (from ${startMonthVal})`, wId);
+            toast(`Advance merged! New total: ${fmt((existing.amount||0) + addAmount)}`);
+        } else {
+            await saveToFirebase(collections.advances, null, {
+                workerId: wId, type: advType,
+                amount: addAmount, installment: addInstallment,
+                paid: 0, remaining: addAmount, issueDate, // ✅ SAVE ORIGINAL ISSUE DATE
+                startMonth: startMonthVal, reason,
+                status: 'Active', paidMonths: [], history: [newHistoryEntry],
+                createdAt: today(), createdBy: cu.displayName || cu.email, createdByEmail: cu.email
+            });
+            await logTimeline('Issued advance', 'advance', `${w?.name || 'Worker'}: ${fmt(addAmount)} (${advType})`, wId);
+            toast('Advance issued!');
+        }
+        await loadData(); closeModal('addAdvanceModal');
+    } catch (err) {
+        toast('Error: ' + err.message, 'error');
+    } finally {
+        hideLoading();
+    }
+};
+
+/* ─────────────────────────────────────────────────────────────
+   OVERRIDE addLoan — capture issueDate for history
+   ───────────────────────────────────────────────────────────── */
+window.addLoan = async function (e) {
+    e.preventDefault();
+    if (!hasPermission(USER_ROLES.EDITOR)) { toast('Editor required.', 'error'); return; }
+
+    const wId           = document.getElementById('lWorker').value;
+    const total         = parseFloat(document.getElementById('lAmount').value) || 0;
+    const installment   = parseFloat(document.getElementById('lInstallment').value) || 0;
+    const loanType      = document.getElementById('lType').value;
+    const reason        = document.getElementById('lReason').value || '';
+    const startMonthVal = document.getElementById('lStartMonth').value;
+    const issueDate     = document.getElementById('lIssueDate').value; // ✅ GET ISSUE DATE
+    const cu            = auth.currentUser;
+    const w             = data.workers.find(x => x.id === wId);
+
+    if (!wId)                { toast('Select a worker first.', 'error'); return; }
+    if (total <= 0)          { toast('Enter a valid loan amount.', 'error'); return; }
+    if (installment <= 0)    { toast('Enter a valid installment.', 'error'); return; }
+    if (!startMonthVal)      { toast('Select first deduction month.', 'error'); return; }
+
+    const newHistoryEntry = {
+        id: genId(), 
+        date: issueDate || today(), // ✅ USE ISSUE DATE
+        type: loanType,
+        amountAdded: total, 
+        installmentAdded: installment,
+        startMonth: startMonthVal,
+        reason, 
+        addedBy: cu.email, 
+        addedByName: cu.displayName || cu.email
+    };
+
+    const activeLoans = data.loans.filter(l => l.workerId === wId && l.status === 'Active');
+
+    /* No active loan → create fresh */
+    if (activeLoans.length === 0) {
+        try {
+            showLoading('Issuing loan...');
+            await saveToFirebase(collections.loans, null, {
+                workerId: wId, type: loanType,
+                amount: total, installment,
+                paid: 0, remaining: total, issueDate, // ✅ SAVE ORIGINAL ISSUE DATE
+                startMonth: startMonthVal, reason,
+                status: 'Active', paidMonths: [], history: [newHistoryEntry],
+                createdAt: today(), createdBy: cu.displayName || cu.email, createdByEmail: cu.email
+            });
+            await logTimeline('Issued loan', 'loan', `${w?.name || 'Worker'}: ${fmt(total)} (${loanType})`, wId);
+            await loadData(); toast('Loan issued!'); closeModal('addLoanModal');
+        } catch (err) { toast('Error: ' + err.message, 'error'); }
+        finally { hideLoading(); }
+        return;
+    }
+
+    /* Active loan exists → merge modal (assuming showLoanMergeModalV4 exists from previous patch) */
+    if (typeof window.showLoanMergeModalV4 === 'function') {
+        window.showLoanMergeModalV4(activeLoans[0], {
+            total, installment, loanType, reason,
+            startMonth: startMonthVal, wId, w,
+            activeCount: activeLoans.length, historyEntry: newHistoryEntry
+        });
+    } else {
+        // Fallback just in case the previous patch wasn't applied
+        toast('Merge modal missing. Please apply previous patch.', 'error');
+    }
+};
+
+})();
+</script>
 </body>
 </html>
